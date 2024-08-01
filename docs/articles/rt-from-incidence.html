@@ -126,16 +126,17 @@ parameters <span class="math inline">\(\mu_Z\)</span> and <span class="math inli
 \begin{align}
     S_+ &amp;= \operatorname{E}\left[\sum_i X_i \right] = \sum_i
     \operatorname{E}[X_i] =
-    \sum_i e^{\mu_i + \sigma_i^2/2}
+    \sum_i e^{\mu_i + \frac{1}{2}\sigma_i^2}
     \\
-    \sigma^2_{Z} &amp;= 1/S_+^2 \, \sum_{i,j}
+    \sigma^2_{Z} &amp;= \frac{1}{S_+^2} \, \sum_{i,j}
       \operatorname{cor}_{ij} \sigma_i \sigma_j \operatorname{E}[X_i]
 \operatorname{E}[X_j] =
-      1/S_+^2 \, \sum_{i,j}
-      \operatorname{cor}_{ij} \sigma_i \sigma_j e^{\mu_i+\sigma_i^2/2}
-      e^{\mu_j+\sigma_j^2/2}
+      \frac{1}{S_+^2} \, \sum_{i,j}
+      \operatorname{cor}_{ij} \sigma_i \sigma_j
+e^{\mu_i+\frac{1}{2}\sigma_i^2}
+      e^{\mu_j+\frac{1}{2}\sigma_j^2}
     \\
-    \mu_Z &amp;= \ln\left( S_+ \right) - \sigma_{Z}^2/2
+    \mu_Z &amp;= \ln\left( S_+ \right) - \frac{1}{2}\sigma_{Z}^2
 \end{align}
 \]</span></p>
 <p>The sum term in the denominator of the renewal equations consists of
@@ -145,17 +146,18 @@ infectivity profile (<span class="math inline">\(\omega_{|i-j|}\)</span>) when <
 <p><span class="math display">\[
 \begin{align}
     S_{t} &amp;= \sum_{s=1}^{|\omega|} { \omega_s e^{\mu_{t-s} +
-\sigma_{t-s}^2/2 }} \\
+\frac{1}{2}\sigma_{t-s}^2 }} \\
     \sigma_{Z,t} &amp;= \sqrt{
       \frac{
         \sum_{i,j=1}^{|\omega|} {
         (\omega_{|i-j|}+I(i,j)) \omega_i \omega_j (\sigma_{(t-i)}
-e^{\mu_{(t-i)}+\sigma_{(t-i)}^2/2}) (\sigma_{(t-j)}
-e^{\mu_{(t-j)}+\sigma_{(t-j)}^2/2)}
+e^{\mu_{(t-i)}+\frac{1}{2}\sigma_{(t-i)}^2}) (\sigma_{(t-j)}
+e^{\mu_{(t-j)}+\frac{1}{2}\sigma_{(t-j)}^2})
         }
       }{S_{t}^2}
     }   \\
-    \mu_{Z,t} &amp;= \log\left( S_{t} \right) - \sigma_{Z,t}^2/2
+    \mu_{Z,t} &amp;= \log\left( S_{t} \right) -
+\frac{1}{2}\sigma_{Z,t}^2
 \end{align}
 \]</span></p>
 <p><span class="math inline">\(\mu\)</span> is the central estimate of
@@ -167,10 +169,10 @@ can be made computationally tractable.</p>
 <p><span class="math display">\[
 \begin{align}
     \log(S_{t}) &amp;= \log(\sum_{s=1}^{|\omega|} {  e^{\mu_{t-s} +
-\sigma_{t-s}^2/2 + \log(\omega_s) }}) \\
+\frac{1}{2}\sigma_{t-s}^2 + \log(\omega_s) }}) \\
     \log(T_{t,\tau}) &amp;= \log(\omega_{\tau}) +
-\log(\sigma_{(t-{\tau})}) + \mu_{(t-{\tau})} + \sigma_{(t-{\tau})}^2/2)
-\\
+\log(\sigma_{(t-{\tau})}) + \mu_{(t-{\tau})} +
+\frac{1}{2}\sigma_{(t-{\tau})}^2) \\
     \log(cor_{i,j}) &amp;= \log(\omega_{|i-j|}+I(i=j)) \\
     \log(\sigma_{Z,t}^2) &amp;= \log(
         \sum_{i,j=1}^{|\omega|} {
@@ -178,7 +180,7 @@ can be made computationally tractable.</p>
             \log(cor_{i,j}) + \log(T_{t,i}) + \log(T_{t,j})
           }
         }) - 2 \log(S_{t}) \\
-    \mu_{Z,t} &amp;= \log( S_{t} ) - \sigma_{Z,t}^2/2
+    \mu_{Z,t} &amp;= \log( S_{t} ) - \frac{1}{2}\sigma_{Z,t}^2
 \end{align}
 \]</span></p>
 <p>N.B. if we assume the individual estimates of the incidence are
@@ -224,7 +226,7 @@ using the mean and variance of the <span class="math inline">\(R_t\)</span> dist
 transformed distribution parameters, <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\sigma\)</span>:</p>
 <p><span class="math display">\[
 \begin{align}
-E[R_t] &amp;= e^{(\mu_{R_t} - \sigma_{R_t}^2/2)} \\
+E[R_t] &amp;= e^{(\mu_{R_t} - \frac{1}{2}\sigma_{R_t}^2)} \\
 Var[R_t] &amp;= \big[
   e^{(\sigma_{R_t}^2)} - 1
 \big] \big[
@@ -295,7 +297,7 @@ typically occurring in:</p>
 <span><span class="co">#&gt;             mu_star, sigma_star), rt.0.975 = stats::qlnorm(0.975, </span></span>
 <span><span class="co">#&gt;             mu_star, sigma_star)))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x561a5e83f100&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x5e9641a4f580&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:growthrates&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
@@ -309,7 +311,7 @@ points took around 3 seconds to fit, which opens up the possibility of
 performing <span class="math inline">\(R_t\)</span> estimates in fine
 grained geographical or demographic subgroups.</p>
 <pre><code><span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   2.693   0.001   2.695</span></span></code></pre>
+<span><span class="co">#&gt;   2.566   0.010   2.577</span></span></code></pre>
 <p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 </div>
 <div class="section level2">

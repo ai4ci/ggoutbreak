@@ -84,15 +84,15 @@ $$
 \begin{align}
 	S_+ &= \operatorname{E}\left[\sum_i X_i \right] = \sum_i 
 	\operatorname{E}[X_i] = 
-	\sum_i e^{\mu_i + \sigma_i^2/2}
+	\sum_i e^{\mu_i + \frac{1}{2}\sigma_i^2}
 	\\
-	\sigma^2_{Z} &= 1/S_+^2 \, \sum_{i,j}
+	\sigma^2_{Z} &= \frac{1}{S_+^2} \, \sum_{i,j}
 	  \operatorname{cor}_{ij} \sigma_i \sigma_j \operatorname{E}[X_i] \operatorname{E}[X_j] =
-	  1/S_+^2 \, \sum_{i,j}
-	  \operatorname{cor}_{ij} \sigma_i \sigma_j e^{\mu_i+\sigma_i^2/2} 
-	  e^{\mu_j+\sigma_j^2/2} 
+	  \frac{1}{S_+^2} \, \sum_{i,j}
+	  \operatorname{cor}_{ij} \sigma_i \sigma_j e^{\mu_i+\frac{1}{2}\sigma_i^2} 
+	  e^{\mu_j+\frac{1}{2}\sigma_j^2} 
 	\\
-	\mu_Z &= \ln\left( S_+ \right) - \sigma_{Z}^2/2 
+	\mu_Z &= \ln\left( S_+ \right) - \frac{1}{2}\sigma_{Z}^2 
 \end{align}
 $$
 
@@ -105,15 +105,15 @@ $i = j$. $\mu_i$ is $\mu_{t-\tau} + ln(\omega_{\tau})$.
 
 $$
 \begin{align}
-	S_{t} &= \sum_{s=1}^{|\omega|} { \omega_s e^{\mu_{t-s} + \sigma_{t-s}^2/2 }} \\
+	S_{t} &= \sum_{s=1}^{|\omega|} { \omega_s e^{\mu_{t-s} + \frac{1}{2}\sigma_{t-s}^2 }} \\
 	\sigma_{Z,t} &= \sqrt{
 	  \frac{
 	    \sum_{i,j=1}^{|\omega|} {
-  	    (\omega_{|i-j|}+I(i,j)) \omega_i \omega_j (\sigma_{(t-i)} e^{\mu_{(t-i)}+\sigma_{(t-i)}^2/2}) (\sigma_{(t-j)} e^{\mu_{(t-j)}+\sigma_{(t-j)}^2/2)} 
+  	    (\omega_{|i-j|}+I(i,j)) \omega_i \omega_j (\sigma_{(t-i)} e^{\mu_{(t-i)}+\frac{1}{2}\sigma_{(t-i)}^2}) (\sigma_{(t-j)} e^{\mu_{(t-j)}+\frac{1}{2}\sigma_{(t-j)}^2}) 
 	    }
 	  }{S_{t}^2}
 	}	\\
-	\mu_{Z,t} &= \log\left( S_{t} \right) - \sigma_{Z,t}^2/2 
+	\mu_{Z,t} &= \log\left( S_{t} \right) - \frac{1}{2}\sigma_{Z,t}^2 
 \end{align}
 $$
 
@@ -124,8 +124,8 @@ using optimised log-sum-exp functions this can be made computationally tractable
 
 $$
 \begin{align}
-	\log(S_{t}) &= \log(\sum_{s=1}^{|\omega|} {  e^{\mu_{t-s} + \sigma_{t-s}^2/2 + \log(\omega_s) }}) \\
-	\log(T_{t,\tau}) &= \log(\omega_{\tau}) + \log(\sigma_{(t-{\tau})}) + \mu_{(t-{\tau})} + \sigma_{(t-{\tau})}^2/2) \\
+	\log(S_{t}) &= \log(\sum_{s=1}^{|\omega|} {  e^{\mu_{t-s} + \frac{1}{2}\sigma_{t-s}^2 + \log(\omega_s) }}) \\
+	\log(T_{t,\tau}) &= \log(\omega_{\tau}) + \log(\sigma_{(t-{\tau})}) + \mu_{(t-{\tau})} + \frac{1}{2}\sigma_{(t-{\tau})}^2) \\
 	\log(cor_{i,j}) &= \log(\omega_{|i-j|}+I(i=j)) \\
 	\log(\sigma_{Z,t}^2) &= \log(
 	    \sum_{i,j=1}^{|\omega|} {
@@ -133,7 +133,7 @@ $$
   	        \log(cor_{i,j}) + \log(T_{t,i}) + \log(T_{t,j})
   	      }
 	    }) - 2 \log(S_{t}) \\
-	\mu_{Z,t} &= \log( S_{t} ) - \sigma_{Z,t}^2/2 
+	\mu_{Z,t} &= \log( S_{t} ) - \frac{1}{2}\sigma_{Z,t}^2 
 \end{align}
 $$
 
@@ -184,7 +184,7 @@ and $\sigma$:
 
 $$
 \begin{align}
-E[R_t] &= e^{(\mu_{R_t} - \sigma_{R_t}^2/2)} \\
+E[R_t] &= e^{(\mu_{R_t} - \frac{1}{2}\sigma_{R_t}^2)} \\
 Var[R_t] &= \big[
   e^{(\sigma_{R_t}^2)} - 1
 \big] \big[

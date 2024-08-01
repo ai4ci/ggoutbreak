@@ -23,8 +23,11 @@ breaks_log1p = function(n=5,base=10) {
 
 #' logit scale
 #'
-#' @description it perform logit scaling with right axis formatting. To not be used directly but with ggplot (e.g. ggplot2::scale_y_continuous(trans = "logit") )
+#' Perform logit scaling with correct axis formatting.
+#' To not be used directly but with ggplot (e.g. ggplot2::scale_y_continuous(trans = "logit") )
 #'
+#' @param n the number of breaks
+#' @param ... not used, for compatibility
 #' @return A scales object
 #'
 #' @examples

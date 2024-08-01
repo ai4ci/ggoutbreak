@@ -40,7 +40,6 @@ Imports:
     tibble,
     tidyr,
     locfit,
-    functional,
     lubridate,
     scales,
     tidyselect,
