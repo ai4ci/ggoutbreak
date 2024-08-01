@@ -113,41 +113,41 @@ formatted date</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">eg</span> <span class="op">=</span> <span class="fu"><a href="as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">*</span><span class="fl">7</span>, anchor<span class="op">=</span><span class="st">"start"</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> No unit given. Guessing a sensible value from the dates gives: 7d 0H 0M 0S</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/labels.html" class="external-link">labels</a></span><span class="op">(</span><span class="va">eg</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26/Apr — 02/May</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 03/May — 09/May</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10/May — 16/May</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17/May — 23/May</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24/May — 30/May</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31/May — 06/Jun</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 07/Jun — 13/Jun</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14/Jun — 20/Jun</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21/Jun — 27/Jun</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28/Jun — 04/Jul</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 05/Jul — 11/Jul</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 01/Aug — 07/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 08/Aug — 14/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15/Aug — 21/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22/Aug — 28/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29/Aug — 04/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 05/Sep — 11/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12/Sep — 18/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19/Sep — 25/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26/Sep — 02/Oct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 03/Oct — 09/Oct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10/Oct — 16/Oct</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/labels.html" class="external-link">labels</a></span><span class="op">(</span><span class="va">eg</span>, ifmt<span class="op">=</span><span class="st">"{start}"</span>, dfmt<span class="op">=</span><span class="st">"%d/%b/%y"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 26/Apr/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 03/May/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10/May/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 17/May/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 24/May/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31/May/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 07/Jun/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14/Jun/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21/Jun/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28/Jun/24</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 05/Jul/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 01/Aug/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 08/Aug/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 15/Aug/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 22/Aug/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 29/Aug/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 05/Sep/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 12/Sep/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 19/Sep/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 26/Sep/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 03/Oct/24</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10/Oct/24</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/labels.html" class="external-link">labels</a></span><span class="op">(</span><span class="va">eg</span>, ifmt<span class="op">=</span><span class="st">"until {end}"</span>, dfmt<span class="op">=</span><span class="st">"%d %b %Y"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 02 May 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 09 May 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 16 May 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 23 May 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 30 May 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 06 Jun 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 13 Jun 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 20 Jun 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 27 Jun 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 04 Jul 2024</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 11 Jul 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 07 Aug 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 14 Aug 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 21 Aug 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 28 Aug 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 04 Sep 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 11 Sep 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 18 Sep 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 25 Sep 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 02 Oct 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 09 Oct 2024</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> until 16 Oct 2024</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># labels retained in constructor:</span></span></span>
 <span class="r-in"><span><span class="va">eg2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">*</span><span class="fl">7</span></span></span>

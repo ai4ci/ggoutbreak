@@ -194,12 +194,36 @@ would need some sort of accounting for the fact that one is incidence and the
 other prevalence.
 
 ```{r}
+p1 = growthrates::plot_proportion(
+  growthrates::england_ons_infection_survey %>% 
+    dplyr::filter(geography == "England") %>%
+    dplyr::mutate(
+      proportion.fit = NA, proportion.se.fit=NA,
+  ),events = growthrates::england_events)+
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(), 
+    axis.text.x = ggplot2::element_blank(), 
+    axis.text.x.bottom = ggplot2::element_blank()
+  )
 
-growthrates::england_covid_pcr_positivity %>%
+
+p2 = growthrates::england_covid_pcr_positivity %>%
   proportion_locfit_model() %>%
-  inner_join(england_ons_infection_survey %>% filter(geography=="England") %>% rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")) %>%
-  transmute(date=date, pre_test_odds = proportion.0.5 / ons.0.5) %>%
-  ggplot(aes(x=date,y=pre_test_odds)) + geom_line()
+  dplyr::inner_join(growthrates::england_ons_infection_survey %>% 
+                      dplyr::filter(geography=="England") %>% 
+                      dplyr::rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")
+  ) %>%
+  dplyr::transmute(date=date, pre_test_odds = proportion.0.5 / ons.0.5) %>%
+  ggplot2::ggplot(ggplot2::aes(x=date,y=pre_test_odds)) + ggplot2::geom_line() +
+  ggplot2::geom_hline(yintercept=1, colour="grey40",linetype="dashed") +
+  ggplot2::ylab("Pre-test odds ratio COVID") +
+  growthrates::geom_events(events = growthrates::england_events,hide_labels = TRUE)+
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(), 
+    axis.text.x = ggplot2::element_blank(), 
+    axis.text.x.bottom = ggplot2::element_blank(), 
+    axis.text.x.top = ggplot2::element_blank()
+  )
 
 ```
 
@@ -214,11 +238,20 @@ test positives is closer to the incidence.
 ```{r}
 england_pop = sum(growthrates::england_demographics$population)
 
-growthrates::england_covid_pcr_positivity %>% 
-  select(-denom) %>% 
-  mutate(denom = england_pop) %>%
+p3 = growthrates::england_covid_pcr_positivity %>% 
+  dplyr::select(-denom) %>% 
+  dplyr::mutate(denom = england_pop) %>%
   proportion_locfit_model() %>%
-  inner_join(england_ons_infection_survey %>% filter(geography=="England") %>% rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")) %>%
-  transmute(date=date, ascertainment = proportion.0.5 / ons.0.5) %>%
-  ggplot(aes(x=date,y=ascertainment)) + geom_line()
+  dplyr::inner_join(england_ons_infection_survey %>% 
+                      dplyr::filter(geography=="England") %>% 
+                      dplyr::rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")
+  ) %>%
+  dplyr::transmute(date=date, ascertainment = proportion.0.5 / ons.0.5 * 100) %>%
+  ggplot2::ggplot(ggplot2::aes(x=date,y=ascertainment)) + 
+  ggplot2::geom_line() + 
+  ggplot2::ylab("Ascertainment rate (%)") +
+  growthrates::geom_events(events = growthrates::england_events,hide_labels = TRUE)
+
+
+p1+p2+p3+patchwork::plot_layout(ncol=1)
 ```

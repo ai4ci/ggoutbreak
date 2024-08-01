@@ -4,7 +4,7 @@
 \alias{logit_trans}
 \title{logit scale}
 \usage{
-logit_trans()
+logit_trans(n = 5, ...)
 }
 \value{
 A scales object

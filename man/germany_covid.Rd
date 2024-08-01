@@ -7,11 +7,11 @@
 \format{
 A dataframe containing the following columns:
 \itemize{
-\item class (enum(\verb{0–14},\verb{15–19},\verb{20–24},\verb{25–29},\verb{30–39},\verb{40–49},\verb{50–59},\verb{60–69},\verb{70–79},\verb{80+},\code{Unknown}, .ordered=TRUE)) - the class column
+\item class (enum(\verb{0–14},\verb{15–19},\verb{20–24},\verb{25–29},\verb{30–39},\verb{40–49},\verb{50–59},\verb{60–69},\verb{70–79},\verb{80+},\code{Unknown}, .ordered=TRUE)) - the age group
 \item date (as.Date) - the date column
-\item count (integer) - the count column
+\item count (integer) - the test positives for each age group
 \item time (as.time_period) - the time column
-\item denom (integer) - the denom column
+\item denom (integer) - the test positives for all age groups
 }
 
 Must be grouped by: class (and other groupings allowed).

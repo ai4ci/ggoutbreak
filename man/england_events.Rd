@@ -7,9 +7,9 @@
 \format{
 A dataframe containing the following columns:
 \itemize{
-\item label (character) - the label column
-\item start (date) - the start column
-\item end (date) - the end column
+\item label (character) - the event label
+\item start (date) - the event start date
+\item end (date) - the (optional) event end date
 }
 
 No mandatory groupings.
@@ -23,7 +23,7 @@ data(england_events)
 }
 \description{
 This includes mainly the dates of lockdowns, releases from social distancing
-measures and the dates new variants were first detected.
+measures and the dates that new variants were first detected.
 }
 \concept{datasets}
 \keyword{datasets}
