@@ -13,11 +13,11 @@
 #'
 #' @format
 #' A dataframe containing the following columns:
-#' - class (enum(`0–14`,`15–19`,`20–24`,`25–29`,`30–39`,`40–49`,`50–59`,`60–69`,`70–79`,`80+`,`Unknown`, .ordered=TRUE)) - the class column
+#' - class (enum(`0–14`,`15–19`,`20–24`,`25–29`,`30–39`,`40–49`,`50–59`,`60–69`,`70–79`,`80+`,`Unknown`, .ordered=TRUE)) - the age group
 #' - date (as.Date) - the date column
-#' - count (integer) - the count column
+#' - count (integer) - the test positives for each age group
 #' - time (as.time_period) - the time column
-#' - denom (integer) - the denom column
+#' - denom (integer) - the test positives for all age groups
 #'
 #' Must be grouped by: class (and other groupings allowed).
 #'
@@ -51,8 +51,8 @@ NULL
 #' A dataframe containing the following columns:
 #' - date (as.Date) - the date column
 #' - class (enum(`00_04`,`05_09`,`10_14`,`15_19`,`20_24`,`25_29`,`30_34`,`35_39`,`40_44`,`45_49`,`50_54`,`55_59`,`60_64`,`65_69`,`70_74`,`75_79`,`80_84`,`85_89`,`90+`)) - the class column
-#' - count (numeric) - the count column
-#' - denom (numeric) - the denom column
+#' - count (numeric) - the test positives for each age group
+#' - denom (numeric) - the test positives for all age groups
 #' - time (as.time_period) - the time column
 #'
 #' Must be grouped by: class (and other groupings allowed).
@@ -132,15 +132,15 @@ NULL
 #' Key dated in the COVID-19 response in England
 #'
 #' This includes mainly the dates of lockdowns, releases from social distancing
-#' measures and the dates new variants were first detected.
+#' measures and the dates that new variants were first detected.
 #'
 #' @usage data(england_events)
 #'
 #' @format
 #' A dataframe containing the following columns:
-#' - label (character) - the label column
-#' - start (date) - the start column
-#' - end (date) - the end column
+#' - label (character) - the event label
+#' - start (date) - the event start date
+#' - end (date) - the (optional) event end date
 #'
 #' No mandatory groupings.
 #'
@@ -170,8 +170,8 @@ NULL
 #' A dataframe containing the following columns:
 #' - date (date) - a daily time series
 #' - time (as.time_period) - the time column
-#' - count (numeric) - test positives
-#' - denom (numeric) - total tests
+#' - count (numeric) - test positives in England on that day
+#' - denom (numeric) - total tests conducted on that day
 #'
 #' No mandatory groupings.
 #'
@@ -227,8 +227,9 @@ NULL
 #' @format
 #' A dataframe containing the following columns:
 #' - class (enum(`00_04`,`05_09`,`10_14`,`15_19`,`20_24`,`25_29`,`30_34`,`35_39`,`40_44`,`45_49`,`50_54`,`55_59`,`60_64`,`65_69`,`70_74`,`75_79`,`80_84`,`85_89`,`90+`)) - the class column
-#' - population (numeric) - the population column
-#' - baseline_proportion (numeric) - the baseline_proportion column
+#' - population (numeric) - the population count column
+#' - baseline_proportion (numeric) - the baseline proportion is the proportion
+#'    this age group makes up of the total.
 #'
 #' Must be grouped by: class (and other groupings allowed).
 #'
@@ -345,3 +346,44 @@ NULL
 NULL
 
 ## england_covid_proportion definition ends
+
+## england_ons_infection_survey definition ----
+
+#' The england_ons_infection_survey dataset
+#'
+#' The COVID-19 ONS infection survey took a random sample of the population
+#' and provides an estimate of the prevalence of COVID-19 that is supposedly
+#' free from ascertainment bias.
+#'
+#' The data is available here:
+#' https://www.ons.gov.uk/file?uri=/peoplepopulationandcommunity/healthandsocialcare/conditionsanddiseases/datasets/coronaviruscovid19infectionsurveydata/2023/20230310covid19infectionsurveydatasetsengland.xlsx
+#'
+#' @usage data(england_ons_infection_survey)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * date (date) - the date column
+#' * geography (character) - the geography column
+#' * proportion.0.5 (numeric) - the median proportion of people in the region testing
+#'    positive for COVID-19
+#' * proportion.0.025 (numeric) - the lower CI of the proportion of people in the region testing
+#'    positive for COVID-19
+#' * proportion.0.975 (numeric) - the upper CI of the proportion of people in the region testing
+#'    positive for COVID-19
+#' * denom (integer) - the sample size on which this estimate was made (daily rate inferred from
+#'    weekly sample sizes.)
+#' * time (as.time_period) - the time column
+#'
+#' No mandatory groupings.
+#'
+#' No default value.
+#'
+#' 9820 rows and 7 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name england_ons_infection_survey
+NULL
+
+## england_ons_infection_survey definition ends

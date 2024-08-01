@@ -38,15 +38,20 @@ breaks_log1p = function(n=5,base=10) {
 #'  ggplot2::scale_y_continuous(trans = "logit")
 #'
 #' @export
-logit_trans = function() {
+logit_trans = function(n = 5, ...) {
 
   trans = stats::qlogis
   inv = stats::plogis
+  n_default = n
+  tmp_fn = scales::extended_breaks(n=n)
+  breaks_fn = function(x, n=n_default) {
+    x %>% trans() %>% tmp_fn(n=n) %>% inv()
+  }
 
   scales::trans_new("logit",
                     transform = trans,
                     inverse = inv,
-                    breaks = functional::Compose(trans, scales::extended_breaks(), inv),
+                    breaks = breaks_fn,
                     format = scales::label_scientific(digits = 2)
   )
 }

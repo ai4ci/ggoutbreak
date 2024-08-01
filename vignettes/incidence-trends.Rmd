@@ -182,3 +182,43 @@ plot_incidence(pois)+ggplot2::scale_fill_viridis_d(aesthetics = c("colour","fill
 
 
 ```
+
+
+## Pre test probability
+
+Using the covid infection survey we can look at population prevalence based on
+random sampling versus estimates of incidence based on test positivity.
+
+This has some relationship to the pre test probability of testing, although 
+would need some sort of accounting for the fact that one is incidence and the 
+other prevalence.
+
+```{r}
+
+growthrates::england_covid_pcr_positivity %>%
+  proportion_locfit_model() %>%
+  inner_join(england_ons_infection_survey %>% filter(geography=="England") %>% rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")) %>%
+  transmute(date=date, pre_test_odds = proportion.0.5 / ons.0.5) %>%
+  ggplot(aes(x=date,y=pre_test_odds)) + geom_line()
+
+```
+
+Likewise the test positives per head of population can be compared to the 
+prevalence. In this case the ratio has a connection with the ascertainment rate
+although the infectivity profile needs to be taken into account here (or more
+accurately the probability the test is positive given the sample is taken on a 
+specific day post infection and the patient is infected), as the 
+prevalence number represents people who are infectious on a given day, and the 
+test positives is closer to the incidence.
+
+```{r}
+england_pop = sum(growthrates::england_demographics$population)
+
+growthrates::england_covid_pcr_positivity %>% 
+  select(-denom) %>% 
+  mutate(denom = england_pop) %>%
+  proportion_locfit_model() %>%
+  inner_join(england_ons_infection_survey %>% filter(geography=="England") %>% rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")) %>%
+  transmute(date=date, ascertainment = proportion.0.5 / ons.0.5) %>%
+  ggplot(aes(x=date,y=ascertainment)) + geom_line()
+```
