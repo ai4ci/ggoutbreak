@@ -4,7 +4,6 @@
 # NOTE: This workflow is overkill for most R packages and
 # check-standard.yaml is likely a better choice.
 # usethis::use_github_action("check-standard") will install it.
-# change to trigger workflow?
 on:
   push:
     branches: [main, master]
