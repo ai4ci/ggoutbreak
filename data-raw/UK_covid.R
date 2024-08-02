@@ -74,16 +74,16 @@ if(interactive()) interfacer::use_dataframe(england_covid_pcr_positivity)
 
 
 # devtools::load_all()
-# tmp = growthrates::england_covid %>%
-# dplyr::group_modify(growthrates::poisson_locfit_model, window=21) %>%
+# tmp = ggoutbreak::england_covid %>%
+# dplyr::group_modify(ggoutbreak::poisson_locfit_model, window=21) %>%
 # dplyr::glimpse()
 # plot_incidence(tmp)+facet_wrap(~class)+scale_y_log1p()
-# tmp = growthrates::england_covid %>%
-# dplyr::group_modify(growthrates::poisson_locfit_model, window=21) %>%
+# tmp = ggoutbreak::england_covid %>%
+# dplyr::group_modify(ggoutbreak::poisson_locfit_model, window=21) %>%
 # dplyr::glimpse()
 # plot_incidence(tmp)+facet_wrap(~class)+scale_y_log1p()
-# tmp2 = growthrates::england_covid %>%
-# dplyr::group_modify(growthrates::proportion_locfit_model, window=21) %>%
+# tmp2 = ggoutbreak::england_covid %>%
+# dplyr::group_modify(ggoutbreak::proportion_locfit_model, window=21) %>%
 # dplyr::glimpse()
 # tmp2 %>% view()
 # plot_proportion(tmp2)
@@ -144,7 +144,7 @@ denom_by_age %>% dplyr::glimpse()
 }
 
 ## rebanded population
-tmp_pop = growthrates::england_demographics %>%
+tmp_pop = ggoutbreak::england_demographics %>%
   dplyr::mutate(
     class = case_when(
       class %in% c("00_04","05_09") ~ "00_09",
@@ -163,7 +163,7 @@ tmp_pop = growthrates::england_demographics %>%
   summarise(population = sum(population, na.rm = TRUE))
 
 ## rebanded by age positive cases
-england_covid_proportion = growthrates::england_covid %>%
+england_covid_proportion = ggoutbreak::england_covid %>%
   dplyr::mutate(
     class = case_when(
       class %in% c("00_04","05_09") ~ "00_09",
@@ -184,7 +184,7 @@ england_covid_proportion = growthrates::england_covid %>%
   dplyr::summarise(count = sum(count, na.rm = TRUE)) %>%
   dplyr::inner_join(denom_by_age, by=c("class","date")) %>%
   dplyr::inner_join(tmp_pop, by="class") %>%
-  dplyr::mutate(time = growthrates::as.time_period(date,"1 week")) %>%
+  dplyr::mutate(time = ggoutbreak::as.time_period(date,"1 week")) %>%
   dplyr::glimpse()
 
 

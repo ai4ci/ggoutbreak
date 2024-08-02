@@ -12,8 +12,8 @@
 #' @export
 #' @concept vis
 #' @examples
-#' tmp = growthrates::england_covid %>%
-#'   growthrates::proportion_locfit_model(window=21) %>%
+#' tmp = ggoutbreak::england_covid %>%
+#'   ggoutbreak::proportion_locfit_model(window=21) %>%
 #'   dplyr::glimpse()
 #'
 #' plot_multinomial(tmp, normalise=TRUE)+

@@ -38,11 +38,11 @@ structure involving one fewer levels that the input
 Aggregate time series data preserving the time series
 }
 \examples{
-growthrates::england_covid \%>\%
+ggoutbreak::england_covid \%>\%
   time_aggregate(count = sum(count), denom = sum(denom)) \%>\%
   dplyr::glimpse()
 
-growthrates::england_covid \%>\%
+ggoutbreak::england_covid \%>\%
   time_aggregate(.fns=mean) \%>\%
   dplyr::glimpse()
 }

@@ -177,7 +177,7 @@ i_infectivity_profile = interfacer::iface(
   time = positive_double ~ "the end of the time period (in days)",
   probability = proportion ~ "the probability of infection between previous time period until `time`",
   .groups = ~ boot,
-	.default = growthrates::covid_infectivity_profile
+	.default = ggoutbreak::covid_infectivity_profile
 )
 
 ## covid_infectivity_profile definition ends

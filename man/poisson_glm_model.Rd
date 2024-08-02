@@ -53,8 +53,8 @@ varying rate as a natural cubic spline with approx one degree of freedom per
 }
 \examples{
 
-tmp = growthrates::england_covid \%>\%
- growthrates::poisson_glm_model(window=21) \%>\%
+tmp = ggoutbreak::england_covid \%>\%
+ ggoutbreak::poisson_glm_model(window=21) \%>\%
  dplyr::glimpse()
 }
 \concept{models}

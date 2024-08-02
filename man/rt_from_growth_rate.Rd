@@ -67,7 +67,7 @@ Calculate a reproduction number estimate from growth rate using the Wallinga
 resampling to transmit uncertainty in growth rate estimates
 }
 \examples{
-tmp = growthrates::england_covid \%>\%
+tmp = ggoutbreak::england_covid \%>\%
   time_aggregate(count=sum(count))
 
 

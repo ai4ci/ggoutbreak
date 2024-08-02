@@ -57,8 +57,8 @@
 #' @concept models
 #'
 #' @examples
-#' growthrates::england_covid %>%
-#'  growthrates::proportion_locfit_model(window=21) %>%
+#' ggoutbreak::england_covid %>%
+#'  ggoutbreak::proportion_locfit_model(window=21) %>%
 #'  dplyr::glimpse()
 proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE) {
 
@@ -147,8 +147,8 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
 #' @concept models
 #'
 #' @examples
-#' growthrates::england_covid %>%
-#'   growthrates::poisson_locfit_model(window=21) %>%
+#' ggoutbreak::england_covid %>%
+#'   ggoutbreak::poisson_locfit_model(window=21) %>%
 #'   dplyr::glimpse()
 #'
 poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE) {

@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 here::i_am("vignettes/variant-proportions.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 
-library(growthrates)
+library(ggoutbreak)
 
 ```
 
@@ -33,7 +33,7 @@ bias and it should not be regarded as definitive:
 ```{r}  
 
 # tidy copy of the sanger weekly variants count data aggregated to England level
-growthrates::england_variants %>% dplyr::glimpse()
+ggoutbreak::england_variants %>% dplyr::glimpse()
 
 ```
 

@@ -20,9 +20,9 @@
 #' @concept models
 #'
 #' @examples
-#' tmp = growthrates::england_covid %>%
-#'   growthrates::poisson_locfit_model(window=21) %>%
-#'   growthrates::normalise_incidence(growthrates::england_demographics) %>%
+#' tmp = ggoutbreak::england_covid %>%
+#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#'   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) %>%
 #'   dplyr::glimpse()
 #'
 normalise_incidence = function(
@@ -63,9 +63,9 @@ normalise_incidence = function(
 #' @concept models
 #'
 #' @examples
-#' tmp = growthrates::england_covid %>%
-#'   growthrates::poisson_locfit_model(window=21) %>%
-#'   growthrates::normalise_incidence(growthrates::england_demographics) %>%
+#' tmp = ggoutbreak::england_covid %>%
+#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#'   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) %>%
 #'   dplyr::glimpse()
 #'
 normalise_incidence.incidence = function(
@@ -188,9 +188,9 @@ normalise_incidence.incidence = function(
 #' @concept models
 #'
 #' @examples
-#' tmp = growthrates::england_covid %>%
-#'   growthrates::poisson_locfit_model(window=21) %>%
-#'   growthrates::normalise_incidence(growthrates::england_demographics) %>%
+#' tmp = ggoutbreak::england_covid %>%
+#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#'   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) %>%
 #'   dplyr::glimpse()
 #'
 normalise_incidence.proportion = function(

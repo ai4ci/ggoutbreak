@@ -42,8 +42,8 @@
 #' # TODO: find out cause of the warnings
 #' # "observations with zero weight not used for calculating dispersion"
 #' suppressWarnings(
-#'   growthrates::england_covid %>%
-#'    growthrates::proportion_glm_model(window=21) %>%
+#'   ggoutbreak::england_covid %>%
+#'    ggoutbreak::proportion_glm_model(window=21) %>%
 #'    dplyr::glimpse()
 #' )
 #'
@@ -88,8 +88,8 @@ proportion_glm_model = function(d = i_proportion_input, ..., window = 14, freque
 #' @concept models
 #' @examples
 #'
-#' tmp = growthrates::england_covid %>%
-#'  growthrates::poisson_glm_model(window=21) %>%
+#' tmp = ggoutbreak::england_covid %>%
+#'  ggoutbreak::poisson_glm_model(window=21) %>%
 #'  dplyr::glimpse()
 poisson_glm_model = function(d = i_incidence_input, ..., window = 14, frequency = "1 day") {
 

@@ -40,7 +40,7 @@ NULL
 #'
 #' A dataset of the daily count of covid cases by age group in England
 #' downloaded from the UKHSA coronavirus API, and formatted for
-#' use in `growthrates`. A denominator is calculated which is the overall
+#' use in `ggoutbreak`. A denominator is calculated which is the overall
 #' positive count for all age groups. This data set can be used to calculate
 #' group-wise incidence and absolute growth rates and group wise proportions and
 #' relative growth rates.
@@ -192,7 +192,7 @@ NULL
 #'
 #' SPI-M-O used a range of different statistical and mechanistic models to
 #' produce estimates of the growth rate of the epidemic from various data
-#' sources (including with an early version of `growthrates`).
+#' sources (including with an early version of `ggoutbreak`).
 #'
 #' @usage data(england_consensus_growth_rate)
 #'

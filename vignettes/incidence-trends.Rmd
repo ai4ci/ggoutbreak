@@ -15,7 +15,7 @@ knitr::opts_chunk$set(
 
 library(patchwork)
 
-library(growthrates)
+library(ggoutbreak)
 here::i_am("vignettes/incidence-trends.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 ```
@@ -42,11 +42,11 @@ persisted until the present.
 
 ```{r}
 
-tmp = growthrates::england_covid %>%
-   growthrates::poisson_locfit_model(window=21) %>%
-   growthrates::normalise_incidence(growthrates::england_demographics)
+tmp = ggoutbreak::england_covid %>%
+   ggoutbreak::poisson_locfit_model(window=21) %>%
+   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics)
 
-raw_pop = growthrates::england_covid %>% dplyr::inner_join(england_demographics, by="class")
+raw_pop = ggoutbreak::england_covid %>% dplyr::inner_join(england_demographics, by="class")
 
 plot_incidence(tmp,raw = raw_pop, size=0.25)+scale_y_log1p(n=7)+
   ggplot2::scale_colour_viridis_d(aesthetics = c("fill","colour"))
@@ -109,8 +109,8 @@ above:
 ```{r}
 
 
-tmp2 = growthrates::england_covid %>%
-   growthrates::proportion_locfit_model(window=21)
+tmp2 = ggoutbreak::england_covid %>%
+   ggoutbreak::proportion_locfit_model(window=21)
 
 p1 = plot_multinomial(tmp2,normalise = TRUE)+
   ggplot2::scale_fill_viridis_d()
@@ -168,15 +168,15 @@ and look into ascertainment bias in age groups.
 
 ```{r}
 
-prop = growthrates::england_covid_proportion %>%
-  growthrates::proportion_locfit_model(window=5)
+prop = ggoutbreak::england_covid_proportion %>%
+  ggoutbreak::proportion_locfit_model(window=5)
 
 plot_proportion(prop)+ggplot2::scale_fill_viridis_d(aesthetics = c("colour","fill"))
 
-tmp_pop = growthrates::england_covid_proportion %>% dplyr::select(class,population) %>% dplyr::distinct()
-pois = growthrates::england_covid_proportion %>%
-  growthrates::poisson_locfit_model(window=5) %>%
-  growthrates::normalise_incidence(tmp_pop)
+tmp_pop = ggoutbreak::england_covid_proportion %>% dplyr::select(class,population) %>% dplyr::distinct()
+pois = ggoutbreak::england_covid_proportion %>%
+  ggoutbreak::poisson_locfit_model(window=5) %>%
+  ggoutbreak::normalise_incidence(tmp_pop)
 
 plot_incidence(pois)+ggplot2::scale_fill_viridis_d(aesthetics = c("colour","fill"))
 
@@ -194,12 +194,12 @@ would need some sort of accounting for the fact that one is incidence and the
 other prevalence.
 
 ```{r}
-p1 = growthrates::plot_proportion(
-  growthrates::england_ons_infection_survey %>% 
+p1 = ggoutbreak::plot_proportion(
+  ggoutbreak::england_ons_infection_survey %>% 
     dplyr::filter(geography == "England") %>%
     dplyr::mutate(
       proportion.fit = NA, proportion.se.fit=NA,
-  ),events = growthrates::england_events)+
+  ),events = ggoutbreak::england_events)+
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(), 
     axis.text.x = ggplot2::element_blank(), 
@@ -207,9 +207,9 @@ p1 = growthrates::plot_proportion(
   )
 
 
-p2 = growthrates::england_covid_pcr_positivity %>%
+p2 = ggoutbreak::england_covid_pcr_positivity %>%
   proportion_locfit_model() %>%
-  dplyr::inner_join(growthrates::england_ons_infection_survey %>% 
+  dplyr::inner_join(ggoutbreak::england_ons_infection_survey %>% 
                       dplyr::filter(geography=="England") %>% 
                       dplyr::rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")
   ) %>%
@@ -217,7 +217,7 @@ p2 = growthrates::england_covid_pcr_positivity %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=pre_test_odds)) + ggplot2::geom_line() +
   ggplot2::geom_hline(yintercept=1, colour="grey40",linetype="dashed") +
   ggplot2::ylab("Pre-test odds ratio COVID") +
-  growthrates::geom_events(events = growthrates::england_events,hide_labels = TRUE)+
+  ggoutbreak::geom_events(events = ggoutbreak::england_events,hide_labels = TRUE)+
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(), 
     axis.text.x = ggplot2::element_blank(), 
@@ -236,9 +236,9 @@ prevalence number represents people who are infectious on a given day, and the
 test positives is closer to the incidence.
 
 ```{r}
-england_pop = sum(growthrates::england_demographics$population)
+england_pop = sum(ggoutbreak::england_demographics$population)
 
-p3 = growthrates::england_covid_pcr_positivity %>% 
+p3 = ggoutbreak::england_covid_pcr_positivity %>% 
   dplyr::select(-denom) %>% 
   dplyr::mutate(denom = england_pop) %>%
   proportion_locfit_model() %>%
@@ -250,7 +250,7 @@ p3 = growthrates::england_covid_pcr_positivity %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=ascertainment)) + 
   ggplot2::geom_line() + 
   ggplot2::ylab("Ascertainment rate (%)") +
-  growthrates::geom_events(events = growthrates::england_events,hide_labels = TRUE)
+  ggoutbreak::geom_events(events = ggoutbreak::england_events,hide_labels = TRUE)
 
 
 p1+p2+p3+patchwork::plot_layout(ncol=1)

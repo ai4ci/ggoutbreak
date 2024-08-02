@@ -93,8 +93,8 @@ and may be a better estimate of the true growth rate in the situation where
 testing effort is variable, or capacity saturated.
 }
 \examples{
-growthrates::england_covid \%>\%
- growthrates::proportion_locfit_model(window=21) \%>\%
+ggoutbreak::england_covid \%>\%
+ ggoutbreak::proportion_locfit_model(window=21) \%>\%
  dplyr::glimpse()
 }
 \concept{models}

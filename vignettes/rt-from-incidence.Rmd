@@ -24,7 +24,7 @@ knitr::opts_chunk$set(
 
 ```{r setup}
 library(patchwork)
-library(growthrates)
+library(ggoutbreak)
 here::i_am("vignettes/rt-from-incidence.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 ```
@@ -39,7 +39,7 @@ scale, for the COVID-19 epidemic in England:
 
 ```{r}
 
-raw = growthrates::england_covid %>%
+raw = ggoutbreak::england_covid %>%
   time_aggregate(count=sum(count))
 
 fit = raw %>% poisson_locfit_model()
@@ -205,7 +205,7 @@ for numerical stability and speed. Generating $R_t$ estimates given modelled
 incidence typically occurring in:
 
 ```{r}
-print(growthrates:::.internal_r_t_estim)
+print(ggoutbreak:::.internal_r_t_estim)
 ```
 
 # Results
@@ -220,7 +220,7 @@ or demographic subgroups.
 ```{r}
 
 system.time({
-  rt_fit = fit %>% growthrates::rt_from_incidence(ip = covid_infectivity_profile)
+  rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_infectivity_profile)
 })
 
 plot_rt(rt_fit, events = england_events, colour="blue")+

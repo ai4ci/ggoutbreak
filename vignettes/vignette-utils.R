@@ -72,7 +72,7 @@ ggplot2::theme_set(ggplot2::theme_bw(base_size = 8)+
 
 
 .download = function(url,filename) {
-  download_dir = rappdirs::user_cache_dir("growthrates")
+  download_dir = rappdirs::user_cache_dir("ggoutbreak")
   if (!fs::dir_exists(download_dir)) fs::dir_create(download_dir)
   raw_lineages = fs::path(download_dir, filename)
   if (fs::file_exists(raw_lineages)) {

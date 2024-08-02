@@ -1,8 +1,8 @@
 ---
-title: "Data wrangling and working with `growthrates`"
+title: "Data wrangling and working with `ggoutbreak`"
 output: html_document
 vignette: >
-  %\VignetteIndexEntry{Data wrangling and working with `growthrates`}
+  %\VignetteIndexEntry{Data wrangling and working with `ggoutbreak`}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -13,14 +13,14 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(growthrates)
+library(ggoutbreak)
 here::i_am("vignettes/time-periods.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 
 ```
 
 
-`growthrates` assumes a consistent naming scheme for significant columns,
+`ggoutbreak` assumes a consistent naming scheme for significant columns,
 notably `time` and `count`, and additionally `class`, `denom`, `population`
 columns. Data needs to be supplied using these column names and to make sure the
 data is formatted correctly it undergoes quite rigorous checks. One area where
@@ -45,9 +45,9 @@ these different subgroups against each other. In this case the denominator may
 be the total of counts among all groups per unit time. Additionally there may be
 information about the size of the population for each subgroup.
 
-`growthrates` assumes for the most part that the input data is in the form of
+`ggoutbreak` assumes for the most part that the input data is in the form of
 a set of time series of counts, each of which has a unique set of times, which
-are usually complete. To create datasets like this from line lists `growthrates`
+are usually complete. To create datasets like this from line lists `ggoutbreak`
 provides some infrastructure for dealing with time series:
 
 # Time periods
@@ -109,7 +109,7 @@ as.Date(date_seq(tmp3))
 
 `time_periods` can be used with any monthly or yearly data but such data are not
 regular. This is handled and irregular date periods are generally OK to use with
-`growthrates` but some functions like `date_seq` may not work as anticipated
+`ggoutbreak` but some functions like `date_seq` may not work as anticipated
 with irregular dates.
 
 Two time series can be aligned to make them comparable:
@@ -133,11 +133,11 @@ t3 = as.time_period(t1,t2)
 t3
 ```
 
-# Times in `growthrates` and conversion of line-lists
+# Times in `ggoutbreak` and conversion of line-lists
 
-`growthrates` uses the `time_period` class internally extensively. Casting dates
+`ggoutbreak` uses the `time_period` class internally extensively. Casting dates
 to and from `time_periods` is all that generally needs to be done before using 
-`growthrates`. Most of the functions in `growthrates` operate on time series data
+`ggoutbreak`. Most of the functions in `ggoutbreak` operate on time series data
 which expect a unique (and usually complete) set of data on a periodic time.
 
 To help prepare line-list data into time series there is the `time_summarise()` 
@@ -168,7 +168,7 @@ linelist2 %>% time_summarise(unit="1 week") %>% dplyr::glimpse()
 
 ```
 
-In this specific example subsequent analysis with `growthrates` may focus on the 
+In this specific example subsequent analysis with `ggoutbreak` may focus on the 
 `positive` subgroup only, as the comparison between `positive` and `negative` test results is trivial. In another example `class` may not be test results, it could be any other major subdivision e.g. the variant of a disease. In this case the 
 comparison between different groups may be much more relevant. The use of
 `class` as the major sub-group is for convenience. Additional grouping other

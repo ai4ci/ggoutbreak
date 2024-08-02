@@ -26,7 +26,7 @@ data(england_covid)
 \description{
 A dataset of the daily count of covid cases by age group in England
 downloaded from the UKHSA coronavirus API, and formatted for
-use in \code{growthrates}. A denominator is calculated which is the overall
+use in \code{ggoutbreak}. A denominator is calculated which is the overall
 positive count for all age groups. This data set can be used to calculate
 group-wise incidence and absolute growth rates and group wise proportions and
 relative growth rates.

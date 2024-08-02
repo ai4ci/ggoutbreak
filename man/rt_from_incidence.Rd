@@ -59,7 +59,7 @@ described in the vignette "Estimating the reproduction number from modelled
 incidence" and using an empirical generation time distribution.
 }
 \examples{
-df = growthrates::england_covid \%>\%
+df = ggoutbreak::england_covid \%>\%
   time_aggregate(count=sum(count)) \%>\%
     poisson_locfit_model()
 

@@ -13,7 +13,7 @@ here::i_am("vignettes/covid-timeseries.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 
 library(patchwork)
-library(growthrates)
+library(ggoutbreak)
 ```
 
 # Incidence and growth rate from case positive counts
@@ -27,7 +27,7 @@ which performs a simple summarisation.
 ```{r}
 england_covid %>% dplyr::glimpse()
 
-tmp = growthrates::england_covid %>%
+tmp = ggoutbreak::england_covid %>%
   time_aggregate(count=sum(count))
 ```
 
@@ -99,7 +99,7 @@ that an infectee is infected x days after the infector, and includes a temporal
 dimension rendering the reproduction number a dimensionless quantity reflecting 
 the average number of infectees resulting from each infector.
 
-`growthrates` has an estimate of the infectivity profile based on a
+`ggoutbreak` has an estimate of the infectivity profile based on a
 meta-analysis of serial interval estimates of COVID-19. The infectivity profile
 is a bootstrapped set of discrete probability distributions. It is truncated at
 14 days.
@@ -110,14 +110,14 @@ is a bootstrapped set of discrete probability distributions. It is truncated at
 
 ggplot2::ggplot()+
   ggplot2::geom_errorbar(
-    data = growthrates::covid_infectivity_profile %>% tidyr::complete(time=0:max(time), fill = list(probability=0)),
+    data = ggoutbreak::covid_infectivity_profile %>% tidyr::complete(time=0:max(time), fill = list(probability=0)),
     mapping = ggplot2::aes(x=as.factor(time),ymin=probability,ymax=probability),
     width=1,
     colour="blue",
     alpha=0.1
   )+
   ggplot2::geom_line(
-    data = growthrates::covid_infectivity_profile %>% 
+    data = ggoutbreak::covid_infectivity_profile %>% 
       dplyr::group_by(time) %>%
       dplyr::summarise(m = mean(probability)) %>% 
       dplyr::ungroup(),
@@ -135,14 +135,14 @@ values from the SPI-M-O group (red):
 
 ```{r}
 
-# .cache = memoise::cache_filesystem(rappdirs::user_cache_dir("growthrates"))
+# .cache = memoise::cache_filesystem(rappdirs::user_cache_dir("ggoutbreak"))
 # 
 # cached_rt_from_growth_rate = memoise::memoise(
-#   growthrates::rt_from_growth_rate,
+#   ggoutbreak::rt_from_growth_rate,
 #   cache = .cache
 # )
 
-rt_fit = fit %>% growthrates::rt_from_growth_rate(ip = covid_infectivity_profile)
+rt_fit = fit %>% ggoutbreak::rt_from_growth_rate(ip = covid_infectivity_profile)
 
 plot_rt(rt_fit, events = england_events, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(0.6,1.6))+
@@ -155,7 +155,7 @@ periodicity of the underlying time series.
 
 ```{r}
 
-rt_epi_fit = tmp %>% growthrates::rt_epiestim(ip = covid_infectivity_profile)
+rt_epi_fit = tmp %>% ggoutbreak::rt_epiestim(ip = covid_infectivity_profile)
 
 plot_rt(rt_epi_fit, events = england_events, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(0.6,1.6))+
@@ -183,7 +183,7 @@ england_covid_pcr_positivity %>% dplyr::glimpse()
 ```{r}
 
 fit2 = england_covid_pcr_positivity %>% 
-  growthrates::proportion_locfit_model()
+  ggoutbreak::proportion_locfit_model()
 
 plot_proportion(fit2, england_covid_pcr_positivity, events = england_events, size=0.25, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")))
@@ -240,7 +240,7 @@ p2 = plot_growth_rate(fit,events = england_events, colour="blue", date_breaks="3
   ggplot2::facet_wrap(~"Growth rate")+
   ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),axis.text.x.top = ggplot2::element_blank())
 
-p3 = ggplot2::ggplot(growthrates::england_nhs_app)+
+p3 = ggplot2::ggplot(ggoutbreak::england_nhs_app)+
   geom_events(events=england_events,hide_labels = TRUE)+
   ggplot2::geom_step(ggplot2::aes(x=date, y=alerts/mean(alerts, na.rm=TRUE),colour="alerts"))+
   ggplot2::geom_step(ggplot2::aes(x=date, y=visits/mean(visits, na.rm=TRUE),colour="venue visits"))+

@@ -17,9 +17,9 @@
 #' @export
 #' @concept models
 #' @examples
-#' growthrates::england_covid %>%
-#'   growthrates::poisson_locfit_model(window=21) %>%
-#'   growthrates::doubling_time() %>%
+#' ggoutbreak::england_covid %>%
+#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#'   ggoutbreak::doubling_time() %>%
 #'   dplyr::glimpse()
 #'
 #'

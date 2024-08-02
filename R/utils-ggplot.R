@@ -125,7 +125,7 @@ scale_y_logit = function(...) {
 # defaults
 
 .growth_scale_limits = function() {
-  return(getOption("growthrates.growth_scale_limit",default = c(-0.15,0.15)))
+  return(getOption("ggoutbreak.growth_scale_limit",default = c(-0.15,0.15)))
 }
 
 #' Switch UTF-8 into plain text when using the pdf device

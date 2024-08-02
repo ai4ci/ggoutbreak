@@ -19,9 +19,9 @@
 #' @examples
 #' if (FALSE) {
 #'   # not run due to long running
-#'   tmp = growthrates::england_covid %>%
+#'   tmp = ggoutbreak::england_covid %>%
 #'     dplyr::filter(date > "2022-01-01") %>%
-#'     growthrates::multinomial_nnet_model(window=21) %>%
+#'     ggoutbreak::multinomial_nnet_model(window=21) %>%
 #'     dplyr::glimpse()
 #' }
 multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, frequency = "1 day", predict = TRUE) { #, output_unit="1 day") {

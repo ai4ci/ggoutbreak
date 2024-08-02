@@ -61,7 +61,7 @@ Reproduction number timeseries diagram
 }
 \examples{
 # example code
-tmp = growthrates::england_covid \%>\%
+tmp = ggoutbreak::england_covid \%>\%
   time_aggregate(count=sum(count))
 if (FALSE) {
 

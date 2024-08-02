@@ -20,9 +20,9 @@
 #'
 #'
 #'
-#' tmp = growthrates::england_covid %>%
-#'   growthrates::proportion_locfit_model(window=21) %>%
-#'   growthrates::normalise_proportion(growthrates::england_demographics) %>%
+#' tmp = ggoutbreak::england_covid %>%
+#'   ggoutbreak::proportion_locfit_model(window=21) %>%
+#'   ggoutbreak::normalise_proportion(ggoutbreak::england_demographics) %>%
 #'   dplyr::glimpse()
 #'
 #' plot_growth_phase(tmp)

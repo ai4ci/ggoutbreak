@@ -12,7 +12,7 @@
 #' @export
 #' @concept models
 #' @examples
-#' df = growthrates::england_covid %>%
+#' df = ggoutbreak::england_covid %>%
 #'   time_aggregate(count=sum(count)) %>%
 #'     poisson_locfit_model()
 #'

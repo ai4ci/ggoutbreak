@@ -29,7 +29,7 @@
 #' @export
 #' @concept models
 #' @examples
-#' tmp = growthrates::england_covid %>%
+#' tmp = ggoutbreak::england_covid %>%
 #'   time_aggregate(count=sum(count))
 #'
 #' if (FALSE) {

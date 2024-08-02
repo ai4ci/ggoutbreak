@@ -87,7 +87,7 @@ samples in the infectivity profile.
 This will calculate a reproduction number for each group in the input dataframe.
 }
 \examples{
-tmp = growthrates::england_covid \%>\%
+tmp = ggoutbreak::england_covid \%>\%
   time_aggregate(count=sum(count))
 
 if (FALSE) {

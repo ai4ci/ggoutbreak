@@ -49,14 +49,14 @@ if(interactive()) interfacer::use_dataframe(germany_covid)
 
 ## Growth rates example results
 
-covid_modelled_incidence = growthrates::england_covid %>%
-  dplyr::group_modify(growthrates::poisson_locfit_model) %>%
+covid_modelled_incidence = ggoutbreak::england_covid %>%
+  dplyr::group_modify(ggoutbreak::poisson_locfit_model) %>%
   dplyr::glimpse()
 
 if(interactive()) interfacer::use_dataframe(covid_modelled_incidence)
 
-covid_normalised_incidence = growthrates::covid_count %>%
-  growthrates::normalised_incidence(incidence_fn = growthrates::poisson_locfit_model) %>%
+covid_normalised_incidence = ggoutbreak::covid_count %>%
+  ggoutbreak::normalised_incidence(incidence_fn = ggoutbreak::poisson_locfit_model) %>%
   dplyr::glimpse()
 
 if(interactive()) interfacer::use_dataframe(covid_normalised_incidence)

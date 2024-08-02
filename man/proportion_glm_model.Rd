@@ -62,8 +62,8 @@ varying rate as a natural cubic spline with approx one degree of freedom per
 # TODO: find out cause of the warnings
 # "observations with zero weight not used for calculating dispersion"
 suppressWarnings(
-  growthrates::england_covid \%>\%
-   growthrates::proportion_glm_model(window=21) \%>\%
+  ggoutbreak::england_covid \%>\%
+   ggoutbreak::proportion_glm_model(window=21) \%>\%
    dplyr::glimpse()
 )
 

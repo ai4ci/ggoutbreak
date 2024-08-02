@@ -8,7 +8,7 @@ england_nhs_app = tmp %>%
     date = `Week starting (Wythnos yn dechrau)`,
     alerts = as.integer(`Contact tracing alert (Hysbysiadau olrhain cyswllt)`),
     visits = as.integer(`Check-ins (Cofrestriadau)`),
-    time = growthrates::as.time_period(date, unit = "1 week", anchor="start")
+    time = ggoutbreak::as.time_period(date, unit = "1 week", anchor="start")
   )
 
 if (interactive()) interfacer::use_dataframe(england_nhs_app)

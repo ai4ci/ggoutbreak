@@ -83,8 +83,8 @@ a ggplot object
 Plot a proportions timeseries
 }
 \examples{
-tmp = growthrates::england_covid \%>\%
-  growthrates::proportion_locfit_model(window=21) \%>\%
+tmp = ggoutbreak::england_covid \%>\%
+  ggoutbreak::proportion_locfit_model(window=21) \%>\%
   dplyr::glimpse()
 
 plot_proportion(tmp)+

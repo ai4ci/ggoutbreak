@@ -66,9 +66,9 @@ This scales a proportion model by the population unit to make it comparable to
 an incidence model.
 }
 \examples{
-tmp = growthrates::england_covid \%>\%
-  growthrates::poisson_locfit_model(window=21) \%>\%
-  growthrates::normalise_incidence(growthrates::england_demographics) \%>\%
+tmp = ggoutbreak::england_covid \%>\%
+  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+  ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) \%>\%
   dplyr::glimpse()
 
 }

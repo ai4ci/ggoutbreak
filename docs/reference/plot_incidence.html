@@ -8,7 +8,7 @@
 
     <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light" data-bs-theme="light"><div class="container">
     
-    <a class="navbar-brand me-2" href="../index.html">growthrates</a>
+    <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
     <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.2.0</small>
 
@@ -28,7 +28,7 @@
     <a class="dropdown-item" href="../articles/estimators-example.html">Simulation tests for growth rate estimators</a>
     <a class="dropdown-item" href="../articles/incidence-trends.html">Population comparisons and incidence</a>
     <a class="dropdown-item" href="../articles/rt-from-incidence.html">Estimating the reproduction number from modelled incidence</a>
-    <a class="dropdown-item" href="../articles/time-periods.html">Data wrangling and working with `growthrates`</a>
+    <a class="dropdown-item" href="../articles/time-periods.html">Data wrangling and working with `ggoutbreak`</a>
     <a class="dropdown-item" href="../articles/variant-proportions.html">Multinomial proportions models for genomic variants</a>
   </div>
 </li>
@@ -36,7 +36,7 @@
         <input type="search" class="form-control me-sm-2" aria-label="Toggle navigation" name="search-input" data-search-index="../search.json" id="search-input" placeholder="Search for" autocomplete="off"></form>
 
       <ul class="navbar-nav"><li class="nav-item">
-  <a class="external-link nav-link" href="https://github.com/bristol-vaccine-centre/growthrates/" aria-label="github">
+  <a class="external-link nav-link" href="https://github.com/ai4ci/ggoutbreak/" aria-label="github">
     <span class="fab fa fab fa-github fa-lg"></span>
      
   </a>
@@ -49,7 +49,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Plot an incidence timeseries</h1>
-      <small class="dont-index">Source: <a href="https://github.com/bristol-vaccine-centre/growthrates/blob/HEAD/R/plot-incidence-ts.R" class="external-link"><code>R/plot-incidence-ts.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/ai4ci/ggoutbreak/blob/HEAD/R/plot-incidence-ts.R" class="external-link"><code>R/plot-incidence-ts.R</code></a></small>
       <div class="d-none name"><code>plot_incidence.Rd</code></div>
     </div>
 
@@ -63,7 +63,7 @@
 <span>  modelled <span class="op">=</span> <span class="va">i_incidence_model</span>,</span>
 <span>  raw <span class="op">=</span> <span class="va">i_incidence_data</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  mapping <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="fu">interfacer</span><span class="fu">::</span><span class="fu"><a href="https://bristol-vaccine-centre.github.io/interfacer/reference/is_col_present.html" class="external-link">is_col_present</a></span><span class="op">(</span><span class="va">modelled</span>, <span class="va">class</span><span class="op">)</span><span class="op">)</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">class</span><span class="op">)</span></span>
+<span>  mapping <span class="op">=</span> <span class="kw">if</span> <span class="op">(</span><span class="fu">interfacer</span><span class="fu">::</span><span class="fu"><a href="https://ai4ci.github.io/interfacer/reference/is_col_present.html" class="external-link">is_col_present</a></span><span class="op">(</span><span class="va">modelled</span>, <span class="va">class</span><span class="op">)</span><span class="op">)</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="va">class</span><span class="op">)</span></span>
 <span>    <span class="kw">else</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  events <span class="op">=</span> <span class="va">i_events</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -141,10 +141,10 @@ to something if there are multiple incidence timeseries in the plot</p></dd>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># example code</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="fu">growthrates</span><span class="fu">::</span><span class="va"><a href="england_covid.html">england_covid</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="england_covid.html">england_covid</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="time_aggregate.html">time_aggregate</a></span><span class="op">(</span>count<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">tmp_pop</span> <span class="op">=</span> <span class="fu">growthrates</span><span class="fu">::</span><span class="va"><a href="england_demographics.html">england_demographics</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+<span class="r-in"><span><span class="va">tmp_pop</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="england_demographics.html">england_demographics</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>population <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">population</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

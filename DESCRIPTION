@@ -1,10 +1,10 @@
-Package: growthrates
+Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.2.0
+Version: 0.2.9.9999
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
-           role = c("aut", "cre"),
+           role = c("aut", "cre","cph"),
            email = "rob.challen@bristol.ac.uk",
            comment = c(ORCID = "0000-0002-5504-7768"))
 Description: Simple statistical models and visualisations for calculating the 
@@ -29,7 +29,6 @@ Suggests:
     devtools,
     patchwork,
     memoise
-Remotes: github::bristol-vaccine-centre/interfacer
 VignetteBuilder: knitr
 Imports: 
     dplyr,
@@ -47,11 +46,11 @@ Imports:
     glue,
     purrr,
     EpiEstim,
-    interfacer (>= 0.2.0),
+    interfacer (>= 0.2.3),
     ragg
-URL: https://bristol-vaccine-centre.github.io/growthrates/,
-    https://github.com/bristol-vaccine-centre/growthrates,
-    https://doi.org/10.5281/zenodo.7242761
+URL: https://ai4ci.github.io/ggoutbreak/,
+    https://github.com/ai4ci/ggoutbreak,
+    https://doi.org/10.5281/zenodo.13165561
 Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)

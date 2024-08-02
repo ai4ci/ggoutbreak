@@ -24,7 +24,7 @@ data(england_consensus_growth_rate)
 \description{
 SPI-M-O used a range of different statistical and mechanistic models to
 produce estimates of the growth rate of the epidemic from various data
-sources (including with an early version of \code{growthrates}).
+sources (including with an early version of \code{ggoutbreak}).
 }
 \concept{datasets}
 \keyword{datasets}

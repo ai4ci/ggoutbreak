@@ -141,11 +141,11 @@ time_summarise = function(df = i_dated, unit, anchor = "start", rectangular = FA
 #' @concept time_period
 #'
 #' @examples
-#' growthrates::england_covid %>%
+#' ggoutbreak::england_covid %>%
 #'   time_aggregate(count = sum(count), denom = sum(denom)) %>%
 #'   dplyr::glimpse()
 #'
-#' growthrates::england_covid %>%
+#' ggoutbreak::england_covid %>%
 #'   time_aggregate(.fns=mean) %>%
 #'   dplyr::glimpse()
 time_aggregate = function(df = i_timestamped, ..., .groups = NULL, .cols = NULL, .fns = NULL) {

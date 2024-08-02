@@ -78,7 +78,7 @@ england_variants = variants2 %>%
     count = Count
   ) %>%
   dplyr::mutate(
-    time = growthrates::as.time_period(date,unit="1 day",anchor="start")
+    time = ggoutbreak::as.time_period(date,unit="1 day",anchor="start")
   ) %>%
   dplyr::group_by(date,time,class,who_class) %>%
   dplyr::summarise(count = sum(count,na.rm = TRUE)) %>%

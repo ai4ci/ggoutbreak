@@ -26,10 +26,10 @@
 #' @examples
 #' # example code
 #'
-#' tmp = growthrates::england_covid %>%
+#' tmp = ggoutbreak::england_covid %>%
 #'   time_aggregate(count=sum(count))
 #'
-#' tmp_pop = growthrates::england_demographics %>%
+#' tmp_pop = ggoutbreak::england_demographics %>%
 #'   dplyr::ungroup() %>%
 #'   dplyr::summarise(population = sum(population))
 #'

@@ -57,9 +57,9 @@ geography or age, and we have estimates of the size of that population during
 that time period. Normalising by population size allows us to compare groups.
 }
 \examples{
-tmp = growthrates::england_covid \%>\%
-  growthrates::poisson_locfit_model(window=21) \%>\%
-  growthrates::normalise_incidence(growthrates::england_demographics) \%>\%
+tmp = ggoutbreak::england_covid \%>\%
+  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+  ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) \%>\%
   dplyr::glimpse()
 
 }

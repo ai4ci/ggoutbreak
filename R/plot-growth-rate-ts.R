@@ -21,10 +21,10 @@
 #' @concept vis
 #' @examples
 #' # example code
-#' tmp = growthrates::england_covid %>%
+#' tmp = ggoutbreak::england_covid %>%
 #'   time_aggregate(count=sum(count))
 #'
-#' tmp_pop = growthrates::england_demographics %>%
+#' tmp_pop = ggoutbreak::england_demographics %>%
 #'   dplyr::ungroup() %>%
 #'   dplyr::summarise(population = sum(population))
 #'
@@ -38,7 +38,7 @@
 #' # Default pdf device doesn't support unicode
 #' plot_growth_rate(tmp2,colour="blue")
 #'
-#' tmp3 = growthrates::england_covid %>%
+#' tmp3 = ggoutbreak::england_covid %>%
 #'   proportion_locfit_model()
 #'
 #' # Default pdf device doesn't support unicode

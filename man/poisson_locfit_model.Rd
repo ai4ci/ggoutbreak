@@ -76,8 +76,8 @@ growth rate estimate both based on the time unit of the input data (e.g. for
 daily data the rate will be cases per day and the growth rate will be daily).
 }
 \examples{
-growthrates::england_covid \%>\%
-  growthrates::poisson_locfit_model(window=21) \%>\%
+ggoutbreak::england_covid \%>\%
+  ggoutbreak::poisson_locfit_model(window=21) \%>\%
   dplyr::glimpse()
 
 }
