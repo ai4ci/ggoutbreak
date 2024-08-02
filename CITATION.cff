@@ -5,7 +5,7 @@ authors:
   given-names: "Robert"
   orcid: "https://orcid.org/0000-0002-5504-7768"
 title: "ggoutbreak: Estimate Incidence, Proportions and Exponential Growth Rates"
-version: 0.2.9.9999
+version: 0.3.0
 doi: 10.5281/zenodo.13165561
 date-released: 2023-01-01
 url: "https://github.com/ai4ci/ggoutbreak"

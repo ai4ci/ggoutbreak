@@ -15,7 +15,7 @@ the COVID-19 pandemic.
 
 ## Installation
 
-[AI4CI r-universe](https://ai4ci.r-universe.dev/).
+`ggoutbreak` is hosted on the [AI4CI r-universe](https://ai4ci.r-universe.dev/).
 Installation from there is as follows:
 
 ``` r
