@@ -167,7 +167,7 @@ plot_rt(rt_epi_fit, events = england_events, colour="blue")+
 
 Test availability was not consistent during the pandemic. In the early stages 
 PCR tests were difficult to obtain and case positive incidence estimates are
-thought to be a vast underestimate. During cetain parts of the pandemic targetted
+thought to be a vast underestimate. During certain parts of the pandemic targeted
 testing of high risk groups occurred. Test positivity is a different view
 on the pandemic and accounts for some of these biases and introduces others 
 of its own. For this the data must contain a `denom` column which in this
@@ -219,11 +219,11 @@ plot_growth_phase(fit2,
 
 # NHS COVID app 
 
-The NHS covid app performed digital contact tracing. The rate of venue check-ins
+The NHS COVID-19 app performed digital contact tracing. The rate of venue check-ins
 demonstrates the levels of high risk social contacts however it became optional
 from Aug 2021. Self isolation alerts peaked in Aug / Sept 2021 during the Delta
 wave and again in Dec 2021 / Jan 2022 in the Omicron wave. Periods of rapid 
-growth preceed increases in the NHS app notifications. (N.B. data from 
+growth precede increases in the NHS app notifications. (N.B. data from 
 https://www.gov.uk/government/publications/nhs-covid-19-app-statistics)
 
 ```{r fig.height=7}

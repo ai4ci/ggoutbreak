@@ -16,7 +16,7 @@ normalise_proportion(
 
 A dataframe containing the following columns: 
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
 \item proportion.se.fit (double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)
@@ -47,7 +47,7 @@ No default value.
 a dataframe with incidence rates per unit capita.
 A dataframe containing the following columns:
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
 \item proportion.se.fit (double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)

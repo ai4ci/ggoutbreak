@@ -30,7 +30,7 @@ periodicity.
 An incidence mode based on absolute counts:
 
 ```{r}
-data = .test_data()
+data = .test_poisson_model()
 data %>% dplyr::glimpse()
 ```
 
@@ -42,7 +42,7 @@ plot_incidence(tmp, data)+ggplot2::geom_line(
   mapping=ggplot2::aes(x=as.Date(time),y=rate), data=data, colour="red",inherit.aes = FALSE)
 ```
 
-Estimted absolute growth rate versus simulation (red)
+Estimated absolute growth rate versus simulation (red)
 
 ```{r}
 
@@ -132,11 +132,11 @@ plot_growth_phase(tmp3)
 
 ### Multinomial model
 
-The mulitnomial model gives us absolute proportions only (and no growth rates)
+The multinomial model gives us absolute proportions only (and no growth rates)
 
 ```{r}
 # we don't need to calculate the denominator as it is done automatically by the 
-# mulitnomial model
+# multinomial model
 
 tmp4 = data2 %>% multinomial_nnet_model()
 plot_multinomial(tmp4)

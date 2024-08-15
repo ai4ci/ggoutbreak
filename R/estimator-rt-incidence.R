@@ -22,7 +22,7 @@
 #'   tmp2 = df %>% rt_from_incidence()
 #' }
 #'
-rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile) {
+rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile) { #, assume_start = TRUE) {
 
   ip = interfacer::ivalidate(ip)
 
@@ -38,13 +38,29 @@ rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile)
   interfacer::igroup_process(df, function(df,omega,window,...) {
 
     rt = lapply(1:nrow(df), function(i) {
-      if (i<=window+1) return(tibble::tibble())
+      if (i<=window+1) {
+        return(tibble::tibble())
+        # if (!assume_start || i<5) return(tibble::tibble())
+
+        # pad_mu = rep(df$incidence.fit[1],window-i+1)
+        # pad_sigma = rep(df$incidence.se.fit[1],window-i+1)
+
+        # mu_t = c(pad_mu,df$incidence.fit[1:(i-1)])
+        # sigma_t = c(pad_sigma,df$incidence.se.fit[1:(i-1)])
+        # omega = omega[1:(i-1)]/sum(omega[1:(i-1)])
+        # mu_t = df$incidence.fit[1:(i-1)]
+        # sigma_t = df$incidence.se.fit[1:(i-1)]
+
+      } else {
+        mu_t = df$incidence.fit[(i-window):(i-1)]
+        sigma_t = df$incidence.se.fit[(i-window):(i-1)]
+      }
       return(.internal_r_t_estim(
         mu = df$incidence.fit[i],
         sigma = df$incidence.se.fit[i],
         omega = omega,
-        mu_t = df$incidence.fit[(i-window):(i-1)],
-        sigma_t = df$incidence.se.fit[(i-window):(i-1)],
+        mu_t = mu_t,
+        sigma_t = sigma_t,
         cor = FALSE
       ))
     })

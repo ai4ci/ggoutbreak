@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -227,7 +227,7 @@ the underlying time series.</p>
 <p>Test availability was not consistent during the pandemic. In the
 early stages PCR tests were difficult to obtain and case positive
 incidence estimates are thought to be a vast underestimate. During
-cetain parts of the pandemic targetted testing of high risk groups
+certain parts of the pandemic targeted testing of high risk groups
 occurred. Test positivity is a different view on the pandemic and
 accounts for some of these biases and introduces others of its own. For
 this the data must contain a <code>denom</code> column which in this
@@ -274,11 +274,11 @@ between different populations.</p>
 <div class="section level2">
 <h2 id="nhs-covid-app">NHS COVID app<a class="anchor" aria-label="anchor" href="#nhs-covid-app"></a>
 </h2>
-<p>The NHS covid app performed digital contact tracing. The rate of
+<p>The NHS COVID-19 app performed digital contact tracing. The rate of
 venue check-ins demonstrates the levels of high risk social contacts
 however it became optional from Aug 2021. Self isolation alerts peaked
 in Aug / Sept 2021 during the Delta wave and again in Dec 2021 / Jan
-2022 in the Omicron wave. Periods of rapid growth preceed increases in
+2022 in the Omicron wave. Periods of rapid growth precede increases in
 the NHS app notifications. (N.B. data from <a href="https://www.gov.uk/government/publications/nhs-covid-19-app-statistics" class="external-link uri">https://www.gov.uk/government/publications/nhs-covid-19-app-statistics</a>)</p>
 <div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">fit</span>,events <span class="op">=</span> <span class="va">england_events</span>, colour<span class="op">=</span><span class="st">"blue"</span>, date_breaks<span class="op">=</span><span class="st">"3 months"</span><span class="op">)</span><span class="op">+</span></span>

@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -60,7 +60,7 @@
 
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
-    <p>A dataframe containing the following columns:</p><ul><li><p>boot (anything) - a bootstrap identifier</p></li>
+    <p>A dataframe containing the following columns:</p><ul><li><p>boot (anything + default(1)) - a bootstrap identifier</p></li>
 <li><p>time (positive_double) - the end of the time period (in days)</p></li>
 <li><p>probability (proportion) - the probability of infection between previous time period until <code>time</code></p></li>
 </ul><p>Must be grouped by: boot (exactly).</p>

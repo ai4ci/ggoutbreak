@@ -14,7 +14,7 @@ that time period. Normalising by population size allows us to compare groups."><
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,7 +78,7 @@ that time period. Normalising by population size allows us to compare groups.</p
     <dl><dt>modelled</dt>
 <dd><p>Model output from processing the <code>raw</code> dataframe with something like
 <code>poission_locfit_model</code></p>
-<p>A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
+<p>A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
 </ul><p>No mandatory groupings.</p>
 <p>No default value.</p></dd>
 
@@ -103,7 +103,7 @@ e.g. "1 day" then the incidence is calculated over that time period.</p></dd>
     
 
 <p>a dataframe with incidence rates per unit capita.
-A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
+A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
 <li><p>incidence.per_capita.fit (double) - an estimate of the incidence per capita rate on a log scale</p></li>
 <li><p>incidence.per_capita.se.fit (double) - the standard error of the incidence per capita rate estimate on a log scale</p></li>
 <li><p>incidence.per_capita.0.025 (positive_double) - lower confidence limit of the incidence per capita rate (true scale)</p></li>

@@ -18,7 +18,7 @@ normalise_incidence.incidence(
 
 A dataframe containing the following columns: 
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
@@ -56,7 +56,7 @@ e.g. "1 day" then the incidence is calculated over that time period.}
 a dataframe with incidence rates per unit capita.
 A dataframe containing the following columns:
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item incidence.per_capita.fit (double) - an estimate of the incidence per capita rate on a log scale
 \item incidence.per_capita.se.fit (double) - the standard error of the incidence per capita rate estimate on a log scale
 \item incidence.per_capita.0.025 (positive_double) - lower confidence limit of the incidence per capita rate (true scale)

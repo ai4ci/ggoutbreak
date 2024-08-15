@@ -7,7 +7,7 @@
 \format{
 A dataframe containing the following columns:
 \itemize{
-\item boot (anything) - a bootstrap identifier
+\item boot (anything + default(1)) - a bootstrap identifier
 \item time (positive_double) - the end of the time period (in days)
 \item probability (proportion) - the probability of infection between previous time period until \code{time}
 }

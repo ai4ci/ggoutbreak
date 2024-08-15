@@ -38,5 +38,6 @@ periods, and we may need to exclude these from the result.
 \examples{
 tmp = as.time_period(c(0,10,100), 7, "2020-01-01")
 date_seq(tmp, "7 days")
+date_seq(tmp, "1 day")
 }
 \concept{time_period}

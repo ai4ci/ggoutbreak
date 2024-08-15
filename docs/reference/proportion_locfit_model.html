@@ -14,7 +14,7 @@ using the package locfit."><!-- mathjax --><script src="https://cdnjs.cloudflare
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,7 +81,7 @@ using the package <code>locfit</code>.</p>
 <dd><p>the input</p>
 <p>A dataframe containing the following columns:</p><ul><li><p>denom (positive_integer) - Total test counts associated with the specified timeframe</p></li>
 <li><p>count (positive_integer) - Positive case counts associated with the specified timeframe</p></li>
-<li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
+<li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
 </ul><p>Ungrouped.</p>
 <p>No default value.</p></dd>
 
@@ -118,7 +118,7 @@ a linear model piece wise. - (defaults to <code>1</code>)</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
+<p>A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
 <li><p>proportion.fit (double) - an estimate of the proportion on a logit scale</p></li>
 <li><p>proportion.se.fit (double) - the standard error of proportion estimate on a logit scale</p></li>
 <li><p>proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)</p></li>

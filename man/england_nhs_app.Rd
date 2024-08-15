@@ -11,7 +11,7 @@ A dataframe containing the following columns:
 \item alerts (integer) - the count of self-isolation alerts
 \item visits (integer) - the number of venue check-ins representing visits to
 social venues.
-\item time (as.time_period) - the time column
+\item time (time_period) - the time column
 }
 
 No mandatory groupings.

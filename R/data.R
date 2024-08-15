@@ -16,7 +16,7 @@
 #' - class (enum(`0–14`,`15–19`,`20–24`,`25–29`,`30–39`,`40–49`,`50–59`,`60–69`,`70–79`,`80+`,`Unknown`, .ordered=TRUE)) - the age group
 #' - date (as.Date) - the date column
 #' - count (integer) - the test positives for each age group
-#' - time (as.time_period) - the time column
+#' - time (time_period) - the time column
 #' - denom (integer) - the test positives for all age groups
 #'
 #' Must be grouped by: class (and other groupings allowed).
@@ -53,7 +53,7 @@ NULL
 #' - class (enum(`00_04`,`05_09`,`10_14`,`15_19`,`20_24`,`25_29`,`30_34`,`35_39`,`40_44`,`45_49`,`50_54`,`55_59`,`60_64`,`65_69`,`70_74`,`75_79`,`80_84`,`85_89`,`90+`)) - the class column
 #' - count (numeric) - the test positives for each age group
 #' - denom (numeric) - the test positives for all age groups
-#' - time (as.time_period) - the time column
+#' - time (time_period) - the time column
 #'
 #' Must be grouped by: class (and other groupings allowed).
 #'
@@ -169,7 +169,7 @@ NULL
 #' @format
 #' A dataframe containing the following columns:
 #' - date (date) - a daily time series
-#' - time (as.time_period) - the time column
+#' - time (time_period) - the time column
 #' - count (numeric) - test positives in England on that day
 #' - denom (numeric) - total tests conducted on that day
 #'
@@ -261,7 +261,7 @@ NULL
 #' @format
 #' A dataframe containing the following columns:
 #' - date (date) - the end date of the week
-#' - time (as.time_period) - the time column
+#' - time (time_period) - the time column
 #' - class (enum(`Other`,`Alpha (B.1.1.7)`,`Delta (B.1.617.2)`,`Delta (AY.4)`,`Omicron (Other)`,`Omicron (BA.2)`,`Omicron (BA.4)`,`Omicron (BA.5)`,`XBB (Other)`,`Kraken (XBB.1.5)`,`Arcturus (XBB.1.16)`,`Eris (EG.5.1)`)) - the class column
 #' - who_class (enum(`Other`,`Alpha`,`Delta`,`Omicron`,`Kraken`,`Arcturus`,`Eris`)) - the who_class column
 #' - count (numeric) - the weekly count column
@@ -295,7 +295,7 @@ NULL
 #' - alerts (integer) - the count of self-isolation alerts
 #' - visits (integer) - the number of venue check-ins representing visits to
 #' social venues.
-#' - time (as.time_period) - the time column
+#' - time (time_period) - the time column
 #'
 #' No mandatory groupings.
 #'
@@ -332,7 +332,7 @@ NULL
 #' - count (numeric) - the count of COVID positives
 #' - denom (numeric) - the number of COVID tests performed
 #' - population (numeric) - the size of the population at this age group
-#' - time (as.time_period) - the time column (weekly)
+#' - time (time_period) - the time column (weekly)
 #'
 #' Must be grouped by: class (and other groupings allowed).
 #'
@@ -373,7 +373,7 @@ NULL
 #'    positive for COVID-19
 #' * denom (integer) - the sample size on which this estimate was made (daily rate inferred from
 #'    weekly sample sizes.)
-#' * time (as.time_period) - the time column
+#' * time (time_period) - the time column
 #'
 #' No mandatory groupings.
 #'

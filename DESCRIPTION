@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.3.0
+Version: 0.3.1
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -28,7 +28,8 @@ Suggests:
     testthat (>= 3.0.0),
     devtools,
     patchwork,
-    memoise
+    memoise,
+    withr
 VignetteBuilder: knitr
 Imports: 
     dplyr,
@@ -46,8 +47,9 @@ Imports:
     glue,
     purrr,
     EpiEstim,
-    interfacer (>= 0.2.3),
+    interfacer (>= 0.2.4),
     ragg
+Remotes: github::bristol-vaccine-centre/interfacer
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,
     https://doi.org/10.5281/zenodo.13165561

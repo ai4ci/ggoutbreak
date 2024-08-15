@@ -8,7 +8,7 @@
 A dataframe containing the following columns:
 \itemize{
 \item date (date) - the end date of the week
-\item time (as.time_period) - the time column
+\item time (time_period) - the time column
 \item class (enum(\code{Other},\code{Alpha (B.1.1.7)},\code{Delta (B.1.617.2)},\code{Delta (AY.4)},\code{Omicron (Other)},\code{Omicron (BA.2)},\code{Omicron (BA.4)},\code{Omicron (BA.5)},\code{XBB (Other)},\code{Kraken (XBB.1.5)},\code{Arcturus (XBB.1.16)},\code{Eris (EG.5.1)})) - the class column
 \item who_class (enum(\code{Other},\code{Alpha},\code{Delta},\code{Omicron},\code{Kraken},\code{Arcturus},\code{Eris})) - the who_class column
 \item count (numeric) - the weekly count column

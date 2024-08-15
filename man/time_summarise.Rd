@@ -47,7 +47,7 @@ A dataframe containing the following columns:
 \itemize{
 \item denom (positive_integer) - Total test counts associated with the specified timeframe
 \item count (positive_integer) - Positive case counts associated with the specified timeframe
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 }
 
 No mandatory groupings.
@@ -59,7 +59,7 @@ or a more minimal output if the input is only a plain list of dated events:
 A dataframe containing the following columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified timeframe
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 }
 
 No mandatory groupings.

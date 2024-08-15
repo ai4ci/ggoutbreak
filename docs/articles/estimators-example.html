@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -93,22 +93,22 @@ simulated with weekly periodicity.</p>
 </h3>
 <p>An incidence mode based on absolute counts:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data</span> <span class="op">=</span> <span class="fu">.test_data</span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="../reference/dot-test_poisson_model.html">.test_poisson_model</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="va">data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 105</span></span>
 <span><span class="co">#&gt; Columns: 5</span></span>
 <span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 1…</span></span>
 <span><span class="co">#&gt; $ r     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1,…</span></span>
 <span><span class="co">#&gt; $ rate  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 110.5171, 122.1403, 134.9859, 149.1825, 164.8721, 182.2119, 201.…</span></span>
-<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 105, 104, 145, 150, 168, 174, 207, 217, 247, 273, 296, 353, 355,…</span></span>
-<span><span class="co">#&gt; $ denom <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2402, 2402, 2402, 2402, 2402, 2402, 2402, 2402, 2402, 2402, 2402…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 122, 117, 116, 144, 179, 152, 191, 220, 215, 270, 300, 315, 375,…</span></span>
+<span><span class="co">#&gt; $ denom <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2474, 2474, 2474, 2474, 2474, 2474, 2474, 2474, 2474, 2474, 2474…</span></span></code></pre></div>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span>window<span class="op">=</span><span class="fl">7</span>, deg <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">tmp</span>, <span class="va">data</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span></span>
 <span>  mapping<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>,y<span class="op">=</span><span class="va">rate</span><span class="op">)</span>, data<span class="op">=</span><span class="va">data</span>, colour<span class="op">=</span><span class="st">"red"</span>,inherit.aes <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></code></pre></div>
 <p><img src="estimators-example_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
-<p>Estimted absolute growth rate versus simulation (red)</p>
+<p>Estimated absolute growth rate versus simulation (red)</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/plot_growth_rate.html">plot_growth_rate</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">+</span></span>
@@ -131,18 +131,18 @@ combined to give an overall epidemic and a proportional distribution of
 each ‘variant’ as a fraction of the whole. A relative growth rate is
 calculated based on set parameters.</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">data2</span> <span class="op">=</span> <span class="fu">.test_multinomial</span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">class</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">data2</span> <span class="op">=</span> <span class="fu"><a href="../reference/dot-test_multinomial.html">.test_multinomial</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">class</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 315</span></span>
 <span><span class="co">#&gt; Columns: 9</span></span>
 <span><span class="co">#&gt; Groups: class [3]</span></span>
 <span><span class="co">#&gt; $ time           <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, …</span></span>
 <span><span class="co">#&gt; $ r              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, …</span></span>
 <span><span class="co">#&gt; $ rate           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 110.5171, 122.1403, 134.9859, 149.1825, 164.8721, 182.2…</span></span>
-<span><span class="co">#&gt; $ count          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 105, 104, 145, 150, 168, 174, 207, 217, 247, 273, 296, …</span></span>
-<span><span class="co">#&gt; $ denom          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2402, 2402, 2402, 2402, 2402, 2402, 2402, 2402, 2402, 2…</span></span>
+<span><span class="co">#&gt; $ count          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 110, 101, 126, 164, 177, 170, 216, 227, 228, 264, 301, …</span></span>
+<span><span class="co">#&gt; $ denom          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2526, 2526, 2526, 2526, 2526, 2526, 2526, 2526, 2526, 2…</span></span>
 <span><span class="co">#&gt; $ class          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "variant1", "variant1", "variant1", "variant1", "varian…</span></span>
 <span><span class="co">#&gt; $ proportion     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.3382826, 0.3420088, 0.3445125, 0.3458146, 0.3459542, …</span></span>
-<span><span class="co">#&gt; $ proportion.obs <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.3398058, 0.3421053, 0.3452381, 0.3456221, 0.3449692, …</span></span>
+<span><span class="co">#&gt; $ proportion.obs <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.3374233, 0.3423729, 0.3452055, 0.3452632, 0.3450292, …</span></span>
 <span><span class="co">#&gt; $ relative.r     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.019385523, 0.013833622, 0.008404115, 0.003151554, -0.…</span></span></code></pre></div>
 <div class="section level4">
 <h4 id="poisson-model">Poisson model<a class="anchor" aria-label="anchor" href="#poisson-model"></a>
@@ -178,11 +178,11 @@ rate relative to each other:</p>
 <span><span class="co">#&gt; $ time           <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, …</span></span>
 <span><span class="co">#&gt; $ r              <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, …</span></span>
 <span><span class="co">#&gt; $ rate           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 110.5171, 122.1403, 134.9859, 149.1825, 164.8721, 182.2…</span></span>
-<span><span class="co">#&gt; $ count          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 105, 104, 145, 150, 168, 174, 207, 217, 247, 273, 296, …</span></span>
-<span><span class="co">#&gt; $ denom          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 309, 304, 420, 434, 487, 504, 604, 638, 734, 823, 909, …</span></span>
+<span><span class="co">#&gt; $ count          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 110, 101, 126, 164, 177, 170, 216, 227, 228, 264, 301, …</span></span>
+<span><span class="co">#&gt; $ denom          <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 326, 295, 365, 475, 513, 493, 630, 668, 681, 797, 923, …</span></span>
 <span><span class="co">#&gt; $ class          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "variant1", "variant1", "variant1", "variant1", "varian…</span></span>
 <span><span class="co">#&gt; $ proportion     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.3382826, 0.3420088, 0.3445125, 0.3458146, 0.3459542, …</span></span>
-<span><span class="co">#&gt; $ proportion.obs <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.3398058, 0.3421053, 0.3452381, 0.3456221, 0.3449692, …</span></span>
+<span><span class="co">#&gt; $ proportion.obs <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.3374233, 0.3423729, 0.3452055, 0.3452632, 0.3450292, …</span></span>
 <span><span class="co">#&gt; $ relative.r     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.019385523, 0.013833622, 0.008404115, 0.003151554, -0.…</span></span></code></pre></div>
 <p>Firstly proportions:</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
@@ -210,18 +210,18 @@ rate relative to each other:</p>
 <div class="section level4">
 <h4 id="multinomial-model">Multinomial model<a class="anchor" aria-label="anchor" href="#multinomial-model"></a>
 </h4>
-<p>The mulitnomial model gives us absolute proportions only (and no
+<p>The multinomial model gives us absolute proportions only (and no
 growth rates)</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># we don't need to calculate the denominator as it is done automatically by the </span></span>
-<span><span class="co"># mulitnomial model</span></span>
+<span><span class="co"># multinomial model</span></span>
 <span></span>
 <span><span class="va">tmp4</span> <span class="op">=</span> <span class="va">data2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/multinomial_nnet_model.html">multinomial_nnet_model</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # weights:  30 (18 variable)</span></span>
-<span><span class="co">#&gt; initial  value 361707.109921 </span></span>
-<span><span class="co">#&gt; iter  10 value 182309.592690</span></span>
-<span><span class="co">#&gt; iter  20 value 178948.204365</span></span>
-<span><span class="co">#&gt; final  value 176994.905787 </span></span>
+<span><span class="co">#&gt; initial  value 361060.027283 </span></span>
+<span><span class="co">#&gt; iter  10 value 181363.788346</span></span>
+<span><span class="co">#&gt; iter  20 value 178358.053450</span></span>
+<span><span class="co">#&gt; final  value 176189.977655 </span></span>
 <span><span class="co">#&gt; converged</span></span>
 <span><span class="fu"><a href="../reference/plot_multinomial.html">plot_multinomial</a></span><span class="op">(</span><span class="va">tmp4</span><span class="op">)</span></span></code></pre></div>
 <p><img src="estimators-example_files/figure-html/unnamed-chunk-13-1.png" width="700"></p>

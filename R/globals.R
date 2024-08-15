@@ -57,7 +57,12 @@ utils::globalVariables(c(
   "Mean(R)", "Median(R)", "Quantile.0.025(R)", "Quantile.0.975(R)", "Std(R)",
 	"t_end",
 	"proportion.fit",
-	"proportion.se.fit"
+	"proportion.se.fit",
+	"origin",
+	"contacts",
+	"R_t",
+	"last_time",
+	"rate"
 ))
 
 

@@ -12,7 +12,7 @@ rate calculations:
 
 e.g. A dataframe containing the following columns:
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
@@ -33,7 +33,7 @@ OR
 
 A dataframe containing the following columns:
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
 \item proportion.se.fit (double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)

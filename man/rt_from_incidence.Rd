@@ -11,7 +11,7 @@ rt_from_incidence(df = i_incidence_model, ip = i_infectivity_profile)
 
 A dataframe containing the following columns: 
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
@@ -28,7 +28,7 @@ No default value.
 
 A dataframe containing the following columns: 
 \itemize{
-\item boot (anything) - a bootstrap identifier
+\item boot (anything + default(1)) - a bootstrap identifier
 \item time (positive_double) - the end of the time period (in days)
 \item probability (proportion) - the probability of infection between previous time period until `time`
 }
@@ -41,7 +41,7 @@ A default value is defined.
 \value{
 A dataframe containing the following columns:
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item rt.fit (double) - an estimate of the reproduction number
 \item rt.se.fit (double) - the standard error of the reproduction number
 \item rt.0.025 (double) - lower confidence limit of the reproduction number

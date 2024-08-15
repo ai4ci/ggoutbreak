@@ -12,7 +12,7 @@ A dataframe containing the following columns:
 \item count (numeric) - the count of COVID positives
 \item denom (numeric) - the number of COVID tests performed
 \item population (numeric) - the size of the population at this age group
-\item time (as.time_period) - the time column (weekly)
+\item time (time_period) - the time column (weekly)
 }
 
 Must be grouped by: class (and other groupings allowed).

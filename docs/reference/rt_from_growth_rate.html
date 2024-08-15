@@ -14,7 +14,7 @@ resampling to transmit uncertainty in growth rate estimates"><!-- mathjax --><sc
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,7 @@ resampling to transmit uncertainty in growth rate estimates</p>
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>df</dt>
 <dd><p>Growth rate estimates</p>
-<p>A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
+<p>A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
 <li><p>growth.fit (double) - an estimate of the growth rate</p></li>
 <li><p>growth.se.fit (double) - the standard error the growth rate</p></li>
 <li><p>growth.0.025 (double) - lower confidence limit of the growth rate</p></li>
@@ -88,7 +88,7 @@ resampling to transmit uncertainty in growth rate estimates</p>
 
 <dt>ip</dt>
 <dd><p>Infectivity profile</p>
-<p>A dataframe containing the following columns:</p><ul><li><p>boot (anything) - a bootstrap identifier</p></li>
+<p>A dataframe containing the following columns:</p><ul><li><p>boot (anything + default(1)) - a bootstrap identifier</p></li>
 <li><p>time (positive_double) - the end of the time period (in days)</p></li>
 <li><p>probability (proportion) - the probability of infection between previous time period until `time`</p></li>
 </ul><p>Must be grouped by: boot (exactly).</p>
@@ -104,7 +104,7 @@ resampling to transmit uncertainty in growth rate estimates</p>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     
 
-<p>A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
+<p>A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
 <li><p>rt.fit (double) - an estimate of the reproduction number</p></li>
 <li><p>rt.se.fit (double) - the standard error of the reproduction number</p></li>
 <li><p>rt.0.025 (double) - lower confidence limit of the reproduction number</p></li>

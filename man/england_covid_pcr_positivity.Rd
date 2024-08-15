@@ -8,7 +8,7 @@
 A dataframe containing the following columns:
 \itemize{
 \item date (date) - a daily time series
-\item time (as.time_period) - the time column
+\item time (time_period) - the time column
 \item count (numeric) - test positives in England on that day
 \item denom (numeric) - total tests conducted on that day
 }

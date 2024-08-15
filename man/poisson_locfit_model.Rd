@@ -19,7 +19,7 @@ poisson_locfit_model(
 A dataframe containing the following columns: 
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified timeframe
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
 Ungrouped.
@@ -48,7 +48,7 @@ a linear model piece wise. - (defaults to \code{1})}
 \value{
 A dataframe containing the following columns:
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)

@@ -11,7 +11,7 @@ A dataframe containing the following columns:
 \item class (enum(\verb{00_04},\verb{05_09},\verb{10_14},\verb{15_19},\verb{20_24},\verb{25_29},\verb{30_34},\verb{35_39},\verb{40_44},\verb{45_49},\verb{50_54},\verb{55_59},\verb{60_64},\verb{65_69},\verb{70_74},\verb{75_79},\verb{80_84},\verb{85_89},\verb{90+})) - the class column
 \item count (numeric) - the test positives for each age group
 \item denom (numeric) - the test positives for all age groups
-\item time (as.time_period) - the time column
+\item time (time_period) - the time column
 }
 
 Must be grouped by: class (and other groupings allowed).

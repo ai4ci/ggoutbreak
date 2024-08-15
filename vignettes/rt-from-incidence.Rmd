@@ -185,15 +185,15 @@ and $\sigma$:
 $$
 \begin{align}
 E[R_t] &= e^{(\mu_{R_t} - \frac{1}{2}\sigma_{R_t}^2)} \\
-Var[R_t] &= \big[
+V[R_t] &= \big[
   e^{(\sigma_{R_t}^2)} - 1
 \big] \big[
   e^{2 \mu_{R_t} + \sigma_{R_t}^2}
 \big] \\
 E[R_t^*] &= \frac{1}{|\Omega|}\sum_{\omega \in \Omega} E[{R_t|\omega}] \\
-Var[R_t^*] &= \frac{1}{|\Omega|} \bigg(\sum_{\omega \in \Omega}{Var[R_t|\omega]+E[R_t|\omega]^2}\bigg) - E[R_t^*]^2 \\
-\mu^* &= \log\Bigg(\frac{E[R_t^*]}{\sqrt{\frac{Var[R_t^*]}{E[R_t^*]^2}+1}}\Bigg)  \\
-\sigma_*^2 &= \log\bigg(\frac{Var[R_t^*]}{E[R_t^*]^2}+1\bigg)\\
+V[R_t^*] &= \frac{1}{|\Omega|} \bigg(\sum_{\omega \in \Omega}{V[R_t|\omega]+E[R_t|\omega]^2}\bigg) - E[R_t^*]^2 \\
+\mu^* &= \log\Bigg(\frac{E[R_t^*]}{\sqrt{\frac{V[R_t^*]}{E[R_t^*]^2}+1}}\Bigg)  \\
+\sigma_*^2 &= \log\bigg(\frac{V[R_t^*]}{E[R_t^*]^2}+1\bigg)\\
 R_t^* &= Lognormal(\mu_*,\sigma_*) 
 \end{align}
 $$

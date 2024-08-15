@@ -10,7 +10,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,7 +67,7 @@
     <dl><dt>x</dt>
 <dd><p>a dataframe calculated from either proportion or incidence growth
 rate calculations:</p>
-<p>e.g. A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
+<p>e.g. A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
 <li><p>incidence.fit (double) - an estimate of the incidence rate on a log scale</p></li>
 <li><p>incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale</p></li>
 <li><p>incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)</p></li>
@@ -81,7 +81,7 @@ rate calculations:</p>
 </ul><p>No mandatory groupings.</p>
 <p>No default value.</p>
 <p>OR</p>
-<p>A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
+<p>A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
 <li><p>proportion.fit (double) - an estimate of the proportion on a logit scale</p></li>
 <li><p>proportion.se.fit (double) - the standard error of proportion estimate on a logit scale</p></li>
 <li><p>proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)</p></li>

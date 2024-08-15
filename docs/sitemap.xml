@@ -73,6 +73,21 @@
     <loc>/reference/date_to_time.html</loc>
   </url>
   <url>
+    <loc>/reference/dot-epiestim_si.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-summarise_with_ascertainment.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-test_branching_process.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-test_multinomial.html</loc>
+  </url>
+  <url>
+    <loc>/reference/dot-test_poisson_model.html</loc>
+  </url>
+  <url>
     <loc>/reference/doubling_time.html</loc>
   </url>
   <url>
@@ -242,6 +257,9 @@
   </url>
   <url>
     <loc>/reference/time_to_date.html</loc>
+  </url>
+  <url>
+    <loc>/reference/type.time_period.html</loc>
   </url>
   <url>
     <loc>/reference/wallinga_lipsitch.html</loc>

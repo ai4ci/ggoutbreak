@@ -17,7 +17,7 @@ plot_multinomial(
 
 A dataframe containing the following columns: 
 \itemize{
-\item time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item class (factor) - A factor specifying the type of observation. This will be things like
 variant, or serotype, for a multinomial model. Any missing data points are ignored.
 \item proportion.0.5 (proportion) - median estimate of proportion (true scale)

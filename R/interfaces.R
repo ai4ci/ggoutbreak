@@ -3,12 +3,12 @@ i_dated = interfacer::iface(
 )
 
 i_timestamped = interfacer::iface(
-  time = as.time_period ~ "A set of events with a timestamp as a `time_period`"
+  time = ggoutbreak::time_period ~ "A set of events with a timestamp as a `time_period`"
 )
 
 # Can be grouped.
 i_timeseries = interfacer::iface(
-  time = as.time_period + group_unique ~ "A (usually complete) set of singular observations per unit time as a `time_period`"
+  time = ggoutbreak::time_period + group_unique ~ "A (usually complete) set of singular observations per unit time as a `time_period`"
 )
 
 i_incidence_data = interfacer::iface(
@@ -173,7 +173,7 @@ i_events = interfacer::iface(
 NULL
 
 i_infectivity_profile = interfacer::iface(
-  boot = anything ~ "a bootstrap identifier",
+  boot = anything + default(1) ~ "a bootstrap identifier",
   time = positive_double ~ "the end of the time period (in days)",
   probability = proportion ~ "the probability of infection between previous time period until `time`",
   .groups = ~ boot,

@@ -4,7 +4,9 @@
 #' Reband any discrete distribution
 #'
 #' e.g. age banded population, or a discrete probability distribution e.g.
-#' a serial interval distribution.
+#' a serial interval distribution. This method fits a monotonically increasing
+#' spline to the cumulative distribution (including the upper and lower limits)
+#' and interpolating using that spline to the new cut points.
 #'
 #' @param x a set of upper limits of bands, e.g. for age: 0-14;15-64;65-79;80+ is 15,65,80,NA
 #' @param y a set of quantities for each band e.g. population figures
@@ -13,7 +15,8 @@
 #'   band in the output some kind of maximum upper limit is needed to interpolate
 #'   to.
 #' @param ytotal upper and lower limits for y. If the interpolation values fall outside of
-#'   x then the in and max limits of y are given by this.
+#'   x then the min and max limits of y are given by this. This would be `c(0,1)`
+#'   for a probability distribution, for example.
 #' @param digits if the `xout` value is continuous then how many significant figures
 #'   to put in the labels
 #' @param labelling are the `xout` values interpretable as an `inclusive` upper limit, or

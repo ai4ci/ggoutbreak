@@ -17,7 +17,7 @@ positive for COVID-19
 positive for COVID-19
 \item denom (integer) - the sample size on which this estimate was made (daily rate inferred from
 weekly sample sizes.)
-\item time (as.time_period) - the time column
+\item time (time_period) - the time column
 }
 
 No mandatory groupings.

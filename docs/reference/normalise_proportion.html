@@ -14,7 +14,7 @@ that time period. Normalising by population proportion allows us to compare grou
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,7 @@ that time period. Normalising by population proportion allows us to compare grou
     <dl><dt>modelled</dt>
 <dd><p>Model output from processing the <code>raw</code> dataframe with something like
 <code>proportion_locfit_model</code></p>
-<p>A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
+<p>A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
 <li><p>proportion.fit (double) - an estimate of the proportion on a logit scale</p></li>
 <li><p>proportion.se.fit (double) - the standard error of proportion estimate on a logit scale</p></li>
 <li><p>proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)</p></li>
@@ -103,7 +103,7 @@ that time period. Normalising by population proportion allows us to compare grou
     
 
 <p>a dataframe with incidence rates per unit capita.
-A dataframe containing the following columns:</p><ul><li><p>time (as.time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
+A dataframe containing the following columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a <code>time_period</code></p></li>
 <li><p>proportion.fit (double) - an estimate of the proportion on a logit scale</p></li>
 <li><p>proportion.se.fit (double) - the standard error of proportion estimate on a logit scale</p></li>
 <li><p>proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)</p></li>

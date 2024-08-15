@@ -215,6 +215,25 @@ as.POSIXct.time_period = function(x,...) {
   return(as.POSIXct.numeric(as.numeric(x)*as.numeric(unit), origin=start_date))
 }
 
+
+#' Type coercion to a `time_period` class
+#'
+#' @param x a vector to be coerced to a time period
+#'
+#' @return a `time_period` or an error
+#' @export
+#'
+#' @examples
+#' type.time_period(1:100)
+type.time_period = function(x) {
+  if (is.time_period(x)) return(x)
+  unit = if (is.numeric(x)) "1 day" else NULL
+  tryCatch(
+    as.time_period(x, unit = unit),
+    error = function(e) stop("couldn't coerce to a time_period")
+  )
+}
+
 #' @describeIn as.time_period Combine `time_period`
 #' @param recursive concatenate recursively
 #' @export
@@ -647,6 +666,7 @@ date_seq.Date = function(x, period=.day_interval(x), anchor = "start", complete 
 #' @examples
 #' tmp = as.time_period(c(0,10,100), 7, "2020-01-01")
 #' date_seq(tmp, "7 days")
+#' date_seq(tmp, "1 day")
 date_seq.time_period = function(x, period = attributes(x)$unit, complete = FALSE, ...) {
 
   if (all(is.na(x))) stop("No non-NA times provided to date_seq")

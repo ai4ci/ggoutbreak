@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -227,18 +227,18 @@ transformed distribution parameters, <span class="math inline">\(\mu\)</span> an
 <p><span class="math display">\[
 \begin{align}
 E[R_t] &amp;= e^{(\mu_{R_t} - \frac{1}{2}\sigma_{R_t}^2)} \\
-Var[R_t] &amp;= \big[
+V[R_t] &amp;= \big[
   e^{(\sigma_{R_t}^2)} - 1
 \big] \big[
   e^{2 \mu_{R_t} + \sigma_{R_t}^2}
 \big] \\
 E[R_t^*] &amp;= \frac{1}{|\Omega|}\sum_{\omega \in \Omega}
 E[{R_t|\omega}] \\
-Var[R_t^*] &amp;= \frac{1}{|\Omega|} \bigg(\sum_{\omega \in
-\Omega}{Var[R_t|\omega]+E[R_t|\omega]^2}\bigg) - E[R_t^*]^2 \\
+V[R_t^*] &amp;= \frac{1}{|\Omega|} \bigg(\sum_{\omega \in
+\Omega}{V[R_t|\omega]+E[R_t|\omega]^2}\bigg) - E[R_t^*]^2 \\
 \mu^* &amp;=
-\log\Bigg(\frac{E[R_t^*]}{\sqrt{\frac{Var[R_t^*]}{E[R_t^*]^2}+1}}\Bigg)  \\
-\sigma_*^2 &amp;= \log\bigg(\frac{Var[R_t^*]}{E[R_t^*]^2}+1\bigg)\\
+\log\Bigg(\frac{E[R_t^*]}{\sqrt{\frac{V[R_t^*]}{E[R_t^*]^2}+1}}\Bigg)  \\
+\sigma_*^2 &amp;= \log\bigg(\frac{V[R_t^*]}{E[R_t^*]^2}+1\bigg)\\
 R_t^* &amp;= Lognormal(\mu_*,\sigma_*)
 \end{align}
 \]</span></p>
@@ -297,7 +297,7 @@ typically occurring in:</p>
 <span><span class="co">#&gt;             mu_star, sigma_star), rt.0.975 = stats::qlnorm(0.975, </span></span>
 <span><span class="co">#&gt;             mu_star, sigma_star)))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x5e7edbc96cf0&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x6216b66ca248&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
@@ -311,7 +311,7 @@ points took around 3 seconds to fit, which opens up the possibility of
 performing <span class="math inline">\(R_t\)</span> estimates in fine
 grained geographical or demographic subgroups.</p>
 <pre><code><span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   3.095   0.002   3.098</span></span></code></pre>
+<span><span class="co">#&gt;   2.520   0.004   2.527</span></span></code></pre>
 <p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
 </div>
 <div class="section level2">
