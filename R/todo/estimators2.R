@@ -86,7 +86,7 @@
 ## .specification_from_formula( formula = class(variant) + count(n) ~ date() + age + gender + region )
 ## .specification_from_formula( formula = class(variant) + count(n) ~ date(specimen) + age + gender + region )
 ## .specification_from_formula( formula = growth.rate() + Rt() + class(variant) + count(n) ~ date(specimen) + age + gender + region )
-## .specification_from_formula(class(pneumo.urine_antigen_test) + count(count) ~ pneumo.test_date)
+## .specification_from_formula(class(pneumo.urine_antigen_test) + count(count) ~ pneumosim_date)
 ## parse$observations = named_list_lhs
 ## parse$predictors = named_list_rhs
 ## parse$groups = unnamed_list_rhs

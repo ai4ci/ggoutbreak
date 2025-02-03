@@ -14,20 +14,18 @@ e.g. A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
-\item incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale
+\item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
 \item incidence.0.5 (positive_double) - median estimate of the incidence rate (true scale)
 \item incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)
 \item growth.fit (double) - an estimate of the growth rate
-\item growth.se.fit (double) - the standard error the growth rate
+\item growth.se.fit (positive_double) - the standard error the growth rate
 \item growth.0.025 (double) - lower confidence limit of the growth rate
 \item growth.0.5 (double) - median estimate of the growth rate
 \item growth.0.975 (double) - upper confidence limit of the growth rate
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 
 OR
 
@@ -35,20 +33,18 @@ A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
-\item proportion.se.fit (double) - the standard error of proportion estimate on a logit scale
+\item proportion.se.fit (positive_double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)
 \item proportion.0.5 (proportion) - median estimate of proportion (true scale)
 \item proportion.0.975 (proportion) - upper confidence limit of proportion (true scale)
 \item relative.growth.fit (double) - an estimate of the relative growth rate
-\item relative.growth.se.fit (double) - the standard error the relative growth rate
+\item relative.growth.se.fit (positive_double) - the standard error the relative growth rate
 \item relative.growth.0.025 (double) - lower confidence limit of the relative growth rate
 \item relative.growth.0.5 (double) - median estimate of the relative growth rate
 \item relative.growth.0.975 (double) - upper confidence limit of the relative growth rate
 }
 
-No mandatory groupings.
-
-No default value.}
+Any grouping allowed.}
 
 \item{...}{not used}
 }

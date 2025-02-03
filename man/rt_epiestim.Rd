@@ -6,7 +6,7 @@
 \usage{
 rt_epiestim(
   df = i_incidence_input,
-  ip = i_infectivity_profile,
+  ip = i_discrete_ip,
   bootstraps = 2000,
   window = 14,
   mean_prior = 1,
@@ -23,24 +23,20 @@ A dataframe containing the following columns:
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.
-
-No default value.
-}
+Ungrouped.}
 
 \item{ip}{infectivity profile
 
 A dataframe containing the following columns: 
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
-\item time (positive_double) - the end of the time period (in days)
-\item probability (proportion) - the probability of infection between previous time period until `time`
+\item probability (proportion) - the probability of new event during this period.
+\item tau (integer + complete) - the days since the index event.
 }
 
 Must be grouped by: boot (exactly).
 
-A default value is defined.
-}
+A default value is defined.}
 
 \item{bootstraps}{\itemize{
 \item the number of bootstraps to take to calculate for each point.
@@ -66,15 +62,13 @@ A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item rt.fit (double) - an estimate of the reproduction number
-\item rt.se.fit (double) - the standard error of the reproduction number
+\item rt.se.fit (positive_double) - the standard error of the reproduction number
 \item rt.0.025 (double) - lower confidence limit of the reproduction number
 \item rt.0.5 (double) - median estimate of the reproduction number
 \item rt.0.975 (double) - upper confidence limit of the reproduction number
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 }
 \description{
 Calculate a reproduction number estimate from incidence data using the
@@ -90,7 +84,7 @@ This will calculate a reproduction number for each group in the input dataframe.
 tmp = ggoutbreak::england_covid \%>\%
   time_aggregate(count=sum(count))
 
-if (FALSE) {
+if (interactive()) {
   # not run due to long running
   tmp2 = tmp \%>\% rt_epiestim()
 }

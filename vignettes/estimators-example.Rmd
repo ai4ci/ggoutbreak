@@ -30,7 +30,7 @@ periodicity.
 An incidence mode based on absolute counts:
 
 ```{r}
-data = .test_poisson_model()
+data = sim_poisson_model()
 data %>% dplyr::glimpse()
 ```
 
@@ -47,7 +47,7 @@ Estimated absolute growth rate versus simulation (red)
 ```{r}
 
 plot_growth_rate(tmp)+
-  ggplot2::geom_line(mapping=ggplot2::aes(x=as.Date(time),y=r), data=data, colour="red",inherit.aes = FALSE)
+  ggplot2::geom_line(mapping=ggplot2::aes(x=as.Date(time),y=growth), data=data, colour="red",inherit.aes = FALSE)
 ```
 
 ```{r}
@@ -65,7 +65,7 @@ epidemic and a proportional distribution of each 'variant' as a fraction of the
 whole. A relative growth rate is calculated based on set parameters.
 
 ```{r}
-data2 = .test_multinomial() %>% dplyr::group_by(class) %>% dplyr::glimpse()
+data2 = sim_multinomial() %>% dplyr::group_by(class) %>% dplyr::glimpse()
 ```
 
 ### Poisson model
@@ -82,7 +82,7 @@ And the absolute growth rates:
 
 ```{r}
 plot_growth_rate(modelled = tmp2)+
-   ggplot2::geom_line(mapping=ggplot2::aes(x=as.Date(time),y=r, colour=class), data=data2, inherit.aes = FALSE)+
+   ggplot2::geom_line(mapping=ggplot2::aes(x=as.Date(time),y=growth, colour=class), data=data2, inherit.aes = FALSE)+
    ggplot2::facet_wrap(dplyr::vars(class), ncol=1)
 
 ```
@@ -119,7 +119,7 @@ And secondly relative growth rate:
 
 
 plot_growth_rate(modelled = tmp3)+
-   ggplot2::geom_line(mapping=ggplot2::aes(x=as.Date(time),y=relative.r, colour=class), data=data2, inherit.aes = FALSE)+
+   ggplot2::geom_line(mapping=ggplot2::aes(x=as.Date(time),y=relative.growth, colour=class), data=data2, inherit.aes = FALSE)+
    ggplot2::facet_wrap(dplyr::vars(class), ncol=1)
 
 ```

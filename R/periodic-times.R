@@ -79,6 +79,14 @@ fdmy = function(date) {
 
 ## Time_period ----
 
+#' @export
+as.numeric.time_period = function(x, ...) {
+  class(x)="numeric"
+  attr(x,"start_date")=NULL
+  attr(x,"unit")=NULL
+  return(x)
+}
+
 #' Convert to a time period class
 #'
 #' Time periods are just a zero based numeric representation of dates with a
@@ -119,6 +127,8 @@ as.time_period.default = function(x, ...) {
 # Converting a time_period to another one
 #' @export
 as.time_period.time_period = function(x, unit = NULL, start_date = NULL, ...) {
+  # TODO: a bit of redundancy between this and .convert_units?
+
   times = x
   orig_unit = attributes(times)$unit
   orig_start_date = as.Date(attributes(times)$start_date)
@@ -283,6 +293,17 @@ c.time_period = function(..., recursive = F) {
   return(.clone_time_period(y, x))
 }
 
+#' @describeIn as.time_period Create a sequence using `time_period`s
+#' @inheritParams base::seq
+#' @export
+seq.time_period = function(
+    from,
+    to = from,
+    ...) {
+  y = seq.default(from=as.numeric(from),to=as.numeric(to),...)
+  return(.clone_time_period(y, from))
+}
+
 ## Mathematical functions ----
 
 #' @export
@@ -309,7 +330,7 @@ c.time_period = function(..., recursive = F) {
   start_date = attributes(inputs)$start_date
 
   tmp = c(unlist(lapply(list(...), unclass)))
-  y = get(.Generic)(tmp)
+  y = get(.Generic)(tmp,na.rm=na.rm)
   if (!is.numeric(y)) return(y)
   return(as.time_period(y, unit[[1]], start_date))
 }
@@ -385,7 +406,13 @@ labels.time_period = function(object, ..., dfmt = "%d/%b", ifmt = "{start} \u201
 }
 
 .get_meta = function(x) {
-  attributes(x)[c("unit","start_date")]
+  out = attributes(x)[c("unit","start_date")]
+  if (is.null(out$unit) || is.null(out$start_date)) stop("missing time period metadata")
+  return(out)
+}
+
+.metadata_matches = function(x,y) {
+  return(identical(.get_meta(x), .get_meta(y)))
 }
 
 .fmt_unit = function(x,...) {
@@ -474,6 +501,8 @@ date_to_time = function(dates, unit = .day_interval(dates), start_date = getOpti
 #' dates = time_to_date(times)
 time_to_date = function(timepoints, unit = attr(timepoints,"unit"), start_date = attr(timepoints,"start_date")) {
 
+  if (length(timepoints)==0) return(as.Date(numeric()))
+
   if (is.null(unit)) stop("Cannot determine unit from timepoints input. You must specify unit.")
   if (!lubridate::is.period(unit)) {
     if (is.numeric(unit)) unit = lubridate::period(unit,unit="day")
@@ -489,7 +518,8 @@ time_to_date = function(timepoints, unit = attr(timepoints,"unit"), start_date =
   # Interpolate fractional time periods.
   x = sort(unique(c(floor(timepoints),ceiling(timepoints))))
   y = start_date+unit*as.numeric(x)
-  as.Date(floor(stats::approx(x,y,xout=timepoints)$y),"1970-01-01")
+  # as.Date(floor(stats::approx(x,y,xout=timepoints)$y),"1970-01-01")
+  as.Date(stats::approx(x,y,xout=timepoints)$y,"1970-01-01")
 }
 
 # Suppose the metadata has been stripped off a time_period. Here we can reconstruct it
@@ -572,8 +602,9 @@ date_seq = function(x, period, ...) {
 date_seq.numeric = function(x, period=1, tol=1e-06, ...) {
   #dplyr::check_number_decimal(period)
   #dplyr::check_number_decimal(tol, min = 0)
+  if (length(x)==0) return(x)
   rng <- range(x, na.rm = TRUE)
-  if (any(((x - rng[1])%%period > tol) & (period - (x - rng[1])%%period > tol))) {
+  if (any(((x - rng[1])%%period > tol) & (period - (x - rng[1])%%period > tol),na.rm = TRUE)) {
     stop("x is not a regular sequence.")
   }
   if (period - ((rng[2] - rng[1])%%period) <= tol) {
@@ -617,7 +648,7 @@ date_seq.numeric = function(x, period=1, tol=1e-06, ...) {
 #' date_seq(as.Date(c("2020-01-01","2020-02-01","2020-01-15","2020-02-01",NA)), "2 days")
 date_seq.Date = function(x, period=.day_interval(x), anchor = "start", complete = FALSE, ...) {
   dates = x
-  if (all(is.na(x))) stop("No non-NA dates provided to date_seq")
+  if (all(is.na(x))) {browser(); stop("No non-NA dates provided to date_seq")}
   start_date = .start_from_anchor(dates,anchor)
   period = .make_unit(period)
   start_date = as.Date(start_date)
@@ -797,9 +828,10 @@ cut_date = function(dates, unit, anchor = "start", output = c("date","factor","t
 }
 
 .start_from_anchor = function(dates, anchor) {
+  default_set = !is.null(getOption("day_zero"))
   default_start_date = as.Date(getOption("day_zero","2019-12-29"))
   if (is.null(anchor)) {
-    message("No `start_date` (or `anchor`) specified. Using default: ",default_start_date)
+    if (!default_set) message("No `start_date` (or `anchor`) specified. Using default (set `options('day_zero'=XXX)` to change): ",default_start_date)
     return(default_start_date)
   }
   start_date = try(as.Date(anchor), silent=TRUE)
@@ -809,7 +841,7 @@ cut_date = function(dates, unit, anchor = "start", output = c("date","factor","t
     else if (anchor == "end") max_date(dates)+1
     else min_date(dates) - 7 + which(substr(tolower(weekdays(min_date(dates)-6+0:6)),1,3)==anchor)
     if (length(start_date) != 1) {
-      warning("`anchor` was not valid (a date or one of 'start', 'end', or a weekday name). Using default: ",default_start_date)
+      if (!default_set) message("`anchor` was not valid (a date or one of 'start', 'end', or a weekday name). Using default (set `options('day_zero'=XXX)` to change): ",default_start_date)
       return(default_start_date)
     }
   }
@@ -844,6 +876,31 @@ cut_date = function(dates, unit, anchor = "start", output = c("date","factor","t
   return(label)
 }
 
+# Base data functions ----
+
+#' @export
+#' @inherit base::weekdays
+weekdays.time_period = function(x, abbreviate = FALSE) {
+  return(weekdays(as.Date(x), abbreviate = abbreviate))
+}
+
+#' @inherit base::months
+#' @export
+months.time_period = function(x, abbreviate = FALSE) {
+  return(months(as.Date(x), abbreviate = abbreviate))
+}
+
+#' @inherit base::quarters
+#' @export
+quarters.time_period = function(x) {
+  return(quarters(as.Date(x)))
+}
+
+#' @inherit base::julian
+#' @export
+julian.time_period = function(x) {
+  return(julian(as.Date(x)))
+}
 
 #TODO:
 # interpolate_time_periods

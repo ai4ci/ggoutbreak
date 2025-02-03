@@ -4,70 +4,72 @@
 \alias{rt_from_incidence}
 \title{Reproduction number from modelled incidence}
 \usage{
-rt_from_incidence(df = i_incidence_model, ip = i_infectivity_profile)
+rt_from_incidence(df = i_incidence_model, ip = i_discrete_ip, approx = FALSE)
 }
 \arguments{
-\item{df}{Count data
+\item{df}{modelled incidence estimate
 
 A dataframe containing the following columns: 
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
-\item incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale
+\item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
 \item incidence.0.5 (positive_double) - median estimate of the incidence rate (true scale)
 \item incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)
 }
 
-No mandatory groupings.
+Any grouping allowed.}
 
-No default value.
-}
-
-\item{ip}{Infectivity profile
+\item{ip}{an infectivity profile (aka generation time distribution)
 
 A dataframe containing the following columns: 
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
-\item time (positive_double) - the end of the time period (in days)
-\item probability (proportion) - the probability of infection between previous time period until `time`
+\item probability (proportion) - the probability of new event during this period.
+\item tau (integer + complete) - the days since the index event.
 }
 
 Must be grouped by: boot (exactly).
 
-A default value is defined.
-}
+A default value is defined.}
+
+\item{approx}{use a faster, but approximate, estimate of quantiles}
 }
 \value{
 A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item rt.fit (double) - an estimate of the reproduction number
-\item rt.se.fit (double) - the standard error of the reproduction number
+\item rt.se.fit (positive_double) - the standard error of the reproduction number
 \item rt.0.025 (double) - lower confidence limit of the reproduction number
 \item rt.0.5 (double) - median estimate of the reproduction number
 \item rt.0.975 (double) - upper confidence limit of the reproduction number
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 }
 \description{
-Calculate a reproduction number estimate from growth rate using the methods
-described in the vignette "Estimating the reproduction number from modelled
-incidence" and using an empirical generation time distribution.
+Calculate a reproduction number estimate from modelled incidence using the
+methods described in the vignette "Estimating the reproduction number from
+modelled incidence" and using a set of empirical generation time
+distributions. This assumes that modelled incidence has the same time unit as
+the \code{ip} distribution, and that this is daily, if this is not the case then
+\code{\link[=rescale_model]{rescale_model()}} may be able to fix it.
 }
 \examples{
 df = ggoutbreak::england_covid \%>\%
   time_aggregate(count=sum(count)) \%>\%
     poisson_locfit_model()
 
-
-if (FALSE) {
+if (interactive()) {
   # not run
-  tmp2 = df \%>\% rt_from_incidence()
+  withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
+    tmp3 = df \%>\% rt_from_incidence(ganyani_ip)
+  })
 }
+
+tmp = df \%>\% rt_from_incidence(du_serial_interval_ip)
 
 }
 \concept{models}

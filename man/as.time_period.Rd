@@ -7,6 +7,7 @@
 \alias{[<-.time_period}
 \alias{[[.time_period}
 \alias{[[<-.time_period}
+\alias{seq.time_period}
 \alias{is.time_period}
 \alias{print.time_period}
 \title{Convert to a time period class}
@@ -22,6 +23,8 @@ as.time_period(x, unit = NULL, start_date = NULL, anchor = NULL, ...)
 \method{[[}{time_period}(x, ...)
 
 \method{[[}{time_period}(x, ...) <- value
+
+\method{seq}{time_period}(from, to = from, ...)
 
 is.time_period(x)
 
@@ -50,6 +53,10 @@ fall back to \code{getOption("day_zero","2019-12-29")}}
 \item{recursive}{concatenate recursively}
 
 \item{value}{the value}
+
+\item{from, to}{the starting and (maximal) end values of the
+    sequence.  Of length \code{1} unless just \code{from} is supplied as
+    an unnamed argument.}
 }
 \value{
 a \code{time_period} class, consisting of a vector of numbers, with
@@ -71,6 +78,8 @@ and fractional days to be represented in a consistent(ish) way
 \item \code{[[}: Get a value in a \code{time_period}
 
 \item \code{`[[`(time_period) <- value}: Assign a value in a \code{time_period}
+
+\item \code{seq(time_period)}: Create a sequence using \code{time_period}s
 
 \item \code{is.time_period()}: Check is a \code{time_period}
 

@@ -62,7 +62,9 @@ utils::globalVariables(c(
 	"contacts",
 	"R_t",
 	"last_time",
-	"rate"
+	"rate",
+	"rt.samples",
+	"incidence.logsamples"
 ))
 
 

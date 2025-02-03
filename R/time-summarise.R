@@ -136,7 +136,7 @@ time_summarise = function(df = i_dated, unit, anchor = "start", rectangular = FA
 #' @param .groups as per `dplyr::summarise`
 #'
 #' @return the summarised time series preserving the `time` column, and with the grouping
-#'   structure involving one fewer levels that the input
+#'   structure involving one fewer levels than the input
 #' @export
 #' @concept time_period
 #'
@@ -171,10 +171,10 @@ time_aggregate = function(df = i_timestamped, ..., .groups = NULL, .cols = NULL,
     if (length(dots) == 0) {
       dots = list(count = rlang::expr(sum(count)))
       if (.has_cols(df, "denom")) {
-        dots = c(dots,list(denom = rlang::expr(sum(denom))))
+        dots[["denom"]] = rlang::expr(sum(denom))
       }
       if (.has_cols(df, "population")) {
-        dots = c(dots,list(population = rlang::expr(sum(population))))
+        dots[["population"]] = rlang::expr(sum(population))
       }
     }
     out = df %>% dplyr::summarise(!!!dots, .groups=.groups)

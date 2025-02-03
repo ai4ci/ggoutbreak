@@ -52,7 +52,7 @@
     <loc>/reference/breaks_log1p.html</loc>
   </url>
   <url>
-    <loc>/reference/covid_infectivity_profile.html</loc>
+    <loc>/reference/covid_ip.html</loc>
   </url>
   <url>
     <loc>/reference/cut_date.html</loc>
@@ -239,6 +239,9 @@
   </url>
   <url>
     <loc>/reference/rt_from_incidence.html</loc>
+  </url>
+  <url>
+    <loc>/reference/rt_from_renewal.html</loc>
   </url>
   <url>
     <loc>/reference/scale_y_log1p.html</loc>

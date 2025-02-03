@@ -22,10 +22,7 @@ A dataframe containing the following columns:
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.
-
-No default value.
-}
+Ungrouped.}
 
 \item{...}{not used and present to allow proportion model to be used in a
 \code{group_modify}}
@@ -50,20 +47,18 @@ A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
-\item incidence.se.fit (double) - the standard error of the incidence rate estimate on a log scale
+\item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
 \item incidence.0.5 (positive_double) - median estimate of the incidence rate (true scale)
 \item incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)
 \item growth.fit (double) - an estimate of the growth rate
-\item growth.se.fit (double) - the standard error the growth rate
+\item growth.se.fit (positive_double) - the standard error the growth rate
 \item growth.0.025 (double) - lower confidence limit of the growth rate
 \item growth.0.5 (double) - median estimate of the growth rate
 \item growth.0.975 (double) - upper confidence limit of the growth rate
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 }
 \description{
 Takes a list of times and counts and fits a quasi-poisson model
@@ -76,9 +71,12 @@ growth rate estimate both based on the time unit of the input data (e.g. for
 daily data the rate will be cases per day and the growth rate will be daily).
 }
 \examples{
-ggoutbreak::england_covid \%>\%
-  ggoutbreak::poisson_locfit_model(window=21) \%>\%
-  dplyr::glimpse()
+
+withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
+  ggoutbreak::england_covid \%>\%
+    ggoutbreak::poisson_locfit_model(window=21) \%>\%
+    dplyr::glimpse()
+})
 
 }
 \concept{models}

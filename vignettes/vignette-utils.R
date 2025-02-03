@@ -21,4 +21,18 @@ ggplot2::theme_set(ggplot2::theme_bw(base_size = 8)+
   return(raw_lineages)
 }
 
-source(here::here("R/standalone-test-utils.R"))
+.no_X = function() {
+  return(ggplot2::theme(
+    axis.text.x.bottom = ggplot2::element_blank(),
+    axis.title.x = ggplot2::element_blank()
+  ))
+}
+
+.no_Y = function() {
+  return(ggplot2::theme(
+    axis.text.y.left = ggplot2::element_blank(),
+    axis.title.y = ggplot2::element_blank()
+  ))
+}
+
+# source(here::here("R/standalone-test-utils.R"))

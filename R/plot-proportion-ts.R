@@ -22,7 +22,7 @@ plot_proportion = function(
     modelled = i_proportion_model,
     raw = i_proportion_data,
     ...,
-    mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class) else ggplot2::aes(),
+    mapping = .check_for_aes(modelled,...),
     events = i_events
 ) {
 
@@ -53,13 +53,10 @@ plot_proportion = function(
                data = raw, mapping=ggplot2::aes(x=as.Date(time), y=count/denom*100, !!!mapping), ...)
       } else {NULL}
     }+
-    ggplot2::ylab("Proportion (%)")+
+    ggplot2::ylab("proportion (%)")+
     ggplot2::xlab(NULL)+
     ggplot2::theme(legend.title=ggplot2::element_blank())
 
 
 }
 
-#TODO: risk_ratio
-# risk_ratio data for points
-#

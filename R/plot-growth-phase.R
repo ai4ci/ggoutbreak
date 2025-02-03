@@ -16,15 +16,14 @@
 #' @param duration the length of the growth rate phase trail
 #' @param interval the length of time between markers on the phase plot
 #' @param mapping a `ggplot2::aes()` mapping
-#' @param cis should the phases be marked with confidence intervals?
+#' @param cis logical; should the phases be marked with confidence intervals?
 #' @inheritParams geom_events
 #' @inheritDotParams geom_events events
 #'
-#' @return a ggplot timeseries
+#' @return a ggplot
 #' @export
 #' @concept vis
 #' @examples
-#' # example code
 #'
 #' tmp = ggoutbreak::england_covid %>%
 #'   time_aggregate(count=sum(count))
@@ -88,8 +87,8 @@ plot_growth_phase.incidence = function(
   )
 
   .do_phase(modelled, timepoints, duration, interval, mapping, ...,
-            xlab = "Growth rate per %s",
-            ylab = "Incidence per %s",
+            xlab = "growth rate per %s",
+            ylab = "cases per %s",
             cis = cis,
             show_doubling = TRUE
   )+scale_y_log1p()
@@ -117,8 +116,8 @@ plot_growth_phase.incidence_per_capita = function(
   population_unit = unique(modelled$population_unit)
 
   .do_phase(modelled, timepoints, duration, interval, mapping, ...,
-            xlab = "Growth rate per %s",
-            ylab = sprintf("Incidence per %s per %%s", .fmt_pop(population_unit)),
+            xlab = "growth rate per %s",
+            ylab = sprintf("cases per %s per %%s", .fmt_pop(population_unit)),
             cis = cis,
             show_doubling = TRUE
   )+
@@ -145,8 +144,8 @@ plot_growth_phase.proportion = function(
   )
 
   .do_phase(modelled, timepoints, duration, interval, mapping, ...,
-            xlab = "Relative growth rate per %s",
-            ylab = "Proportion (%%)",
+            xlab = "relative growth rate per %s",
+            ylab = "proportion (%%)",
             cis = cis
   )
 }
@@ -174,8 +173,8 @@ plot_growth_phase.risk_ratio = function(
   # mx = .glimit(modelled$relative.growth.0.5)
 
   p = .do_phase(modelled, timepoints, duration, interval, mapping, ...,
-            xlab = "Relative growth rate per %s",
-            ylab = "Relative risk",
+            xlab = "relative growth rate per %s",
+            ylab = "relative risk",
             cis = cis
   )
 
@@ -245,7 +244,7 @@ plot_growth_phase.risk_ratio = function(
     {if (cis) {ggplot2::geom_errorbarh(data=plot_data %>% dplyr::filter(display_errorbars), mapping=ggplot2::aes(y=y, xmin=xmin, xmax=xmax, !!!mapping),height=0)} else {NULL}}+
     ggplot2::scale_alpha_identity()+
     ggplot2::scale_size_identity()+
-    ggplot2::facet_wrap(~ labels)+
+    ggplot2::facet_wrap(~ labels, strip.position = "right")+
     ggplot2::xlab(suppressWarnings(sprintf(xlab, .fmt_unit(modelled$time))))+
     ggplot2::ylab(suppressWarnings(sprintf(ylab, .fmt_unit(modelled$time))))+
     ggplot2::theme(legend.title=ggplot2::element_blank()) +
@@ -254,7 +253,7 @@ plot_growth_phase.risk_ratio = function(
           # Doubling time is not easy to interpret for realtive growth rates
           ggplot2::scale_x_continuous(sec.axis = ggplot2::dup_axis(
             labels = function(x) ifelse(x==0,.pdf_safe("\u00B1\u221E"),sprintf("%.2g",(log(2)/x/.step(modelled$time)))),
-            name="Doubling time (days)"))
+            name="doubling time (days)"))
       } else {
         NULL
       }

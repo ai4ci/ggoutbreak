@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.3.1
+Version: 0.4.0.9000
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -14,7 +14,7 @@ Description: Simple statistical models and visualisations for calculating the
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2.9004
 Suggests: 
     downloader,
     fs,
@@ -29,7 +29,7 @@ Suggests:
     devtools,
     patchwork,
     memoise,
-    withr
+    coarseDataTools
 VignetteBuilder: knitr
 Imports: 
     dplyr,
@@ -47,9 +47,11 @@ Imports:
     glue,
     purrr,
     EpiEstim,
-    interfacer (>= 0.2.4),
-    ragg
-Remotes: github::bristol-vaccine-centre/interfacer
+    ragg,
+    withr,
+    MASS,
+    interfacer (>= 0.3.3)
+Remotes: github::ai4ci/interfacer
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,
     https://doi.org/10.5281/zenodo.13165561

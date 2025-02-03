@@ -17,7 +17,7 @@
 #' @export
 #' @concept models
 #' @examples
-#' if (FALSE) {
+#' if (interactive()) {
 #'   # not run due to long running
 #'   tmp = ggoutbreak::england_covid %>%
 #'     dplyr::filter(date > "2022-01-01") %>%

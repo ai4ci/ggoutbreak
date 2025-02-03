@@ -3,3 +3,7 @@
 # .onLoad <- function(lib, pkg) {
 #   rlang::run_on_load()
 # }
+
+.onLoad <- function(libname, pkgname) {
+  make_gamma_ip <<- memoise::memoise(make_gamma_ip)
+}

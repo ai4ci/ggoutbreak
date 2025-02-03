@@ -35,7 +35,7 @@ data using \code{nnet::multinom}, with approx one degree of freedom per class an
 \code{window} units of the time series
 }
 \examples{
-if (FALSE) {
+if (interactive()) {
   # not run due to long running
   tmp = ggoutbreak::england_covid \%>\%
     dplyr::filter(date > "2022-01-01") \%>\%

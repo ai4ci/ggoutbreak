@@ -64,43 +64,9 @@ england_covid_pcr_positivity = england_cases_tests %>%
 
 if(interactive()) interfacer::use_dataframe(england_covid_pcr_positivity)
 
-# TODO:
-# Regional breakdown of testing effort and positivity by age group
-# was published as part of test and trace.
-# This had a by age by region breakdown, until they shut down test and trace.
-# https://www.gov.uk/government/publications/weekly-statistics-for-nhs-test-and-trace-england-2-to-15-june-2022
-# From this we could look at by age group proportion and incidence models
-# and look into ascertainment bias in age groups.
 
 
-# devtools::load_all()
-# tmp = ggoutbreak::england_covid %>%
-# dplyr::group_modify(ggoutbreak::poisson_locfit_model, window=21) %>%
-# dplyr::glimpse()
-# plot_incidence(tmp)+facet_wrap(~class)+scale_y_log1p()
-# tmp = ggoutbreak::england_covid %>%
-# dplyr::group_modify(ggoutbreak::poisson_locfit_model, window=21) %>%
-# dplyr::glimpse()
-# plot_incidence(tmp)+facet_wrap(~class)+scale_y_log1p()
-# tmp2 = ggoutbreak::england_covid %>%
-# dplyr::group_modify(ggoutbreak::proportion_locfit_model, window=21) %>%
-# dplyr::glimpse()
-# tmp2 %>% view()
-# plot_proportion(tmp2)
-# tmp2$time
-# devtools::load_all()
-# plot_proportion(tmp2)
-# devtools::load_all()
-# plot_proportion(tmp2)
-# plot_growth_rate(tmp2)
-# plot_growth_rate(tmp2)+facet_wrap(~class)+coord_cartesian(ylim=c(-0.15,0.15))
-# plot_growth_phase(tmp2)+facet_wrap(~class)+coord_cartesian(xlim=c(-0.15,0.15))
-# plot_growth_phase(tmp2)+facet_wrap(~class)+coord_cartesian(xlim=c(-0.1,0.1))
-# plot_growth_phase(tmp2)+facet_wrap(~class)+coord_cartesian(xlim=c(-0.075,0.075))
-# plot_multinomial(tmp2,normalise=TRUE)
-# plot_multinomial(tmp2,normalise=TRUE)+scale_fill_viridis_d()
-# plot_multinomial(tmp2,normalise=TRUE,colour=NULL)+scale_fill_viridis_d()
-# plot_multinomial(tmp2,normalise=TRUE,colour=NA)+scale_fill_viridis_d()
+
 
 tmp = tempfile()
 download.file("https://assets.publishing.service.gov.uk/media/63a46e3ed3bf7f375c7d833d/221221_R_and_growth_rate_time_series_for_publication_v1.0.ods",tmp)

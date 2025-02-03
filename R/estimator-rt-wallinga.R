@@ -1,13 +1,17 @@
 
-#' Wallinga-Lipsitch reproduction number
+#' Wallinga-Lipsitch reproduction number from growth rates
 #'
 #' Calculate a reproduction number estimate from growth rate using the Wallinga
 #' 2007 estimation using empirical generation time distribution. This uses
-#' resampling to transmit uncertainty in growth rate estimates
+#' resampling to transmit uncertainty in growth rate estimates. This also handles
+#' time-series that are not on a daily cadence (although this is experimental).
+#' The reproduction number estimate is neither a instantaneous (backward looking)
+#' nor case (forward looking) reproduction number but somewhere between the two.
 #'
 #' @iparam df Growth rate estimates
 #' @iparam ip Infectivity profile
 #' @param bootstraps - the number of bootstraps to take to calculate for each point.
+#' @param seed a random number generator seed
 #'
 #' @return `r i_reproduction_number`
 #' @export
@@ -17,17 +21,19 @@
 #'   time_aggregate(count=sum(count))
 #'
 #'
-#' if (FALSE) {
+#' if (interactive()) {
 #'   # not run
-#'   tmp2 = tmp %>%
-#'     poisson_locfit_model() %>%
-#'     rt_from_growth_rate()
+#'   withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
+#'    tmp2 = tmp %>%
+#'       poisson_locfit_model() %>%
+#'       rt_from_growth_rate()
+#'   })
 #' }
 #'
-rt_from_growth_rate = function(df = i_growth_rate, ip = i_infectivity_profile, bootstraps = 2000) {
+rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstraps = 1000, seed = Sys.time()) {
 
   df = interfacer::ivalidate(df)
-  ip = interfacer::ivalidate(ip)
+  ip = interfacer::ivalidate(ip, .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5))
 
   # e.g. converting a weekly to a daily growth rate
   # exp(r_wk) = exp(r_daily)^7
@@ -35,7 +41,8 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_infectivity_profile, b
   .daily_unit = .step(df$time)
 
   ip_boots = ip %>% dplyr::n_groups()
-  boots_per_ip = max(bootstraps %/% ip_boots,10)
+  boots_per_ip = max(ceiling(bootstraps/ip_boots),10)
+  boots = boots_per_ip*ip_boots
 
   df = df %>% dplyr::mutate(
     rt = purrr::map2(growth.fit, growth.se.fit, .progress = interactive(), function(mean_r, sd_r) {
@@ -49,37 +56,44 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_infectivity_profile, b
       # r_samples = tibble::tibble(r = stats::qnorm(p=qnts,mean_r,sd_r)) %>%
       #   dplyr::mutate(r_i = dplyr::row_number())
 
-      r_samples = tibble::tibble(
-          r = stats::rnorm(boots_per_ip*ip_boots, mean_r, sd_r),
+      r_samples = withr::with_seed(seed,{
+        tibble::tibble(
+          r = stats::rnorm(boots, mean_r, sd_r),
           boot = rep(unique(ip$boot),boots_per_ip)
         ) %>%
         dplyr::group_by(boot) %>%
         dplyr::mutate(r_i = dplyr::row_number())
+      })
 
       tmp = ip %>%
         dplyr::inner_join(r_samples, by="boot") %>%
-        dplyr::rename(y = probability, a = time) %>%
-        # get rid of a=0, y=0 if given.
-        dplyr::filter(a > 0) %>%
+        dplyr::rename(y = probability) %>%
         dplyr::group_by(boot,r_i) %>%
-        dplyr::arrange(boot,r_i,a) %>%
+        dplyr::arrange(boot,r_i) %>%
         dplyr::mutate(
           R = r/sum(
             y
               *
-            (exp(-r*dplyr::lag(a,default=0))-exp(-r*a))
+            (exp(-r*a0)-exp(-r*a1))
               /
-            (a - dplyr::lag(a,default=0))
+            (a1 - a0)
           )
-        )
+        ) %>%
+        dplyr::mutate(R = ifelse(r==0,1,R))
 
       R_summ = tmp %>% dplyr::ungroup() %>% dplyr::summarise(
         rt.fit = mean(R, na.rm=TRUE),
         rt.se.fit = stats::sd(R, na.rm=TRUE),
-        rt.0.025 = stats::quantile(R, probs=0.025, na.rm=TRUE),
-        rt.0.5 = stats::quantile(R, probs=0.5, na.rm=TRUE),
-        rt.0.975 = stats::quantile(R, probs=0.975, na.rm=TRUE),
-      )
+        rt.samples = list(R)
+      ) %>%
+      .result_from_fit(
+        "rt",
+        # This format is needed because quantile is not vectorised on data:
+        qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) quantile(data, p))
+      )  %>%
+      .keep_cdf(type = "rt", .$rt.samples) %>%
+      dplyr::select(-rt.samples)
+
       return(R_summ)
     })
   )
@@ -92,27 +106,41 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_infectivity_profile, b
 
 
 
+
 #' Calculate the reproduction number from a growth rate estimate and an infectivity profile
 #'
+#' This function uses a single empirical distribution for the infectivity
+#' profile aka generation time
+#'
 #' @param r a growth rate (may be a vector)
-#' @param y an empirical infectivity profile as a probability vector, starting at `P(0<t,a[1])`
-#' @param a the end time of the estimate (defaults to single days).
+#' @param y an empirical infectivity profile either as a probability vector or as a dataframe of format:
+#'   `r i_empirical_ip`
+#' @param a1 the end time of the infectivity profile probability estimate (defaults to 0.5,1.5,2.5,...).
+#' @param a0 the start time of the infectivity profile probability estimate (defaults to 0,0.5,1.5,...).
 #'
 #' @return a reproduction number estimate based on `r`
 #' @export
 #'
 #' @examples
-#' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=dgamma(1:50, 5,2))
-wallinga_lipsitch = function(r, y, a=1:length(y)) {
+#' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
+wallinga_lipsitch = function(r, y = i_empirical_ip, a1=seq(0.5, length.out=length(y)), a0=dplyr::lag(a1,default=0)) {
+
+  if (is.data.frame(y)) {
+    ip = interfacer::ivalidate(y, .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5))
+    ip = .summary_ip_no_chk(ip)
+    a0 = ip$a0
+    a1 = ip$a1
+    y = ip$probability
+  }
 
   y = y/sum(y)
   tmp = sapply(r, function(r2) {
     R = r2/sum(
       y
       *
-        (exp(-r2*dplyr::lag(a,default=0))-exp(-r2*a))
+        (exp(-r2*a0)-exp(-r2*a1))
       /
-        (a - dplyr::lag(a,default=0))
+        (a1 - a0)
     )
     return(R)
   })
@@ -120,3 +148,43 @@ wallinga_lipsitch = function(r, y, a=1:length(y)) {
 }
 
 
+
+
+#' Calculate a growth rate from a reproduction number and an infectivity profile
+#'
+#' @param Rt a vector of reproduction numbers
+#' @param y an empirical infectivity profile as a probability vector or as a
+#'   dataframe of format:
+#'   `r i_empirical_ip`
+#' @param a1 the end time of the infectivity profile probability estimate (defaults to 0.5,1.5,2.5,...).
+#' @param a0 the start time of the infectivity profile probability estimate (defaults to 0,0.5,1.5,...).
+#'
+#' @return an vector of growth rates
+#' @export
+#'
+#' @examples
+#' y=stats::pgamma(seq(0.5,length.out=50), 5,2)-stats::pgamma(c(0,seq(0.5,length.out=49)), 5,2)
+#' inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=y)
+inv_wallinga_lipsitch = function(Rt, y= i_empirical_ip, a1=seq(0.5, length.out=length(y)), a0=dplyr::lag(a1,default=0)) {
+
+  if (is.data.frame(y)) {
+    ip = interfacer::ivalidate(y, .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5))
+    ip = .summary_ip_no_chk(ip)
+    a0 = ip$a0
+    a1 = ip$a1
+    y = ip$probability
+  }
+
+  Tc = sum(y*(a1-a0)*(a0+a1)/2) # mean generation interval
+
+  sapply(Rt, function(R) {
+    r_delta = log(R)/Tc
+    r_exp = (R-1)/Tc
+    f = function(r) wallinga_lipsitch(r, y, a1, a0)-R
+    if (R==1) return(0)
+    stats::uniroot(f,
+            interval = c(r_delta,r_exp),
+            extendInt = "yes"
+            )$root
+  })
+}

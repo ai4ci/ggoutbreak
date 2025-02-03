@@ -25,27 +25,22 @@
 #' # example code
 #'
 #' tmp = ggoutbreak::england_covid %>%
-#'   time_aggregate(count=sum(count))
+#'   time_aggregate(count=sum(count)) %>%
+#'   normalise_count(56489700, population_unit=1000, normalise_time="1 year")
 #'
-#' tmp_pop = ggoutbreak::england_demographics %>%
-#'   dplyr::ungroup() %>%
-#'   dplyr::summarise(population = sum(population))
+#' tmp2 = tmp %>% poisson_locfit_model()
 #'
-#' # If the incidence is normalised by population
-#' tmp2 = tmp %>%
-#'   poisson_locfit_model() %>%
-#'   normalise_incidence(tmp_pop)
+#' plot_incidence(tmp2,tmp,colour="blue",size=0.25)
 #'
-#' plot_incidence(tmp2,tmp %>% dplyr::cross_join(tmp_pop),colour="blue",size=0.25)
 plot_incidence = function(
     modelled = i_incidence_model,
     raw = i_incidence_data,
     ...,
-    mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class) else ggplot2::aes(),
+    mapping = .check_for_aes(modelled,...),
     events = i_events
 ) {
 
-  if (interfacer::is.iface(modelled)) modelled = raw %>% dplyr::group_modify(poisson_locfit_model, ...)
+  if (interfacer::is.iface(modelled)) modelled = raw %>% poisson_locfit_model(...)
 
   interfacer::idispatch(modelled,
     plot_incidence.per_capita = i_incidence_per_capita_model,
@@ -59,12 +54,13 @@ plot_incidence.default = function(
   modelled = i_incidence_model,
   raw = i_incidence_data,
   ...,
-  mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class) else ggplot2::aes(),
+  mapping = .check_for_aes(modelled,...),
   events = i_events
 ) {
 
   if (!interfacer::is.iface(raw)) {
     raw = interfacer::ivalidate(raw)
+    timefrac = attr(modelled$time,"unit") / attr(raw$time,"unit")
     plot_points = TRUE
   } else {
     plot_points = FALSE
@@ -87,14 +83,24 @@ plot_incidence.default = function(
     )+
     {
       if (plot_points) {
-        .layer(
-          ggplot2::GeomPoint,
-          data = raw,
-          mapping=ggplot2::aes(x=as.Date(time), y=count, !!!mapping),
-          ...
-        )
+        if (timefrac==1) {
+          .layer(
+            ggplot2::GeomPoint,
+            data = raw,
+            mapping=ggplot2::aes(x=as.Date(time), y=count*timefrac, !!!mapping),
+            ...
+          )
+        } else {
+          .layer(
+            ggplot2::GeomSegment,
+            data = raw,
+            mapping=ggplot2::aes(x=as.Date(time-0.5),xend=as.Date(time+0.5), y=count*timefrac,yend=count*timefrac, !!!mapping),
+            ...
+          )
+        }
       } else {NULL}
     }+
+    ggplot2::scale_y_continuous(breaks = .integer_breaks())+
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(modelled$time)))+
     ggplot2::xlab(NULL)+
     ggplot2::theme(legend.title=ggplot2::element_blank())
@@ -105,19 +111,26 @@ plot_incidence.per_capita = function(
   modelled = i_incidence_per_capita_model,
   raw = i_incidence_per_capita_data,
   ...,
-  mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class) else ggplot2::aes(),
+  mapping = .check_for_aes(modelled,...),
   events = i_events
 ) {
 
   population_unit = unique(modelled$population_unit)
   time_unit = modelled$time_unit[[1]] # e.g. modelled nornalised time unit is per year
   # unique() does not work on lubridate::periods
-  # TODO assume no-one is stupid enough to have different durations in same dataframe
+  # TODO assume no-one is obtuse enough to have different durations in same dataframe
 
   if (!interfacer::is.iface(raw)) {
-    timefrac = time_unit/.get_meta(raw$time)$unit # original time unit is per week => we want to *52/7
+
     raw = interfacer::ivalidate(raw)
-    raw = raw %>% dplyr::mutate(count.per_capita = count/population*population_unit*timefrac)
+
+    raw_time_unit = raw$time_unit[[1]]
+    timefrac = time_unit/raw_time_unit
+    raw_population_unit = unique(raw$population_unit)
+    popfrac = population_unit/raw_population_unit
+
+    # make sure the raw data is on the same temporal and population unit as the modelled data.
+    raw = raw %>% dplyr::mutate(count.per_capita = count.per_capita*timefrac*popfrac)
     plot_points = TRUE
   } else {
     plot_points = FALSE

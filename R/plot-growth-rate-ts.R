@@ -16,7 +16,7 @@
 #' @inheritParams geom_events
 #' @inheritDotParams geom_events events
 #'
-#' @return a ggplot timeseries
+#' @return a ggplot
 #' @export
 #' @concept vis
 #' @examples
@@ -47,7 +47,7 @@
 plot_growth_rate = function(
     modelled = i_timeseries,
     ...,
-    mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class) else ggplot2::aes(),
+    mapping = .check_for_aes(modelled,...),
     events = i_events
 ) {
   interfacer::idispatch(
@@ -61,7 +61,7 @@ plot_growth_rate = function(
 plot_growth_rate.incidence = function(
     modelled = i_incidence_rate,
     ...,
-    mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class) else ggplot2::aes(),
+    mapping = .check_for_aes(modelled,...),
     events = i_events
 ) {
 
@@ -83,12 +83,12 @@ plot_growth_rate.incidence = function(
            ...,
            .default=list(colour = NA, alpha=0.2)
     )+
-    ggplot2::ylab(sprintf("Growth rate per %s", .fmt_unit(modelled$time)))+
+    ggplot2::ylab(sprintf("growth rate per %s", .fmt_unit(modelled$time)))+
     ggplot2::xlab(NULL)+
     ggplot2::theme(legend.title=ggplot2::element_blank())+
     ggplot2::scale_y_continuous(sec.axis = ggplot2::dup_axis(
       labels = function(x) ifelse(x==0,.pdf_safe("\u00B1\u221E"),sprintf("%.2g",(log(2)/x/.step(modelled$time)))),
-      name="Doubling time (days)"))+
+      name="doubling time (days)"))+
     ggplot2::coord_cartesian(ylim = c(-my,my))
 
 }
@@ -101,7 +101,7 @@ plot_growth_rate.incidence = function(
 plot_growth_rate.proportion = function(
     modelled = i_proportion_rate,
     ...,
-    mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class) else ggplot2::aes(),
+    mapping = .check_for_aes(modelled,...),
     events = i_events
 ) {
 
@@ -123,7 +123,7 @@ plot_growth_rate.proportion = function(
            ...,
            .default = list(colour = NA, alpha=0.2)
     )+
-    ggplot2::ylab(sprintf("Relative growth rate per %s", .fmt_unit(modelled$time)))+
+    ggplot2::ylab(sprintf("relative growth rate per %s", .fmt_unit(modelled$time)))+
     ggplot2::xlab(NULL)+
     ggplot2::theme(legend.title=ggplot2::element_blank())+
     ggplot2::coord_cartesian(ylim = c(-my,my))

@@ -50,9 +50,7 @@ A dataframe containing the following columns:
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 
 or a more minimal output if the input is only a plain list of dated events:
 
@@ -62,9 +60,7 @@ A dataframe containing the following columns:
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 }
 \description{
 This principally is designed to take a record of single events and produce a

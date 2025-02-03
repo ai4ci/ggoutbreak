@@ -38,7 +38,7 @@ ggoutbreak::england_variants %>% dplyr::glimpse()
 ```
 
 The data must have a `class` column defining the main categorisation of the data
-(in this case it is the main pango variant). The `time` column is a
+(in this case it is the main Pango variant). The `time` column is a
 `time_period` derived from the date (which is weekly). The other necessary
 column is the `count` column which is integer counts of each `class`. The data
 must be grouped by `class`. Multiple models can be fitted simultaneously if the
@@ -78,7 +78,7 @@ plot_proportion(probs2)+
 The rate of change of the proportion of each individual variant versus the
 others on a logistic scale can be used to work out the exponential growth rate
 of one variant relative to the others. Because this is a relative growth rate
-taken togehter the esimates of all variants at a given time are centred around
+taken together the estimates of all variants at a given time are centred around
 zero. If one variant has a growth advantage, by definition others have a growth
 disadvantage despite potentially causing a larger disease burden and having
 increasing numbers in a growing epidemic.
@@ -94,5 +94,7 @@ The binomial relative growth rate per day is a growth advantage over existing va
 This has a dependency on the unit of time which is controlled by the `time_period`
 configuration. In the data provided here the `time_period` is defined on a daily basis
 despite the data being provided weekly. Doubling time does not make strict sense when
-describing relative growth rates and is not shown here.
+describing relative growth rates and is not shown here. The variant advantage in 
+terms of reproduction number needs additional information about the infectivity
+profile (aka generation time distribution) and as a result is much more complex.
 

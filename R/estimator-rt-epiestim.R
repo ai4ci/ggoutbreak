@@ -32,27 +32,24 @@
 #' tmp = ggoutbreak::england_covid %>%
 #'   time_aggregate(count=sum(count))
 #'
-#' if (FALSE) {
+#' if (interactive()) {
 #'   # not run due to long running
 #'   tmp2 = tmp %>% rt_epiestim()
 #' }
 #'
 #'
-rt_epiestim = function(df = i_incidence_input, ip = i_infectivity_profile, bootstraps = 2000, window = 14, mean_prior = 1, std_prior = 2, ...) {
+rt_epiestim = function(df = i_incidence_input, ip = i_discrete_ip, bootstraps = 2000, window = 14, mean_prior = 1, std_prior = 2, ...) {
 
   ip = interfacer::ivalidate(ip)
   ip_boots = dplyr::n_distinct(ip$boot)
 
   siConfig = EpiEstim::make_config(method = "si_from_sample", mean_prior = mean_prior, std_prior = std_prior)
-  yMatrix = ip %>% tidyr::pivot_wider(names_from = boot, values_from = probability) %>%
-    dplyr::arrange(time) %>%
-    dplyr::select(-time) %>%
-    as.matrix()
-  yMatrix = rbind(rep(0,dim(yMatrix)[2]),yMatrix)
+  yMatrix = ip %>% .omega_matrix(epiestim_compat = TRUE)
 
   siConfig$n2 = max(bootstraps %/% ip_boots,10)
 
   interfacer::igroup_process(df, function(df,siConfig,window,...) {
+    .stop_if_not_daily(df$time)
 
     meta = .get_meta(df$time)
     tmp = df %>% dplyr::transmute(I=count)
@@ -73,7 +70,11 @@ rt_epiestim = function(df = i_incidence_input, ip = i_infectivity_profile, boots
       rt.fit = `Mean(R)`,
       rt.se.fit = `Std(R)`,
       rt.0.025 = `Quantile.0.025(R)`,
+      rt.0.05 = `Quantile.0.05(R)`,
+      rt.0.25 = `Quantile.0.25(R)`,
       rt.0.5 = `Median(R)`,
+      rt.0.75 = `Quantile.0.75(R)`,
+      rt.0.95 = `Quantile.0.95(R)`,
       rt.0.975 = `Quantile.0.975(R)`,
       rt.warn = rt.warn
     )

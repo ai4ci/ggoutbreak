@@ -1,12 +1,16 @@
 
 #' Reproduction number from modelled incidence
 #'
-#' Calculate a reproduction number estimate from growth rate using the methods
-#' described in the vignette "Estimating the reproduction number from modelled
-#' incidence" and using an empirical generation time distribution.
+#' Calculate a reproduction number estimate from modelled incidence using the
+#' methods described in the vignette "Estimating the reproduction number from
+#' modelled incidence" and using a set of empirical generation time
+#' distributions. This assumes that modelled incidence has the same time unit as
+#' the `ip` distribution, and that this is daily, if this is not the case then
+#' [rescale_model()] may be able to fix it.
 #'
-#' @iparam df Count data
-#' @iparam ip Infectivity profile
+#' @iparam df modelled incidence estimate
+#' @iparam ip an infectivity profile (aka generation time distribution)
+#' @param approx use a faster, but approximate, estimate of quantiles
 #'
 #' @return `r i_reproduction_number`
 #' @export
@@ -16,44 +20,48 @@
 #'   time_aggregate(count=sum(count)) %>%
 #'     poisson_locfit_model()
 #'
-#'
-#' if (FALSE) {
+#' if (interactive()) {
 #'   # not run
-#'   tmp2 = df %>% rt_from_incidence()
+#'   withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
+#'     tmp3 = df %>% rt_from_incidence(ganyani_ip)
+#'   })
 #' }
 #'
-rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile) { #, assume_start = TRUE) {
+#' tmp = df %>% rt_from_incidence(du_serial_interval_ip)
+#'
+rt_from_incidence = function(df = i_incidence_model, ip = i_discrete_ip, approx = FALSE) { #, assume_start = TRUE) {
 
   ip = interfacer::ivalidate(ip)
 
+  # relax assumption that time in infectivity profile starts at 1.
+  # we haven;t yet tested that negative serial intervals will work but there is
+  # no good reason why not.
+  start = min(ip$tau)
+
   # omega is a matrix
-  omega = ip %>%
-    tidyr::pivot_wider(names_from = boot, values_from = probability) %>%
-    dplyr::arrange(time) %>%
-    dplyr::select(-time) %>%
-    as.matrix()
+  omega = ip %>% .omega_matrix(epiestim_compat = FALSE)
 
   window = nrow(omega)
 
-  interfacer::igroup_process(df, function(df,omega,window,...) {
+  interfacer::igroup_process(df, function(df,omega, window, start,...) {
+    .stop_if_not_daily(df$time)
 
-    rt = lapply(1:nrow(df), function(i) {
-      if (i<=window+1) {
-        return(tibble::tibble())
-        # if (!assume_start || i<5) return(tibble::tibble())
+    end = nrow(df)+min(c(start,0))
+    rt = lapply(1:end, function(i) {
 
-        # pad_mu = rep(df$incidence.fit[1],window-i+1)
-        # pad_sigma = rep(df$incidence.se.fit[1],window-i+1)
+      if (i<window+start) {
 
-        # mu_t = c(pad_mu,df$incidence.fit[1:(i-1)])
-        # sigma_t = c(pad_sigma,df$incidence.se.fit[1:(i-1)])
+        pad = .ln_pad(window-i+start, df$incidence.fit[1], df$incidence.se.fit[1], spread = 1.1 )
+        mu_t = c(pad$mu,df$incidence.fit[1:(i-start)])
+        sigma_t = c(pad$sigma,df$incidence.se.fit[1:(i-start)])
+
         # omega = omega[1:(i-1)]/sum(omega[1:(i-1)])
         # mu_t = df$incidence.fit[1:(i-1)]
         # sigma_t = df$incidence.se.fit[1:(i-1)]
 
       } else {
-        mu_t = df$incidence.fit[(i-window):(i-1)]
-        sigma_t = df$incidence.se.fit[(i-window):(i-1)]
+        mu_t = df$incidence.fit[(i-window-start+1):(i-start)]
+        sigma_t = df$incidence.se.fit[(i-window-start+1):(i-start)]
       }
       return(.internal_r_t_estim(
         mu = df$incidence.fit[i],
@@ -61,9 +69,14 @@ rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile)
         omega = omega,
         mu_t = mu_t,
         sigma_t = sigma_t,
-        cor = FALSE
+        cor = FALSE,
+        approx = approx
       ))
     })
+
+    if (length(rt) < nrow(df)) {
+      rt = c(rt,rep(list(NULL), nrow(df)-length(rt)))
+    }
 
     df2 = df %>%
       dplyr::mutate(rt = rt) %>%
@@ -75,9 +88,6 @@ rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile)
 
 }
 
-
-
-
 .logsumexp = function(x, na.rm = FALSE) {
   if (!na.rm & any(is.na(x))) return(NA)
   x = x[!is.na(x)]
@@ -88,28 +98,48 @@ rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile)
   return(c+log(sum(exp(x-c))))
 }
 
-.internal_r_t_estim = function(mu, sigma, omega, mu_t, sigma_t, cor = TRUE) {
+.internal_r_t_estim = function(mu, sigma, omega, mu_t, sigma_t, cor = FALSE, approx = TRUE) {
 
-  # omega maybe matrix or vector
+  # This function estimates the reproduction number for a specific point in time
+  # given a current log-normally distributed incidence estimate, a set of
+  # infectivity profiles, and a set of historical incidence estimates. N.B. the
+  # description of this algorithm is given here:
+  # https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
+  # - mu is a central estimate of the log of an incidence rate
+  # - sigma is a standard error of the log an incidence rate
+  # - omega is a matrix of infectivity profiles with each column representing one
+  # infectivity profile probability distribution.
+  # - mu_t is a central estimate of the log of an incidence rate in the days leading up
+  # to the given time point
+  # - sigma_t is a standard error of the log an incidence rate in
+  # the days leading up to the given time point
+  # - cor indicates if we should assume that samples from the incidence rate
+  # distributions are correlated depending on the infectivity profile, or
+  # uncorrelated. This does not greatly influence accuracy of estimates.
+  # - approx indicates that we should approximate the quantiles using the
+  # arithmetic mean of the mixture distribution quantiles (quick), rather than solving
+  # the mixture cumulative distribution function (slow)
+
   omega_m = as.matrix(omega)
   # switch direction of omega to match timeseries. This eliminates need for
   # t-\tau indexes
   omega_m = apply(omega_m, MARGIN=2, rev)
 
-  # for each infectivity profile:
+  # for each infectivity profile we
+  # approximate the denominator of the renewal equation by
+  # implementing the lognormal approximation for sum of (weighted) lognormals:
+  # This is referenced on the wikipedia page for lognormal but is also
+  # from Lo 2013 (10.2139/ssrn.2220803).
   tmp = apply(omega_m, MARGIN=2, function(omega) {
 
-    # implementing the lognormal approximation for sum of lognormals:
-    # This is referenced on the wikipedia page for lognormal but is also
-    # from Lo 2013 (10.2139/ssrn.2220803).
-    # keep everything in log for numerical stability.
+    # We keep everything in log space for numerical stability.
     log_S_t = .logsumexp(mu_t + sigma_t^2/2 + log(omega))
     log_T_t_tau = mu_t + sigma_t^2/2 + log(omega) + log(sigma_t)
 
-    # not going to create a matrix here use an indexed vector instead
+    # Are individual samples correlated or not (default is not)
     if (cor) {
-      # Assuming the terms are correlated does not make much of a difference to
-      # outcome but requires a matrix the f omega^2
+      # assuming the terms are correlated does not make much of a difference to
+      # outcome but requires a matrix the size of length(omega)^2
       n = length(omega)
       idx = 0:(n^2-1)
       i = idx %/% n
@@ -121,40 +151,77 @@ rt_from_incidence = function(df = i_incidence_model, ip = i_infectivity_profile)
       log_var_Zt_ij = 2*log_T_t_tau
     }
 
+    #
     log_var_Zt = .logsumexp(log_var_Zt_ij) - 2*log_S_t
 
     var_Zt = exp(log_var_Zt)
     mu_Zt = log_S_t - var_Zt/2
 
-    return(c(mu_Rt=mu-mu_Zt,var_Rt=sigma^2+var_Zt))
+    mu_Rt=mu-mu_Zt
+    var_Rt=sigma^2+var_Zt
+
+    return(c(mu_Rt,var_Rt))
   })
 
-  if (ncol(tmp) == 1) {
-    mu_star = tmp[1]
-    sigma2_star = tmp[2]
-    mean_star = exp(mu_star+sigma2_star/2)
-    var_star = (exp(sigma2_star)-1) * exp(2*mu_star + sigma2_star)
+  # Combine results from multiple infectivity profiles using a
+  # mixture distribution
+  mu_Rt = tmp[1,]
+  var_Rt = tmp[2,]
+  sigma_Rt = sqrt(var_Rt)
+  means = exp(mu_Rt+var_Rt/2)
+  vars = (exp(var_Rt)-1) * exp(2*mu_Rt+var_Rt)
+  mean_star = mean(means)
+  var_star = mean(vars+means^2)-mean_star^2
+
+  out = tibble::tibble(
+    rt.fit = log(mean_star^2/sqrt(mean_star^2+var_star)),
+    rt.se.fit = sqrt(log(1+var_star/mean_star^2))
+  )
+
+  if (approx) {
+
+    # We approximate the mixture with one lognormal with same mean and SD as
+    # the mixture. This is not a great approximation
+    out = out %>%
+      .result_from_fit(
+        type = "rt",
+        qfn = \(p) qlnorm(p, .$rt.fit, .$rt.se.fit)
+      ) %>%
+      .keep_cdf(
+        type = "rt",
+        meanlog=.$rt.fit,
+        sdlog=.$rt.se.fit
+      )
+
+
   } else {
-    # Combine results from multiple infectivity profiles using a
-    # lognormal approximation to a mixture of lognormals by matching
-    # moments.
-    means = exp(tmp[1,]+tmp[2,]/2)
-    vars = (exp(tmp[2,])-1) * exp(2*tmp[1,]+tmp[2,])
-    mean_star = mean(means)
-    var_star = mean(vars+means^2)-mean_star^2
-    mu_star = log(mean_star / sqrt((var_star/mean_star^2)+1))
-    sigma2_star = log((var_star/mean_star^2)+1)
+
+    out = out %>%
+      .result_from_fit(
+        type = "rt",
+        qfn = \(p) .qmixlnorm(p, mu_Rt, sigma_Rt)
+      ) %>%
+      .keep_cdf(
+        type = "rt",
+        meanlog = list(mu_Rt),
+        sdlog = list(sigma_Rt)
+      )
+
+
   }
-  sigma_star = sqrt(sigma2_star)
 
-  return(tibble::tibble(
-    rt.mu = mu_star,
-    rt.sigma = sigma_star,
-    rt.fit = mean_star,
-    rt.se.fit = sqrt(var_star),
-    rt.0.025 = stats::qlnorm(0.025, mu_star, sigma_star),
-    rt.0.5 = stats::qlnorm(0.5, mu_star, sigma_star),
-    rt.0.975 = stats::qlnorm(0.975, mu_star, sigma_star)
-  ))
+  return(out)
 
+}
+
+# create a set of lognormals based on mu and sigma with increasing SD
+.ln_pad = function(length, mu, sigma, spread = 1.1) {
+  mean = exp(mu + sigma^2/2)
+  sd = sqrt( (exp(sigma^2)-1) * exp(2*mu + sigma^2)  )
+  means = rep(mean,length.out = length)
+  sds = rep(sd,length.out=length)
+  sds = sds * spread ^ (1:length)
+  mus = log(means/sqrt(sds^2/means^2+1))
+  sigmas = sqrt(log(sds^2/means^2+1))
+  return(list(mu=rev(mus), sigma = rev(sigmas)))
 }

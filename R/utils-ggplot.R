@@ -59,6 +59,8 @@ logit_trans = function(n = 5, ...) {
   )
 }
 
+
+
 #' A log1p y scale
 #'
 #' @inheritParams ggplot2::scale_y_continuous
@@ -80,6 +82,16 @@ scale_y_log1p = function(..., n=5, base=10, dp=0) {
 #' @export
 scale_y_logit = function(...) {
   return(ggplot2::scale_y_continuous(trans="logit", ...))
+}
+
+
+.integer_breaks <- function(n = 5, ...) {
+  fxn <- function(x) {
+    breaks <- floor(pretty(x, n, ...))
+    names(breaks) <- attr(breaks, "labels")
+    breaks
+  }
+  return(fxn)
 }
 
 # make a colour aesthetic apply to fill
@@ -122,10 +134,29 @@ scale_y_logit = function(...) {
   )
 }
 
+# for use as a default parameter in a function.
+# checks a ggplot::aes is not given in the dots, before
+.check_for_aes = function(df, ..., class_aes=c("colour","fill")) {
+  class_aes = match.arg(class_aes)
+  dots = rlang::list2(...)
+  if (length(dots)>0 && any(sapply(dots,class)=="uneval")) stop("Unnamed `ggplot2::aes` mapping provided. Ggplot aesthetic parameters must be named `mapping=aes(...)`",call. = FALSE)
+  if (interfacer::is_col_present(df, class)) {
+    if (class_aes=="fill") return(ggplot2::aes(fill=class))
+    return(ggplot2::aes(colour=class))
+  } else {
+    return(ggplot2::aes())
+  }
+
+}
+
 # defaults
 
 .growth_scale_limits = function() {
   return(getOption("ggoutbreak.growth_scale_limit",default = c(-0.15,0.15)))
+}
+
+.r_number_limits = function() {
+  return(getOption("ggoutbreak.growth_scale_limit",default = c(0.5,3.0)))
 }
 
 #' Switch UTF-8 into plain text when using the pdf device

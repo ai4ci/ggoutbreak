@@ -32,7 +32,7 @@ are dropped. If this in not what you want then \code{.cols} or \code{...} must b
 }
 \value{
 the summarised time series preserving the \code{time} column, and with the grouping
-structure involving one fewer levels that the input
+structure involving one fewer levels than the input
 }
 \description{
 Aggregate time series data preserving the time series

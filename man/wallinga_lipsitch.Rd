@@ -4,21 +4,39 @@
 \alias{wallinga_lipsitch}
 \title{Calculate the reproduction number from a growth rate estimate and an infectivity profile}
 \usage{
-wallinga_lipsitch(r, y, a = 1:length(y))
+wallinga_lipsitch(
+  r,
+  y = i_empirical_ip,
+  a1 = seq(0.5, length.out = length(y)),
+  a0 = dplyr::lag(a1, default = 0)
+)
 }
 \arguments{
 \item{r}{a growth rate (may be a vector)}
 
-\item{y}{an empirical infectivity profile as a probability vector, starting at \code{P(0<t,a[1])}}
+\item{y}{an empirical infectivity profile either as a probability vector or as a dataframe of format:
+A dataframe containing the following columns:
+\itemize{
+\item boot (anything + default(1)) - a bootstrap identifier
+\item probability (proportion) - the probability of new event during this period.
+\item a0 (double) - the beginning of the time period (in days)
+\item a1 (double) - the end of the time period (in days)
+}
 
-\item{a}{the end time of the estimate (defaults to single days).}
+Must be grouped by: boot (exactly).
+A default value is defined.}
+
+\item{a1}{the end time of the infectivity profile probability estimate (defaults to 0.5,1.5,2.5,...).}
+
+\item{a0}{the start time of the infectivity profile probability estimate (defaults to 0,0.5,1.5,...).}
 }
 \value{
 a reproduction number estimate based on \code{r}
 }
 \description{
-Calculate the reproduction number from a growth rate estimate and an infectivity profile
+This function uses a single empirical distribution for the infectivity
+profile aka generation time
 }
 \examples{
-wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=dgamma(1:50, 5,2))
+wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
 }

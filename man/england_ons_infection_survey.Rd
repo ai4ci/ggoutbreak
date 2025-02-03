@@ -9,11 +9,11 @@ A dataframe containing the following columns:
 \itemize{
 \item date (date) - the date column
 \item geography (character) - the geography column
-\item proportion.0.5 (numeric) - the median proportion of people in the region testing
+\item prevalence.0.5 (numeric) - the median proportion of people in the region testing
 positive for COVID-19
-\item proportion.0.025 (numeric) - the lower CI of the proportion of people in the region testing
+\item prevalence.0.025 (numeric) - the lower CI of the proportion of people in the region testing
 positive for COVID-19
-\item proportion.0.975 (numeric) - the upper CI of the proportion of people in the region testing
+\item prevalence.0.975 (numeric) - the upper CI of the proportion of people in the region testing
 positive for COVID-19
 \item denom (integer) - the sample size on which this estimate was made (daily rate inferred from
 weekly sample sizes.)

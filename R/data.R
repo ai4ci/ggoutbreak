@@ -365,11 +365,11 @@ NULL
 #'
 #' * date (date) - the date column
 #' * geography (character) - the geography column
-#' * proportion.0.5 (numeric) - the median proportion of people in the region testing
+#' * prevalence.0.5 (numeric) - the median proportion of people in the region testing
 #'    positive for COVID-19
-#' * proportion.0.025 (numeric) - the lower CI of the proportion of people in the region testing
+#' * prevalence.0.025 (numeric) - the lower CI of the proportion of people in the region testing
 #'    positive for COVID-19
-#' * proportion.0.975 (numeric) - the upper CI of the proportion of people in the region testing
+#' * prevalence.0.975 (numeric) - the upper CI of the proportion of people in the region testing
 #'    positive for COVID-19
 #' * denom (integer) - the sample size on which this estimate was made (daily rate inferred from
 #'    weekly sample sizes.)
@@ -387,3 +387,423 @@ NULL
 NULL
 
 ## england_ons_infection_survey definition ends
+
+
+
+
+## infectivity profiles
+
+#' A COVID-19 infectivity profile based on an empirical resampling approach
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * time (double) - the end of the time period (in days)
+#'
+#' Must be grouped by: boot (exactly).
+#'
+#' @docType data
+#' @keywords datasets
+#' @name covid_ip
+NULL
+
+
+#' A COVID-19 infectivity profile based on an Ganyani et al 2020
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (double) - the time index this probability relates to (in days)
+#' * a0 - the beginning of the time period
+#' * a1 - the end of the time period
+#'
+#' Grouped by boot (exactly).
+#'
+#' @references \url{https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2020.25.17.2000257}
+#' @docType data
+#' @keywords datasets
+#' @name ganyani_ip
+NULL
+
+#' A COVID-19 infectivity profile based on an Ganyani et al 2020
+#'
+#' This version is discretised in a manner that makes it incompatible with
+#' `EpiEstim`.
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (double) - the time index this probability relates to (in days)
+#' * a0 - the beginning of the time period
+#' * a1 - the end of the time period
+#'
+#' Grouped by boot (exactly).
+#'
+#' @references \url{https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2020.25.17.2000257}
+#' @docType data
+#' @keywords datasets
+#' @name ganyani_ip_2
+NULL
+
+
+## covid_test_sensitivity definition ----
+
+#' Test sensitivity of PCR tests
+#'
+#' The probability of detecting COVID using PCR given time since infection, based on
+#' Binny et al 2023.
+#'
+#' @references \url{https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9384503/}
+#'
+#' @usage data(covid_test_sensitivity)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * tau (numeric) - the time column
+#' * probability (numeric) - the probability column
+#' * boot (integer) - the boot column
+#'
+#' Must be grouped by: boot (and other groupings allowed).
+#'
+#' 5100 rows and 3 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name covid_test_sensitivity
+NULL
+
+## covid_test_sensitivity definition ends
+
+
+## covid_infectivity_profile definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The covid_infectivity_profile dataset
+#'
+#' @usage data(covid_infectivity_profile)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * tau (numeric) - the time column
+#' * boot (numeric) - the boot column
+#' * probability (numeric) - the probability column
+#'
+#' Minimally grouped by: boot (and other groupings allowed).
+#'
+#' 1300 rows and 3 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name covid_infectivity_profile
+NULL
+
+## covid_infectivity_profile definition ends
+
+## ganyani_infectivity_profile definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The ganyani_infectivity_profile dataset
+#'
+#' @usage data(ganyani_infectivity_profile)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * tau (integer) - the time column
+#' * probability (numeric) - the probability column
+#' * boot (integer) - the boot column
+#'
+#' Minimally grouped by: boot (and other groupings allowed).
+#'
+#' 2400 rows and 3 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name ganyani_infectivity_profile
+NULL
+
+## ganyani_infectivity_profile definition ends
+## covid_ip definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The covid_ip dataset
+#'
+#' @usage data(covid_ip)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (numeric) - the time index this probability relates to (in days)
+#' * a0 (numeric) - the beginning of the time period
+#' * a1 (numeric) - the end of the time period
+#'
+#' Grouped by: boot.
+#'
+#' 1400 rows and 5 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name covid_ip
+NULL
+
+## covid_ip definition ends
+## ganyani_ip definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The ganyani_ip dataset
+#'
+#' @usage data(ganyani_ip)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (numeric) - the time index this probability relates to (in days)
+#' * a0 (numeric) - the beginning of the time period
+#' * a1 (numeric) - the end of the time period
+#'
+#' Grouped by: boot.
+#'
+#' 2400 rows and 5 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name ganyani_ip
+NULL
+
+## ganyani_ip definition ends
+## ganyani_ip_2 definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The ganyani_ip_2 dataset
+#'
+#' @usage data(ganyani_ip_2)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (numeric) - the time index this probability relates to (in days)
+#' * a0 (numeric) - the beginning of the time period
+#' * a1 (numeric) - the end of the time period
+#'
+#' Grouped by: boot.
+#'
+#' 2800 rows and 5 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name ganyani_ip_2
+NULL
+
+## ganyani_ip_2 definition ends
+## covid_viral_shedding definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The covid_viral_shedding dataset
+#'
+#' @usage data(covid_viral_shedding)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (numeric) - the time index this probability relates to (in days)
+#' * a0 (numeric) - the beginning of the time period
+#' * a1 (numeric) - the end of the time period
+#'
+#' Grouped by: boot.
+#'
+#' 2600 rows and 3 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name covid_viral_shedding
+NULL
+
+## covid_viral_shedding definition ends
+## du_serial_interval_ip definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The du_serial_interval_ip dataset
+#'
+#' @usage data(du_serial_interval_ip)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (numeric) - the time index this probability relates to (in days)
+#' * a0 (numeric) - the beginning of the time period
+#' * a1 (numeric) - the end of the time period
+#'
+#' Grouped by: boot.
+#'
+#' 2603 rows and 5 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name du_serial_interval_ip
+NULL
+
+## du_serial_interval_ip definition ends
+## test_ip definition ----
+
+#' A test infectivity profile generated from a set of discretised gamma
+#' distributions with parameters mean 5 (95% CI 4-6) and sd 2 (95% CI 1.5-2.5).
+#'
+#' @usage data(test_ip)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * boot (anything + default(1)) - a bootstrap identifier
+#' * probability (proportion) - the probability of infection between previous time period until `time`
+#' * tau (numeric) - the time index this probability relates to (in days)
+#' * a0 (numeric) - the beginning of the time period
+#' * a1 (numeric) - the end of the time period
+#'
+#' Grouped by: boot.
+#'
+#' 2000 rows and 5 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name test_ip
+NULL
+
+## test_ip definition ends
+## test_ts definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The test_ts dataset
+#'
+#' @usage data(test_ts)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * time (as.time_period) - the time column
+#' * growth (numeric) - the growth column
+#' * incidence (numeric) - the incidence column
+#' * rt (numeric) - the rt column
+#' * denom (numeric) - the denom column
+#' * proportion (numeric) - the proportion column
+#' * relative.growth (numeric) - the relative.growth column
+#' * count (numeric) - the count column
+#'
+#' Any grouping allowed.
+#'
+#' 501 rows and 8 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name test_ts
+NULL
+
+## test_ts definition ends
+## test_poisson_rt definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' An example of the linelist output of the poisson model simulation with defined
+#' Rt
+#'
+#' This is generated using the `test_ip` infectivity profile
+#'
+#' @usage data(test_poisson_rt)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * time (as.time_period) - the time column
+#' * rt (numeric) - the time varying rt column (parameters)
+#' * imports (numeric) - the imports column
+#' * rate (numeric) - the poisson rate column (underlying infection rate)
+#' * count (integer) - the count column
+#' * statistic (character) - the statistic column
+#'
+#' 81 rows and 6 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name test_poisson_rt
+NULL
+
+## test_poisson_rt definition ends
+## test_bpm definition ----
+
+#' An example of the linelist output of the branching process model simulation
+#'
+#' This is generated using the `test_ip` infectivity profile and
+#' also includes a delay to symptom onset which is a random gamma distributed
+#' quantity with mean of 6 and sd of 2
+#'
+#' @usage data(test_bpm)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * time (as.time_period) - the time column
+#' * id (integer) - an id per individual
+#' * generation_interval (numeric) - the generation_interval column
+#' * infector (integer) - the infector id
+#' * generation (numeric) - the generation column
+#' * symptom_onset (logical) - the flag for onset of symptoms
+#' * symptom_onset_delay (numeric) - the time to onset of symptoms from infection
+#' * symptom_onset_time (as.time_period) - the time of symptom onset
+#'
+#' 333126 rows and 8 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name test_bpm
+NULL
+
+## test_bpm definition ends
+## test_serial definition ----
+
+#' A serial interval estimated from simulated data
+#'
+#' This serial interval is resampled from the first 1000 patients in the
+#' `test_bpm` dataset for whom both infector and infectee has symptoms. These
+#' patients are generated with a symptom delay of mean 6 days and SD 2 from
+#' infection (discrete under-dispersed gamma) and an infectivity profile with
+#' mean 5 days and SD 2 as defined in `test_ip` dataset. This serial interval
+#' if relevant to the estimation of $R_t$ from symptomatic case counts but
+#' includes negative times, and cannot be used with `EpiEstim`.
+#'
+#' @usage data(test_serial)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * tau (numeric) - the time delay between symptoms in infector and infectee
+#' * a0 (numeric) - the a0 column
+#' * a1 (numeric) - the a1 column
+#' * probability (numeric) - the probability column
+#' * boot (integer) - the boot column
+#'
+#' Minimally grouped by: boot (and other groupings allowed).
+#'
+#' 2166 rows and 5 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @name test_serial
+NULL
+
+## test_serial definition ends

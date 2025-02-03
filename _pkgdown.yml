@@ -11,9 +11,12 @@ reference:
 - title: Time series functions
 - contents:
   - has_concept("time_period")
+- title: Testing functions
+- contents:
+  - has_concept("test")
 - title: Data Documentation
 - contents:
   - has_concept("datasets")
 - title: Others
 - contents:
-  - lacks_concepts(c("models","vis","time_period","datasets"))
+  - lacks_concepts(c("models","vis","time_period","datasets","test"))

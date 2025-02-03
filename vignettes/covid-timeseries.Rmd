@@ -106,24 +106,8 @@ is a bootstrapped set of discrete probability distributions. It is truncated at
 
 ```{r}
 
+ggoutbreak::plot_ip(ggoutbreak::covid_ip, alpha=0.1)
 
-
-ggplot2::ggplot()+
-  ggplot2::geom_errorbar(
-    data = ggoutbreak::covid_infectivity_profile %>% tidyr::complete(time=0:max(time), fill = list(probability=0)),
-    mapping = ggplot2::aes(x=as.factor(time),ymin=probability,ymax=probability),
-    width=1,
-    colour="blue",
-    alpha=0.1
-  )+
-  ggplot2::geom_line(
-    data = ggoutbreak::covid_infectivity_profile %>% 
-      dplyr::group_by(time) %>%
-      dplyr::summarise(m = mean(probability)) %>% 
-      dplyr::ungroup(),
-    mapping = ggplot2::aes(x=as.factor(time),y=m, group=1),
-    inherit.aes = FALSE
-  )
 
 
 ```
@@ -142,7 +126,7 @@ values from the SPI-M-O group (red):
 #   cache = .cache
 # )
 
-rt_fit = fit %>% ggoutbreak::rt_from_growth_rate(ip = covid_infectivity_profile)
+rt_fit = fit %>% ggoutbreak::rt_from_growth_rate(ip = covid_ip)
 
 plot_rt(rt_fit, events = england_events, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(0.6,1.6))+
@@ -155,7 +139,7 @@ periodicity of the underlying time series.
 
 ```{r}
 
-rt_epi_fit = tmp %>% ggoutbreak::rt_epiestim(ip = covid_infectivity_profile)
+rt_epi_fit = tmp %>% ggoutbreak::rt_epiestim(ip = covid_ip,window = 14)
 
 plot_rt(rt_epi_fit, events = england_events, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(0.6,1.6))+
@@ -182,7 +166,7 @@ england_covid_pcr_positivity %>% dplyr::glimpse()
 
 ```{r}
 
-fit2 = england_covid_pcr_positivity %>% 
+fit2 = england_covid_pcr_positivity %>%
   ggoutbreak::proportion_locfit_model()
 
 plot_proportion(fit2, england_covid_pcr_positivity, events = england_events, size=0.25, colour="blue")+

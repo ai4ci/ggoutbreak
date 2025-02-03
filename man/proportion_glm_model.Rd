@@ -21,10 +21,7 @@ A dataframe containing the following columns:
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.
-
-No default value.
-}
+Ungrouped.}
 
 \item{...}{not used and present to allow proportion model to be used in a
 \code{group_modify}}
@@ -42,15 +39,13 @@ A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
-\item proportion.se.fit (double) - the standard error of proportion estimate on a logit scale
+\item proportion.se.fit (positive_double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)
 \item proportion.0.5 (proportion) - median estimate of proportion (true scale)
 \item proportion.0.975 (proportion) - upper confidence limit of proportion (true scale)
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 }
 \description{
 This uses a generalised linear model to fit a quasi-binomial model with a time

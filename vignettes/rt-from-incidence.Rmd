@@ -170,31 +170,53 @@ R_t &= Lognormal(\mu_{R_t}, \sigma_{R_t})
 \end{align}
 $$
 
-This is conditioned on a single known infectivity profile. In reality there is
+This is conditioned on a single known infectivity profile ($\omega$). In reality there is
 also uncertainty in the infectivity profile, however we cannot assume any
-particular distributional form for this. We can use a range of empirical
-estimates of the infectivity profile to calculate multiple distributional
-estimates for $R_t$ and then combine these as a mixture distribution
-numerically. To avoid the computation involved however a reasonable
-approximation for the mixture is a log normal with the same mean and variance as
-the mixture, as it is likely the individual $R_t$ estimates will be all very
-similar. This moment matching should be done using the mean and variance of the
-$R_t$ distributions and not the log transformed distribution parameters, $\mu$
-and $\sigma$:
+particular distributional form for this. We can use a set of empirical
+estimates of the infectivity profile ($\Omega$) to calculate multiple distributional
+estimates for the reproduction number ($R_{t,\omega}$) and then combine these as a mixture distribution.
+
+There is not much we can say about this mixture distribution, as it will depend on the 
+nature of the various empirical infectivity profile distributions. However, we can 
+use general properties of mixture distributions to generate estimates for the 
+mean and variance of the reproduction number including uncertainty 
+arising from multiple infection profile estimates ($R_t^*$):
 
 $$
 \begin{align}
-E[R_t] &= e^{(\mu_{R_t} - \frac{1}{2}\sigma_{R_t}^2)} \\
-V[R_t] &= \big[
-  e^{(\sigma_{R_t}^2)} - 1
+E[R_t|\omega] &= e^{(\mu_{R_t,\omega} - \frac{1}{2}\sigma_{R_t,\omega}^2)} \\
+V[R_t|\omega] &= \big[
+  e^{(\sigma_{R_t,\omega}^2)} - 1
 \big] \big[
-  e^{2 \mu_{R_t} + \sigma_{R_t}^2}
+  e^{2 \mu_{R_t,\omega} + \sigma_{R_t,\omega}^2}
 \big] \\
 E[R_t^*] &= \frac{1}{|\Omega|}\sum_{\omega \in \Omega} E[{R_t|\omega}] \\
 V[R_t^*] &= \frac{1}{|\Omega|} \bigg(\sum_{\omega \in \Omega}{V[R_t|\omega]+E[R_t|\omega]^2}\bigg) - E[R_t^*]^2 \\
-\mu^* &= \log\Bigg(\frac{E[R_t^*]}{\sqrt{\frac{V[R_t^*]}{E[R_t^*]^2}+1}}\Bigg)  \\
-\sigma_*^2 &= \log\bigg(\frac{V[R_t^*]}{E[R_t^*]^2}+1\bigg)\\
-R_t^* &= Lognormal(\mu_*,\sigma_*) 
+\end{align}
+$$
+
+The cumulative distribution function of the mixture is simply the arithmetic mean of the 
+component cumulative distribution functions (conditioned on each infectivity profile). If
+$\Phi$ is the cumulative distribution function of the standard normal distribution:
+
+
+$$
+\begin{align}
+F_{R_t^*}(x) &= \frac{1}{|\Omega|}\sum_{\omega \in \Omega}F_{R_t}(x|\omega) \\
+P(R_t^* \le x) &= \frac{1}{|\Omega|}\sum_{\omega \in \Omega} P(R_{t,\omega} \le x) \\
+P(R_t^* \le x) &= \frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(x) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg)
+\end{align}
+$$
+
+As the cumulative density function of this mixture distribution is a strictly increasing function
+specific solutions for median and 95% confidence intervals can be calculated
+numerically by solving the following equations:
+
+$$
+\begin{align}
+\frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(q_{0.025}) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg) - 0.025 &= 0 \\
+\frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(q_{0.5}) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg) - 0.5 &= 0 \\
+\frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(q_{0.975}) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg) - 0.975 &= 0
 \end{align}
 $$
 
@@ -213,14 +235,15 @@ print(ggoutbreak:::.internal_r_t_estim)
 Testing this against the incidence model shown above, and comparing the results
 to the SPI-M-O consensus $R_t$ estimates gives us the following time-series for
 England. This has not been formally evaluated but qualitatively is a good fit. This 
-single time series with 1410 time points took around 3 seconds to fit, which opens
+single time series with 1410 time points took a few seconds to calculate the 
+reproduction number from , which opens
 up the possibility of performing $R_t$ estimates in fine grained geographical 
 or demographic subgroups.
 
 ```{r}
 
 system.time({
-  rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_infectivity_profile)
+  rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_ip)
 })
 
 plot_rt(rt_fit, events = england_events, colour="blue")+

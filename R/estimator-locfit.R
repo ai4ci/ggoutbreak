@@ -9,19 +9,7 @@
   return(nn)
 }
 
-.null_result = function(new_time, ...) {
-  dots = rlang::list2(...)
-  out = tibble::tibble(time = new_time)
-  for (k in names(dots)) {
-    v = dots[[k]]
-    out = out %>% dplyr::mutate(
-      !!paste0(k,".0.025") := v[1],
-      !!paste0(k,".0.5") := v[2],
-      !!paste0(k,".0.975") := v[3]
-    )
-  }
-  return(out)
-}
+
 
 
 #' A binomial proportion estimate and associated exponential growth rate
@@ -60,6 +48,11 @@
 #' ggoutbreak::england_covid %>%
 #'  ggoutbreak::proportion_locfit_model(window=21) %>%
 #'  dplyr::glimpse()
+#'
+#' ggoutbreak::england_covid %>%
+#'   time_aggregate(count=sum(count), denom=sum(denom)) %>%
+#'   dplyr::mutate(p = count/denom) %>%
+#'   proportion_locfit_model(window=21)
 proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE) {
 
   interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
@@ -108,7 +101,9 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
       time = output_times
       ) %>%
       .result_from_fit(type = "proportion", tmp$fit, tmp$se.fit, t) %>%
-      .result_from_fit(type = "relative.growth", tmp2$fit, tmp2$se.fit, t2)
+      .keep_cdf(type = "proportion", mean=tmp$fit, sd=tmp$se.fit, trans_fn = .logit) %>%
+      .result_from_fit(type = "relative.growth", tmp2$fit, tmp2$se.fit, t2) %>%
+      .keep_cdf(type = "relative.growth", mean=tmp2$fit, sd=tmp2$se.fit) %>%
 
     return(new_data)
 
@@ -147,13 +142,16 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
 #' @concept models
 #'
 #' @examples
-#' ggoutbreak::england_covid %>%
-#'   ggoutbreak::poisson_locfit_model(window=21) %>%
-#'   dplyr::glimpse()
+#'
+#' withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
+#'   ggoutbreak::england_covid %>%
+#'     ggoutbreak::poisson_locfit_model(window=21) %>%
+#'     dplyr::glimpse()
+#' })
 #'
 poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE) {
 
-  interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
+  modelled = interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
 
     # d = interfacer::ivalidate(d, .prune = TRUE, ...)
 
@@ -186,7 +184,9 @@ poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1
       time = output_times
     ) %>%
       .result_from_fit(type = "incidence", tmp$fit, tmp$se.fit, t) %>%
+      .keep_cdf(type = "incidence", meanlog=tmp$fit, sdlog=tmp$se.fit) %>%
       .result_from_fit(type = "growth", tmp2$fit, tmp2$se.fit, t2) %>%
+      .keep_cdf(type = "growth", mean=tmp2$fit, sd=tmp2$se.fit) %>%
       .tidy_fit("incidence", incidence.se.fit > 4) %>%
       .tidy_fit("growth", growth.se.fit > 0.25)
 
@@ -194,8 +194,20 @@ poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1
 
   })
 
+  return(modelled %>% .normalise_from_raw(d))
+
 }
 
+# TODO: integrate normalise_incidence into this in a scaleable way, so that if
+# the count data has been normalised by population then the result data is too:
+# if (interfacer::is_col_present(d,population,population_unit,time_unit)) {
+#   population_unit = unique(d$population_unit)
+#   time_unit = d$time_unit[[1]]
+#   # could extract a pop dataframe with time and population from d.
+#   # potentially could do this outside of group_modify.
+#   unit = .get_meta(modelled$time)$unit
+
+# }
 
 
 # Catch locfit warnings and display a more relevant warning

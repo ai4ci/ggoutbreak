@@ -5,7 +5,8 @@
 \title{Calculate a normalised incidence rate per capita}
 \usage{
 normalise_incidence(
-  modelled = i_timeseries,
+  modelled = i_incidence_model,
+  pop = i_population_data,
   ...,
   population_unit = 1e+05,
   normalise_time = FALSE
@@ -18,12 +19,23 @@ normalise_incidence(
 A dataframe containing the following columns: 
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item incidence.fit (double) - an estimate of the incidence rate on a log scale
+\item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
+\item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
+\item incidence.0.5 (positive_double) - median estimate of the incidence rate (true scale)
+\item incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)
 }
 
-No mandatory groupings.
+Any grouping allowed.}
 
-No default value.
+\item{pop}{The population data must be grouped in the same way as \code{modelled}.
+
+A dataframe containing the following columns: 
+\itemize{
+\item population (positive_integer) - Size of population
 }
+
+Any grouping allowed.}
 
 \item{...}{not used}
 
@@ -40,16 +52,15 @@ A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item incidence.per_capita.fit (double) - an estimate of the incidence per capita rate on a log scale
-\item incidence.per_capita.se.fit (double) - the standard error of the incidence per capita rate estimate on a log scale
+\item incidence.per_capita.se.fit (positive_double) - the standard error of the incidence per capita rate estimate on a log scale
 \item incidence.per_capita.0.025 (positive_double) - lower confidence limit of the incidence per capita rate (true scale)
 \item incidence.per_capita.0.5 (positive_double) - median estimate of the incidence per capita rate (true scale)
 \item incidence.per_capita.0.975 (positive_double) - upper confidence limit of the incidence per capita rate (true scale)
 \item population_unit (double) - The population unit on which the per capita incidence rate is calculated
+\item time_unit (lubridate::as.period) - The time period over which the per capita incidence rate is calculated
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 }
 \description{
 This assumes positive disease counts are stratified by a population grouping, e.g.

@@ -13,9 +13,9 @@ cleaned = modelled %>%
   transmute(
     date = as.Date(Date,origin="1899-12-30"),
     geography = Geography,
-    proportion.0.5 = as.numeric(`Modelled % testing positive for COVID-19`)/100,
-    proportion.0.025 = as.numeric(`95% Lower credible interval for percentage`)/100,
-    proportion.0.975 = as.numeric(`95% Upper credible interval for percentage`)/100
+    prevalence.0.5 = as.numeric(`Modelled % testing positive for COVID-19`)/100,
+    prevalence.0.025 = as.numeric(`95% Lower credible interval for percentage`)/100,
+    prevalence.0.975 = as.numeric(`95% Upper credible interval for percentage`)/100
   )
 
 
@@ -37,7 +37,8 @@ england_ons_infection_survey = cleaned %>%
     denom = as.integer(denom/as.integer(end-start)),
     time = as.time_period(date, unit = "1 day", start_date="2019-12-29")
   ) %>%
-  select(-start,-end)
+  select(-start,-end) %>%
+  group_by(geography)
 
 interfacer::use_dataframe(england_ons_infection_survey)
 

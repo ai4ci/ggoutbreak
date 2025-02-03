@@ -2,12 +2,13 @@
 % Please edit documentation in R/estimator-rt-wallinga.R
 \name{rt_from_growth_rate}
 \alias{rt_from_growth_rate}
-\title{Wallinga-Lipsitch reproduction number}
+\title{Wallinga-Lipsitch reproduction number from growth rates}
 \usage{
 rt_from_growth_rate(
   df = i_growth_rate,
-  ip = i_infectivity_profile,
-  bootstraps = 2000
+  ip = i_empirical_ip,
+  bootstraps = 1000,
+  seed = Sys.time()
 )
 }
 \arguments{
@@ -17,65 +18,67 @@ A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item growth.fit (double) - an estimate of the growth rate
-\item growth.se.fit (double) - the standard error the growth rate
+\item growth.se.fit (positive_double) - the standard error the growth rate
 \item growth.0.025 (double) - lower confidence limit of the growth rate
 \item growth.0.5 (double) - median estimate of the growth rate
 \item growth.0.975 (double) - upper confidence limit of the growth rate
 }
 
-No mandatory groupings.
-
-No default value.
-}
+Any grouping allowed.}
 
 \item{ip}{Infectivity profile
 
 A dataframe containing the following columns: 
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
-\item time (positive_double) - the end of the time period (in days)
-\item probability (proportion) - the probability of infection between previous time period until `time`
+\item probability (proportion) - the probability of new event during this period.
+\item a0 (double) - the beginning of the time period (in days)
+\item a1 (double) - the end of the time period (in days)
 }
 
 Must be grouped by: boot (exactly).
 
-A default value is defined.
-}
+A default value is defined.}
 
 \item{bootstraps}{\itemize{
 \item the number of bootstraps to take to calculate for each point.
 }}
+
+\item{seed}{a random number generator seed}
 }
 \value{
 A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 \item rt.fit (double) - an estimate of the reproduction number
-\item rt.se.fit (double) - the standard error of the reproduction number
+\item rt.se.fit (positive_double) - the standard error of the reproduction number
 \item rt.0.025 (double) - lower confidence limit of the reproduction number
 \item rt.0.5 (double) - median estimate of the reproduction number
 \item rt.0.975 (double) - upper confidence limit of the reproduction number
 }
 
-No mandatory groupings.
-
-No default value.
+Any grouping allowed.
 }
 \description{
 Calculate a reproduction number estimate from growth rate using the Wallinga
 2007 estimation using empirical generation time distribution. This uses
-resampling to transmit uncertainty in growth rate estimates
+resampling to transmit uncertainty in growth rate estimates. This also handles
+time-series that are not on a daily cadence (although this is experimental).
+The reproduction number estimate is neither a instantaneous (backward looking)
+nor case (forward looking) reproduction number but somewhere between the two.
 }
 \examples{
 tmp = ggoutbreak::england_covid \%>\%
   time_aggregate(count=sum(count))
 
 
-if (FALSE) {
+if (interactive()) {
   # not run
-  tmp2 = tmp \%>\%
-    poisson_locfit_model() \%>\%
-    rt_from_growth_rate()
+  withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
+   tmp2 = tmp \%>\%
+      poisson_locfit_model() \%>\%
+      rt_from_growth_rate()
+  })
 }
 
 }

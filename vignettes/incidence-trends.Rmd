@@ -13,8 +13,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 
-library(patchwork)
 
+library(patchwork)
 library(ggoutbreak)
 here::i_am("vignettes/incidence-trends.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
@@ -46,17 +46,18 @@ tmp = ggoutbreak::england_covid %>%
    ggoutbreak::poisson_locfit_model(window=21) %>%
    ggoutbreak::normalise_incidence(ggoutbreak::england_demographics)
 
-raw_pop = ggoutbreak::england_covid %>% dplyr::inner_join(england_demographics, by="class")
+raw_pop = ggoutbreak::england_covid %>% 
+  ggoutbreak::normalise_count(ggoutbreak::england_demographics, population_unit=1000, normalise_time="1 year")
 
 plot_incidence(tmp,raw = raw_pop, size=0.25)+scale_y_log1p(n=7)+
   ggplot2::scale_colour_viridis_d(aesthetics = c("fill","colour"))
   
 ```
 
-The use of test positives as a proxy for COVID incidence is clearlly potentially
-biased by testing (partilcularly in the first wave where testing was limited to those
+The use of test positives as a proxy for COVID incidence is clearly potentially
+biased by testing (particularly in the first wave where testing was limited to those
 in hospital). A more reliable comparison in this situation would be a test
-positivie proportion, but unfortunately testing rates are not published broken 
+positive proportion, but unfortunately testing rates are not published broken 
 down by age.
 
 The exponential growth rate is already normalised by population size. Comparisons
@@ -145,7 +146,7 @@ were acting to preserve that separation.
 
 ```{r}
 
-tmp3 = tmp2 %>% normalise_proportion(england_demographics)
+tmp3 = tmp2 %>% infer_risk_ratio(england_demographics)
 
 plot_growth_phase(tmp3,
     timepoints = as.Date(c("Xmas 2020"="2020-12-25","Xmas 2021"="2021-12-25","Xmas 2022"="2022-12-25")),
@@ -156,67 +157,44 @@ plot_growth_phase(tmp3,
 
 ```
 
-# TODO:
-
-Regional breakdown of testing effort and positivity by age group
-was published as part of test and trace.
-This had a by-age and by-region breakdown, until they shut down test and trace.
-https://www.gov.uk/government/publications/weekly-statistics-for-nhs-test-and-trace-england-2-to-15-june-2022
-From this we could look at by age group proportion and incidence models
-and look into ascertainment bias in age groups.
-
-
-```{r}
-
-prop = ggoutbreak::england_covid_proportion %>%
-  ggoutbreak::proportion_locfit_model(window=5)
-
-plot_proportion(prop)+ggplot2::scale_fill_viridis_d(aesthetics = c("colour","fill"))
-
-tmp_pop = ggoutbreak::england_covid_proportion %>% dplyr::select(class,population) %>% dplyr::distinct()
-pois = ggoutbreak::england_covid_proportion %>%
-  ggoutbreak::poisson_locfit_model(window=5) %>%
-  ggoutbreak::normalise_incidence(tmp_pop)
-
-plot_incidence(pois)+ggplot2::scale_fill_viridis_d(aesthetics = c("colour","fill"))
-
-
-```
-
 
 ## Pre test probability
 
-Using the covid infection survey we can look at population prevalence based on
-random sampling versus estimates of incidence based on test positivity.
+Using the ONS COVID-19 infection survey we can look at population prevalence based on
+random sampling (panel A). 
 
-This has some relationship to the pre test probability of testing, although 
-would need some sort of accounting for the fact that one is incidence and the 
-other prevalence.
+The proportion of people positive in a random sample of the population can be
+compared to the proportion of people testing positive out of all the people
+tested. This ratio is an indication of the pre-test probability of disease in
+the non-random sample group and gives us some idea of how selectively testing is
+being applied. If testing is only being done on people with symptoms for example
+then their pre-test probability of disease is higher than the general
+population. This is shown in panel B, and it also can be interpreted as how 
+biased the sample that is tested for symptoms is.
 
 ```{r}
-p1 = ggoutbreak::plot_proportion(
-  ggoutbreak::england_ons_infection_survey %>% 
-    dplyr::filter(geography == "England") %>%
-    dplyr::mutate(
-      proportion.fit = NA, proportion.se.fit=NA,
-  ),events = ggoutbreak::england_events)+
+p1 = ggoutbreak::plot_prevalence(
+    ggoutbreak::england_ons_infection_survey %>% dplyr::filter(geography == "England"),
+    events = ggoutbreak::england_events
+  )+
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(), 
     axis.text.x = ggplot2::element_blank(), 
     axis.text.x.bottom = ggplot2::element_blank()
-  )
+  )+
+  ggplot2::ylab("ONS prevalence (%)")
 
 
 p2 = ggoutbreak::england_covid_pcr_positivity %>%
   proportion_locfit_model() %>%
   dplyr::inner_join(ggoutbreak::england_ons_infection_survey %>% 
                       dplyr::filter(geography=="England") %>% 
-                      dplyr::rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")
+                      dplyr::rename_with(.cols = tidyselect::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
   ) %>%
   dplyr::transmute(date=date, pre_test_odds = proportion.0.5 / ons.0.5) %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=pre_test_odds)) + ggplot2::geom_line() +
   ggplot2::geom_hline(yintercept=1, colour="grey40",linetype="dashed") +
-  ggplot2::ylab("Pre-test odds ratio COVID") +
+  ggplot2::ylab("Pre-test odds ratio") +
   ggoutbreak::geom_events(events = ggoutbreak::england_events,hide_labels = TRUE)+
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(), 
@@ -227,31 +205,47 @@ p2 = ggoutbreak::england_covid_pcr_positivity %>%
 
 ```
 
-Likewise the test positives per head of population can be compared to the 
-prevalence. In this case the ratio has a connection with the ascertainment rate
-although the infectivity profile needs to be taken into account here (or more
-accurately the probability the test is positive given the sample is taken on a 
-specific day post infection and the patient is infected), as the 
-prevalence number represents people who are infectious on a given day, and the 
-test positives is closer to the incidence.
+Likewise the incidence of cases per capita can be compared to the 
+prevalence. A prevalence-like estimate can be made from the incidence by convolving
+the incidence estimate with a delay distribution that represents the duration of
+infection. Duration of infection could be represented either by the sensitivity of a 
+test to detect an infection as a function of time after infection, or as the 
+probability of successful viral culture as a function of time after symptom onset.
+
+In this case the ratio of prevalence derived from positive case counts,
+resulting from symptomatic testing, and prevalence measured directly on a random
+sample by the ONS survey has a connection with the ascertainment rate. The
+actual value of the ascertainment rate calculated by this method depends on
+assumptions on the duration of infection, however the relative change in this
+number is informative (panel C).
+
 
 ```{r}
-england_pop = sum(ggoutbreak::england_demographics$population)
+england_pop = ggoutbreak::england_demographics %>% dplyr::ungroup() %>% dplyr::summarise(population = sum(population))
 
 p3 = ggoutbreak::england_covid_pcr_positivity %>% 
-  dplyr::select(-denom) %>% 
-  dplyr::mutate(denom = england_pop) %>%
-  proportion_locfit_model() %>%
+  ggoutbreak::poisson_locfit_model() %>%
+  # N.B. `covid_viral_shedding` is technically from symptom onset not infection.
+  # We could argue that this is a good thing as case positivity is closer in time
+  # to symptom onset however this is forgetting about all the cases that would
+  # test positive if they had been tested. An alternative to this would have been 
+  # to use `covid_test_sensitivity` which looks at probability of detection from 
+  # time of infection but it is only in cases with proven infection so a biased 
+  # prior.
+  ggoutbreak::infer_prevalence(pop = england_pop, ip = covid_viral_shedding) %>%
   dplyr::inner_join(england_ons_infection_survey %>% 
                       dplyr::filter(geography=="England") %>% 
-                      dplyr::rename_with(.cols = starts_with("proportion"), .fn = ~stringr::str_replace(.x,"proportion","ons")), by=c("time")
+                      dplyr::rename_with(.cols = tidyselect::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
   ) %>%
-  dplyr::transmute(date=date, ascertainment = proportion.0.5 / ons.0.5 * 100) %>%
+  dplyr::transmute(date=date, ascertainment = prevalence.0.5 / ons.0.5 * 100) %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=ascertainment)) + 
   ggplot2::geom_line() + 
   ggplot2::ylab("Ascertainment rate (%)") +
   ggoutbreak::geom_events(events = ggoutbreak::england_events,hide_labels = TRUE)
 
 
-p1+p2+p3+patchwork::plot_layout(ncol=1)
+p1+p2+p3+patchwork::plot_layout(ncol=1)+patchwork::plot_annotation(tag_levels="A")
 ```
+
+
+

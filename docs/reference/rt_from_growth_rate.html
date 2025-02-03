@@ -14,7 +14,7 @@ resampling to transmit uncertainty in growth rate estimates"><!-- mathjax --><sc
     
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.3.2</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,8 +67,9 @@ resampling to transmit uncertainty in growth rate estimates</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">rt_from_growth_rate</span><span class="op">(</span></span>
 <span>  df <span class="op">=</span> <span class="va">i_growth_rate</span>,</span>
-<span>  ip <span class="op">=</span> <span class="va">i_infectivity_profile</span>,</span>
-<span>  bootstraps <span class="op">=</span> <span class="fl">2000</span></span>
+<span>  ip <span class="op">=</span> <span class="va">i_ip</span>,</span>
+<span>  bootstraps <span class="op">=</span> <span class="fl">1000</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,6 +99,10 @@ resampling to transmit uncertainty in growth rate estimates</p>
 <dt>bootstraps</dt>
 <dd><ul><li><p>the number of bootstraps to take to calculate for each point.</p></li>
 </ul></dd>
+
+
+<dt>seed</dt>
+<dd><p>a random number generator seed</p></dd>
 
 </dl></div>
     <div class="section level2">
