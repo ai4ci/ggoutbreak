@@ -521,7 +521,8 @@ pnbinom2 = function(q, mean, sd=sqrt(mean), lower.tail = TRUE, log.p = FALSE) {
 #' in `make_gamma_ip`, and suits delay distributions where there is less variability
 #' than can be represented with a Poisson or negative binomial distribution.
 #'
-#' @inherit stats::rgamma
+#' @returns an integer valued vector from a gamma distribution.
+#' @seealso [stats::rgamma()]
 #' @inheritParams reparam-dist
 #'
 #' @export
