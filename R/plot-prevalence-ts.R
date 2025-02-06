@@ -12,7 +12,11 @@
 #' @export
 #' @concept vis
 #' @examples
-#' plot_prevalence(ggoutbreak::england_ons_infection_survey, mapping = ggplot2::aes(colour=geography))
+#' if(interactive()) {
+#'   plot_prevalence(
+#'     ggoutbreak::england_ons_infection_survey,
+#'     mapping = ggplot2::aes(colour=geography))
+#' }
 plot_prevalence = function(
     modelled = i_prevalence_model,
     raw = i_proportion_data,

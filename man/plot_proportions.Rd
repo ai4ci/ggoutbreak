@@ -16,8 +16,8 @@ plot_proportions(
 
 A dataframe containing the following columns: 
 \itemize{
-\item denom (positive_integer) - Total test counts associated with the specified timeframe
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item denom (positive_integer) - Total test counts associated with the specified time frame
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -32,7 +32,7 @@ Any grouping allowed.}
 \item{\code{event_fill_colour}}{the event area fill}
 \item{\code{hide_labels}}{do not show labels at all}
 \item{\code{guide_axis}}{a guide axis configuration for the labels
-(see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+(see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
 \item{\code{...}}{
   Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
@@ -149,7 +149,9 @@ tmp = tibble::tibble(
   denom = count*time
 )
 
-plot_proportions(tmp)+ggplot2::geom_line()
+if(interactive()) {
+  plot_proportions(tmp)+ggplot2::geom_line()
+}
 
 }
 \concept{vis}

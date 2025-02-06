@@ -1,6 +1,6 @@
 # Phase diagram ----
 
-#' Plot an incidence or proportion vs. growth phase diagram
+#' Plot an incidence or proportion versus growth phase diagram
 #'
 #' @param modelled
 #' Either:
@@ -10,7 +10,7 @@
 #' OR:
 #'
 #' `r interfacer::idocument(plot_growth_rate.proportion, modelled)`
-#' @param timepoints timepoints (as `Date` or `time_period` vector) of dates to
+#' @param timepoints time points (as `Date` or `time_period` vector) of dates to
 #'   plot phase diagrams. If multiple this will result in a sequence of plots
 #'   as facets. If `NULL` (the default) it will be the last time point in the series
 #' @param duration the length of the growth rate phase trail
@@ -19,6 +19,7 @@
 #' @param cis logical; should the phases be marked with confidence intervals?
 #' @inheritParams geom_events
 #' @inheritDotParams geom_events events
+#' @inheritDotParams ggplot2::facet_wrap
 #'
 #' @return a ggplot
 #' @export
@@ -39,7 +40,9 @@
 #'
 #' timepoints = as.Date(c("Lockdown 1" = "2020-03-30", "Lockdown 2" = "2020-12-31"))
 #'
-#' plot_growth_phase(tmp2, timepoints, duration=108)
+#' if(interactive()) {
+#'   plot_growth_phase(tmp2, timepoints, duration=108)
+#' }
 plot_growth_phase = function(
     modelled = i_timestamped,
     timepoints = NULL,
@@ -106,8 +109,6 @@ plot_growth_phase.incidence_per_capita = function(
     ...
 ) {
 
-  # modelled = interfacer::ivalidate(modelled)
-
   modelled = modelled %>% dplyr::mutate(
     x=growth.0.5, ymin=incidence.per_capita.0.025, ymax=incidence.per_capita.0.975,
     y=incidence.per_capita.0.5, xmin=growth.0.025, xmax=growth.0.975
@@ -169,7 +170,7 @@ plot_growth_phase.risk_ratio = function(
   )
 
   my = ceiling(max(modelled$risk_ratio.0.975,na.rm=TRUE))
-  # TODO: sometimes this will include data that is not on the plot
+  #TODO: sometimes this will include data that is not on the plot
   # mx = .glimit(modelled$relative.growth.0.5)
 
   p = .do_phase(modelled, timepoints, duration, interval, mapping, ...,
@@ -178,11 +179,11 @@ plot_growth_phase.risk_ratio = function(
             cis = cis
   )
 
-  p$layers = c(
-    ggplot2::geom_hline(yintercept = 1, colour="grey50"), p$layers)
+  p = p %above%
+    ggplot2::geom_hline(yintercept = 1, colour="grey50")
 
   p+
-  ggplot2::scale_y_log10()+
+  ggplot2::scale_y_log10(labels = ~ sprintf("%1.3g",.x))+
   suppressWarnings(ggplot2::coord_cartesian(ylim = c(1/my,my)))
 
 }
@@ -190,7 +191,6 @@ plot_growth_phase.risk_ratio = function(
 
 ## Common function ----
 
-# internal function for dispatch
 .do_phase = function(
     modelled,
     timepoints = NULL,
@@ -202,13 +202,15 @@ plot_growth_phase.risk_ratio = function(
     ylab,
     cis,
     point_size = ggplot2::GeomPoint$default_aes$size,
-    show_doubling = FALSE
+    show_doubling = FALSE,
+    strip.position = "top"
 ) {
 
   if (isFALSE(interval)) interval = duration+1
   grps = modelled %>% dplyr::groups()
 
-
+  facet_dots = rlang::list2(...)
+  facet_dots = facet_dots[names(facet_dots) %in% names(formals(ggplot2::facet_wrap))]
 
   plot_data = modelled %>%
     dplyr::cross_join(tibble::tibble(
@@ -244,7 +246,7 @@ plot_growth_phase.risk_ratio = function(
     {if (cis) {ggplot2::geom_errorbarh(data=plot_data %>% dplyr::filter(display_errorbars), mapping=ggplot2::aes(y=y, xmin=xmin, xmax=xmax, !!!mapping),height=0)} else {NULL}}+
     ggplot2::scale_alpha_identity()+
     ggplot2::scale_size_identity()+
-    ggplot2::facet_wrap(~ labels, strip.position = "right")+
+    do.call(ggplot2::facet_wrap,args = c(facets = ~ labels, facet_dots))+
     ggplot2::xlab(suppressWarnings(sprintf(xlab, .fmt_unit(modelled$time))))+
     ggplot2::ylab(suppressWarnings(sprintf(ylab, .fmt_unit(modelled$time))))+
     ggplot2::theme(legend.title=ggplot2::element_blank()) +

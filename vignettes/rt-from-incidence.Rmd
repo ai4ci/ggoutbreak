@@ -12,7 +12,7 @@ Robert Challen ^1,2^; Leon Danon ^1,2^;
 1) Engineering Mathematics, University of Bristol, Bristol, UK
 2) AI4CI
 
-```{r, include = FALSE}
+```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -20,9 +20,7 @@ knitr::opts_chunk$set(
   warning = FALSE,
   message = FALSE
 )
-```
 
-```{r setup}
 library(patchwork)
 library(ggoutbreak)
 here::i_am("vignettes/rt-from-incidence.Rmd")
@@ -62,18 +60,21 @@ calculate $R_t$ we can use the backwards-looking renewal equations which
 incorporate the infectivity profile of the disease ($\omega$) at a number of
 days after infection ($\tau$):
 
-
 $$
-I_t \sim Lognormal(\mu_t,\sigma_t) \\
-R_t = \frac{I_t}{\sum_{\tau}{\omega_{\tau}I_{t-\tau}}}
+\begin{align}
+I_t &\sim Lognormal(\mu_t,\sigma_t) \\
+R_t &= \frac{I_t}{\sum_{\tau}{\omega_{\tau}I_{t-\tau}}}
+\end{align}
 $$
 
 giving us:
 
 $$
+\begin{align}
 R_t = \frac{Lognormal(\mu_t,\sigma_t)}{\sum_{\tau}{
   Lognormal( \mu_{t-\tau} + log(\omega_{\tau}) , \sigma_{t-\tau})
-}} \\
+}}
+\end{align}
 $$
 
 
@@ -224,7 +225,7 @@ $$
 
 This method is implemented using the following R function, which is designed
 for numerical stability and speed. Generating $R_t$ estimates given modelled 
-incidence typically occurring in:
+incidence typically occurring in a matter of seconds:
 
 ```{r}
 print(ggoutbreak:::.internal_r_t_estim)
@@ -234,11 +235,10 @@ print(ggoutbreak:::.internal_r_t_estim)
 
 Testing this against the incidence model shown above, and comparing the results
 to the SPI-M-O consensus $R_t$ estimates gives us the following time-series for
-England. This has not been formally evaluated but qualitatively is a good fit. This 
-single time series with 1410 time points took a few seconds to calculate the 
-reproduction number from , which opens
-up the possibility of performing $R_t$ estimates in fine grained geographical 
-or demographic subgroups.
+England. This is formally evaluated elsewhere but qualitatively is a good fit.
+It took a few seconds to calculate the reproduction number from this single time
+series with 1410 time points , which opens up the possibility of performing
+$R_t$ estimates in fine grained geographical or demographic subgroups.
 
 ```{r}
 

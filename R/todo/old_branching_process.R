@@ -1,10 +1,10 @@
-#' Generate a line list from a branching process model parameterised by
+#' Generate a line list from a branching process model parametrised by
 #'    reproduction number
 #'
 #' @param changes a dataframe containing a `t` time column and `R_t` reproduction
 #'    number parameter.
 #' @param kappa a dispersion parameter controlling the likelihood of individual
-#'    super-spreading. This must be between 1 and Inf with 1 being standard poisson
+#'    super-spreading. This must be between 1 and `Inf` with 1 being standard poisson
 #'    dispersion and large values representing over dispersion.
 #' @param ip a data frame with `time`, and `probability` columns
 #' @param max_time maximum duration of simulation
@@ -94,7 +94,7 @@ sim_branching_process = function(
         time = t,
         rt_inst = rt_case
       ) %>% mutate(
-        id = row_number() + max_id
+        id = dplyr::row_number() + max_id
       )
 
       t=t+1

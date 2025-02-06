@@ -59,8 +59,9 @@ the \code{ip} distribution, and that this is daily, if this is not the case then
 }
 \examples{
 df = ggoutbreak::england_covid \%>\%
+  dplyr::filter(date < "2021-01-01") \%>\%
   time_aggregate(count=sum(count)) \%>\%
-    poisson_locfit_model()
+  poisson_locfit_model()
 
 if (interactive()) {
   # not run

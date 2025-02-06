@@ -37,7 +37,7 @@ the plot uses the per capita rates calculated by that function}
 
 A dataframe containing the following columns: 
 \itemize{
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -52,7 +52,7 @@ Any grouping allowed.}
 \item{\code{event_fill_colour}}{the event area fill}
 \item{\code{hide_labels}}{do not show labels at all}
 \item{\code{guide_axis}}{a guide axis configuration for the labels
-(see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+(see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
 \item{\code{...}}{
   Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
@@ -141,7 +141,7 @@ bounds values with \code{NA}.
 
 A dataframe containing the following columns: 
 \itemize{
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -192,7 +192,9 @@ tmp = ggoutbreak::england_covid \%>\%
 
 tmp2 = tmp \%>\% poisson_locfit_model()
 
-plot_incidence(tmp2,tmp,colour="blue",size=0.25)
+if(interactive()) {
+  plot_incidence(tmp2,tmp,colour="blue",size=0.25)
+}
 
 }
 \concept{vis}

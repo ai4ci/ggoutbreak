@@ -27,7 +27,7 @@ data(england_variants)
 \description{
 Data from the COG-UK and Sanger centre sequencing
 programme. The data were made available through the Welcome foundation at
-Lower tier local authority level, and is weekly timeseries of counts per
+Lower tier local authority level, and is weekly time series of counts per
 variant. Variants were assigned using the tree structure of the Pango
 lineage. Different sub-lineages are aggregated to the major WHO variants of
 concern.

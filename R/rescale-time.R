@@ -22,6 +22,7 @@
 #'   and growth rate figures.
 #'
 #' @export
+#' @concept models
 #'
 #' @examples
 #'

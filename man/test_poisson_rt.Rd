@@ -4,7 +4,7 @@
 \name{test_poisson_rt}
 \alias{test_poisson_rt}
 \title{An example of the linelist output of the poisson model simulation with defined
-Rt}
+$R_t$}
 \format{
 A dataframe containing the following columns:
 \itemize{
@@ -24,4 +24,4 @@ data(test_poisson_rt)
 \description{
 This is generated using the \code{test_ip} infectivity profile
 }
-\keyword{datasets}
+\concept{datasets}

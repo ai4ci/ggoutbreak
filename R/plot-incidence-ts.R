@@ -30,7 +30,9 @@
 #'
 #' tmp2 = tmp %>% poisson_locfit_model()
 #'
-#' plot_incidence(tmp2,tmp,colour="blue",size=0.25)
+#' if(interactive()) {
+#'   plot_incidence(tmp2,tmp,colour="blue",size=0.25)
+#' }
 #'
 plot_incidence = function(
     modelled = i_incidence_model,
@@ -100,7 +102,7 @@ plot_incidence.default = function(
         }
       } else {NULL}
     }+
-    ggplot2::scale_y_continuous(breaks = .integer_breaks())+
+    ggplot2::scale_y_continuous(breaks = integer_breaks())+
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(modelled$time)))+
     ggplot2::xlab(NULL)+
     ggplot2::theme(legend.title=ggplot2::element_blank())
@@ -118,7 +120,7 @@ plot_incidence.per_capita = function(
   population_unit = unique(modelled$population_unit)
   time_unit = modelled$time_unit[[1]] # e.g. modelled nornalised time unit is per year
   # unique() does not work on lubridate::periods
-  # TODO assume no-one is obtuse enough to have different durations in same dataframe
+  #TODO assume no-one is obtuse enough to have different durations in same dataframe
 
   if (!interfacer::is.iface(raw)) {
 

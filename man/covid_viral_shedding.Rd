@@ -3,7 +3,7 @@
 \docType{data}
 \name{covid_viral_shedding}
 \alias{covid_viral_shedding}
-\title{The covid_viral_shedding dataset}
+\title{The COVID-19 viral shedding duration}
 \format{
 A dataframe containing the following columns:
 \itemize{
@@ -22,6 +22,10 @@ Grouped by: boot.
 data(covid_viral_shedding)
 }
 \description{
-The covid_viral_shedding dataset
+The COVID-19 viral shedding duration
 }
-\keyword{datasets}
+\references{
+\url{https://www.nature.com/articles/s41467-020-20568-4}
+From Von Kampen et al.
+}
+\concept{datasets}

@@ -42,6 +42,8 @@ the tilde.}
 \item{input}{a time column from which to calculate the delay from.}
 
 \item{output}{an output column set name (defaults to \code{"event"})}
+
+\item{seed}{RNG seed for reproducibility}
 }
 \value{
 the line list with extra columns with prefix given by \code{output},
@@ -63,6 +65,7 @@ tmp2 = tmp \%>\% sim_delay(
   p_fn = ~ rbern(.x, 0.8),
   delay_fn = ~ rgamma2(.x, mean = 5),
 )
-tmp2 \%>\% glimpse()
+tmp2 \%>\% dplyr::glimpse()
 
 }
+\concept{test}

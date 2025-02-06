@@ -1,6 +1,6 @@
 # package depends
 # c("stats") %>% lapply(usethis::use_package)
-# TODO: make an internal function?
+#TODO: make an internal function?
 
 #' The cumulative density function of a mixture of lognormal distributions
 #'

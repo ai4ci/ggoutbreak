@@ -24,8 +24,8 @@ No default value.
 data(germany_covid)
 }
 \description{
-A dataset of the weekly count of covid cases by age group in Germany
-downloaded from the Robert Koch Institute Survstat service, and formatted for
+A dataset of the weekly count of COVID-19 cases by age group in Germany
+downloaded from the Robert Koch Institute \code{Survstat} service, and formatted for
 use in growth rates. A denominator is calculated which is the overall
 positive count for all age groups. This data set can be used to calculate
 group-wise incidence and absolute growth rates and group wise proportions and

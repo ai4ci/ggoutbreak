@@ -34,7 +34,7 @@ Must be grouped by: class (exactly).}
 \item{\code{event_fill_colour}}{the event area fill}
 \item{\code{hide_labels}}{do not show labels at all}
 \item{\code{guide_axis}}{a guide axis configuration for the labels
-(see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+(see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
 \item{\code{...}}{
   Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
@@ -149,8 +149,10 @@ tmp = ggoutbreak::england_covid \%>\%
   ggoutbreak::proportion_locfit_model(window=21) \%>\%
   dplyr::glimpse()
 
-plot_multinomial(tmp, normalise=TRUE)+
-  ggplot2::scale_fill_viridis_d()
+if(interactive()) {
+  plot_multinomial(tmp, normalise=TRUE)+
+    ggplot2::scale_fill_viridis_d()
+}
 
 }
 \concept{vis}

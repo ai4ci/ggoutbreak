@@ -41,3 +41,4 @@ Calculate a growth rate from a reproduction number and an infectivity profile
 y=stats::pgamma(seq(0.5,length.out=50), 5,2)-stats::pgamma(c(0,seq(0.5,length.out=49)), 5,2)
 inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=y)
 }
+\concept{models}

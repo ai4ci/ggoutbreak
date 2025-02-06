@@ -15,16 +15,17 @@
 #'   band in the output some kind of maximum upper limit is needed to interpolate
 #'   to.
 #' @param ytotal upper and lower limits for y. If the interpolation values fall outside of
-#'   x then the min and max limits of y are given by this. This would be `c(0,1)`
+#'   x then the minimum and maximum limits of y are given by this. This would be `c(0,1)`
 #'   for a probability distribution, for example.
 #' @param digits if the `xout` value is continuous then how many significant figures
 #'   to put in the labels
 #' @param labelling are the `xout` values interpretable as an `inclusive` upper limit, or
 #'   an `exclusive` upper limit, or as an upper limit of an `positive_integer`` quantity
-#' @param sep seperator for names e.g. `18-24` or `18 to 24`
+#' @param sep separator for names e.g. `18-24` or `18 to 24`
 #'
-#' @return a rebanded set of discrete values, guaranteed to sum to the same as `y`
+#' @return a re-banded set of discrete values, guaranteed to sum to the same as `y`
 #' @export
+#' @concept wrangling
 #'
 #' @examples
 #' ul = stringr::str_extract(england_demographics$class, "_([0-9]+)",group = 1) %>%

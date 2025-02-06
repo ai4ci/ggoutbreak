@@ -3,7 +3,7 @@
 \docType{data}
 \name{test_ts}
 \alias{test_ts}
-\title{The test_ts dataset}
+\title{A test time series dataset}
 \format{
 A dataframe containing the following columns:
 \itemize{
@@ -25,6 +25,6 @@ Any grouping allowed.
 data(test_ts)
 }
 \description{
-The test_ts dataset
+A test time series dataset
 }
-\keyword{datasets}
+\concept{datasets}

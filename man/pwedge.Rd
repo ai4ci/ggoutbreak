@@ -7,7 +7,11 @@
 pwedge(q, a, log.p = FALSE)
 }
 \arguments{
+\item{q}{vector of quantiles}
+
 \item{a}{a gradient from -2 (left skewed) to 2 (right skewed)}
+
+\item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 a vector of probabilities, quantiles, densities or samples.

@@ -21,3 +21,4 @@ a ggplot scale
 \description{
 A log1p y scale
 }
+\concept{vis}

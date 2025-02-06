@@ -2,21 +2,27 @@ url: ~
 template:
   bootstrap: 5
 reference:
-- title: Growth rate models
+- title: Incidence, Growth Rate and Reproduction Number estimators
 - contents:
   - has_concept("models")
+- title: Delay distributions and Infectivity profiles
+- contents:
+  - has_concept("delay_distribution")
 - title: Visualisations
 - contents:
   - has_concept("vis")
 - title: Time series functions
 - contents:
   - has_concept("time_period")
-- title: Testing functions
+- title: Simulation and testing functions
 - contents:
   - has_concept("test")
+- title: Reparameterised statistical distributions
+- contents:
+  - has_concept("distributions")
 - title: Data Documentation
 - contents:
   - has_concept("datasets")
 - title: Others
 - contents:
-  - lacks_concepts(c("models","vis","time_period","datasets","test"))
+  - lacks_concepts(c("models","delay_distribution","vis","time_period","datasets","test","distributions"))

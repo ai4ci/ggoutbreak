@@ -29,7 +29,7 @@ random set of times to a ordered complete list of 1 week intervals (or 2
 month intervals) spanning the same range as the dates. This has some
 interesting problems regarding where to put breaks within a month or week.
 Often this is either based on a specific date (e.g. yearly periods starting
-at 2020-01-01) or a day of week (e.g. 2 weekly periods staring on a sunday)
+at \code{2020-01-01}) or a day of week (e.g. 2 weekly periods staring on a sunday)
 or maybe relative to the input time series (weekly ending on the last date of
 the data). There is also a problem when we consider data that may have
 incomplete starting and end periods, which may not be comparable to other

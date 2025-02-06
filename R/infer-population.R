@@ -16,6 +16,7 @@
 #'
 #' @return the `df` timeseries with additional `population` column
 #' @export
+#' @concept models
 #'
 #' @examples
 #' ggoutbreak::england_covid %>%

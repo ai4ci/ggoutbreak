@@ -35,7 +35,7 @@ Any grouping allowed.}
 \item{\code{event_fill_colour}}{the event area fill}
 \item{\code{hide_labels}}{do not show labels at all}
 \item{\code{guide_axis}}{a guide axis configuration for the labels
-(see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+(see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
 \item{\code{...}}{
   Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
@@ -155,7 +155,10 @@ if (interactive()) {
 
   # comparing RT from growth rates with England consensus Rt:
   plot_rt(tmp2,colour="blue")+
-    ggplot2::geom_errorbar(data=england_consensus_rt, mapping=ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="red")
+    ggplot2::geom_errorbar(
+      data=england_consensus_rt,
+      mapping=ggplot2::aes(x=date-21,ymin=low,ymax=high),
+      colour="red")
 
 }
 }

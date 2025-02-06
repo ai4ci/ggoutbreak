@@ -1,10 +1,10 @@
-## EpiEstim wrapper ----
+## `EpiEstim` wrapper ----
 
 
-#' EpiEstim reproduction number
+#' `EpiEstim` reproduction number
 #'
 #' Calculate a reproduction number estimate from incidence data using the
-#' EpiEstim library and an empirical generation time distribution. This uses
+#' `EpiEstim` library and an empirical generation time distribution. This uses
 #' resampling to transmit uncertainty in generation time estimates. This is
 #' quite slow for each time series depending on the number of bootstraps and
 #' samples in the infectivity profile.
@@ -15,11 +15,11 @@
 #' @iparam df Count data. Extra groups are allowed.
 #' @iparam ip infectivity profile
 #' @param bootstraps - the number of bootstraps to take to calculate for each point.
-#' @param window - the width of the epiestim window
+#' @param window - the width of the `EpiEstim` window
 #' @param mean_prior the prior for the $R_t$ estimate. When sample size is low the
-#'   $R_t$ estimate will revert to this prior. In EpiEstim the default is a high
+#'   $R_t$ estimate will revert to this prior. In `EpiEstim` the default is a high
 #'   number to allow detection of insufficient data but this tends to create
-#'   anomalies in the early part of infection timeseries. A possible value is $R_0$
+#'   anomalies in the early part of infection time series. A possible value is $R_0$
 #'   but in fact this also will be a poor choice for the value of $R_t$ when case
 #'   numbers drop to a low value.
 #' @param std_prior the prior for the $R_t$ SD.

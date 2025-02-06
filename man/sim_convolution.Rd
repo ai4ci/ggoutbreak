@@ -22,7 +22,7 @@ sim_convolution(
 A dataframe containing the following columns: 
 \itemize{
 \item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -75,8 +75,14 @@ weekend_delay = make_gamma_ip(median_of_mean = 6, median_of_sd = 2)
 delay_fn = ~ ifelse(.x \%\% 7 \%in\% c(6,7), list(weekend_delay), list(weekday_delay))
 p_fn = ~ ifelse(.x < 20, 0.5, 0.75)
 
-data = tibble::tibble(time=1:40, count = rep(100,40), rate = rep(100,40), statistic="infections") \%>\% dplyr::group_by(statistic)
-delayed = data \%>\% sim_convolution(p_fn,delay_fn,output="delayed") \%>\% dplyr::filter(statistic=="delayed")
+data = tibble::tibble(
+    time=1:40,
+    count = rep(100,40),
+    rate = rep(100,40),
+    statistic="infections") \%>\% dplyr::group_by(statistic)
+delayed = data \%>\%
+    sim_convolution(p_fn,delay_fn,output="delayed") \%>\%
+    dplyr::filter(statistic=="delayed")
 if (interactive()) ggplot2::ggplot(delayed,ggplot2::aes(x=time))+
   ggplot2::geom_line(ggplot2::aes(y=rate))+
   ggplot2::geom_line(ggplot2::aes(y=count))
@@ -85,3 +91,4 @@ if (interactive()) ggplot2::ggplot(delayed,ggplot2::aes(x=time))+
 delay_fn = cfg_gamma_ip_fn( ~ ifelse(.x<5, 8, 4))
 
 }
+\concept{test}

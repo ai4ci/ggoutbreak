@@ -71,3 +71,4 @@ floor(as.numeric(julian(Sys.time())) + 2440587.5) # from a date-time
 \code{\link[base]{DateTimeClasses}}, \code{\link[base]{Date}};
   \code{\link[base]{Sys.getlocale}("LC_TIME")} crucially for \code{months()} and \code{weekdays()}.
 }
+\concept{time_period}

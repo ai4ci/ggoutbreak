@@ -2,7 +2,7 @@
 % Please edit documentation in R/periodic-times.R
 \name{time_to_date}
 \alias{time_to_date}
-\title{Convert a set of timepoints to dates}
+\title{Convert a set of time points to dates}
 \usage{
 time_to_date(
   timepoints,
@@ -13,15 +13,15 @@ time_to_date(
 \arguments{
 \item{timepoints}{a set of numeric time points}
 
-\item{unit}{the period / unit of the time points, which will be extracted from timepoints if possible}
+\item{unit}{the period / unit of the time points, which will be extracted from time points if possible}
 
-\item{start_date}{the zero day of the time series, will be extracted from timepoints if possible}
+\item{start_date}{the zero day of the time series, will be extracted from time points if possible}
 }
 \value{
 a vector of dates
 }
 \description{
-Convert a set of timepoints to dates
+Convert a set of time points to dates
 }
 \examples{
 times = date_to_time(as.Date("2019-12-29")+0:100, "1 week")

@@ -30,4 +30,4 @@ mean 5 days and SD 2 as defined in \code{test_ip} dataset. This serial interval
 if relevant to the estimation of $R_t$ from symptomatic case counts but
 includes negative times, and cannot be used with \code{EpiEstim}.
 }
-\keyword{datasets}
+\concept{datasets}

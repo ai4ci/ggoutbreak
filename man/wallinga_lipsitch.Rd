@@ -40,3 +40,4 @@ profile aka generation time
 \examples{
 wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
 }
+\concept{models}

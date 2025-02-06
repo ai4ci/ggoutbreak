@@ -27,10 +27,12 @@
 #'
 #' tmp = ggoutbreak::england_covid %>%
 #'   ggoutbreak::proportion_locfit_model(window=21) %>%
-#'   ggoutbreak::normalise_proportion(ggoutbreak::england_demographics) %>%
+#'   ggoutbreak::infer_risk_ratio(ggoutbreak::england_demographics) %>%
 #'   dplyr::glimpse()
 #'
-#' plot_growth_phase(tmp)
+#' if(interactive()) {
+#'   plot_growth_phase(tmp)
+#' }
 #'
 infer_risk_ratio = function(
     modelled = i_proportion_model,
@@ -60,7 +62,7 @@ infer_risk_ratio = function(
 
 
 
-#' Calculate a risk ratio from incidence
+#' Calculate a risk ratio from incidence (experimental)
 #'
 #' This enables incidence rates are able to be compared to a baseline figure for
 #' incidence. The baseline could come for example from a population average or
@@ -70,31 +72,48 @@ infer_risk_ratio = function(
 #' checked.
 #'
 #' @iparam base The baseline data must be grouped in the same way as `modelled`.
-#'   It may be a time series but does not have to be.
-#' @iparam modelled Model output from something like [poisson_locfit_model()]
+#'   It may be a time series but does not have to be. See the example and note
+#'   this may change in the future.
+#' @iparam modelled Model output from something like [poisson_locfit_model()].
+#'   It really makes sense if this is a grouped model.
 #' @param ... not used
 #'
-#' @return a dataframe with incidence rates per unit capita.
+#' @return a dataframe with incidence rate ratios for each of the classes in modelled.
 #'   `r i_rate_ratio_model`
 #' @export
 #' @concept models
 #'
 #' @examples
 #'
+#' baseline = ggoutbreak::england_covid %>%
+#'   ggoutbreak::time_aggregate() %>%
+#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#'   dplyr::mutate(baseline_incidence = incidence.0.5)
 #'
 #'
 #' tmp = ggoutbreak::england_covid %>%
-#'   ggoutbreak::proportion_locfit_model(window=21) %>%
-#'   ggoutbreak::normalise_proportion(ggoutbreak::england_demographics) %>%
+#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#'   ggoutbreak::infer_rate_ratio(baseline) %>%
 #'   dplyr::glimpse()
 #'
-#' plot_growth_phase(tmp)
+#'
 #'
 infer_rate_ratio = function(
     modelled = i_incidence_model,
     base = i_baseline_incidence_data,
     ...
 ) {
+
+  #TODO: no plotting method defined for these rate ratios.
+  #TODO: the growth rate returned here is absolute not relative
+  #TODO: We could have done this with proper confidence as the ratio of
+  # log normals if we had them.
+  # This is almost a family of related functions depending on the input data
+  # base would then be input as an incidence model.
+  #TODO: infer_relative_growth as another function which takes 2 growth rates
+  # and returns the relative growth rate.
+  #TODO: Plotting for incidence rate ratio on its own and
+  # with relative growth rate in a growth phase diagram.
 
   base = interfacer::ivalidate(base, ...)
   modelled = interfacer::ivalidate(modelled, ...)

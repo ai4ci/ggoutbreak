@@ -4,7 +4,7 @@ modelled = readxl::read_excel(tmp,sheet="1k",skip = 5)
 
 cleaned = modelled %>%
   filter(Date != "Date" & !stringr::str_starts(Date,"Publication" )) %>%
-  filter(row_number()==1, .by=Date) %>%
+  filter(dplyr::row_number()==1, .by=Date) %>%
   mutate(Date = suppressWarnings(as.integer(Date))) %>%
   filter(!is.na(Date)) %>%
   pivot_longer(cols = c(-Date), names_sep = "\r\n", names_to = c("Geography","Feature")) %>%

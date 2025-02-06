@@ -14,9 +14,13 @@
 dlnorm2(x, mean = 1, sd = sqrt(exp(1) - 1), log = FALSE)
 }
 \arguments{
+\item{x}{vector of quantiles}
+
 \item{mean}{the mean value on the true scale (vectorised)}
 
 \item{sd}{the standard deviation on the true scale (vectorised)}
+
+\item{log}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 \code{dlnorm} gives the density,

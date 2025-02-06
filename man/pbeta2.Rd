@@ -71,6 +71,8 @@
 pbeta2(q, prob, kappa, lower.tail = TRUE, log.p = FALSE)
 }
 \arguments{
+\item{q}{vector of quantiles}
+
 \item{prob}{the mean probability (vectorised)}
 
 \item{kappa}{a coefficient of variation. where 0 is no variability and 1 is
@@ -78,6 +80,8 @@ maximally variability (vectorised)}
 
 \item{lower.tail}{logical; if TRUE (default), probabilities are
     \eqn{P[X \le x]}, otherwise, \eqn{P[X > x]}.}
+
+\item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 \code{dbeta} gives the density, \code{pbeta} the distribution

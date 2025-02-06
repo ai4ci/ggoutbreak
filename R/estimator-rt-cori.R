@@ -1,4 +1,4 @@
-## EpiEstim wrapper ----
+## `EpiEstim` wrapper ----
 
 
 #' Reproduction number estimate using the Cori method
@@ -14,7 +14,7 @@
 #' on time point `t`, and fourthly this implementation allows multiple windows
 #' widths to be calculated in parallel and aggregated. All of this tends to
 #' increase uncertainty in the result particularly in the time dimension, which
-#' addresses some of the issue seem with `EpiEstim` suring the pandemic. Finally
+#' addresses some of the issue seem with `EpiEstim` during the pandemic. Finally
 #' it is quite a bit quicker, especially if approximate quantiles are all that
 #' are needed.
 #'
@@ -26,16 +26,16 @@
 #' @param window - the widths of the Cori method window to include in the estimate.
 #'   This can be a vector of values and all windows will be calculated and aggregated.
 #' @param mean_prior the prior for the $R_t$ estimate. When sample size is low the
-#'   $R_t$ estimate will revert to this prior. In EpiEstim the default is a high
+#'   $R_t$ estimate will revert to this prior. In `EpiEstim` the default is a high
 #'   number to allow detection of insufficient data but this tends to create
-#'   anomalies in the early part of infection timeseries. A possible value is $R_0$
+#'   anomalies in the early part of infection time series. A possible value is $R_0$
 #'   but in fact this also will be a poor choice for the value of $R_t$ when case
 #'   numbers drop to a low value.
 #' @param std_prior the prior for the $R_t$ SD.
 #' @param ... not used
 #' @param epiestim_compat produce an estimate of `Rt` using only windows that end
 #'   on the time `t` rather than all windows that span time `t`. If this option is
-#'   selected their can also only be one value for window.
+#'   selected there can also only be one value for window.
 #' @param approx approximate the quantiles of the mixture distribution with a
 #'   gamma distribution with the same first mean and SD.
 #'
@@ -43,26 +43,28 @@
 #' @export
 #' @concept models
 #' @examples
-#' tmp = ggoutbreak::england_covid %>%
-#'   time_aggregate(count=sum(count))
 #'
+#' #TODO: speed up example
+#'
+#' tmp = ggoutbreak::england_covid  %>%
+#'   dplyr::filter(date < "2021-01-01") %>%
+#'   time_aggregate(count=sum(count))
 #'
 #' tmp2 = tmp %>% rt_cori(epiestim_compat = TRUE)
 #' tmp3 = tmp %>% rt_cori(window=c(5:14), approx=TRUE)
-#'
-#' # withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#' #  tmp4 = tmp %>% rt_cori(window=c(13:14), approx = TRUE)
-#' # })
 #'
 #' comp = dplyr::bind_rows(
 #'   tmp2 %>% dplyr::mutate(class = "EpiEstim"),
 #'   tmp3 %>% dplyr::mutate(class = "Cori+")
 #' ) %>% dplyr::group_by(class)
 #'
-#' plot_rt(comp)+
-#'   ggplot2::geom_errorbar(data=england_consensus_rt, mapping=ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="black")+
-#'   ggplot2::coord_cartesian(ylim=c(0.5,1.75))
-#'
+#' if (interactive()) {
+#'   plot_rt(comp)+
+#'    ggplot2::geom_errorbar(
+#'      data=england_consensus_rt %>% dplyr::filter(date < "2021-01-01"),
+#'      mapping=ggplot2::aes(x=date,ymin=low,ymax=high),colour="black")+
+#'    ggplot2::coord_cartesian(ylim=c(0.5,1.75))
+#' }
 #'
 rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean_prior = 1, std_prior = 2, ..., epiestim_compat = FALSE, approx = FALSE) {
 

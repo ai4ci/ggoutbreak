@@ -11,7 +11,7 @@ poisson_glm_model(d = i_incidence_input, ..., window = 14, frequency = "1 day")
 
 A dataframe containing the following columns: 
 \itemize{
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -47,8 +47,9 @@ varying rate as a natural cubic spline with approx one degree of freedom per
 \code{window} units of the time series.
 }
 \examples{
-
-tmp = ggoutbreak::england_covid \%>\%
+ggoutbreak::england_covid \%>\%
+ dplyr::filter(date < "2021-01-01") \%>\%
+ time_aggregate(count=sum(count)) \%>\%
  ggoutbreak::poisson_glm_model(window=21) \%>\%
  dplyr::glimpse()
 }

@@ -59,7 +59,7 @@ Any grouping allowed.}
 \item{\code{event_fill_colour}}{the event area fill}
 \item{\code{hide_labels}}{do not show labels at all}
 \item{\code{guide_axis}}{a guide axis configuration for the labels
-(see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+(see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
 \item{\code{...}}{
   Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
@@ -175,21 +175,21 @@ tmp_pop = ggoutbreak::england_demographics \%>\%
   dplyr::ungroup() \%>\%
   dplyr::summarise(population = sum(population))
 
-
-
 # If the incidence is normalised by population
 tmp2 = tmp \%>\%
   poisson_locfit_model() \%>\%
   normalise_incidence(tmp_pop)
 
-# Default pdf device doesn't support unicode
-plot_growth_rate(tmp2,colour="blue")
+if(interactive()) {
+  plot_growth_rate(tmp2,colour="blue")
+}
 
 tmp3 = ggoutbreak::england_covid \%>\%
   proportion_locfit_model()
 
-# Default pdf device doesn't support unicode
-plot_growth_rate(tmp3)
+if(interactive()) {
+  plot_growth_rate(tmp3)
+}
 
 }
 \concept{vis}

@@ -73,14 +73,17 @@ fitted to a logit-normal (using moments) and quantiles produced from samples.
 }
 \examples{
 tmp = ggoutbreak::england_covid \%>\%
+  dplyr::filter(date < "2021-01-01") \%>\%
   time_aggregate(count=sum(count)) \%>\%
   ggoutbreak::poisson_locfit_model(window=21) \%>\%
   ggoutbreak::infer_prevalence(
      pop = 56489700,
-     # N.B. timiing is difficult in this example, as we are using cases.
+     # N.B. timing is difficult in this example, as we are using cases.
      ip = ggoutbreak::covid_test_sensitivity
-  ) \%>\%
-  dplyr::glimpse()
+  )
 
-plot_prevalence(tmp)
+if(interactive()) {
+  plot_prevalence(tmp)
 }
+}
+\concept{models}

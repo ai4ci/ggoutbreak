@@ -1,5 +1,5 @@
 # Figure out correlation heuristics.
-# TODO: is it worth creating a vignette here...?
+#TODO: is it worth creating a vignette here...?
 means = seq(0.1,10.1,0.5)
 sds = seq(0.1,5.1,0.5)
 

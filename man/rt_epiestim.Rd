@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimator-rt-epiestim.R
 \name{rt_epiestim}
 \alias{rt_epiestim}
-\title{EpiEstim reproduction number}
+\title{\code{EpiEstim} reproduction number}
 \usage{
 rt_epiestim(
   df = i_incidence_input,
@@ -19,7 +19,7 @@ rt_epiestim(
 
 A dataframe containing the following columns: 
 \itemize{
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -43,13 +43,13 @@ A default value is defined.}
 }}
 
 \item{window}{\itemize{
-\item the width of the epiestim window
+\item the width of the \code{EpiEstim} window
 }}
 
 \item{mean_prior}{the prior for the $R_t$ estimate. When sample size is low the
-$R_t$ estimate will revert to this prior. In EpiEstim the default is a high
+$R_t$ estimate will revert to this prior. In \code{EpiEstim} the default is a high
 number to allow detection of insufficient data but this tends to create
-anomalies in the early part of infection timeseries. A possible value is $R_0$
+anomalies in the early part of infection time series. A possible value is $R_0$
 but in fact this also will be a poor choice for the value of $R_t$ when case
 numbers drop to a low value.}
 
@@ -72,7 +72,7 @@ Any grouping allowed.
 }
 \description{
 Calculate a reproduction number estimate from incidence data using the
-EpiEstim library and an empirical generation time distribution. This uses
+\code{EpiEstim} library and an empirical generation time distribution. This uses
 resampling to transmit uncertainty in generation time estimates. This is
 quite slow for each time series depending on the number of bootstraps and
 samples in the infectivity profile.

@@ -71,10 +71,14 @@
 dbeta2(x, prob, kappa, log = FALSE)
 }
 \arguments{
+\item{x}{vector of quantiles}
+
 \item{prob}{the mean probability (vectorised)}
 
 \item{kappa}{a coefficient of variation. where 0 is no variability and 1 is
 maximally variability (vectorised)}
+
+\item{log}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 \code{dbeta} gives the density, \code{pbeta} the distribution

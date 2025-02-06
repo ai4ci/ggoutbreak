@@ -16,8 +16,10 @@
 #'   ggoutbreak::proportion_locfit_model(window=21) %>%
 #'   dplyr::glimpse()
 #'
-#' plot_proportion(tmp)+
-#'   ggplot2::scale_fill_viridis_d(aesthetics = c("fill","colour"))
+#' if(interactive()) {
+#'   plot_proportion(tmp)+
+#'     ggplot2::scale_fill_viridis_d(aesthetics = c("fill","colour"))
+#' }
 plot_proportion = function(
     modelled = i_proportion_model,
     raw = i_proportion_data,

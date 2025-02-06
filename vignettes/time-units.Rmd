@@ -10,20 +10,16 @@ vignette: >
 # Background
 
 ```{r setup}
-library(tidyverse)
 library(patchwork)
-
+library(ggoutbreak)
 here::i_am("vignettes/time-units.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
-
-# library(ggoutbreak)
-devtools::load_all()
 ```
 
 Its common for epidemic data to be aggregated into weekly, monthly or even yearly 
 case counts, for example the result of batching in reporting processes. 
-`ggoutbreak` has a set of infrastructure to allow weekly case counts to be 
-used to estimate the reproduction number.
+`ggoutbreak` has a set of infrastructure to allow case counts to be 
+used to estimate the reproduction number, regardless of their periodicity.
 
 # Simulation with weekly data
 
@@ -60,7 +56,7 @@ sim = sim_poisson_model(
 
 events = attr(sim,"events")
 
-plot_cases(sim, events = events)
+plot_cases(sim, events = events, colour="grey60")
 
 ```
 
@@ -76,9 +72,9 @@ week, the model output is creating an estimate per day (controlled by the
 incidence = sim %>% ggoutbreak::poisson_locfit_model(frequency = "1 day",deg = 2, window=5)
 
 p1 = plot_incidence(incidence, events=events, raw = sim)
-p2 = plot_growth_rate(incidence,events = events)+coord_cartesian(ylim=c(-0.05*7,+0.05*7))+
+p2 = plot_growth_rate(incidence,events = events)+ggplot2::coord_cartesian(ylim=c(-0.05*7,+0.05*7))+
   # The simulation data includes the parametrised growth rate:
-  geom_line(data = sim, mapping = aes(x=as.Date(time), y=growth), colour="red")
+  ggplot2::geom_line(data = sim, mapping = ggplot2::aes(x=as.Date(time), y=growth), colour="red")
 p1+p2+patchwork::plot_layout(ncol=1,axes="collect")+patchwork::plot_annotation(tag_levels = "A")
 
 ```
@@ -97,14 +93,14 @@ figures above.
 incidence2 = incidence %>% rescale_model(time_unit = "1 day")
 
 p1 = plot_incidence(incidence2, events=events, raw = sim)
-p2 = plot_growth_rate(incidence2,events = events)+coord_cartesian(ylim=c(-0.05,+0.05))
+p2 = plot_growth_rate(incidence2,events = events)+ggplot2::coord_cartesian(ylim=c(-0.05,+0.05))
 
 p1+p2+patchwork::plot_layout(ncol=1,axes = "collect")+patchwork::plot_annotation(tag_level="A")
 ```
 
 From this we can easily use our incidence estimates and an generation time 
 distribution to estimate the reproduction number for this time-series. To compare
-it we use a different method (Wallinga-Lipsitch) to convert the growth rate
+it we use a different method (Wallinga-Lipsitch 2007) to convert the growth rate
 parametrisation direct to an equivalent reproduction number. We see good 
 agreement, and the uncertainty associated with $R_t$ estimates derived from
 weekly count data is appropriately large, and include uncertainty in the 
@@ -114,7 +110,7 @@ generation time.
 
 # Convert weekly growth rate input to simulation to a reproduction number
 # and ensure time scales align.
-changes2 = changes %>% transmute(
+changes2 = changes %>% dplyr::transmute(
   t = t*7,
   R = wallinga_lipsitch(r/7, ganyani_ip_2)
 )

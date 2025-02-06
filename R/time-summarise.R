@@ -58,7 +58,7 @@ time_summarise = function(df = i_dated, unit, anchor = "start", rectangular = FA
 
   df = interfacer::ivalidate(df)
 
-  # TODO: a line list with no data at the end is either missing data or there were no observations.
+  #TODO: a line list with no data at the end is either missing data or there were no observations.
   # A date at which the observations are complete up to may be needed for each
   # group.
 
@@ -152,7 +152,7 @@ time_aggregate = function(df = i_timestamped, ..., .groups = NULL, .cols = NULL,
   .cols = rlang::enexpr(.cols)
   df = interfacer::ivalidate(df)
   grps = df %>% dplyr::group_vars()
-  # TODO: automatically deal with class column?
+  #TODO: automatically deal with class column?
   agg_grps = grps[grps != "time"] %>% utils::head(-1) %>% c("time") %>% unique() %>% lapply(as.symbol)
   df = df %>% dplyr::group_by(!!!agg_grps)
 
@@ -171,7 +171,7 @@ time_aggregate = function(df = i_timestamped, ..., .groups = NULL, .cols = NULL,
     if (length(dots) == 0) {
       dots = list(count = rlang::expr(sum(count)))
       if (.has_cols(df, "denom")) {
-        dots[["denom"]] = rlang::expr(sum(denom))
+        dots[["denom"]] = rlang::expr(ifelse(length(unique(denom))==1, unique(denom), sum(denom)))
       }
       if (.has_cols(df, "population")) {
         dots[["population"]] = rlang::expr(sum(population))

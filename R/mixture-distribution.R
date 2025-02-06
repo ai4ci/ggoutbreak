@@ -178,7 +178,7 @@
 # .qmixlnormfun(c(0,1,2,3), c(1,1,1,1))(c(0.025,0.5,0.975))
 # stats::quantile(p=c(0.025,0.5,0.975), stats::rlnorm(100000, c(0,1,2,3), c(1,1,1,1)))
 
-# TODO:
+#TODO: Implement mixture distribution quantile algorithm
 # There is an algorithm here that goes something like this.
 # If we order the distributions by mean.
 # probably the 0.25 quantile of the mixture is smaller than the 0.25 quantiles of the mean - Proof?
@@ -196,8 +196,8 @@
 # standard distributions, or mixture distributions, in a unified
 # dataframe friendly way.
 
-# .cdf_generator(rnorm(1000))
-# .cdf_generator(list(rnorm(1000),rnorm(1000,2,1)))
+# .cdf_generator(stats::rnorm(1000))
+# .cdf_generator(list(stats::rnorm(1000),stats::rnorm(1000,2,1)))
 # tmp = .cdf_generator(mean=2,sd=1)
 # tmp2 = .cdf_generator(mean=list(c(1,2,3),c(3,4,5)),sd=list(c(1,1,1),c(2,2,2)))
 # lapply(tmp2, function(fn) fn(0:10))
@@ -217,13 +217,13 @@
 
   if (identical(names(dots),c("mean","sd"))) {
     if (is.list(dots[["mean"]])) fn = .pmixnorm
-    else fn = pnorm
+    else fn = stats::pnorm
   } else if (identical(names(dots),c("meanlog","sdlog"))) {
     if (is.list(dots[["meanlog"]])) fn = .pmixlnorm
-    else fn = plnorm
+    else fn = stats::plnorm
   } else if (identical(names(dots),c("shape","rate"))) {
     if (is.list(dots[["shape"]])) fn = .pmixgamma
-    else fn = pgamma
+    else fn = stats::pgamma
   }
 
   lapply(seq_along(dots[[1]]), function(i) {
@@ -244,7 +244,7 @@
   y = cumsum(y)/(sum(y)+1)
   x=c(2*x[1]-x[2], x, 2*x[length(x)]-x[length(x)-1])
   y=c(0,y,1)
-  sf = approxfun(x,y,yleft=0,yright=1)
+  sf = stats::approxfun(x,y,yleft=0,yright=1)
   return(sf)
 }
 

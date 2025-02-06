@@ -10,7 +10,7 @@ make_resampled_ip(
   max_tau = tau + 0.5,
   add_noise = TRUE,
   truncate = 0,
-  boots = 100,
+  n_boots = 100,
   seed = Sys.time()
 )
 }
@@ -25,7 +25,9 @@ make_resampled_ip(
 
 \item{truncate}{what is the minimum realistic value of the parameter}
 
-\item{boots}{number of replicates to generate}
+\item{n_boots}{number of replicates to generate}
+
+\item{seed}{a random number seed for reproducibility}
 }
 \value{
 a long format \code{ip} delay distribution
@@ -37,5 +39,8 @@ Suits larger contact tracing data sets where there is a delay between
 \examples{
 tau = rgamma2(100, 5,2)
 ip = make_resampled_ip(min_tau = tau-1, max_tau = tau+1, seed = 100)
-plot_ip(ip,alpha=0.1)
+if(interactive()) {
+  plot_ip(ip,alpha=0.1)
 }
+}
+\concept{delay_distribution}

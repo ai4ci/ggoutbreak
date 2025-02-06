@@ -18,3 +18,4 @@ Type coercion to a \code{time_period} class
 \examples{
 type.time_period(1:100)
 }
+\keyword{internal}

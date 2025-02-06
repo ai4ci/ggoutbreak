@@ -3,7 +3,7 @@
 \docType{data}
 \name{du_serial_interval_ip}
 \alias{du_serial_interval_ip}
-\title{The du_serial_interval_ip dataset}
+\title{The Du empirical serial interval dataset}
 \format{
 A dataframe containing the following columns:
 \itemize{
@@ -22,6 +22,6 @@ Grouped by: boot.
 data(du_serial_interval_ip)
 }
 \description{
-The du_serial_interval_ip dataset
+From Z. Du, X. Xu, Y. Wu, L. Wang, B. J. Cowling, and L. A. Meyers, ‘Serial Interval of COVID-19 among Publicly Reported Confirmed Cases’, Emerg Infect Dis, vol. 26, no. 6, pp. 1341–1343, Jun. 2020, doi: 10.3201/eid2606.200357.
 }
-\keyword{datasets}
+\concept{datasets}

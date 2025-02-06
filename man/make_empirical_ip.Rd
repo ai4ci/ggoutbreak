@@ -2,7 +2,7 @@
 % Please edit documentation in R/infectivity-profile.R
 \name{make_empirical_ip}
 \alias{make_empirical_ip}
-\title{Recover a long format infectivity profile from an EpiEstim style matrix}
+\title{Recover a long format infectivity profile from an \code{EpiEstim} style matrix}
 \usage{
 make_empirical_ip(omega, normalise = TRUE)
 }
@@ -21,8 +21,9 @@ then the PMF is scaled to this value.}
 a long format \code{ip} delay distribution
 }
 \description{
-Recover a long format infectivity profile from an EpiEstim style matrix
+Recover a long format infectivity profile from an \code{EpiEstim} style matrix
 }
 \examples{
 format_ip(make_empirical_ip(c(0,0,1,1,1,2,2,2,1,1)))
 }
+\concept{delay_distribution}

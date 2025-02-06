@@ -10,7 +10,7 @@
 \item{x}{a vector of dates, possibly including NA values}
 
 \item{period}{the gap between observations as a number of days or as a natural
-language definition of the period such as "1 week", '2 weeks', '1 month', etc.
+language definition of the period such as "1 week", '2 weeks', '1 month', etcetera.
 If not given this will be derived from the dates.}
 
 \item{anchor}{defines a day that appears in the sequence (if it were to
@@ -28,12 +28,12 @@ dates, with the boundaries defined by the anchor.
 \description{
 Derive from a vector of observation dates, a complete ordered sequence of
 periods in a regular time series, where the length of the periods is
-specified, as a number od days, weeks, years etc. E.g. this can convert a
+specified, as a number of days, weeks, years etcetera. E.g. this can convert a
 random set of dates to a ordered complete list of 1 week intervals (or 2
 month intervals) spanning the same range as the dates. This has some
 interesting problems regarding where to put breaks within a month or week.
 Often this is either based on a specific date (e.g. yearly periods starting
-at 2020-01-01) or a day of week (e.g. 2 weekly periods staring on a sunday)
+at \code{2020-01-01}) or a day of week (e.g. 2 weekly periods staring on a Sunday)
 or maybe relative to the input time series (weekly ending on the last date of
 the data). There is also a problem when we consider data that may have
 incomplete starting and end periods, which may not be comparable to other

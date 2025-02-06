@@ -32,3 +32,4 @@ Print a summary of an infectivity profile
 format_ip(ganyani_ip)
 
 }
+\concept{delay_distribution}

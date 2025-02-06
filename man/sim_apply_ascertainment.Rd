@@ -13,7 +13,7 @@ sim_apply_ascertainment(df = i_sim_count_data, fn_asc = ~1, seed = Sys.time())
 A dataframe containing the following columns: 
 \itemize{
 \item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -40,3 +40,4 @@ tibble::tibble(
   count=rep(100,10)
 ) \%>\% dplyr::group_by(statistic) \%>\% sim_apply_ascertainment(~ ifelse(.x<=5,0.1,0.9))
 }
+\concept{test}

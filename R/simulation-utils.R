@@ -5,6 +5,7 @@
 #' @param changes a dataframe with `t` and `<col_name>` columns which define the cut points
 #' for a step function.
 #' @param col_name the value column (optional if only 2 columns)
+#' @param ... not used
 #'
 #' @return a function that inputs a vector `t` and returns the next smallest
 #' corresponding value in `<col_name>` (or the first one)
@@ -22,6 +23,7 @@ cfg_step_fn = function(changes, ..., col_name = setdiff(colnames(changes),"t")) 
 #' @param changes a dataframe with `t` and `<col_name>` columns which define the change
 #' points for a piecewise linear function.
 #' @param col_name the value column (optional if only 2 columns)
+#' @param ... not used
 #'
 #' @return a function that inputs a vector `t` and returns a linearly
 #'   interpolated value from `<col_name>`
@@ -40,7 +42,7 @@ cfg_linear_fn = function(changes, ..., col_name = setdiff(colnames(changes),"t")
 #' of week.
 #'
 #' @param prob the rates of e.g. ascertainment for each day of the week.
-#' @param kappa dispersion parameter betwen 0 and 1. O is no dispersion. 1 is maximum
+#' @param kappa dispersion parameter between 0 and 1. O is no dispersion. 1 is maximum
 #' @param week_starts locale description of first day of week (default is a "Monday").
 #'
 #' @return a random number generator function taking `t` time parameter and
@@ -113,6 +115,7 @@ cfg_weekly_gamma_rng = function(mean=c(1,1,1,1,4,3,2), sd=sqrt(mean), week_start
 #' @return a time dependent function that inputs a time (as a time_period) and
 #'   generates an IP delay distribution for each day varying by day of week
 #' @export
+#' @concept test
 #'
 #' @examples
 #' cat(sapply(cfg_weekly_ip_fn()(1:7),format_ip),sep = "\n")
@@ -127,26 +130,28 @@ cfg_weekly_ip_fn = function(mean=c(1,1,1,1,4,3,2), sd=sqrt(mean), week_starts = 
     dow_mean = mean[dow]
     dow_sd = sd[dow]
     # warnings can be produced if value of t is NA.
-    purrr::map2(dow_mean,dow_sd, ~ .make_gamma_ip(median_of_mean = .x, median_of_sd = .y))
+    purrr::map2(dow_mean,dow_sd, ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y))
   })
 }
 
 #' Get a IP generating function from time varying mean and SD of a gamma function
 #'
 #' @param mean_fn a function which gives the time-varying mean of a gamma
-#'   distribution, The function will be called minimally with `.x`\`t`` which
+#'   distribution, The function will be called minimally with `.x` or `t` which
 #'   will be the time as a time period. Other variables may be present.
 #' @param sd_fn a function which gives the time-varying mean of a gamma
-#'   distribution. The function will be called with minimally `.x`\`t` which
-#'   will be the time period and `.y`\`mean` will be the mean. Other variables
+#'   distribution. The function will be called with minimally `.x` or `t` which
+#'   will be the time period and `.y` or `mean` will be the mean. Other variables
 #'   may be present.
 #'
 #' @return a time dependent function that inputs a time (as a time_period) and
 #'   returns an ip delay distribution for each day defined by the `mean_fn` and `sd_fn`
 #' @export
+#' @concept test
 #'
 #' @examples
-#' fn = cfg_gamma_ip_fn(mean_fn = \(t) ifelse(t < 5, 4, 2)) # a gamma function that changes mean at time 5
+#' fn = cfg_gamma_ip_fn(mean_fn = \(t) ifelse(t < 5, 4, 2))
+#' # a gamma function that changes mean at time 5
 #' fn(4)
 #' fn(7)
 cfg_gamma_ip_fn = function(mean_fn = ~ 2, sd_fn = \(mean) sqrt(mean)) {
@@ -161,24 +166,25 @@ cfg_gamma_ip_fn = function(mean_fn = ~ 2, sd_fn = \(mean) sqrt(mean)) {
     if (length(mean) == 1) mean = rep(mean,length.out=length(t))
     if (length(sd) == 1) sd = rep(sd,length.out=length(t))
 
-    purrr::map2(mean,sd, ~ .make_gamma_ip(median_of_mean = .x, median_of_sd = .y))
+    purrr::map2(mean,sd, ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y))
   })
 }
 
 #' Generate a random probability based on features of the simulation
 #'
 #' @param probability_fn a function which gives the time-varying mean of a beta
-#'   distribution, The function will be called minimally with `.x`\`t`` which
+#'   distribution, The function will be called minimally with `.x` or `t`` which
 #'   will be the time as a time period. Other variables may be present.
 #' @param kappa_fn a function which gives the time-varying dispersion of a beta
-#'   distribution. The function will be called with minimally `.x`\`t` which
-#'   will be the time period and `.y`\`mean` will be the mean. Other variables
+#'   distribution. The function will be called with minimally `.x` or `t` which
+#'   will be the time period and `.y` or `mean` will be the mean. Other variables
 #'   may be present.
 #' @seealso [rbeta2()]
 #'
 #' @return a time dependent function that inputs a time (as a time_period) and
 #'   returns an probability for each day defined by the `probability_fn` and `kappa_fn`
 #' @export
+#' @concept test
 #'
 #' @examples
 #' fn = cfg_beta_prob_rng(~ ifelse(.x<=5,0.1,0.9))
@@ -210,6 +216,7 @@ cfg_beta_prob_rng = function(probability_fn = ~ 0.8, kappa_fn = ~ 0.1) {
 #' @return a function which accepts `n` parameter which produces random samples
 #' from the `ip` distribution
 #' @export
+#' @concept test
 #' @examples
 #' tmp = cfg_ip_sampler_rng(ganyani_ip_2)(10000)
 #'
@@ -241,6 +248,7 @@ cfg_ip_sampler_rng = function(ip = i_empirical_ip) {
 #' @return a function that given an input will return samples of the output
 #'   class according to the probability distributions.
 #' @export
+#' @concept test
 #'
 #' @examples
 #' age = rep(c("child","adult","elderly"),100)
@@ -277,14 +285,15 @@ cfg_transition_fn = function(transition) {
 #' provided infectivity profile.  A fixed denominator gives a known proportion
 #' and a relative growth rate that is the same as the growth rate.
 #'
-#' @iparam ip an infectivity profile. any uncertainty will be collapsed into the
+#' @param ip an infectivity profile. any uncertainty will be collapsed into the
 #'   central distribution.
 #' @param duration the total length of the time-series
-#' @param period the duration of each positivie or negative growth phase
+#' @param period the duration of each positive or negative growth phase
 #'
 #' @return a time series with `count`, `incidence`, `growth`, `rt`,
 #'   `proportion` and `relative.growth` columns
 #' @export
+#' @concept test
 #'
 #' @examples
 #' sim_test_data() %>% dplyr::glimpse()
@@ -332,7 +341,8 @@ sim_test_data = function(ip = test_ip, duration=500, period=50) {
 #'
 #' @param changes a dataframe holding change time points (`t`) and
 #'   growth rate per week (`growth`) columns
-#' @param initial the size of the initial outbreak
+#' @param fn_imports a function that takes input vector `t` and returns the
+#'   number of imported cases at times `t`.
 #' @param seed a random seed
 #' @param kappa a dispersion parameter. 1 is no dispersion (compared to poisson), smaller values mean more dispersion.
 #' @param max_time the desired length of the time series,
@@ -340,10 +350,10 @@ sim_test_data = function(ip = test_ip, duration=500, period=50) {
 #' @param time_unit e.g. a daily or weekly time series: "1 day", "7 days"
 #'
 #' @export
-#' @concept simulation
+#' @concept test
 #' @return A dataframe containing the following columns:
 #'
-#' * count (positive_integer) - Positive case counts associated with the specified timeframe
+#' * count (positive_integer) - Positive case counts associated with the specified time frame
 #' * time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 #'
 #' Ungrouped.
@@ -422,7 +432,7 @@ sim_poisson_model = function(
 #' @param time_unit e.g. a daily or weekly time series: "1 day", "7 days"
 #'
 #' @export
-#' @concept simulation
+#' @concept test
 #' @return A dataframe containing the following columns:
 #'
 #' * count (positive_integer) - Positive case counts associated with the specified timeframe
@@ -511,16 +521,14 @@ sim_poisson_Rt_model = function(
 #' @param time_unit e.g. a daily or weekly time series: "1 day", "7 days"
 #'
 #' @return a case count time series including `class`, `count` and `time` columns
-#' @concept simulation
+#' @concept test
 #' @export
 #'
 #' @examples
 #' if (interactive()) {
-#'
-#' plot_counts(
-#'   sim_multinomial() %>% glimpse()
-#' )
-#'
+#'   plot_counts(
+#'     sim_multinomial() %>% dplyr::glimpse()
+#'   )
 #' }
 sim_multinomial = function(
     changes = tibble::tibble(
@@ -564,7 +572,7 @@ sim_multinomial = function(
     dplyr::ungroup() %>%
     dplyr::group_by(class)
 
-  # TODO: make this more like the branching process models.
+  #TODO: make this more like the branching process models.
   events = changes %>%
     tidyr::pivot_longer(
       cols = -t,
@@ -584,7 +592,7 @@ sim_multinomial = function(
 }
 
 
-# TODO: a multinomial model based on R_t?
+#TODO: a multinomial model based on R_t?
 # this would need a serial interval per variant.
 
 # sim_deterministic_sir = function(
@@ -659,6 +667,7 @@ sim_multinomial = function(
 #'   must be vectorised and assume no grouping structure. If the function has
 #'   named parameters it can reference any of the metadata columns, or time
 #'   (as `t`). The [rcategorical()] function may be useful in this scenario.
+#' @param ... not used
 #'
 #' @return a line list of cases, with individual ids, infection times,
 #'    and infector ids, for a simulated outbreak
@@ -673,7 +682,9 @@ sim_multinomial = function(
 #'   fn_imports = ~ ifelse(.x<10,1,0)
 #' )
 #'
-#' plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1)
+#' if(interactive()) {
+#'   plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1)
+#' }
 #'
 #' # imports can also be specified as a dataframe, which allows additional
 #' # metadata in the line list. An example of which is as follows:
@@ -760,7 +771,7 @@ sim_branching_process = function(
                            dplyr::ungroup() %>%
                            dplyr::select(tau, probability))
           ) %>%
-          tidyr::unnest(ip) %>%
+          .unnest_dt("ip") %>%
           dplyr::mutate(t = time+tau) %>%
           dplyr::mutate(
             Rt_tau = .ts_evaluate(fn_Rt,. ),
@@ -778,7 +789,7 @@ sim_branching_process = function(
         dplyr::mutate(
           infector = id,
           infected_time = t_tau,
-          # TODO: is it OK to sample from each t_tau instead of combining them to
+          #TODO: is it OK to sample from each t_tau instead of combining them to
           # get a count on day t_tau? Basically this comes down to whether the
           # dispersion of sum of multiple small negative binomials is the same as
           # of one single one for combination. I think
@@ -871,11 +882,15 @@ sim_branching_process = function(
 #' @return a long format set of counts of infections, symptom, admitted, death,
 #'   sample (tests taken), results (test results).
 #' @export
+#' @keywords internal
 #'
 #' @examples
 #' tmp = sim_poisson_model(seed=100) %>% sim_apply_delay()
 #'
-#' plot_counts(tmp, mapping=ggplot2::aes(colour=statistic))+ggplot2::geom_line()
+#' if(interactive()) {
+#'   plot_counts(tmp, mapping=ggplot2::aes(colour=statistic))+
+#'     ggplot2::geom_line()
+#' }
 sim_apply_delay.count_data = function(df,
     ...,
     fn_p_symptomatic = ~ 0.5,
@@ -890,7 +905,9 @@ sim_apply_delay.count_data = function(df,
     seed = Sys.time()
   ) {
 
-  df %>%
+  events = attr(df,"events")
+
+  df = df %>%
     sim_convolution(fn_p_symptomatic, fn_symptom_profile,input="infections",  output="symptom") %>%
     sim_convolution(fn_p_admitted, fn_admission_profile,input="infections",  output="admitted") %>%
     sim_convolution(fn_p_died, fn_death_profile,input="infections",  output="death") %>%
@@ -898,6 +915,9 @@ sim_apply_delay.count_data = function(df,
     sim_convolution(rlang::as_function(~ 1), fn_result_profile, input="sample", output="result") %>%
     sim_delayed_observation(fn_result_profile, input="sample", output="sample") %>%
     dplyr::group_by(statistic)
+
+  attr(df,"events") = events
+  return(df)
 
 }
 
@@ -914,6 +934,7 @@ sim_apply_delay.count_data = function(df,
 #' @return a dataframe with `original` column, and `count` column modified to
 #'   include ascertainment bias.
 #' @export
+#' @concept test
 #'
 #' @examples
 #' tibble::tibble(
@@ -978,6 +999,7 @@ sim_apply_ascertainment = function(
 #'
 #' @return return the result of applying this convolution to the data.
 #' @export
+#' @concept test
 #'
 #' @examples
 #' weekday_delay = make_gamma_ip(median_of_mean = 5, median_of_sd = 2)
@@ -986,8 +1008,14 @@ sim_apply_ascertainment = function(
 #' delay_fn = ~ ifelse(.x %% 7 %in% c(6,7), list(weekend_delay), list(weekday_delay))
 #' p_fn = ~ ifelse(.x < 20, 0.5, 0.75)
 #'
-#' data = tibble::tibble(time=1:40, count = rep(100,40), rate = rep(100,40), statistic="infections") %>% dplyr::group_by(statistic)
-#' delayed = data %>% sim_convolution(p_fn,delay_fn,output="delayed") %>% dplyr::filter(statistic=="delayed")
+#' data = tibble::tibble(
+#'     time=1:40,
+#'     count = rep(100,40),
+#'     rate = rep(100,40),
+#'     statistic="infections") %>% dplyr::group_by(statistic)
+#' delayed = data %>%
+#'     sim_convolution(p_fn,delay_fn,output="delayed") %>%
+#'     dplyr::filter(statistic=="delayed")
 #' if (interactive()) ggplot2::ggplot(delayed,ggplot2::aes(x=time))+
 #'   ggplot2::geom_line(ggplot2::aes(y=rate))+
 #'   ggplot2::geom_line(ggplot2::aes(y=count))
@@ -1020,7 +1048,7 @@ sim_convolution = function(df = i_sim_count_data, p_fn, delay_fn, ..., input="in
         purrr::map(~ .x %>% dplyr::ungroup() %>% dplyr::select(tau,probability))
     ) %>%
     # .prof will have a `boot` column and it will have a `time` column.
-    tidyr::unnest(cols = .prof)
+    .unnest_dt(col = ".prof")
 
   tmp = tmp %>%
     dplyr::mutate(
@@ -1089,6 +1117,7 @@ sim_convolution = function(df = i_sim_count_data, p_fn, delay_fn, ..., input="in
 #'
 #' @return the result of applying this right censoring to the data.
 #' @export
+#' @concept test
 #'
 #' @examples
 #' weekday_delay = make_gamma_ip(median_of_mean = 5, median_of_sd = 2)
@@ -1122,7 +1151,7 @@ sim_delayed_observation = function(df = i_sim_count_data, delay_fn, ..., input="
         purrr::map(.summary_ip_no_chk) %>%
         purrr::map(~ .x %>% dplyr::ungroup() %>% dplyr::select(tau,probability))
     ) %>%
-    tidyr::unnest(cols = .prof) %>%
+    .unnest_dt(col = ".prof") %>%
     dplyr::mutate(
       # x_t_tau is the proportion of input from time t attributable to the
       # future timepoint t+tau after delay. If this is after max_time it will
@@ -1170,11 +1199,13 @@ sim_delayed_observation = function(df = i_sim_count_data, delay_fn, ..., input="
 #'   the tilde.
 #' @param input a time column from which to calculate the delay from.
 #' @param output an output column set name (defaults to `"event"`)
+#' @param seed RNG seed for reproducibility
 #'
 #' @return the line list with extra columns with prefix given by `output`,
 #'   specifying whether the event was observed, the delay and the simulation
 #'   time.
 #' @export
+#' @concept test
 #'
 #' @examples
 #'
@@ -1188,7 +1219,7 @@ sim_delayed_observation = function(df = i_sim_count_data, delay_fn, ..., input="
 #'   p_fn = ~ rbern(.x, 0.8),
 #'   delay_fn = ~ rgamma2(.x, mean = 5),
 #' )
-#' tmp2 %>% glimpse()
+#' tmp2 %>% dplyr::glimpse()
 #'
 sim_delay = function(df = i_sim_linelist, p_fn, delay_fn, input = "time", output = "event", seed = Sys.time()) {
 
@@ -1201,7 +1232,7 @@ sim_delay = function(df = i_sim_linelist, p_fn, delay_fn, input = "time", output
   withr::with_seed(seed,{
 
     df = df %>%
-      dplyr:::relocate(!!input) %>%
+      dplyr::relocate(!!input) %>%
       dplyr::mutate(
         .t = !!input,
         .p = rbern(dplyr::n(), .ts_evaluate(p_fn, .)),
@@ -1213,7 +1244,7 @@ sim_delay = function(df = i_sim_linelist, p_fn, delay_fn, input = "time", output
         !!(sprintf("%s_time",output)) := .t+.delay
       ) %>%
       dplyr::select(-.p,-.t,-.delay) %>%
-      dplyr:::relocate(!!!cols)
+      dplyr::relocate(!!!cols)
 
   })
 
@@ -1253,7 +1284,7 @@ sim_delay = function(df = i_sim_linelist, p_fn, delay_fn, input = "time", output
 #' )
 #'
 #' tmp2 = tmp %>% sim_apply_delay()
-#' tmp2 %>% glimpse()
+#' tmp2 %>% dplyr::glimpse()
 #'
 sim_apply_delay = function(df,
                            ...,
@@ -1305,7 +1336,7 @@ sim_apply_delay = function(df,
 #'
 #' @return a line list with additional time and delay columns.
 #' @export
-#' @concept test
+#' @keywords internal
 #'
 #' @examples
 #' tmp = sim_branching_process(
@@ -1315,7 +1346,7 @@ sim_apply_delay = function(df,
 #' )
 #'
 #' tmp2 = tmp %>% sim_apply_delay()
-#' tmp2 %>% glimpse()
+#' tmp2 %>% dplyr::glimpse()
 #'
 sim_apply_delay.linelist = function(df = i_sim_linelist,
     ...,
@@ -1334,6 +1365,8 @@ sim_apply_delay.linelist = function(df = i_sim_linelist,
   # rlang::check_dots_empty()
 
   df = interfacer::ivalidate(df)
+
+  events = attr(df,"events")
 
   withr::with_seed(seed,{
 
@@ -1485,7 +1518,7 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
       # Censoring filter
       dplyr::mutate(.delay = .ts_evaluate(fn_delay,.)) %>%
 
-      # TODO: insert a loop here to vectorise max_time and insert censoring column
+      #TODO: insert a loop here to vectorise max_time and insert censoring column
       dplyr::filter(t+.delay < max_time) %>%
       dplyr::transmute(!!!grps, time = floor(!!col)) %>%
       dplyr::group_by(!!!grps, time) %>%
@@ -1525,8 +1558,10 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 #' @examples
 #' tmp = .ip_quantile_function(covid_ip)(stats::runif(10000))
 #'
-#' plot_ip(covid_ip, alpha=0.01) +
-#'   ggplot2::geom_density(data = tibble::tibble(x=tmp), mapping = ggplot2::aes(x=x), bounds = c(0.5,13.5))
+#' if(interactive()) {
+#'   plot_ip(covid_ip, alpha=0.01) +
+#'     ggplot2::geom_density(data = tibble::tibble(x=tmp), mapping = ggplot2::aes(x=x), bounds = c(0.5,13.5))
+#' }
 .ip_quantile_function = function(ip = i_empirical_ip) {
 
   # Add in defaults for a0 and a1 if they are not defined:
@@ -1597,6 +1632,8 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 
 
 #' Evaluate a function in a timeseries dataframe
+#'
+#' N.B. only exported as used in one vignette for demo purposes
 #'
 #' @param fn a function.
 #' @param df a dataframe with a numeric time column, plus other columns
@@ -1702,7 +1739,7 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
   }
 }
 
-.make_gamma_ip = memoise::memoise(make_gamma_ip)
+# .make_gamma_ip = memoise::memoise(make_gamma_ip)
 
 # deal with potentially empty times parameter]
 .rep2 = function(x,times) {
@@ -1740,8 +1777,8 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 
   events = df %>%
     dplyr::group_by(!!!grps) %>%
-    dplyr::mutate(.diff = !!col - lag(!!col,default = -Inf)) %>%
-    dplyr::mutate(.diff2 = .diff - lag(.diff,default = -Inf)) %>%
+    dplyr::mutate(.diff = !!col - dplyr::lag(!!col,default = -Inf)) %>%
+    dplyr::mutate(.diff2 = .diff - dplyr::lag(.diff,default = -Inf)) %>%
     dplyr::filter(.diff2 != 0 & .diff != 0) %>%
     dplyr::transmute(
       label = sprintf(label_fmt,!!col),
@@ -1757,14 +1794,17 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 
 
 
-# x = tmp %>% dplyr::filter(class=="one") %>% dplyr::pull(infections)
-# list_omega = tmp %>% dplyr::filter(class=="one") %>% dplyr::pull(omega)
-# .df_convolution = function(x, list_omega) {
-#   lengths = sapply(list_omega, length)
-#   ip_length = max(lengths+1-1:length(lengths))
-#   x2 = c(rep(0,ip_length),x)
-#   tmp = lapply(seq_along(list_omega), function(i) {
-#     slice = x2[(ip_length-lengths[i]+i):(ip_length+i-1)]
-#     return(slice*rev(list_omega[[i]]))
-#   })
-# }
+.unnest_dt <- function(tbl, col) {
+  copies = rep(1:nrow(tbl), sapply(tbl[[col]], nrow))
+  out = tbl
+  out[[col]] = NULL
+  out = dplyr::slice(out,copies)
+  dplyr::bind_cols(
+    out,
+    dplyr::bind_rows(tbl[[col]])
+  )
+}
+# tbl = iris %>% tidyr::nest(-Species)
+#iris %>% tidyr::nest(-Species) %>% .unnest_dt("data") %>% dplyr::glimpse()
+
+

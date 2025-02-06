@@ -4,7 +4,7 @@
 \alias{plot_ip}
 \title{Plot an infectivity profile}
 \usage{
-plot_ip(ip = i_empirical_ip, ...)
+plot_ip(ip = i_empirical_ip, alpha = 0.1, ...)
 }
 \arguments{
 \item{ip}{A long format infectivity profile
@@ -21,6 +21,8 @@ Must be grouped by: boot (exactly).
 
 A default value is defined.}
 
+\item{alpha}{the alpha value of the bootstrap lines}
+
 \item{...}{passed onto geom_segment for controlling line thickness, alpha etc.}
 }
 \value{
@@ -30,5 +32,8 @@ an ggplot object
 Plot an infectivity profile
 }
 \examples{
-plot_ip(ganyani_ip,alpha=0.1)
+if(interactive()) {
+  plot_ip(ganyani_ip,alpha=0.1)
 }
+}
+\concept{vis}

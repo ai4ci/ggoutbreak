@@ -169,7 +169,7 @@ as.time_period.Date = function(x, unit = NULL, start_date = NULL, anchor = NULL,
   if (is.null(start_date)) start_date = .start_from_anchor(dates,anchor)
   if (is.null(unit)) {
     unit = .day_interval(dates) %>% .make_unit()
-    message("No unit given. Guessing a sensible value from the dates gives: ",unit)
+    .message_once("No unit given. Guessing a sensible value from the dates gives: ",unit)
   }
 
   tmp = date_to_time(dates,unit = unit,start_date = start_date)
@@ -232,6 +232,7 @@ as.POSIXct.time_period = function(x,...) {
 #'
 #' @return a `time_period` or an error
 #' @export
+#' @keywords internal
 #'
 #' @examples
 #' type.time_period(1:100)
@@ -485,11 +486,11 @@ date_to_time = function(dates, unit = .day_interval(dates), start_date = getOpti
   ))
 }
 
-#' Convert a set of timepoints to dates
+#' Convert a set of time points to dates
 #'
 #' @param timepoints a set of numeric time points
-#' @param unit the period / unit of the time points, which will be extracted from timepoints if possible
-#' @param start_date the zero day of the time series, will be extracted from timepoints if possible
+#' @param unit the period / unit of the time points, which will be extracted from time points if possible
+#' @param start_date the zero day of the time series, will be extracted from time points if possible
 #'
 #' @return a vector of dates
 #' @export
@@ -599,6 +600,7 @@ date_seq = function(x, period, ...) {
 #' @inherit date_seq
 #' @param tol Numerical tolerance for checking periodicity.
 #' @export
+#' @concept time_period
 date_seq.numeric = function(x, period=1, tol=1e-06, ...) {
   #dplyr::check_number_decimal(period)
   #dplyr::check_number_decimal(tol, min = 0)
@@ -617,12 +619,12 @@ date_seq.numeric = function(x, period=1, tol=1e-06, ...) {
 #'
 #' Derive from a vector of observation dates, a complete ordered sequence of
 #' periods in a regular time series, where the length of the periods is
-#' specified, as a number od days, weeks, years etc. E.g. this can convert a
+#' specified, as a number of days, weeks, years etcetera. E.g. this can convert a
 #' random set of dates to a ordered complete list of 1 week intervals (or 2
 #' month intervals) spanning the same range as the dates. This has some
 #' interesting problems regarding where to put breaks within a month or week.
 #' Often this is either based on a specific date (e.g. yearly periods starting
-#' at 2020-01-01) or a day of week (e.g. 2 weekly periods staring on a sunday)
+#' at `2020-01-01`) or a day of week (e.g. 2 weekly periods staring on a Sunday)
 #' or maybe relative to the input time series (weekly ending on the last date of
 #' the data). There is also a problem when we consider data that may have
 #' incomplete starting and end periods, which may not be comparable to other
@@ -630,7 +632,7 @@ date_seq.numeric = function(x, period=1, tol=1e-06, ...) {
 #'
 #' @param x a vector of dates, possibly including NA values
 #' @param period the gap between observations as a number of days or as a natural
-#'   language definition of the period such as "1 week", '2 weeks', '1 month', etc.
+#'   language definition of the period such as "1 week", '2 weeks', '1 month', etcetera.
 #'   If not given this will be derived from the dates.
 #' @param anchor defines a day that appears in the sequence (if it were to
 #'   extend that far). Given either as a date, or "start", "end" or a day of the
@@ -675,7 +677,7 @@ date_seq.Date = function(x, period=.day_interval(x), anchor = "start", complete 
 #' month intervals) spanning the same range as the dates. This has some
 #' interesting problems regarding where to put breaks within a month or week.
 #' Often this is either based on a specific date (e.g. yearly periods starting
-#' at 2020-01-01) or a day of week (e.g. 2 weekly periods staring on a sunday)
+#' at `2020-01-01`) or a day of week (e.g. 2 weekly periods staring on a sunday)
 #' or maybe relative to the input time series (weekly ending on the last date of
 #' the data). There is also a problem when we consider data that may have
 #' incomplete starting and end periods, which may not be comparable to other
@@ -831,7 +833,10 @@ cut_date = function(dates, unit, anchor = "start", output = c("date","factor","t
   default_set = !is.null(getOption("day_zero"))
   default_start_date = as.Date(getOption("day_zero","2019-12-29"))
   if (is.null(anchor)) {
-    if (!default_set) message("No `start_date` (or `anchor`) specified. Using default (set `options('day_zero'=XXX)` to change): ",default_start_date)
+    if (!default_set)
+      .message_once(
+        "No `start_date` (or `anchor`) specified. Using default (N.b. set `options('day_zero'=XXX)` to change): ",default_start_date
+      )
     return(default_start_date)
   }
   start_date = try(as.Date(anchor), silent=TRUE)
@@ -841,7 +846,9 @@ cut_date = function(dates, unit, anchor = "start", output = c("date","factor","t
     else if (anchor == "end") max_date(dates)+1
     else min_date(dates) - 7 + which(substr(tolower(weekdays(min_date(dates)-6+0:6)),1,3)==anchor)
     if (length(start_date) != 1) {
-      if (!default_set) message("`anchor` was not valid (a date or one of 'start', 'end', or a weekday name). Using default (set `options('day_zero'=XXX)` to change): ",default_start_date)
+      if (!default_set) .message_once(
+        "`anchor` was not valid (a date or one of 'start', 'end', or a weekday name). Using default (N.b. set `options('day_zero'=XXX)` to change): ",default_start_date
+      )
       return(default_start_date)
     }
   }
@@ -858,10 +865,14 @@ cut_date = function(dates, unit, anchor = "start", output = c("date","factor","t
 #
 .time_labels = function(times, dfmt = "%d/%b", ifmt = "{start} \u2014 {end}", na.value="Unknown") {
 
-  if (any(stats::na.omit(abs(floor(times)-times))>0.01)) warning("labelling applied to non-integer times.")
+  if (any(stats::na.omit(abs(floor(times)-times))>0.01)) {
+    diff = 0
+    .message_once("labelling applied to non-integer times.")
+  }
+  else diff = 1
 
   start_dates = time_to_date(times)
-  end_dates = start_dates + attributes(times)$unit - lubridate::days(1)
+  end_dates = start_dates + attributes(times)$unit - lubridate::days(diff)
 
   start_label = format(start_dates,format = dfmt)
   end_label = format(end_dates,format = dfmt)
@@ -880,36 +891,35 @@ cut_date = function(dates, unit, anchor = "start", output = c("date","factor","t
 
 #' @export
 #' @inherit base::weekdays
+#' @concept time_period
 weekdays.time_period = function(x, abbreviate = FALSE) {
   return(weekdays(as.Date(x), abbreviate = abbreviate))
 }
 
 #' @inherit base::months
 #' @export
+#' @concept time_period
 months.time_period = function(x, abbreviate = FALSE) {
   return(months(as.Date(x), abbreviate = abbreviate))
 }
 
 #' @inherit base::quarters
 #' @export
-quarters.time_period = function(x) {
-  return(quarters(as.Date(x)))
+#' @concept time_period
+quarters.time_period = function(x, ...) {
+  return(quarters(as.Date(x),...))
 }
 
 #' @inherit base::julian
 #' @export
-julian.time_period = function(x) {
-  return(julian(as.Date(x)))
+#' @concept time_period
+julian.time_period = function(x, ...) {
+  return(julian(as.Date(x),...))
 }
 
-#TODO:
-# interpolate_time_periods
-
-#TODO:
-# linelist_to_timeseries
-# aggregate_timeseries from timeseries
-# decompose_timeseries
-
-#TODO:
-# timeseries missing values / ragged ends
-# timeseries anomaly detection
+#TODO: interpolate_time_periods
+#TODO: linelist_to_timeseries
+#TODO: aggregate_timeseries from timeseries
+#TODO: decompose_timeseries
+#TODO: timeseries missing values / ragged ends
+#TODO: timeseries anomaly detection

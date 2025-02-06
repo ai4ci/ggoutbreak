@@ -89,7 +89,7 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
       .result_from_fit(
         "rt",
         # This format is needed because quantile is not vectorised on data:
-        qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) quantile(data, p))
+        qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) stats::quantile(data, p))
       )  %>%
       .keep_cdf(type = "rt", .$rt.samples) %>%
       dplyr::select(-rt.samples)
@@ -120,6 +120,7 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
 #'
 #' @return a reproduction number estimate based on `r`
 #' @export
+#' @concept models
 #'
 #' @examples
 #' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
@@ -161,6 +162,7 @@ wallinga_lipsitch = function(r, y = i_empirical_ip, a1=seq(0.5, length.out=lengt
 #'
 #' @return an vector of growth rates
 #' @export
+#' @concept models
 #'
 #' @examples
 #' y=stats::pgamma(seq(0.5,length.out=50), 5,2)-stats::pgamma(c(0,seq(0.5,length.out=49)), 5,2)

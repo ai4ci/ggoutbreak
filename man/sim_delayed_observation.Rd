@@ -62,3 +62,4 @@ data = tibble::tibble(time=1:40, count = rep(100,40), statistic="infections") \%
 if (interactive()) ggplot2::ggplot(data,ggplot2::aes(x=time,colour=statistic))+
   ggplot2::geom_line(ggplot2::aes(y=count))
 }
+\concept{test}

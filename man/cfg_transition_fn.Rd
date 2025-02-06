@@ -37,3 +37,4 @@ fn = cfg_transition_fn(tibble::tribble(
 
 table(fn(age),age)
 }
+\concept{test}

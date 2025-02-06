@@ -86,7 +86,7 @@ infer_prevalence.proportion = function(
 
   ip = interfacer::ivalidate(ip)
 
-  # TODO: This needs rethinking as the meaning of a proportion model varies
+  #TODO: This needs rethinking as the meaning of a proportion model varies
   # and this only is relevant when the proportion is a test positivity rate.
   # It is not going to produce a sensible output when it is a variant proportion
   # or age group proportion. Its possible
@@ -96,7 +96,7 @@ infer_prevalence.proportion = function(
   # resampling as the infectivity profiles can be anything. This is very similar
   # to the way we calculate the renewal equation based Rt
 
-  # TODO: test negative serial interval
+  #TODO: test negative serial interval
   start = min(ip$tau)
 
   # omega is a matrix 13x100

@@ -28,21 +28,21 @@
 #'   dplyr::ungroup() %>%
 #'   dplyr::summarise(population = sum(population))
 #'
-#'
-#'
 #' # If the incidence is normalised by population
 #' tmp2 = tmp %>%
 #'   poisson_locfit_model() %>%
 #'   normalise_incidence(tmp_pop)
 #'
-#' # Default pdf device doesn't support unicode
-#' plot_growth_rate(tmp2,colour="blue")
+#' if(interactive()) {
+#'   plot_growth_rate(tmp2,colour="blue")
+#' }
 #'
 #' tmp3 = ggoutbreak::england_covid %>%
 #'   proportion_locfit_model()
 #'
-#' # Default pdf device doesn't support unicode
-#' plot_growth_rate(tmp3)
+#' if(interactive()) {
+#'   plot_growth_rate(tmp3)
+#' }
 #'
 plot_growth_rate = function(
     modelled = i_timeseries,

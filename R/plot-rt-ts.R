@@ -24,7 +24,10 @@
 #'
 #'   # comparing RT from growth rates with England consensus Rt:
 #'   plot_rt(tmp2,colour="blue")+
-#'     ggplot2::geom_errorbar(data=england_consensus_rt, mapping=ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="red")
+#'     ggplot2::geom_errorbar(
+#'       data=england_consensus_rt,
+#'       mapping=ggplot2::aes(x=date-21,ymin=low,ymax=high),
+#'       colour="red")
 #'
 #' }
 plot_rt = function(

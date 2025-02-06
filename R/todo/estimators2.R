@@ -18,7 +18,7 @@
 }
 
 # convert a date column to a numeric count of intervals from day_zero
-# the default value for day zero is a sunday at the start of the covid outbreak.
+# the default value for day zero is a Sunday at the start of the COVID-19 outbreak.
 .date_to_time = function(dates, interval=1) {
   day_zero = as.Date(getOption("day_zero","2019-12-29"))
   out = floor(as.numeric(dates-day_zero)+interval/100)/interval
@@ -55,7 +55,7 @@
   return(date_seq)
 }
 
-# TODO: test this a bit.
+#TODO: test this a bit.
 # full seq dates should be start of periods. interval is length of period.
 # checks to see if a date or dates is within a range of dates where the dates define the start of a period
 # of size defined by interval parameter as an integer.
@@ -579,7 +579,7 @@ as.epi_ts.epi_ll = function(x, formula = dplyr::count() + . ~ ., interval = 1, d
 
   if (any(tmp$n > 1)) {
     browser()
-    # TODO have to reconsider this as count is a very optional column of time series but others must be
+    #TODO have to reconsider this as count is a very optional column of time series but others must be
     if (verbose) message("Input dataframe has more than one row per date (and class combination), which may be intentional. Combining (class) counts in multiple rows by summation, any other observations will be lost.")
     if (!is.null(value)) {
       if(any(is.na(tmp %>% dplyr::pull(!!value)))) warning("Count column contains some NA values. The combined count will be NA for these rows.")
@@ -622,7 +622,7 @@ as.epi_ts.epi_ll = function(x, formula = dplyr::count() + . ~ ., interval = 1, d
       d = lhs %>%
         dplyr::left_join(d, by = join_cols)
       if (!is.null(value)) {
-        # TODO: what about other observations?
+        #TODO: what about other observations?
         d = d %>% dplyr::mutate(!!value := ifelse(is.na(!!value),0,!!value))
       }
       return(d)
@@ -772,7 +772,7 @@ execute_epifunction = function(x, .f, ...) {
       return(.f(d, g=g, ...))
     } else {
       class(d) = c("std_ts",class(d))
-      # TODO: informative error messages
+      #TODO: informative error messages
       return(.f(d, g=g, ..., interval = meta$interval))
     }
     # execute the epifunction call

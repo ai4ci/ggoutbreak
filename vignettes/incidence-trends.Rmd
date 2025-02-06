@@ -33,7 +33,7 @@ dplyr::glimpse(england_demographics)
 
 A plot of the normalised incidence rates of COVID-19 by population size, shows 
 initially the rate of COVID cases was highest in the elderly. By late 2020 this
-pattern had changed and rates were uniform accross age groups. In early 2021
+pattern had changed and rates were uniform across age groups. In early 2021
 as vaccination took hold and school testing was rolled out, younger age groups
 had higher rates of COVID positive tests, with a curious spike in the very young
 age groups around November 2021. In early 2022 the pattern reversed and the 
@@ -95,7 +95,7 @@ plot_growth_phase(tmp,
 
 # Proportion model
 
-There are two possible proportions models which woudl be of interest here. As
+There are two possible proportions models which would be of interest here. As
 mentioned about the proportion of positive tests in each age group would give
 us a clearer picture of whether the differences between age groups are down to 
 differential testing, but unfortunately not available in this data set.

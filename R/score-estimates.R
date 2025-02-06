@@ -18,6 +18,7 @@
 #' @return a lag analysis dataframe containing the `estimate` type and the `lag`
 #'   in days that the estimate is behind the actual observation
 #' @export
+#' @concept test
 #'
 #' @examples
 #' pipeline = ~ .x %>% poisson_locfit_model() %>% rt_from_incidence(ip = .y)
@@ -105,8 +106,10 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #' @param lags a data frame of estimate types and lags as output by [quantify_lag()]
 #'   if multiple models are included then the columns must match those in `obs`.
 #'
+#'
 #' @return a dataframe of scoring metrics
 #' @export
+#' @concept test
 #'
 #' @examples
 #' tmp2 = test_bpm %>% sim_summarise_linelist()
@@ -173,12 +176,12 @@ score_estimate = function(est, obs, lags = NULL) {
   if(!"model" %in% colnames(scores)) scores = scores %>% dplyr::mutate(model="undefined")
 
   scores = scores %>%
-    scoringutils:::score(metrics = setdiff(scoringutils::available_metrics(),c("crps","bias"))) %>%
+    scoringutils::score(metrics = setdiff(scoringutils::available_metrics(),c("crps","bias"))) %>%
     scoringutils::summarise_scores() %>%
     tibble::as_tibble() %>%
     dplyr::left_join(crps_data %>% dplyr::select(-lag), by=c(join_cols,".type")) %>%
     dplyr::rename(true_value = .ref, estimate=.type) %>%
-    group_by(model,!!!(est %>% groups()),estimate)
+    dplyr::group_by(model,!!!(est %>% dplyr::groups()),estimate)
 
   return(scores)
 

@@ -26,14 +26,15 @@ growth rate per week (\code{growth}) columns}
 
 \item{fn_growth}{a function that takes input vector \code{t} and returns the growth rates at times \code{t}}
 
-\item{time_unit}{e.g. a daily or weekly time series: "1 day", "7 days"}
+\item{fn_imports}{a function that takes input vector \code{t} and returns the
+number of imported cases at times \code{t}.}
 
-\item{initial}{the size of the initial outbreak}
+\item{time_unit}{e.g. a daily or weekly time series: "1 day", "7 days"}
 }
 \value{
 A dataframe containing the following columns:
 \itemize{
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 }
 
@@ -50,4 +51,4 @@ if (interactive()) {
   ggplot2::ggplot(tmp2)+ggplot2::geom_point(ggplot2::aes(x=time,y=count))
 }
 }
-\concept{simulation}
+\concept{test}

@@ -10,6 +10,8 @@ cfg_linear_fn(changes, ..., col_name = setdiff(colnames(changes), "t"))
 \item{changes}{a dataframe with \code{t} and \verb{<col_name>} columns which define the change
 points for a piecewise linear function.}
 
+\item{...}{not used}
+
 \item{col_name}{the value column (optional if only 2 columns)}
 }
 \value{

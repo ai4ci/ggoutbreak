@@ -2,8 +2,8 @@
 
 #' Weekly COVID-19 case counts by age group in Germany
 #'
-#' A dataset of the weekly count of covid cases by age group in Germany
-#' downloaded from the Robert Koch Institute Survstat service, and formatted for
+#' A dataset of the weekly count of COVID-19 cases by age group in Germany
+#' downloaded from the Robert Koch Institute `Survstat` service, and formatted for
 #' use in growth rates. A denominator is calculated which is the overall
 #' positive count for all age groups. This data set can be used to calculate
 #' group-wise incidence and absolute growth rates and group wise proportions and
@@ -38,12 +38,16 @@ NULL
 
 #' Daily COVID-19 case counts by age group in England
 #'
-#' A dataset of the daily count of covid cases by age group in England
+#' A dataset of the daily count of COVID-19 cases by age group in England
 #' downloaded from the UKHSA coronavirus API, and formatted for
 #' use in `ggoutbreak`. A denominator is calculated which is the overall
 #' positive count for all age groups. This data set can be used to calculate
 #' group-wise incidence and absolute growth rates and group wise proportions and
-#' relative growth rates.
+#' relative growth rates by age group.
+#'
+#' You may want `england_covid_proportion` instead which includes the population
+#' denominator. The denominator here is the total number of positive tests in all
+#' age groups and not the tests taken or denominators.
 #'
 #' @usage data(england_covid)
 #'
@@ -251,7 +255,7 @@ NULL
 #'
 #' Data from the COG-UK and Sanger centre sequencing
 #' programme. The data were made available through the Welcome foundation at
-#' Lower tier local authority level, and is weekly timeseries of counts per
+#' Lower tier local authority level, and is weekly time series of counts per
 #' variant. Variants were assigned using the tree structure of the Pango
 #' lineage. Different sub-lineages are aggregated to the major WHO variants of
 #' concern.
@@ -304,7 +308,7 @@ NULL
 #' 137 rows and 4 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name england_nhs_app
 NULL
 
@@ -341,7 +345,7 @@ NULL
 #' 1050 rows and 6 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name england_covid_proportion
 NULL
 
@@ -382,7 +386,7 @@ NULL
 #' 9820 rows and 7 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name england_ons_infection_survey
 NULL
 
@@ -405,7 +409,7 @@ NULL
 #' Must be grouped by: boot (exactly).
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name covid_ip
 NULL
 
@@ -425,7 +429,7 @@ NULL
 #'
 #' @references \url{https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2020.25.17.2000257}
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name ganyani_ip
 NULL
 
@@ -447,7 +451,7 @@ NULL
 #'
 #' @references \url{https://www.eurosurveillance.org/content/10.2807/1560-7917.ES.2020.25.17.2000257}
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name ganyani_ip_2
 NULL
 
@@ -475,66 +479,21 @@ NULL
 #' 5100 rows and 3 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name covid_test_sensitivity
 NULL
 
 ## covid_test_sensitivity definition ends
 
 
-## covid_infectivity_profile definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
-
-#' The covid_infectivity_profile dataset
-#'
-#' @usage data(covid_infectivity_profile)
-#'
-#' @format
-#' A dataframe containing the following columns:
-#'
-#' * tau (numeric) - the time column
-#' * boot (numeric) - the boot column
-#' * probability (numeric) - the probability column
-#'
-#' Minimally grouped by: boot (and other groupings allowed).
-#'
-#' 1300 rows and 3 columns
-#'
-#' @docType data
-#' @keywords datasets
-#' @name covid_infectivity_profile
-NULL
-
 ## covid_infectivity_profile definition ends
-
-## ganyani_infectivity_profile definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
-
-#' The ganyani_infectivity_profile dataset
-#'
-#' @usage data(ganyani_infectivity_profile)
-#'
-#' @format
-#' A dataframe containing the following columns:
-#'
-#' * tau (integer) - the time column
-#' * probability (numeric) - the probability column
-#' * boot (integer) - the boot column
-#'
-#' Minimally grouped by: boot (and other groupings allowed).
-#'
-#' 2400 rows and 3 columns
-#'
-#' @docType data
-#' @keywords datasets
-#' @name ganyani_infectivity_profile
-NULL
 
 ## ganyani_infectivity_profile definition ends
 ## covid_ip definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
 
-#' The covid_ip dataset
+#' The COVID Infectivity Profile dataset
+#'
+#' An infectivity profile derived from a meta-analysis of serial intervals.
 #'
 #' @usage data(covid_ip)
 #'
@@ -552,15 +511,14 @@ NULL
 #' 1400 rows and 5 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name covid_ip
 NULL
 
 ## covid_ip definition ends
 ## ganyani_ip definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
 
-#' The ganyani_ip dataset
+#' The Ganyani serial interval dataset, compatible with `EpiEstim`
 #'
 #' @usage data(ganyani_ip)
 #'
@@ -577,16 +535,14 @@ NULL
 #'
 #' 2400 rows and 5 columns
 #'
-#' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name ganyani_ip
 NULL
 
 ## ganyani_ip definition ends
 ## ganyani_ip_2 definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
 
-#' The ganyani_ip_2 dataset
+#' The Ganyani serial interval dataset, incompatible with `EpiEstim`
 #'
 #' @usage data(ganyani_ip_2)
 #'
@@ -604,15 +560,17 @@ NULL
 #' 2800 rows and 5 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name ganyani_ip_2
 NULL
 
 ## ganyani_ip_2 definition ends
 ## covid_viral_shedding definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
 
-#' The covid_viral_shedding dataset
+#' The COVID-19 viral shedding duration
+#'
+#' @references \url{https://www.nature.com/articles/s41467-020-20568-4}
+#' From Von Kampen et al.
 #'
 #' @usage data(covid_viral_shedding)
 #'
@@ -630,15 +588,16 @@ NULL
 #' 2600 rows and 3 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name covid_viral_shedding
 NULL
 
 ## covid_viral_shedding definition ends
 ## du_serial_interval_ip definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
 
-#' The du_serial_interval_ip dataset
+#' The Du empirical serial interval dataset
+#'
+#' From Z. Du, X. Xu, Y. Wu, L. Wang, B. J. Cowling, and L. A. Meyers, ‘Serial Interval of COVID-19 among Publicly Reported Confirmed Cases’, Emerg Infect Dis, vol. 26, no. 6, pp. 1341–1343, Jun. 2020, doi: 10.3201/eid2606.200357.
 #'
 #' @usage data(du_serial_interval_ip)
 #'
@@ -656,7 +615,7 @@ NULL
 #' 2603 rows and 5 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name du_serial_interval_ip
 NULL
 
@@ -682,7 +641,7 @@ NULL
 #' 2000 rows and 5 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name test_ip
 NULL
 
@@ -690,7 +649,7 @@ NULL
 ## test_ts definition ----
 ## Generated code. remove this line to prevent manual changes being overwritten
 
-#' The test_ts dataset
+#' A test time series dataset
 #'
 #' @usage data(test_ts)
 #'
@@ -711,7 +670,7 @@ NULL
 #' 501 rows and 8 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name test_ts
 NULL
 
@@ -720,7 +679,7 @@ NULL
 ## Generated code. remove this line to prevent manual changes being overwritten
 
 #' An example of the linelist output of the poisson model simulation with defined
-#' Rt
+#' $R_t$
 #'
 #' This is generated using the `test_ip` infectivity profile
 #'
@@ -739,7 +698,7 @@ NULL
 #' 81 rows and 6 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name test_poisson_rt
 NULL
 
@@ -802,7 +761,7 @@ NULL
 #' 2166 rows and 5 columns
 #'
 #' @docType data
-#' @keywords datasets
+#' @concept datasets
 #' @name test_serial
 NULL
 

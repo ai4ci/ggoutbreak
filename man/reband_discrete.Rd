@@ -27,7 +27,7 @@ band in the output some kind of maximum upper limit is needed to interpolate
 to.}
 
 \item{ytotal}{upper and lower limits for y. If the interpolation values fall outside of
-x then the min and max limits of y are given by this. This would be \code{c(0,1)}
+x then the minimum and maximum limits of y are given by this. This would be \code{c(0,1)}
 for a probability distribution, for example.}
 
 \item{digits}{if the \code{xout} value is continuous then how many significant figures
@@ -36,10 +36,10 @@ to put in the labels}
 \item{labelling}{are the \code{xout} values interpretable as an \code{inclusive} upper limit, or
 an \code{exclusive} upper limit, or as an upper limit of an `positive_integer`` quantity}
 
-\item{sep}{seperator for names e.g. \code{18-24} or \verb{18 to 24}}
+\item{sep}{separator for names e.g. \code{18-24} or \verb{18 to 24}}
 }
 \value{
-a rebanded set of discrete values, guaranteed to sum to the same as \code{y}
+a re-banded set of discrete values, guaranteed to sum to the same as \code{y}
 }
 \description{
 e.g. age banded population, or a discrete probability distribution e.g.
@@ -60,3 +60,4 @@ tmp
 sum(tmp)
 sum(england_demographics$population)
 }
+\concept{wrangling}

@@ -11,10 +11,10 @@ tmp = modelled %>%
   mutate(time = floor(days_since_infection+0.5)) %>%
   select(-days_since_infection) %>%
   nest(data = -time) %>%
-  glimpse()
+  dplyr::glimpse()
 
 tmp = tmp %>% mutate(
-  data2 = purrr:::map(data, ~ tibble::tibble(
+  data2 = purrr::map(data, ~ tibble::tibble(
     x = c(0,mean(.x$lower_95),mean(.x$median),mean(.x$upper_95),1),
     y = c(0,0.025,0.5,0.975,1)
   ))) %>%
@@ -29,7 +29,7 @@ tmp = tmp %>% mutate(
   )
 
 covid_test_sensitivity = tmp %>% select(tau=time,samples) %>% unnest(samples) %>% group_by(boot)
-interfacer::itest(covid_test_sensitivity, ggoutbreak:::i_discrete_ip)
+interfacer::itest(covid_test_sensitivity, ggoutbreak::i_discrete_ip)
 
 if (interactive()) interfacer::use_dataframe(covid_test_sensitivity)
 
@@ -66,7 +66,7 @@ covid_viral_shedding = df %>%
   select(-mu, -sigma) %>%
   unnest(samples) %>%
   group_by(boot) %>%
-  glimpse()
+  dplyr::glimpse()
 
 if (interactive()) interfacer::use_dataframe(covid_viral_shedding)
 

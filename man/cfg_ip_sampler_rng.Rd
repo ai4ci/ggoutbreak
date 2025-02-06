@@ -41,3 +41,4 @@ format_ip(ganyani_ip_2)
 mean(tmp) # Should be about 5.2
 stats::sd(tmp) # Should be about 1.72
 }
+\concept{test}

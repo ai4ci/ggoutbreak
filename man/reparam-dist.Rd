@@ -2,15 +2,19 @@
 % Please edit documentation in R/standalone-distributions.R
 \name{reparam-dist}
 \alias{reparam-dist}
-\title{Re-parameterised distributions}
+\title{Re-parametrised distributions}
 \arguments{
 \item{n}{number of observations}
 
-\item{x, q}{vector of quantiles}
+\item{x}{vector of quantiles}
+
+\item{q}{vector of quantiles}
 
 \item{p}{vector of probabilities}
 
-\item{log, log.p}{logical; if TRUE, probabilities p are given as log(p).}
+\item{log}{logical; if TRUE, probabilities p are given as log(p).}
+
+\item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 
 \item{lower.tail}{logical; if TRUE (default), probabilities are \code{P[X<=x]}
 otherwise \code{P[X>x]}.}
@@ -28,6 +32,6 @@ maximally variability (vectorised)}
 \item{sd}{the standard deviation on the true scale (vectorised)}
 }
 \description{
-Re-parameterised distributions
+Re-parametrised distributions
 }
 \concept{distributions}

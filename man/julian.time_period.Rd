@@ -4,10 +4,12 @@
 \alias{julian.time_period}
 \title{Extract Parts of a POSIXt or Date Object}
 \usage{
-\method{julian}{time_period}(x)
+\method{julian}{time_period}(x, ...)
 }
 \arguments{
 \item{x}{an object inheriting from class \code{"POSIXt"} or \code{"Date"}.}
+
+\item{...}{arguments for other methods.}
 }
 \value{
 \code{weekdays} and \code{months} return a character
@@ -68,3 +70,4 @@ floor(as.numeric(julian(Sys.time())) + 2440587.5) # from a date-time
 \code{\link[base]{DateTimeClasses}}, \code{\link[base]{Date}};
   \code{\link[base]{Sys.getlocale}("LC_TIME")} crucially for \code{months()} and \code{weekdays()}.
 }
+\concept{time_period}

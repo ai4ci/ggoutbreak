@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-growth-phase.R
 \name{plot_growth_phase}
 \alias{plot_growth_phase}
-\title{Plot an incidence or proportion vs. growth phase diagram}
+\title{Plot an incidence or proportion versus growth phase diagram}
 \usage{
 plot_growth_phase(
   modelled = i_timestamped,
@@ -54,7 +54,7 @@ A dataframe containing the following columns:
 
 Any grouping allowed.}
 
-\item{timepoints}{timepoints (as \code{Date} or \code{time_period} vector) of dates to
+\item{timepoints}{time points (as \code{Date} or \code{time_period} vector) of dates to
 plot phase diagrams. If multiple this will result in a sequence of plots
 as facets. If \code{NULL} (the default) it will be the last time point in the series}
 
@@ -87,7 +87,7 @@ A default value is defined.}
 \item{\code{event_fill_colour}}{the event area fill}
 \item{\code{hide_labels}}{do not show labels at all}
 \item{\code{guide_axis}}{a guide axis configuration for the labels
-(see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+(see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
 \item{\code{...}}{
   Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
@@ -170,13 +170,66 @@ bounds values with \code{NA}.
 (\code{NULL}) uses the timezone encoded in the data.}
 \item{\code{na.value}}{Missing values will be replaced with this value.}
 }}
+}
+  Named arguments passed on to \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}\describe{
+    \item{\code{facets}}{A set of variables or expressions quoted by \code{\link[ggplot2:vars]{vars()}}
+and defining faceting groups on the rows or columns dimension.
+The variables can be named (the names are passed to \code{labeller}).
+
+For compatibility with the classic interface, can also be a
+formula or character vector. Use either a one sided formula, \code{~a + b},
+or a character vector, \code{c("a", "b")}.}
+\item{\code{nrow,ncol}}{Number of rows and columns.}
+\item{\code{scales}}{Should scales be fixed (\code{"fixed"}, the default),
+free (\code{"free"}), or free in one dimension (\code{"free_x"},
+\code{"free_y"})?}
+\item{\code{shrink}}{If \code{TRUE}, will shrink scales to fit output of
+statistics, not raw data. If \code{FALSE}, will be range of raw data
+before statistical summary.}
+\item{\code{labeller}}{A function that takes one data frame of labels and
+returns a list or data frame of character vectors. Each input
+column corresponds to one factor. Thus there will be more than
+one with \code{vars(cyl, am)}. Each output
+column gets displayed as one separate line in the strip
+label. This function should inherit from the "labeller" S3 class
+for compatibility with \code{\link[ggplot2:labeller]{labeller()}}. You can use different labeling
+functions for different kind of labels, for example use \code{\link[ggplot2:label_parsed]{label_parsed()}} for
+formatting facet labels. \code{\link[ggplot2:label_value]{label_value()}} is used by default,
+check it for more details and pointers to other options.}
+\item{\code{as.table}}{If \code{TRUE}, the default, the facets are laid out like
+a table with highest values at the bottom-right. If \code{FALSE}, the
+facets are laid out like a plot with the highest value at the top-right.}
+\item{\code{switch}}{By default, the labels are displayed on the top and
+right of the plot. If \code{"x"}, the top labels will be
+displayed to the bottom. If \code{"y"}, the right-hand side
+labels will be displayed to the left. Can also be set to
+\code{"both"}.}
+\item{\code{drop}}{If \code{TRUE}, the default, all factor levels not used in the
+data will automatically be dropped. If \code{FALSE}, all factor levels
+will be shown, regardless of whether or not they appear in the data.}
+\item{\code{dir}}{Direction: either \code{"h"} for horizontal, the default, or \code{"v"},
+for vertical.}
+\item{\code{strip.position}}{By default, the labels are displayed on the top of
+the plot. Using \code{strip.position} it is possible to place the labels on
+either of the four sides by setting \code{strip.position = c("top",
+  "bottom", "left", "right")}}
+\item{\code{axes}}{Determines which axes will be drawn in case of fixed scales.
+When \code{"margins"} (default), axes will be drawn at the exterior margins.
+\code{"all_x"} and \code{"all_y"} will draw the respective axes at the interior
+panels too, whereas \code{"all"} will draw all axes at all panels.}
+\item{\code{axis.labels}}{Determines whether to draw labels for interior axes when
+the scale is fixed and the \code{axis} argument is not \code{"margins"}. When
+\code{"all"} (default), all interior axes get labels. When \code{"margins"}, only
+the exterior axes get labels, and the interior axes get none. When
+\code{"all_x"} or \code{"all_y"}, only draws the labels at the interior axes in the
+x- or y-direction respectively.}
 }}
 }
 \value{
 a ggplot
 }
 \description{
-Plot an incidence or proportion vs. growth phase diagram
+Plot an incidence or proportion versus growth phase diagram
 }
 \examples{
 
@@ -194,6 +247,8 @@ tmp2 = tmp \%>\%
 
 timepoints = as.Date(c("Lockdown 1" = "2020-03-30", "Lockdown 2" = "2020-12-31"))
 
-plot_growth_phase(tmp2, timepoints, duration=108)
+if(interactive()) {
+  plot_growth_phase(tmp2, timepoints, duration=108)
+}
 }
 \concept{vis}

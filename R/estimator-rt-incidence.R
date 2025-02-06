@@ -17,8 +17,9 @@
 #' @concept models
 #' @examples
 #' df = ggoutbreak::england_covid %>%
+#'   dplyr::filter(date < "2021-01-01") %>%
 #'   time_aggregate(count=sum(count)) %>%
-#'     poisson_locfit_model()
+#'   poisson_locfit_model()
 #'
 #' if (interactive()) {
 #'   # not run
@@ -185,7 +186,7 @@ rt_from_incidence = function(df = i_incidence_model, ip = i_discrete_ip, approx 
     out = out %>%
       .result_from_fit(
         type = "rt",
-        qfn = \(p) qlnorm(p, .$rt.fit, .$rt.se.fit)
+        qfn = \(p) stats::qlnorm(p, .$rt.fit, .$rt.se.fit)
       ) %>%
       .keep_cdf(
         type = "rt",

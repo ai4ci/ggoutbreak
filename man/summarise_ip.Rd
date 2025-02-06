@@ -28,3 +28,4 @@ an infectivity profile
 \description{
 Generate a single infectivity profile from multiple bootstraps
 }
+\concept{delay_distribution}

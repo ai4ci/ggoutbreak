@@ -72,3 +72,4 @@ incidence2 = incidence \%>\% rescale_model(time_unit = "1 day")
 incidence2 \%>\% dplyr::glimpse()
 
 }
+\concept{models}

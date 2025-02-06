@@ -32,19 +32,20 @@
 #'   independent truncated normal distributions for mean and SD based on
 #'   parameters above. If `FALSE` then it will use a log normal distributions
 #'   with correlation.
-#' @param epiestim_compat Use `EpiEstim` to generate the infectivity stats::profile(s).
+#' @param epiestim_compat Use `EpiEstim` to generate the infectivity profiles.
 #'   A true value here results in an infectivity profile with probability of 0
 #'   for day 0.
-#' @param seed a random number seed for reproducibility
 #' @param z_crit the width of the confidence intervals (defaults to 95%).
 #'
 #' @return a long format infectivity profile data frame, or a list of dataframes
 #'   if input is a vector.
 #' @export
+#' @concept delay_distribution
 #'
 #' @examples
 #' # COVID-19 estimates from Ganyani et al 2020.
-#' tmp = make_gamma_ip(5.2, 3.78, 6.78, 1.72, 0.91, 3.93, epiestim_sampler=FALSE, epiestim_compat=FALSE)
+#' tmp = make_gamma_ip(5.2, 3.78, 6.78, 1.72, 0.91, 3.93,
+#'   epiestim_sampler=FALSE, epiestim_compat=FALSE)
 #'
 #' tmp %>%
 #'   dplyr::group_by(boot) %>%
@@ -53,12 +54,20 @@
 #'     sd = sqrt(sum((tau-sum(tau*probability))^2*probability))
 #'   ) %>%
 #'   dplyr::summarise(
-#'     mean = sprintf("%1.2f [%1.2f-%1.2f]", stats::quantile(mean,0.5), stats::quantile(mean,0.025), stats::quantile(mean,0.975)),
-#'     sd = sprintf("%1.2f [%1.2f-%1.2f]", stats::quantile(sd,0.5), stats::quantile(sd,0.025), stats::quantile(sd,0.975))
+#'     mean = sprintf("%1.2f [%1.2f-%1.2f]",
+#'       stats::quantile(mean,0.5),
+#'       stats::quantile(mean,0.025),
+#'       stats::quantile(mean,0.975)),
+#'     sd = sprintf("%1.2f [%1.2f-%1.2f]",
+#'       stats::quantile(sd,0.5),
+#'       stats::quantile(sd,0.025),
+#'       stats::quantile(sd,0.975))
 #'   )
 #'
-#' plot_ip(tmp, alpha=0.1) +
-#'   ggplot2::coord_cartesian(xlim=c(0,15))
+#' if(interactive()) {
+#'   plot_ip(tmp, alpha=0.1) +
+#'     ggplot2::coord_cartesian(xlim=c(0,15))
+#' }
 #'
 #' means = c(3,4,5)
 #' ips = make_gamma_ip(means)
@@ -93,7 +102,7 @@ make_gamma_ip = function(
 
   if(lower_ci_of_mean != median_of_mean && upper_ci_of_mean == median_of_mean &&
      median_of_sd == sqrt(median_of_mean) && lower_ci_of_sd == median_of_sd && upper_ci_of_sd == median_of_sd) {
-    rlang::warn("Two unnamed parameters supplied to `make_gamma_ip()`. Interpreting input as one mean and sd.",.frequency = "once",.frequency_id = "make_gamma_ip")
+    .warn_once("Two unnamed parameters supplied to `make_gamma_ip()`. Interpreting input as one mean and sd.")
     median_of_sd = lower_ci_of_mean
     n_boots = 1
   }
@@ -176,7 +185,7 @@ make_gamma_ip = function(
 
 
 
-#' Recover a long format infectivity profile from an EpiEstim style matrix
+#' Recover a long format infectivity profile from an `EpiEstim` style matrix
 #'
 #' @param omega a matrix of probabilities, starting at time zero, with columns
 #'   representing one possible infectivity profile, with the fist value being
@@ -189,6 +198,7 @@ make_gamma_ip = function(
 #'
 #' @return a long format `ip` delay distribution
 #' @export
+#' @concept delay_distribution
 #'
 #' @examples
 #' format_ip(make_empirical_ip(c(0,0,1,1,1,2,2,2,1,1)))
@@ -229,18 +239,22 @@ make_empirical_ip = function(omega, normalise=TRUE) {
 #' @param max_tau the maximum delay for interval censored delays
 #' @param add_noise adds noise to each date point for each replicate
 #' @param truncate what is the minimum realistic value of the parameter
-#' @param boots number of replicates to generate
+#' @param n_boots number of replicates to generate
+#' @param seed a random number seed for reproducibility
 #'
 #' @return a long format `ip` delay distribution
 #' @export
+#' @concept delay_distribution
 #'
 #' @examples
 #' tau = rgamma2(100, 5,2)
 #' ip = make_resampled_ip(min_tau = tau-1, max_tau = tau+1, seed = 100)
-#' plot_ip(ip,alpha=0.1)
-make_resampled_ip = function(tau, min_tau=pmax(tau-0.5,truncate), max_tau=tau+0.5, add_noise = TRUE, truncate = 0, boots=100, seed = Sys.time()) {
+#' if(interactive()) {
+#'   plot_ip(ip,alpha=0.1)
+#' }
+make_resampled_ip = function(tau, min_tau=pmax(tau-0.5,truncate), max_tau=tau+0.5, add_noise = TRUE, truncate = 0, n_boots=100, seed = Sys.time()) {
   withr::with_seed(seed,{
-    dplyr::bind_rows(lapply(1:100, \(i) {
+    dplyr::bind_rows(lapply(1:n_boots, \(i) {
 
       tmp = tibble::tibble(
         min = min_tau,
@@ -258,11 +272,11 @@ make_resampled_ip = function(tau, min_tau=pmax(tau-0.5,truncate), max_tau=tau+0.
 
       tmp %>%
         dplyr::transmute(
-          tau = floor(0.5+runif(dplyr::n(), min = min, max = max))
+          tau = floor(0.5+stats::runif(dplyr::n(), min = min, max = max))
         ) %>%
         dplyr::filter(tau>=truncate) %>%
         dplyr::summarise(count = dplyr::n(), .by = c(tau)) %>%
-        dplyr::mutate(count = count+ifelse(add_noise, runif(dplyr::n(),min=-1,max=1))) %>%
+        dplyr::mutate(count = count+ifelse(add_noise, stats::runif(dplyr::n(),min=-1,max=1))) %>%
         dplyr::mutate(count = ifelse(count<0,0,count)) %>%
         tidyr::complete(tau = tidyr::full_seq(tau,1), fill=list(count=0)) %>%
         dplyr::mutate(
@@ -275,6 +289,83 @@ make_resampled_ip = function(tau, min_tau=pmax(tau-0.5,truncate), max_tau=tau+0.
   })
 }
 
+
+
+#' Make an infectivity profile from posterior samples
+#'
+#' The infectivity profile is typically fitted to data by MCMC as a gamma
+#' distribution. This function generates a discrete infectivity probability
+#' distribution representing the chance that an infectee was infected on any
+#' specific day after the infector was infected (given that the infectee was
+#' infected), from posterior samples.
+#'
+#' If using `EpiEstim` and `coarseDataTools::dic.fit.mcmc` the output of the
+#' MCMC will be a S4 object with a `samples` slot, containing a dataframe of
+#' `shape=var1` and `scale=var2` columns. to use this output with
+#' `make_posterior_ip` invoke it like this:
+#'
+#' `do.call(make_posterior_ip, SI_fit_clever@samples %>% dplyr::rename(shape=var1, scale=var2))`
+#'
+#' N.b. only one combination of mean and sd, shape and rate, or shape and scale,
+#' are required.
+#'
+#' @param ... not used, must be empty
+#' @param mean a vector of gamma distribution means
+#' @param sd a vector of gamma distribution sds
+#' @param shape a vector of gamma distribution shape parameters
+#' @param rate a vector of gamma distribution rate parameters
+#' @param scale a vector of gamma distribution scale parameters
+#' @param epiestim_compat Use `EpiEstim` to generate the infectivity profiles.
+#'   A true value here results in an infectivity profile with probability of 0
+#'   for day 0.
+#' @param n_boots if there are more posterior samples than this limit then a maximum
+#'   of `n_boots` ip distributions will be created (randomly sampled).
+#'
+#' @return a long format `ip` delay distribution
+#' @export
+#' @concept delay_distribution
+#'
+#' @examples
+#'
+#' tmp = make_posterior_ip(
+#'   mean = stats::rnorm(100,5,0.1),
+#'   sd = stats::rnorm(100,1.5,0.1)
+#' )
+#' tmp %>% dplyr::glimpse()
+#' if (interactive()) plot_ip(tmp)
+#'
+make_posterior_ip = function(..., mean, sd, shape, rate, scale, epiestim_compat = FALSE, n_boots=100) {
+
+  rlang::check_dots_empty()
+
+  interfacer::resolve_missing(
+    shape = mean^2/sd^2,
+    scale = sd^2/mean,
+    rate = 1/scale,
+    scale = 1/rate,
+    mean = shape*scale,
+    sd = sqrt(shape)*scale,
+  )
+
+  tmp = tibble::tibble(
+    shape = shape, rate=rate, mean=mean, sd=sd
+  )
+
+  if (nrow(tmp) > n_boots) tmp = dplyr::slice_sample(tmp, n = n_boots)
+
+  if (epiestim_compat) {
+    tmp2 = tmp %>% .epiestim_discretise()
+  } else {
+    tmp2 = tmp %>% .ggoutbreak_discretise()
+  }
+
+  return(tmp2 %>% dplyr::group_by(boot))
+
+}
+
+
+## Utils ----
+
 #' Generate a single infectivity profile from multiple bootstraps
 #'
 #' @iparam ip the infectivity profile to summarise. `a0` and `a1` columns are
@@ -282,6 +373,7 @@ make_resampled_ip = function(tau, min_tau=pmax(tau-0.5,truncate), max_tau=tau+0.
 #'
 #' @return an infectivity profile
 #' @export
+#' @concept delay_distribution
 summarise_ip = function(ip = i_empirical_ip) {
 
   ip = interfacer::ivalidate(ip, .imap = interfacer::imapper(
@@ -295,6 +387,7 @@ summarise_ip = function(ip = i_empirical_ip) {
 
 # without the ivalidate check
 .summary_ip_no_chk = function(ip) {
+  if (dplyr::n_groups(ip) == 1) return(ip %>% dplyr::mutate(boot = 1))
   ip %>%
     dplyr::group_by(tau,a0,a1) %>%
     dplyr::summarise(probability = mean(probability)) %>%
@@ -309,6 +402,7 @@ summarise_ip = function(ip = i_empirical_ip) {
 #'
 #' @return an infectivity profile description
 #' @export
+#' @concept delay_distribution
 #' @examples
 #' format_ip(ganyani_ip)
 #'
@@ -442,7 +536,7 @@ format_ip = function(ip = i_empirical_ip) {
 #'   std_si = 3.5,
 #'   std_std_si = 0.5
 #' )
-#' tmp %>% glimpse()
+#' tmp %>% dplyr::glimpse()
 .epiestim_sampler = function(n1,
                              mean_si, std_mean_si, min_mean_si = 1, max_mean_si = mean_si+3*std_mean_si,
                              std_si, std_std_si, min_std_si = 0, max_std_si = std_si+3*std_std_si
@@ -491,7 +585,7 @@ format_ip = function(ip = i_empirical_ip) {
 #'   std_si = 3.5,
 #'   std_std_si = 0.5
 #' )
-#' tmp %>% glimpse()
+#' tmp %>% dplyr::glimpse()
 .ggoutbreak_sampler = function(n1, mean_of_mu, sd_of_mu, mean_of_sigma, sd_of_sigma, correlation = NA) {
 
   if (is.na(correlation)) {

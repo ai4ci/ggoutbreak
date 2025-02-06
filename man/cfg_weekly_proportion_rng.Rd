@@ -13,7 +13,7 @@ cfg_weekly_proportion_rng(
 \arguments{
 \item{prob}{the rates of e.g. ascertainment for each day of the week.}
 
-\item{kappa}{dispersion parameter betwen 0 and 1. O is no dispersion. 1 is maximum}
+\item{kappa}{dispersion parameter between 0 and 1. O is no dispersion. 1 is maximum}
 
 \item{week_starts}{locale description of first day of week (default is a "Monday").}
 }

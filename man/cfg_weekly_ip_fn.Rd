@@ -27,3 +27,4 @@ Weekly convolution distribution function
 \examples{
 cat(sapply(cfg_weekly_ip_fn()(1:7),format_ip),sep = "\n")
 }
+\concept{test}

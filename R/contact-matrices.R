@@ -48,29 +48,29 @@
   m = apply(m, MARGIN=2, function(x) x/sum(x))
   cum_m = apply(m,MARGIN = 2,cumsum)
   to_test = cum_m[,input]
-  against = runif(input)
+  against = stats::runif(input)
   which = apply(to_test <= against,MARGIN=2,sum)+1
   rownames(m)[which]
 }
 
 .sample_from_long = function(input,lookup) {
-  lookup = lookup %>% group_by(input) %>% mutate(
+  lookup = lookup %>% dplyr::group_by(input) %>% dplyr::mutate(
     probability = probability/sum(probability),
     cum=cumsum(probability))
   tibble::tibble(
     id = seq_along(input),
     input = input,
-    test = runif(input)
+    test = stats::runif(input)
   ) %>%
-    left_join(lookup, by="input", relationship="many-to-many") %>%
-    mutate(
+    dplyr::left_join(lookup, by="input", relationship="many-to-many") %>%
+    dplyr::mutate(
       cum = ifelse(is.na(cum),1,cum),
       diff = test-cum
     ) %>%
-    filter(diff<0) %>%
-    group_by(id) %>%
-    filter(diff == max(diff)) %>%
-    pull(output)
+    dplyr::filter(diff<0) %>%
+    dplyr::group_by(id) %>%
+    dplyr::filter(diff == max(diff)) %>%
+    dplyr::pull(output)
 }
 
 # Double pareto log normal degree distribution in contact network
@@ -86,5 +86,5 @@
 # Does high degree distribution in one node correlate to high degree distribution in connected nodes
 # index cases randomly chosen with probability based on degree
 # increased heterogenerity always increases finite sze
-# k = inf~poisson; 1~geometic; secondeary case dispersion for covid was 0.4
+# k = inf~poisson; 1~geometic; secondary case dispersion for COVID-19 was 0.4
 # social contact data website

@@ -77,7 +77,7 @@ pandemic as its origin and calculating a duration unit based on the data (in thi
 case weekly).
 
 A usual set of S3 methods are available such as formatting, printing, labelling,
-and casting `time_period`s to and from dates and POSIXct classes:
+and casting `time_period`s to and from dates and `POSIXct` classes:
 
 ```{r}
 suppressWarnings(labels(tmp))
@@ -107,10 +107,11 @@ as.Date(date_seq(tmp3))
 
 ```
 
-`time_periods` can be used with any monthly or yearly data but such data are not
-regular. This is handled and irregular date periods are generally OK to use with
-`ggoutbreak` but some functions like `date_seq` may not work as anticipated
-with irregular dates.
+`time_period`s can also be used with monthly or yearly data but such data are
+not regular. This is approximately handles and irregular date periods are
+generally OK to use with `ggoutbreak`. Some functions like `date_seq` may not
+work as anticipated with irregular dates, and some conversions between weeks and
+months for example are potentially risky.
 
 Two time series can be aligned to make them comparable:
 
@@ -168,11 +169,13 @@ linelist2 %>% time_summarise(unit="1 week") %>% dplyr::glimpse()
 
 ```
 
-In this specific example subsequent analysis with `ggoutbreak` may focus on the 
-`positive` subgroup only, as the comparison between `positive` and `negative` test results is trivial. In another example `class` may not be test results, it could be any other major subdivision e.g. the variant of a disease. In this case the 
-comparison between different groups may be much more relevant. The use of
+In this specific example subsequent analysis with `ggoutbreak` may focus on the
+`positive` subgroup only, as the comparison between `positive` and `negative`
+test results is trivial. In another example `class` may not be test results, it
+could be any other major subdivision e.g. the variant of a disease. In this case
+the comparison between different groups may be much more relevant. The use of
 `class` as the major sub-group is for convenience. Additional grouping other
-than `class` columns is also possible for multi-facetted comparisons, and
+than `class` columns is also possible for multi-faceted comparisons, and
 grouping is preserved but not included automatically in the denominator, which
 may need to be manually calculated:
 

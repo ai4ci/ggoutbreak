@@ -30,6 +30,8 @@ qnbinom2(p, mean, sd = sqrt(mean), lower.tail = TRUE, log.p = FALSE)
 
 \item{lower.tail}{logical; if TRUE (default), probabilities are
     \eqn{P[X \le x]}, otherwise, \eqn{P[X > x]}.}
+
+\item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 \code{dnbinom} gives the density,

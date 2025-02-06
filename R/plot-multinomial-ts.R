@@ -16,8 +16,10 @@
 #'   ggoutbreak::proportion_locfit_model(window=21) %>%
 #'   dplyr::glimpse()
 #'
-#' plot_multinomial(tmp, normalise=TRUE)+
-#'   ggplot2::scale_fill_viridis_d()
+#' if(interactive()) {
+#'   plot_multinomial(tmp, normalise=TRUE)+
+#'     ggplot2::scale_fill_viridis_d()
+#' }
 #'
 plot_multinomial = function(
     modelled = i_multinomial_proportion_model,

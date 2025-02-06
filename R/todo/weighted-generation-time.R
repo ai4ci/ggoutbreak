@@ -32,7 +32,7 @@
   return(tmp)
 }
 
-# TODO: underdispersed poisson:
+#TODO: underdispersed poisson:
 # https://github.com/lotze/COMPoissonReg/blob/master/R/cmp.R
 
 #' Generate a weighted random samples from a subset of a distribution

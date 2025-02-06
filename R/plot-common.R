@@ -1,6 +1,6 @@
 
 
-#' Add time series event markers to a timeseries plot.
+#' Add time series event markers to a time series plot.
 #'
 #' The x axis must be a date.
 #'
@@ -12,12 +12,12 @@
 #' @param event_fill_colour the event area fill
 #' @param hide_labels do not show labels at all
 #' @param guide_axis a guide axis configuration for the labels
-#'   (see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+#'   (see `ggplot2::guide_axis` and `ggplot2::dup_axis`). This can be used to
 #'   specify a position amongst other things.
 #' @inheritDotParams ggplot2::scale_x_date -sec.axis
 #' @importFrom rlang %||%
 #'
-#' @return a set of geoms for a timeseries.
+#' @return a set of `geoms` for a time series.
 #' @export
 #'
 #' @concept vis

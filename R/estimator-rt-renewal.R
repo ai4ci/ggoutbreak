@@ -42,7 +42,7 @@ rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstrap
 
   ip = interfacer::ivalidate(ip)
 
-  # TODO: test negative serial interval
+  #TODO: test negative serial interval
   start = min(ip$tau)
 
   # omega is a matrix 13x100
@@ -98,7 +98,7 @@ rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstrap
       .result_from_fit(
         "rt",
         # This format is needed because quantile is not vectorised on data:
-        qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) quantile(data, p))
+        qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) stats::quantile(data, p))
       )  %>%
       .keep_cdf(type = "rt", .$rt.samples) %>%
       dplyr::select(-rt.samples, -incidence.logsamples, -imputed)

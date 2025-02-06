@@ -10,7 +10,7 @@ UK_pop = readxl::read_xlsx(tmp, range="A8:V383", sheet = "P02" )
 UK_pop = UK_pop %>% tidyr::pivot_longer(cols=dplyr::starts_with("Aged"), names_to = "Age")
 
 england_demographics = UK_pop %>%
-  # england only
+  # England only
   dplyr::filter(`Area code [note 2]` == "E92000001") %>%
   dplyr::mutate(Age = Age %>% stringr::str_remove(stringr::fixed("\r\n[note 12]"))) %>%
   dplyr::transmute(

@@ -43,3 +43,4 @@ ggoutbreak::england_covid \%>\%
   ggoutbreak::infer_population(ggoutbreak::england_demographics) \%>\%
   dplyr::glimpse()
 }
+\concept{models}

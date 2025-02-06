@@ -30,3 +30,4 @@ rcategorical(10,prob,factor=TRUE)
 rcategorical(10,rep(1,26),factor=letters)
 
 }
+\concept{distributions}

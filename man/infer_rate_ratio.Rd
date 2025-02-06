@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalise-proportion.R
 \name{infer_rate_ratio}
 \alias{infer_rate_ratio}
-\title{Calculate a risk ratio from incidence}
+\title{Calculate a risk ratio from incidence (experimental)}
 \usage{
 infer_rate_ratio(
   modelled = i_incidence_model,
@@ -11,7 +11,8 @@ infer_rate_ratio(
 )
 }
 \arguments{
-\item{modelled}{Model output from something like \code{\link[=poisson_locfit_model]{poisson_locfit_model()}}
+\item{modelled}{Model output from something like \code{\link[=poisson_locfit_model]{poisson_locfit_model()}}.
+It really makes sense if this is a grouped model.
 
 A dataframe containing the following columns: 
 \itemize{
@@ -26,11 +27,12 @@ A dataframe containing the following columns:
 Any grouping allowed.}
 
 \item{base}{The baseline data must be grouped in the same way as \code{modelled}.
-It may be a time series but does not have to be.
+It may be a time series but does not have to be. See the example and note
+this may change in the future.
 
 A dataframe containing the following columns: 
 \itemize{
-\item baseline_incidence (positive_double) - Baseline unnormalised incidence rate as count data
+\item baseline_incidence (positive_double) - Baseline raw incidence rate as count data
 }
 
 Any grouping allowed.}
@@ -38,7 +40,7 @@ Any grouping allowed.}
 \item{...}{not used}
 }
 \value{
-a dataframe with incidence rates per unit capita.
+a dataframe with incidence rate ratios for each of the classes in modelled.
 A dataframe containing the following columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
@@ -59,14 +61,18 @@ checked.
 }
 \examples{
 
+baseline = ggoutbreak::england_covid \%>\%
+  ggoutbreak::time_aggregate() \%>\%
+  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+  dplyr::mutate(baseline_incidence = incidence.0.5)
 
 
 tmp = ggoutbreak::england_covid \%>\%
-  ggoutbreak::proportion_locfit_model(window=21) \%>\%
-  ggoutbreak::normalise_proportion(ggoutbreak::england_demographics) \%>\%
+  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+  ggoutbreak::infer_rate_ratio(baseline) \%>\%
   dplyr::glimpse()
 
-plot_growth_phase(tmp)
+
 
 }
 \concept{models}

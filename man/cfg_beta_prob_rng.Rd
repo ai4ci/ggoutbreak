@@ -8,12 +8,12 @@ cfg_beta_prob_rng(probability_fn = ~0.8, kappa_fn = ~0.1)
 }
 \arguments{
 \item{probability_fn}{a function which gives the time-varying mean of a beta
-distribution, The function will be called minimally with \code{.x}\`t`` which
+distribution, The function will be called minimally with \code{.x} or `t`` which
 will be the time as a time period. Other variables may be present.}
 
 \item{kappa_fn}{a function which gives the time-varying dispersion of a beta
-distribution. The function will be called with minimally \code{.x}\\code{t} which
-will be the time period and \code{.y}\\code{mean} will be the mean. Other variables
+distribution. The function will be called with minimally \code{.x} or \code{t} which
+will be the time period and \code{.y} or \code{mean} will be the mean. Other variables
 may be present.}
 }
 \value{
@@ -30,3 +30,4 @@ fn(1:10)
 \seealso{
 \code{\link[=rbeta2]{rbeta2()}}
 }
+\concept{test}

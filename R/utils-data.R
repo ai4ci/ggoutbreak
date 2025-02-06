@@ -6,26 +6,12 @@
 # return NA for errors
 .opt = function(expr) tryCatch(expr,error=function(e) NA_real_)
 
-# check colums are present in df
+# check columns are present in df
 .has_cols = function(df, ...) {
   cols = unlist(rlang::list2(...))
   if (is.symbol(cols)) cols = rlang::as_label(cols)
   return(all(cols %in% colnames(df)))
 }
-
-# # check for additional columns and chuck a warning
-# .exact_cols = function(df, ..., .ignore = NULL) {
-#   if (!.has_cols(df,...)) stop("Missing column(s): ", paste(..., sep=", ", collapse=", "))
-#   expected = c(unlist(c(...)),.ignore)
-#   if (!all(colnames(df) %in% expected)) {
-#     extra = setdiff(colnames(df), expected)
-#     xcols = paste0(extra,collapse=", ")
-#     rlang::warn(c("!"="Removing unsupported column(s): ","*" = xcols,"*" = "Did you mean to group beforehand?"), .frequency = "once", .frequency_id = xcols)
-#     df = df %>% dplyr::select(tidyselect::any_of(expected)) # any of because of ignored columns.
-#   }
-#   invisible(NULL)
-# }
-
 
 .result_from_fit = function(new_data, type, fit = new_data[[paste0(type,".fit")]], se.fit = new_data[[paste0(type,".se.fit")]], inv = function(x) x, qfn = ~ stats::qnorm(.x, fit, se.fit)) {
 
@@ -93,7 +79,7 @@
   if (is.null(unit)) stop(sprintf("`%s` not a time period",param),call. = FALSE)
   if (unit != lubridate::days(1)) stop(sprintf("unit of time period `%s` is not 1 day.",param),call. = FALSE)
   time = sort(unique(time))
-  diff = na.omit(time-dplyr::lag(time))
+  diff = stats::na.omit(time-dplyr::lag(time))
   if (any(abs(diff - round(diff)) > sqrt(.Machine$double.eps)))
     stop(sprintf("time period `%s` does not have a daily interval.",param),call. = FALSE)
 }
@@ -149,6 +135,40 @@
   return(1/(1+exp(-x)))
 }
 
+
+.callid = function() {
+  lobstr::obj_addr(sys.frame(which=1))
+}
+
+
+
+.message_once = function(...) {
+  msg=paste0(...)
+  if (!.messaged(msg)) message(msg)
+}
+
+.warn_once = function(...) {
+  msg=paste0(...)
+  if (!.messaged(msg)) warning(msg)
+}
+
+#TODO: recreate minimal warn once rlang style implementation using a package cache.
+cache_env <- new.env(parent = emptyenv())
+cache_env$map = list()
+
+.messaged = function(msg) {
+  id = .callid()
+  sent = cache_env$map[[id]]
+  if (is.null(sent)) {
+    cache_env$map[[id]] = msg
+    return(FALSE)
+  }
+  if (!msg %in% sent) {
+    cache_env$map[[id]] = c(sent,msg)
+    return(FALSE)
+  }
+  return(TRUE)
+}
 
 
 

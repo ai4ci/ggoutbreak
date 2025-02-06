@@ -26,4 +26,4 @@ data(test_ip)
 A test infectivity profile generated from a set of discretised gamma
 distributions with parameters mean 5 (95\% CI 4-6) and sd 2 (95\% CI 1.5-2.5).
 }
-\keyword{datasets}
+\concept{datasets}

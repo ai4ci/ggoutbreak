@@ -18,7 +18,7 @@ poisson_locfit_model(
 
 A dataframe containing the following columns: 
 \itemize{
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 

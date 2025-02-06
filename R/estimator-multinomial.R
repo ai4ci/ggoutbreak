@@ -6,7 +6,7 @@
 #' data using `nnet::multinom`, with approx one degree of freedom per class and per
 #' `window` units of the time series
 #'
-#' @param d Multiclass count input
+#' @param d multi-class count input
 #' @param ... not used and present to allow proportion model to be used in a group_modify
 #' @param window a number of data points between knots, smaller values result in
 #'   less smoothing, large value in more.
@@ -45,7 +45,7 @@ multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, fre
     if (!predict) return(tibble::tibble(proportion = list(model)))
     new_data = tibble::tibble(time = output_times)
 
-    # TODO: get the confidence intervals from the spline.
+    #TODO: get the confidence intervals from the spline.
     # This will need to be done with resampling and a spaghetti plot.
     # browser()
     # Gets the basis model:

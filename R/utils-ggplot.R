@@ -7,6 +7,7 @@
 #'
 #' @return a function for ggplot scale breaks
 #' @export
+#' @concept vis
 #'
 #' @examples
 #' ggplot2::ggplot(ggplot2::diamonds, ggplot2::aes(x=price))+
@@ -29,6 +30,7 @@ breaks_log1p = function(n=5,base=10) {
 #' @param n the number of breaks
 #' @param ... not used, for compatibility
 #' @return A scales object
+#' @concept vis
 #'
 #' @examples
 #'
@@ -67,6 +69,7 @@ logit_trans = function(n = 5, ...) {
 #' @param dp decimal points
 #' @param base the base for the logarithm
 #' @param n  the number of major breaks
+#' @concept vis
 #'
 #' @return a ggplot scale
 #' @export
@@ -79,13 +82,53 @@ scale_y_log1p = function(..., n=5, base=10, dp=0) {
 #' @inheritParams ggplot2::scale_y_continuous
 #'
 #' @return a ggplot scale
+#' @concept vis
 #' @export
 scale_y_logit = function(...) {
   return(ggplot2::scale_y_continuous(trans="logit", ...))
 }
 
 
-.integer_breaks <- function(n = 5, ...) {
+# `%under%` <- function(plot, layer) {
+#   if (missing(layer)) {
+#     stop("Cannot use `-.gg()` with a single argument. Did you accidentally put - on a new line?")
+#   }
+#   if (!is.ggplot(plot)) {
+#     stop('Need a plot on the left side')
+#   }
+#   plot$layers = c(head(plot$layers,-1), layer, tail(plot$layers,1))
+#   plot
+# }
+
+
+#' Insert a layer at the bottom of a `ggplot`
+#'
+#' @param plot the plot to add the layer to
+#' @param layer the layer to insert underneath the plot
+#' @concept vis
+#'
+#' @return a `ggplot`
+#' @export
+`%above%` = function(plot, layer) {
+  if (missing(layer)) {
+    stop("Cannot use `-.gg()` with a single argument. Did you accidentally put - on a new line?")
+  }
+  if (!ggplot2::is.ggplot(plot)) {
+    stop('Need a plot on the left side')
+  }
+  plot$layers = c(layer, plot$layers)
+  plot
+}
+
+#' Strictly integer breaks for continuous scale
+#'
+#' @inheritParams base::pretty
+#' @param n number of breaks
+#' @concept vis
+#'
+#' @return a ggplot breaks function
+#' @export
+integer_breaks = function(n = 5, ...) {
   fxn <- function(x) {
     breaks <- floor(pretty(x, n, ...))
     names(breaks) <- attr(breaks, "labels")

@@ -58,5 +58,9 @@ symptom onset and testing.
 \examples{
 tmp = sim_poisson_model(seed=100) \%>\% sim_apply_delay()
 
-plot_counts(tmp, mapping=ggplot2::aes(colour=statistic))+ggplot2::geom_line()
+if(interactive()) {
+  plot_counts(tmp, mapping=ggplot2::aes(colour=statistic))+
+    ggplot2::geom_line()
 }
+}
+\keyword{internal}

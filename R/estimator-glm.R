@@ -9,7 +9,7 @@
 
 .inv_logit = function(x) exp(x)/(1+exp(x))
 
-# TODO: figure out how to extrac spline gradient
+#TODO: figure out how to extrac spline gradient
 # tmp = summary(model)
 # v = tmp$terms %>% attr("predvars")
 # The call for the splines including the knots
@@ -35,13 +35,11 @@
 #' @concept models
 #' @examples
 #'
-#' # TODO: find out cause of the warnings
-#' # "observations with zero weight not used for calculating dispersion"
-#' suppressWarnings(
-#'   ggoutbreak::england_covid %>%
-#'    ggoutbreak::proportion_glm_model(window=21) %>%
-#'    dplyr::glimpse()
-#' )
+#' ggoutbreak::england_covid_proportion %>%
+#'   dplyr::filter(date < "2021-01-01") %>%
+#'   time_aggregate() %>%
+#'   ggoutbreak::proportion_glm_model(window=5) %>%
+#'   dplyr::glimpse()
 #'
 proportion_glm_model = function(d = i_proportion_input, ..., window = 14, frequency = "1 day") { #, output_unit = "1 day") {
 
@@ -54,6 +52,9 @@ proportion_glm_model = function(d = i_proportion_input, ..., window = 14, freque
     # for this next bit:
     d = d %>% dplyr::filter(denom != 0)
     y = cbind(d$count, d$denom - d$count)
+
+    #' # TODO: deal with error conditions
+    #' # "observations with zero weight not used for calculating dispersion
 
     if (df < 2) df=2
     model = stats::glm(y ~ splines::ns(time, df = df), family = stats::quasibinomial, data = d, singular.ok = TRUE)
@@ -85,14 +86,14 @@ proportion_glm_model = function(d = i_proportion_input, ..., window = 14, freque
 #' @export
 #' @concept models
 #' @examples
-#'
-#' tmp = ggoutbreak::england_covid %>%
+#' ggoutbreak::england_covid %>%
+#'  dplyr::filter(date < "2021-01-01") %>%
+#'  time_aggregate(count=sum(count)) %>%
 #'  ggoutbreak::poisson_glm_model(window=21) %>%
 #'  dplyr::glimpse()
 poisson_glm_model = function(d = i_incidence_input, ..., window = 14, frequency = "1 day") {
 
-  # TODO:
-  # Extract the gradient from the spline.
+  #TODO: Extract the gradient from the spline.
 
   modelled = interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
 

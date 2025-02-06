@@ -15,3 +15,4 @@ a ggplot scale
 \description{
 A logit y scale
 }
+\concept{vis}

@@ -14,7 +14,7 @@ i_timeseries = interfacer::iface(
 )
 
 i_incidence_data = interfacer::iface(
-  count = positive_integer ~ "Positive case counts associated with the specified timeframe",
+  count = positive_integer ~ "Positive case counts associated with the specified time frame",
   i_timeseries
 )
 
@@ -27,7 +27,7 @@ i_baseline_proportion_data = interfacer::iface(
 )
 
 i_baseline_incidence_data = interfacer::iface(
-  baseline_incidence = positive_double ~ "Baseline unnormalised incidence rate as count data"
+  baseline_incidence = positive_double ~ "Baseline raw incidence rate as count data"
 )
 
 i_incidence_per_capita_data = interfacer::iface(
@@ -38,7 +38,7 @@ i_incidence_per_capita_data = interfacer::iface(
 )
 
 i_proportion_data = interfacer::iface(
-  denom = positive_integer ~ "Total test counts associated with the specified timeframe",
+  denom = positive_integer ~ "Total test counts associated with the specified time frame",
   i_incidence_data
 )
 

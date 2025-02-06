@@ -15,16 +15,14 @@ Testing accuracy of estimates of $R_t$ for example needs one or more simulations
 of outbreaks that have known parametrisation. `ggoutbreak` contains some
 functions to generate synthetic datasets which exhibit some of the complexities
 we observed in the COVID-19 pandemic. There are two levels at which the
-simulations work, aggregate counts or case line lists simulations.
+simulations work, aggregate counts or case line list simulations.
 
 ```{r setup}
 knitr::opts_chunk$set(echo = TRUE)
 here::i_am("vignettes/simulation-test-models.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 library(ggoutbreak)
-library(tidyverse)
 library(patchwork)
-devtools::load_all()
 
 plot_changes = function(sim, name, max_y = NA, mapping = ggplot2::aes(), case=FALSE, fn = attr(sim,"fn"), changes = NULL, ...) {
   
@@ -39,12 +37,12 @@ plot_changes = function(sim, name, max_y = NA, mapping = ggplot2::aes(), case=FA
   else
     events = attr(sim,"events")
   
-  
+  force(fn)
   if ("statistic" %in% colnames(sim)) sim = sim %>% dplyr::filter(statistic == "infections") 
   
-  ggplot(mapping=mapping)+
+  ggplot2::ggplot(mapping=mapping)+
     {if (is.null(events)) NULL else geom_events(events=events)}+
-    {if (is.null(fn)) NULL else geom_function(fun = ~ fn(t=as.time_period(.x, sim$time)), xlim=as.Date(range(sim$time)), n = length(sim$time))}+
+    {if (is.null(fn)) NULL else ggplot2::geom_function(fun = ~ fn(t=as.time_period(.x, sim$time)), xlim=as.Date(range(sim$time)), n = length(sim$time))}+
     {if (!"rt.weighted" %in% colnames(sim)) NULL else ggplot2::geom_step(data = sim, mapping=ggplot2::aes(x=as.Date(time), y=rt.weighted))}+
     {if (!"rt.inst" %in% colnames(sim)) NULL else list(
       ggplot2::geom_point(data = sim, mapping=ggplot2::aes(x=as.Date(time), y=rt.inst),size=0.5),
@@ -54,7 +52,7 @@ plot_changes = function(sim, name, max_y = NA, mapping = ggplot2::aes(), case=FA
       ggplot2::geom_point(data = sim, mapping=ggplot2::aes(x=as.Date(time), y=rt.case), colour="blue",size=0.5),
       ggplot2::geom_line(data = sim, mapping=ggplot2::aes(x=as.Date(time), y=rt.case), colour="blue",alpha=0.1)
     )}+
-    ylab(name)+xlab(NULL)+
+    ggplot2::ylab(name)+ggplot2::xlab(NULL)+
     ggplot2::coord_cartesian(ylim=c(NA,max_y))
 }
 
@@ -90,7 +88,7 @@ delays and rates of observation can be added ad-hoc and the simulations can be
 stratified by different classes. In some simulations this can be propagated using
 an equivalent to a contact matrix.
 
-# Time varying parameters
+# Specifying time varying parameters
 
 The simulation framework is highly configurable, and a key part of this is
 specifying parameters that vary over time, or have some random or non random day
@@ -120,7 +118,7 @@ A static value can be supplied as a purrr style lambda.
 ```
 
 A time varying function can be supplied as a purrr style lambda where the first
-parameter is time
+parameter is the `time` column of the `demo` dataframe
 
 ```{r}
 .ts_evaluate( ~ ifelse(.x < 5, 2, 0.5), demo )
@@ -164,12 +162,12 @@ changes = tibble::tibble(
 )
 
 fn = cfg_step_fn(changes)
-ggplot()+geom_function(fun = fn, xlim = c(0,100))+ylab("growth rate")
+ggplot2::ggplot()+ggplot2::geom_function(fun = fn, xlim = c(0,100))+ggplot2::ylab("growth rate")
 
 ```
 
 `cfg_linear_fn` produces a very similar effect with less abrupt changes in $R_t$
-and changes occuring such that the value at the knot is correct.
+and changes occurring such that the value at the knot is correct.
 
 ```{r}
 
@@ -179,9 +177,9 @@ changes = tibble::tibble(
 )
 
 fn = cfg_linear_fn(changes)
-ggplot()+
-  geom_function(fun = fn, xlim = c(0,100))+ylab("reproduction number")+
-  geom_hline(yintercept=1,linetype="dashed")
+ggplot2::ggplot()+
+  ggplot2::geom_function(fun = fn, xlim = c(0,100))+ggplot2::ylab("reproduction number")+
+  ggplot2::geom_hline(yintercept=1,linetype="dashed")
   
 
 ```
@@ -194,15 +192,17 @@ average. This is easiest with a `purrr` style lambda.
 
 ```{r}
 # A random normally distributed value with mean 5 and SD 1
-.ts_evaluate(~ rnorm(.x,5,1), demo)
+# `.x` here will be interpreted as time as the first parameter, and in this
+# case is only used to size the returned random gaussian.
+.ts_evaluate(~ stats::rnorm(.x,5,1), demo)
 ```
 
-`ggoutbreak` includes some RNGs that are parametrised by mean and some form of
+For convenience `ggoutbreak` includes some RNGs that are parametrised by mean and a
 dispersion parameter.
 
 ```{r}
 
-# A random Bernoulli parameterised by probability.
+# A random Bernoulli parametrised by probability.
 .ts_evaluate(~ rbern(.x, p = 0.5), demo)
 
 # A beta distributed quantity parametrised by probability and dispersion (1-high to 0-none)
@@ -221,7 +221,8 @@ with mean 1 and SD 1 and the last 5 from mean 6 and SD 1:
 
 ```{r}
 # A random number from a gamma distribution parametrised by mean and SD on the true scale
-# where the mean is a time varying value.
+# where the mean is a time varying value. Again here `.x` is the time and it is
+# being used to define the number of returned value sand the mean of these values
 .ts_evaluate(~ rgamma2(.x, mean = ifelse(.x < 5,1,6), sd =1), demo)
 
 ```
@@ -233,7 +234,7 @@ configuring variant specific hospitalisation rates, or delays for example.
 ```{r}
 
 hospitalisation_prob_fn = cfg_beta_prob_rng(
-  probability_fn = \(variant) ifelse(variant=="alpha", 0.2,0.02),
+  probability_fn = \(variant) ifelse(variant=="alpha", 0.2, 0.02),
   kappa_fn = ~ 0.1
 )
 
@@ -241,9 +242,12 @@ hospitalisation_prob_fn = cfg_beta_prob_rng(
 demo = tibble::tibble(
   t = 1:200,
   variant = c(rep("wildtype",100),rep("alpha", 100))
+) %>% dplyr::mutate(
+  value = .ts_evaluate(hospitalisation_prob_fn, .)
 )
 
-plot(.ts_evaluate(hospitalisation_prob_fn, demo),ylab = "sampled probability")
+ggplot2::ggplot(demo, ggplot2::aes(x=variant,y=value))+ggplot2::geom_point(position = "jitter")+
+  ggplot2::ylab("probability hospitalisation")
 
 
 
@@ -267,8 +271,8 @@ for a simulation:
 gamma_ip = make_gamma_ip(median_of_mean = 5, median_of_sd = 1)
 emp_ip = make_empirical_ip(omega = c(0,0,0,1,1,2,3,3,2,1,0,0))
 
-p1=gamma_ip %>% plot_ip() + facet_wrap(~"gamma")
-p2=emp_ip %>% plot_ip() + facet_wrap(~"empirical")
+p1=gamma_ip %>% plot_ip() + ggplot2::facet_wrap(~"gamma")
+p2=emp_ip %>% plot_ip() + ggplot2::facet_wrap(~"empirical")
 p1+p2+patchwork::plot_layout(nrow=1)#,axes = "collect")
 ```
 
@@ -279,8 +283,15 @@ directly. For empirical distributions we can generate random numbers
 
 ```{r}
 emp_sample_fn = cfg_ip_sampler_rng(emp_ip)
-emp_samples = emp_sample_fn(2000)
-hist(emp_samples,breaks = c(0,seq(0.5,12)))
+
+tmp = tibble::tibble(
+  serial_interval = emp_sample_fn(2000)
+)
+
+p3 = p2 %above% ggplot2::geom_histogram(data=tmp,mapping=ggplot2::aes(x=serial_interval, y=ggplot2::after_stat(density)),
+      breaks = c(0,seq(0.5,12)),fill="grey80",colour="grey40")
+p3
+
 ```
 
 These IP delay distributions may themselves change over time, or change as a
@@ -299,7 +310,7 @@ delay_mean_fn = cfg_linear_fn(tibble::tribble(
   10, 1 # by day 10 delays steady at 1 day
 ))
 
-# We wrap this in a a function to calculate a IP for each 
+# We wrap this in a a function to calculate a IP for each time point
 delay_fn = function(t) purrr::map( delay_mean_fn(t), function(mean) {
   make_gamma_ip(median_of_mean = mean, median_of_sd = sqrt(mean))
 })
@@ -311,9 +322,10 @@ times = 0:14
 delay_t = delay_fn(t=times)
 
 # this is a list of IP distributions.
-tibble(ip = delay_t, t=times) %>% unnest(ip) %>% glimpse() %>%
-  ggplot()+geom_rect(aes(xmin=t,xmax=t+1,ymin=a0,ymax=a1,fill = probability))+
-  xlab("time")+ylab("delay")
+tibble::tibble(ip = delay_t, t=times) %>% tidyr::unnest(ip) %>% dplyr::glimpse() %>%
+  ggplot2::ggplot()+
+  ggplot2::geom_rect(ggplot2::aes(xmin=t,xmax=t+1,ymin=a0,ymax=a1,fill = probability))+
+  ggplot2::xlab("time")+ggplot2::ylab("delay")
 
 ```
 
@@ -334,28 +346,30 @@ delay_rng = function(t) { rgamma2(t, delay_mean_fn(t)) }
 times = rep(0:14,1000)
 delay = delay_rng(t=times)
 
-tibble(delay = delay, t=times) %>%
-  ggplot()+geom_boxplot(aes(x=as.factor(t),y=delay),outliers = FALSE)+
-  xlab("time")+ylab("delay")
+tibble::tibble(delay = delay, t=times) %>%
+  ggplot2::ggplot()+ggplot2::geom_boxplot(ggplot2::aes(x=as.factor(t),y=delay),outliers = FALSE)+
+  ggplot2::xlab("time")+ggplot2::ylab("delay")
 
 ```
 
-These approaches can be applied to other delay distributions such as time to 
-hospitalisation, and can be made to vary on other variables in the simulation 
-such as variant class or potentially patient age (not yet implemented).
+These approaches can be applied to any delay distribution, other than time to
+infection such as time to hospitalisation, and so these can be made to vary on
+other variables in the simulation such as variant class or potentially patient
+age.
 
 ## Periodic functions
 
-A periodic function most obviously could be used to generate seasonal forcing:
+A periodic function is most obviously useful to generate seasonal forcing:
 
 ```{r}
 
-# A simple to interpret and easy to make integrate to 0. 
+# A simple to interpret and easy to make integrate to 0, so that growth remains
+# bounded. 
 growth_rate_fn = \(t) dplyr::case_when(
   t %% 365 < 40 ~ 0.1,
   t %% 365 < 80 ~ -0.1,
   TRUE ~ 0)
-ggplot()+geom_function(fun = growth_rate_fn, xlim = c(0,365*2))+ylab("growth rate")
+ggplot2::ggplot()+ggplot2::geom_function(fun = growth_rate_fn, xlim = c(0,365*2))+ggplot2::ylab("growth rate")
 
 ```
 
@@ -367,38 +381,48 @@ delay. One can be used represent the delay distribution for convolution in count
 based simulations and another for random sampling in individual based simulations.
 
 ```{r}
-
 gamma_means = c(1,1,1,1,4,3,2)
 delay_fn = cfg_weekly_ip_fn(mean=gamma_means)
 
 # delay_fn can be used as the parameter for a delay distribution convolution 
+# format_ip takes a probability based delay distribution and gives us a summary
+# the mean, sd, etc.
 .ts_evaluate(delay_fn, tibble::tibble(t=1:7)) %>% 
   purrr::map_chr(format_ip)
+```
 
-
-# for line list functions a RNG with weekly
+```{r}
+# for line list functions a RNG with weekly periodicity generates samples 
+# of the interval that is consistent with the parameters passed to 
+# `cfg_weekly_gamma_rng`
 delay_rng = cfg_weekly_gamma_rng(mean=gamma_means)
 
 tibble::tibble(t=rep(1:7,100)) %>%
-  mutate(sample = .ts_evaluate(delay_rng, .)) %>%
-  group_by(t) %>%
-  summarise(
+  dplyr::mutate(sample = .ts_evaluate(delay_rng, .)) %>%
+  dplyr::group_by(t) %>%
+  dplyr::summarise(
     mean = mean(sample),
-    sd = sd(sample)
+    sd = stats::sd(sample)
+  ) %>%
+  dplyr::mutate(
+    expected_mean = gamma_means,
+    expected_sd = sqrt(gamma_means)
   )
 
 ```
 
 We will demonstrate this in a simulation later.
 
-# Aggregate count simulation cookbook
+# Simulation cookbook
+
+## Count based simulations
 
 Count based models are typically based around a poisson process where the 
 expected number of cases per day is expressed as a function of imports and 
 growth, either in terms of the exponential growth rate, or a combination of the
 reproduction number and infectivity profile (generation time).
 
-## Basic growth rate possion model with ascertainment noise.
+### Basic growth rate possion model with ascertainment noise.
 
 Daily count simulations are based around defined incidence rates, which can be
 expressed in terms of a time dependent growth rate and an time dependent
@@ -423,7 +447,7 @@ withr::with_options(list('day_zero'=Sys.Date()),{
     time_unit = "1 day"
   )
   
-  p1 = plot_changes(sim, "paramterised growth rate", date_breaks = "2 weeks") 
+  p1 = plot_changes(sim, "parametrised growth rate", date_breaks = "2 weeks") 
   p2 = ggoutbreak::plot_counts(sim, events = attr(sim,"events"), date_breaks = "2 weeks")
   p1+p2+patchwork::plot_annotation(tag_levels = "A")+plot_layout(ncol=1,axes = "collect")
 
@@ -461,12 +485,12 @@ sim2 = dplyr::bind_rows(lapply(c(0,0.25,0.5,1), function(k)
     sim_apply_ascertainment(
       fn_asc = ~ rbeta2(.x, prob = 0.7, kappa = k)
     ) %>%
-    mutate(ascertainment_noise = k) 
+    dplyr::mutate(ascertainment_noise = k) 
   )) %>%
-  group_by(ascertainment_noise)
+  dplyr::group_by(ascertainment_noise)
 
 ggoutbreak::plot_counts(sim2, events = attr(sim,"events"), date_breaks = "2 weeks")+
-  facet_wrap(~sprintf("randomness: %1.2f",ascertainment_noise),ncol=2)
+  ggplot2::facet_wrap(~sprintf("randomness: %1.2f",ascertainment_noise),ncol=2)
 
 # Noise introduced by random day to day ascertainment variation:
 
@@ -511,9 +535,9 @@ sim3 = sim %>% sim_convolution(
   delay_fn = ~ make_gamma_ip(7,median_of_sd = 10)
 )
 
-p1=plot_changes(sim3,name = "delays (days)", fn = ip_mean_fn)+ylim(0,NA)
-p2=plot_changes(sim3,name = "detection", fn = p_detection_fn)+ylim(0,1)
-p3=plot_counts(sim3,events = attr(sim3,"events"),mapping=aes(colour=statistic))+geom_line()
+p1=plot_changes(sim3,name = "delays (days)", fn = ip_mean_fn)+ggplot2::ylim(0,NA)
+p2=plot_changes(sim3,name = "detection", fn = p_detection_fn)+ggplot2::ylim(0,1)
+p3=plot_counts(sim3,events = attr(sim3,"events"),mapping=ggplot2::aes(colour=statistic))+ggplot2::geom_line()
 
 p1+p2+p3+patchwork::plot_layout(ncol=1,heights=c(1,1,2),axes = "collect")
 
@@ -521,9 +545,13 @@ p1+p2+p3+patchwork::plot_layout(ncol=1,heights=c(1,1,2),axes = "collect")
 
 ```
 
-## Seasonal outbreak using a reproduction number
+### Seasonal outbreak using a reproduction number
 
-We can simulate a seasonal
+We can simulate a seasonal outbreak by providing a periodic growth rate or $R_t$
+as a parameter to a simple poisson model. In this example we also simulated a 
+default set of delays which keying off an infection event, generate a delayed
+set of symptom observations, test samples, results, hospitalisations and death 
+time series.
 
 ```{r}
 
@@ -546,13 +574,24 @@ seasonal_sim = sim_poisson_Rt_model(
     fn_ip = ~ make_gamma_ip(6)
   )
 
-
+#profvis::profvis(
 system.time({
   seasonal_sim = seasonal_sim %>% sim_apply_delay()
 })
+#)
 
-p1=plot_changes(seasonal_sim, name = "Rt", fn = seasonal_rt_fn, max_y = 3)
-p2=plot_counts(seasonal_sim, events = attr(seasonal_sim,"events"),mapping=aes(colour=statistic),size=0.25)+geom_line()+facet_wrap(~ statistic,ncol=1,scales = "free_y")
+p1=plot_changes(
+        seasonal_sim, 
+        name = "Rt", 
+        fn = seasonal_rt_fn, 
+        max_y = 3)
+
+p2=plot_counts(
+        seasonal_sim, 
+        events = attr(seasonal_sim,"events"),
+        mapping=ggplot2::aes(colour=statistic),size=0.25)+
+      ggplot2::geom_line()+
+      ggplot2::facet_wrap(~ statistic,ncol=1,scales = "free_y")
 
 p1+p2+patchwork::plot_layout(ncol=1,axes = "collect",heights=c(1,10))
 
@@ -571,12 +610,13 @@ depending on a specified infectivity profile, and the times of further events
 such as symptom onset, hospitalisation, death, test sampling, and test results
 can be assigned, following known event probabilities and delay distributions.
 Summary counts of all these events indexed on the time of event, demonstrate
-well known biases, e.g. right truncation. This simulation is directly
+well known biases, such as right truncation. This simulation is directly
 parametrised with a theoretical $R_t$ value; summary of the network edges gives
-us a realised case reproduction number which is specific for a simulation, and
-the force of infection gives us a instantaneous reproduction number estimate for
-the simulation. From the parametrised infectivity profile we can again use the
-methods of Wallinga and Lipsitch to solve for a theoretical growth rate.
+us a realised case reproduction number which is specific for an individual
+simulation, and the force of infection gives us a instantaneous reproduction
+number estimate for the individual simulation. From the parametrised infectivity
+profile we can again use the methods of Wallinga and Lipsitch to solve for a
+theoretical growth rate.
 
 ## Basic outbreak with delays and censoring
 
@@ -595,7 +635,7 @@ linelist = sim_branching_process(
    fn_imports = ~ ifelse(.x<10,8,0)
 )
 
-plot_cases(linelist, events = attr(linelist,"events"),individual=TRUE)+coord_cartesian()
+plot_cases(linelist, events = attr(linelist,"events"),individual=TRUE)+ggplot2::coord_cartesian()
 
 ```
 
@@ -616,7 +656,7 @@ linelist2 = linelist %>% sim_delay(
 
 # The delay function results in additional columns prefixed by "sequencing"
 # of reach individual.
-linelist2 %>% glimpse()
+linelist2 %>% dplyr::glimpse()
 
 ```
 
@@ -636,7 +676,7 @@ summary = linelist2 %>% sim_summarise_linelist(
 
 # plot the counts for comparison.
 p1=plot_changes(summary,"Rt",max_y = 2.0, case = TRUE)
-p2=plot_counts(summary,events = attr(summary,"events"), mapping=aes(colour=statistic),size=0.5)+geom_line()
+p2=plot_counts(summary,events = attr(summary,"events"), mapping=ggplot2::aes(colour=statistic),size=0.5)+ggplot2::geom_line()
 patchwork::wrap_plots(p1,p2,ncol=1,axes="collect")
 
 ```
@@ -669,7 +709,7 @@ variant_imports_df = tibble::tribble(
 # generation time.
 
 variant_ip_fn = cfg_gamma_ip_fn(
-    mean_fn = \(variant) case_when(
+    mean_fn = \(variant) dplyr::case_when(
       # Two infectivity profiles one for each variant.
       variant=="wild-type" ~ 8,
       variant=="alpha" ~ 5) # variant 2 has a shorter generation time
@@ -688,7 +728,7 @@ scenario1 = sim_branching_process(
 # The second scenario involves two variants one with a slight reproduction 
 # number advantage. Both have the same (longer) generation time
 
-variant_Rt_fn = \(t,variant) case_when(
+variant_Rt_fn = \(t,variant) dplyr::case_when(
   variant=="wild-type" ~ 1.15,
   variant=="alpha" ~ 1.3
 )
@@ -701,13 +741,13 @@ scenario2 = sim_branching_process(
   seed=100
 )
 
-comparison = bind_rows(
-  scenario1 %>% sim_summarise_linelist(variant) %>% mutate(scenario = "1 - Shorter GT"),
-  scenario2 %>% sim_summarise_linelist(variant) %>% mutate(scenario = "2 - Rt advantage")
+comparison = dplyr::bind_rows(
+  scenario1 %>% sim_summarise_linelist(variant) %>% dplyr::mutate(scenario = "1 - Shorter GT"),
+  scenario2 %>% sim_summarise_linelist(variant) %>% dplyr::mutate(scenario = "2 - Rt advantage")
 )
 
-p1=plot_changes(comparison,"Rt", max_y = 2.5,mapping = aes(colour=variant))+facet_wrap(~scenario)
-p2=plot_counts(comparison %>% group_by(scenario,variant), mapping = aes(colour=variant))+facet_wrap(~scenario)
+p1=plot_changes(comparison,"Rt", max_y = 2.5,mapping = ggplot2::aes(colour=variant))+ggplot2::facet_wrap(~scenario)
+p2=plot_counts(comparison %>% dplyr::group_by(scenario,variant), mapping = ggplot2::aes(colour=variant))+ggplot2::facet_wrap(~scenario)
 
 patchwork::wrap_plots(p1,p2,ncol=1,axes="collect")
 
@@ -728,7 +768,7 @@ variant_imports_df = tibble::tribble(
   15:19, "delta", 5
 )
 
-variant_Rt_fn = \(t,variant) case_when(
+variant_Rt_fn = \(t,variant) dplyr::case_when(
   t < 0 ~ 0,
   variant=="alpha" ~ 0.8,
   variant=="delta" ~ 1.3
@@ -742,21 +782,21 @@ scenario = sim_branching_process(
   seed=100
 )
 
-summary1 =  scenario %>% sim_summarise_linelist(variant) %>% filter(time >= 0) 
-summary2 =  scenario %>% sim_summarise_linelist() %>% filter(time >= 0)
+summary1 =  scenario %>% sim_summarise_linelist(variant) %>% dplyr::filter(time >= 0) 
+summary2 =  scenario %>% sim_summarise_linelist() %>% dplyr::filter(time >= 0)
 
-p1=plot_counts(summary1, mapping=aes(colour=variant))
+p1=plot_counts(summary1, mapping=ggplot2::aes(colour=variant))
 p2=plot_counts(summary2)
 
 p3=ggplot2::ggplot(summary1, ggplot2::aes(x=as.Date(time), colour=variant))+
-    ggplot2::geom_point(aes(y=rt.inst))+
-    ggplot2::geom_line(aes(y=rt.weighted))+
+    ggplot2::geom_point(ggplot2::aes(y=rt.inst))+
+    ggplot2::geom_line(ggplot2::aes(y=rt.weighted))+
     ggplot2::coord_cartesian(ylim=c(0,3.5))+
     ggplot2::xlab(NULL)
 
 p4=ggplot2::ggplot(summary2, ggplot2::aes(x=as.Date(time)))+
-    ggplot2::geom_point(aes(y=rt.inst))+
-    ggplot2::geom_line(aes(y=rt.weighted))+
+    ggplot2::geom_point(ggplot2::aes(y=rt.inst))+
+    ggplot2::geom_line(ggplot2::aes(y=rt.weighted))+
     ggplot2::coord_cartesian(ylim=c(0,3.5))+
     ggplot2::xlab(NULL)
 
@@ -782,7 +822,7 @@ population have a high super-spreading potential.
 
 kappa = c(1,1.5,2,3,4)
 
-comparison = bind_rows(lapply(kappa, function(k) {
+comparison = dplyr::bind_rows(lapply(kappa, function(k) {
   
   sim_branching_process(
     max_time = 80,
@@ -793,11 +833,11 @@ comparison = bind_rows(lapply(kappa, function(k) {
     seed=101
   ) %>% 
     sim_summarise_linelist() %>%
-    mutate(scenario = sprintf("Dispersion: %1.2f",k))
+    dplyr::mutate(scenario = sprintf("Dispersion: %1.2f",k))
   
 }))
 
-plot_counts(comparison %>% group_by(class=scenario))+scale_y_log1p()
+plot_counts(comparison %>% dplyr::group_by(class=scenario))+scale_y_log1p()
 ```
 
 ## Age stratification & contact matrices
@@ -815,12 +855,12 @@ strat_imports_df = tibble::tribble(
   ~time, ~age_cat, ~count,
   0:4, "child", 5,
   0:4, "adolescent", 5
-) %>% mutate(age_cat = factor(age_cat,levels = c("child","adolescent","adult","elderly")))
+) %>% dplyr::mutate(age_cat = factor(age_cat,levels = c("child","adolescent","adult","elderly")))
 
 # The next generation function in this form is similar to a 
 # next generation matrix however it does not include R_t components: 
 strat_fn_list_next_gen = list(
-  "age_cat" = ~ case_when(
+  "age_cat" = ~ dplyr::case_when(
     .x == "child" ~ rcategorical(.x, prob = c("child"=0.4,"adolescent"=0.2,"adult"=0.4,"elderly"=0)),
     .x == "adolescent" ~ rcategorical(.x, prob = c("child"=0.2,"adolescent"=0.4,"adult"=0.3,"elderly"=0.1)),
     .x == "adult" ~ rcategorical(.x, prob = c("child"=0.1,"adolescent"=0.1,"adult"=0.4,"elderly"=0.4)),
@@ -828,7 +868,7 @@ strat_fn_list_next_gen = list(
   )
 )
 
-strat_fn_Rt = \(age_cat) case_when(
+strat_fn_Rt = \(age_cat) dplyr::case_when(
   age_cat == "child" ~ 1.2,
   age_cat == "adolescent" ~ 1.2,
   age_cat == "adult" ~ 1.2,
@@ -842,9 +882,9 @@ strat_bpm = sim_branching_process(
     imports_df = strat_imports_df,
     fn_list_next_gen = strat_fn_list_next_gen,
     seed=101
-  ) %>% mutate(age_cat = factor(age_cat,levels = c("child","adolescent","adult","elderly")))
+  ) %>% dplyr::mutate(age_cat = factor(age_cat,levels = c("child","adolescent","adult","elderly")))
 
-plot_cases(strat_bpm,mapping = aes(fill=age_cat),individual=TRUE)+coord_cartesian()
+plot_cases(strat_bpm,mapping = ggplot2::aes(fill=age_cat),individual=TRUE)+ggplot2::coord_cartesian()
 
 
 
@@ -853,17 +893,17 @@ plot_cases(strat_bpm,mapping = aes(fill=age_cat),individual=TRUE)+coord_cartesia
 # Future steps
 
 ```{r}
-# TODO: defaults in function that line up with sim_apply_delay_convolution
+#TODO: defaults in function that line up with sim_apply_delay_convolution
 #' # move this to vignette examples
 #' tmp2 = tmp %>% sim_apply_delay(
 #'   fn_p_symptomatic = ~ 0.8,
-#'   fn_symptom_delay = ~ rgamma(.x, shape = 3),
+#'   fn_symptom_delay = ~ stats::rgamma(.x, shape = 3),
 #'   fn_p_tested = \(symptomatic,...) ifelse(symptomatic, 0.8, 0.1),
-#'   fn_sample_delay = ~ rgamma(.x, shape = 2),
+#'   fn_sample_delay = ~ stats::rgamma(.x, shape = 2),
 #'   fn_result_delay = \(sample_time,...) dplyr::case_when(
-#'       floor(sample_time) %% 7 %in% c(0,1,2,3,4) ~ rgamma(sample_time, shape=2), # Sun, Mon to Thurs
-#'       floor(sample_time) %% 7 == 5 ~ rgamma(sample_time, shape=4), # Fri
-#'       floor(sample_time) %% 7 == 6 ~ rgamma(sample_time, shape=3), # Sat
+#'       floor(sample_time) %% 7 %in% c(0,1,2,3,4) ~ stats::rgamma(sample_time, shape=2), # Sun, Mon to Thurs
+#'       floor(sample_time) %% 7 == 5 ~ stats::rgamma(sample_time, shape=4), # Fri
+#'       floor(sample_time) %% 7 == 6 ~ stats::rgamma(sample_time, shape=3), # Sat
 #'   )
 #' )
 #' 
@@ -878,12 +918,12 @@ plot_cases(strat_bpm,mapping = aes(fill=age_cat),individual=TRUE)+coord_cartesia
 #'   summarise = FALSE
 #'  ) %>% sim_apply_delay(
 #'   fn_p_symptomatic = ~ 0.8,
-#'   fn_symptom_delay = ~ rgamma(.x, shape = 3),
+#'   fn_symptom_delay = ~ stats::rgamma(.x, shape = 3),
 #'   fn_p_symptomatic = ~ 0.8,
-#'   fn_symptom_delay = ~ rgamma(.x, shape = 3),
+#'   fn_symptom_delay = ~ stats::rgamma(.x, shape = 3),
 #'   fn_p_tested = \(symptomatic,...) ifelse(symptomatic, 0.8, 0.1),
 #'   fn_sample_delay = \(symptomatic, symptom_time, ...) dplyr::case_when(
-#'       !symptomatic ~ runif(symptomatic, max = 14),
+#'       !symptomatic ~ stats::runif(symptomatic, max = 14),
 #'       TRUE ~ cfg_weekly_gamma_rng(c(1,1,1,1,3,2,2))(symptom_time)
 #'   ),
 #'   fn_result_delay = \(sample_time,...) cfg_weekly_gamma_rng(c(1,1,1,1,3,2,2))(sample_time)
@@ -891,9 +931,9 @@ plot_cases(strat_bpm,mapping = aes(fill=age_cat),individual=TRUE)+coord_cartesia
 #'
 #' tmp4 = tmp3 %>% sim_summarise_linelist()
 #'
-#' ggplot(tmp4 %>% filter(!is.na(count)), aes(x=time, colour=statistic))+
-#'   geom_line(aes(y=count))+
-#'   facet_wrap(~statistic,ncol=1)
+#' ggplot2::ggplot(tmp4 %>% dplyr::filter(!is.na(count)), ggplot2::aes(x=time, colour=statistic))+
+#'   ggplot2::geom_line(ggplot2::aes(y=count))+
+#'   ggplot2::facet_wrap(~statistic,ncol=1)
 #' }
 #'
 #' #' tmp2 = sim_branching_process(

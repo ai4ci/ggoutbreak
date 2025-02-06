@@ -30,7 +30,7 @@ and will be inferred if not changed form the default \code{NA} value.}
 
 \item{n_boots}{The number of samples to generate.}
 
-\item{epiestim_compat}{Use \code{EpiEstim} to generate the infectivity stats::profile(s).
+\item{epiestim_compat}{Use \code{EpiEstim} to generate the infectivity profiles.
 A true value here results in an infectivity profile with probability of 0
 for day 0.}
 
@@ -40,8 +40,6 @@ parameters above. If \code{FALSE} then it will use a log normal distributions
 with correlation.}
 
 \item{z_crit}{the width of the confidence intervals (defaults to 95\%).}
-
-\item{seed}{a random number seed for reproducibility}
 }
 \value{
 a long format infectivity profile data frame, or a list of dataframes
@@ -72,7 +70,8 @@ can handle zero/negative serial intervals (e.g. \code{rt_from_incidence} or
 }
 \examples{
 # COVID-19 estimates from Ganyani et al 2020.
-tmp = make_gamma_ip(5.2, 3.78, 6.78, 1.72, 0.91, 3.93, epiestim_sampler=FALSE, epiestim_compat=FALSE)
+tmp = make_gamma_ip(5.2, 3.78, 6.78, 1.72, 0.91, 3.93,
+  epiestim_sampler=FALSE, epiestim_compat=FALSE)
 
 tmp \%>\%
   dplyr::group_by(boot) \%>\%
@@ -81,12 +80,20 @@ tmp \%>\%
     sd = sqrt(sum((tau-sum(tau*probability))^2*probability))
   ) \%>\%
   dplyr::summarise(
-    mean = sprintf("\%1.2f [\%1.2f-\%1.2f]", stats::quantile(mean,0.5), stats::quantile(mean,0.025), stats::quantile(mean,0.975)),
-    sd = sprintf("\%1.2f [\%1.2f-\%1.2f]", stats::quantile(sd,0.5), stats::quantile(sd,0.025), stats::quantile(sd,0.975))
+    mean = sprintf("\%1.2f [\%1.2f-\%1.2f]",
+      stats::quantile(mean,0.5),
+      stats::quantile(mean,0.025),
+      stats::quantile(mean,0.975)),
+    sd = sprintf("\%1.2f [\%1.2f-\%1.2f]",
+      stats::quantile(sd,0.5),
+      stats::quantile(sd,0.025),
+      stats::quantile(sd,0.975))
   )
 
-plot_ip(tmp, alpha=0.1) +
-  ggplot2::coord_cartesian(xlim=c(0,15))
+if(interactive()) {
+  plot_ip(tmp, alpha=0.1) +
+    ggplot2::coord_cartesian(xlim=c(0,15))
+}
 
 means = c(3,4,5)
 ips = make_gamma_ip(means)
@@ -97,3 +104,4 @@ if (interactive()) {
 }
 
 }
+\concept{delay_distribution}

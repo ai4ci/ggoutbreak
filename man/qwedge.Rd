@@ -13,6 +13,8 @@ qwedge(p, a, lower.tail = TRUE, log.p = FALSE)
 
 \item{lower.tail}{logical; if TRUE (default), probabilities are \code{P[X<=x]}
 otherwise \code{P[X>x]}.}
+
+\item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 a vector of probabilities, quantiles, densities or samples.

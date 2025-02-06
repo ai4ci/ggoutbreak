@@ -45,14 +45,10 @@
 #' @concept models
 #'
 #' @examples
-#' ggoutbreak::england_covid %>%
-#'  ggoutbreak::proportion_locfit_model(window=21) %>%
-#'  dplyr::glimpse()
-#'
-#' ggoutbreak::england_covid %>%
-#'   time_aggregate(count=sum(count), denom=sum(denom)) %>%
-#'   dplyr::mutate(p = count/denom) %>%
-#'   proportion_locfit_model(window=21)
+#' ggoutbreak::england_covid_proportion %>%
+#'   time_aggregate() %>%
+#'   proportion_locfit_model(window=5, degree=2) %>%
+#'   dplyr::glimpse()
 proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE) {
 
   interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
@@ -69,7 +65,7 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
     }
 
     # Not enough non one results
-    # TODO: calculate CIs based on binomial.
+    #TODO: calculate CIs based on binomial.
     if(sum(stats::na.omit(d$count != d$denom)) < deg) {
       return(.null_result(output_times, proportion=c(1,1,1), relative.growth=c(NA,0,NA)))
     }
@@ -198,7 +194,7 @@ poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1
 
 }
 
-# TODO: integrate normalise_incidence into this in a scaleable way, so that if
+#TODO: integrate normalise_incidence into this in a scaleable way, so that if
 # the count data has been normalised by population then the result data is too:
 # if (interfacer::is_col_present(d,population,population_unit,time_unit)) {
 #   population_unit = unique(d$population_unit)
@@ -211,16 +207,18 @@ poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1
 
 
 # Catch locfit warnings and display a more relevant warning
-#TODO: this will spew out a message for every invocation, possibly two
-# Some way of making this just one message would be nice.
+
 .rewrite_lfproc = function(w) {
   if (stringr::str_ends(w$message,"parameters out of bounds")) {
-    message("not enough info to fit locfit model - try decreasing `deg` or increasing `window`.")
+    .message_once("not enough info to fit locfit model - try decreasing `deg` or increasing `window`.")
+    rlang::cnd_muffle(w)
+  } else if (stringr::str_ends(w$message,"perfect fit")) {
+    .message_once("an exact fit was detected, this may mean a denominator error has been made, or synthetic data is being used.")
     rlang::cnd_muffle(w)
   }
 }
 
-# Fix issues with timeseries based on a rule
+# Fix issues with time series based on a rule
 # value - the columns to change to NA - e.g. "incidence"
 # rule - the trigger to change the columns
 .tidy_fit = function(df, value, rule) {

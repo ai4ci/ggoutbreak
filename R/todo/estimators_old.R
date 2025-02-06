@@ -1,4 +1,4 @@
-# TODO:
+#TODO: OLD
 # 1) Write lag analysis for estimators.
 # Simple one for growth rate
 # N.B. for Rt this will need wallinga et al Rt calculation of Rt using infectivity profile.
@@ -32,7 +32,7 @@ checkValid = function(df,columns) {
 # create a weekday and is.weekend column
 weekdayFromDates = function(df) {
   checkValid(df,"date")
-  df %>% mutate(
+  df %>% dplyr::mutate(
     weekday = ordered(lubridate::wday(date),levels=1:7, labels=c("sun","mon","tue","wed","thur","fri","sat")),
     is.weekend = weekday %in% c("sat","sun")
   )
@@ -40,19 +40,19 @@ weekdayFromDates = function(df) {
 
 #' Calculates a weighting to apply to each day of week
 #'
-#' @param simpleTimeseries a covid timeseries data frame
+#' @param simpleTimeseries a COVID-19 timeseries data frame
 #' @param ...
 #' @param valueVar the variable with the weekly periodicity
 #'
 #' @return the dataframe with a weekday.wt column which says how much that value is over expressed in the data
 weekendEffect = function(simpleTimeseries, valueVar="value", ...) {
-  valueVar = ensym(valueVar)
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  valueVar = rlang::ensym(valueVar)
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   simpleTimeseries = simpleTimeseries %>% weekdayFromDates()
 
   # set the default uniform weighting
-  defaultWt = tibble(
+  defaultWt = tibble::tibble(
     weekday = ordered(1:7,labels=c("sun","mon","tue","wed","thur","fri","sat")),
     weekday.wt = rep(1,7)
   )
@@ -61,16 +61,16 @@ weekendEffect = function(simpleTimeseries, valueVar="value", ...) {
 
     # if there is enough data estimate how much weight each day should have
     weight = simpleTimeseries %>%
-      mutate(.percentBias =
+      dplyr::mutate(.percentBias =
               log(!!valueVar+1) /
                 slider::slide_dbl(log(!!valueVar+1), .before=3, .after=3,.f = mean, na.rm=TRUE,.complete = TRUE)-1
       ) %>%
-      group_by(weekday,.add=TRUE) %>%
-      summarise(
+      dplyr::group_by(weekday,.add=TRUE) %>%
+      dplyr::summarise(
         weekday.wt = exp(abs(mean(.percentBias, na.rm=TRUE))),
         .groups="drop"
       ) %>%
-      mutate(weekday.wt=weekday.wt/mean(weekday.wt, na.rm=TRUE))
+      dplyr::mutate(weekday.wt=weekday.wt/mean(weekday.wt, na.rm=TRUE))
 
     if(nrow(weight) !=7 | any(is.na(weight$weekday.wt))) {
       weight = defaultWt
@@ -80,28 +80,10 @@ weekendEffect = function(simpleTimeseries, valueVar="value", ...) {
     weight = defaultWt
   }
 
-  simpleTimeseries %>% inner_join(weight, by="weekday") %>% return()
+  simpleTimeseries %>% dplyr::inner_join(weight, by="weekday") %>% return()
 }
 
-#
-# #' @description Calculates a weighting to apply to each day of week
-# #' @param simpleTimeseries a covid timeseries data frame
-# #' @param window the window over which we are to normalise the sample size
-# #' @param sampleSizeVar the variable with the sample size in it
-# #' @return the dataframe with a sample.wt column which says how much that sample is relevant to the data
-# sampleSizeEffect = function(simpleTimeseries, window, sampleSizeVar="total") {
-#   if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
-#   sampleSizeVar = ensym(sampleSizeVar)
-#   simpleTimeseries = simpleTimeseries %>% arrange(date) %>% mutate(
-#     #sample.wt = ifelse(!!sampleSizeVar==0,0,!!sampleSizeVar / slider::slide_dbl(!!sampleSizeVar, .before = floor(window/2), .after = floor(window/2), mean, na.rm=TRUE,.complete = FALSE))
-#     sample.wt = ifelse(!!sampleSizeVar==0,0,!!sampleSizeVar/mean(!!sampleSizeVar,na.rm = TRUE))
-#   )
-#   return(simpleTimeseries)
-# }
-#
-
-
-## Locfit estimate outputs ----
+## `Locfit` estimate outputs ----
 
 
 # This is just to format locfit results given a locfit model.
@@ -110,7 +92,7 @@ locfitExtractResult = function(df, model, estimate, modelName, link = "value") {
 
   tryCatch({
 
-    points = preplot(model,where = "fitp",se.fit = TRUE,band="local")
+    points = stats::preplot(model,where = "fitp",se.fit = TRUE,band="local")
 
     t = points$tr
     fit = points$fit
@@ -134,23 +116,23 @@ opt = function(expr) tryCatch(expr,error=function(e) NA_real_)
 
 # format a transformed normally distributed variable into quantiles
 formatResult = function(df, fit, se.fit, t, estimate, modelName,link) {
-  df %>% mutate(
+  df %>% dplyr::mutate(
     !!(paste0(estimate,".",link)) := fit,
     !!(paste0(estimate,".SE.",link)) := se.fit,
-    !!(paste0(estimate,".Quantile.0.025")) := opt(t(qnorm(0.025,fit,se.fit))),
-    !!(paste0(estimate,".Quantile.0.05")) := opt(t(qnorm(0.05,fit,se.fit))),
-    !!(paste0(estimate,".Quantile.0.25")) := opt(t(qnorm(0.25,fit,se.fit))),
+    !!(paste0(estimate,".Quantile.0.025")) := opt(t(stats::qnorm(0.025,fit,se.fit))),
+    !!(paste0(estimate,".Quantile.0.05")) := opt(t(stats::qnorm(0.05,fit,se.fit))),
+    !!(paste0(estimate,".Quantile.0.25")) := opt(t(stats::qnorm(0.25,fit,se.fit))),
     !!(paste0(estimate,".Quantile.0.5")) := t(fit),
-    !!(paste0(estimate,".Quantile.0.75")) := opt(t(qnorm(0.75,fit,se.fit))),
-    !!(paste0(estimate,".Quantile.0.95")) := opt(t(qnorm(0.95,fit,se.fit))),
-    !!(paste0(estimate,".Quantile.0.975")) := opt(t(qnorm(0.975,fit,se.fit))),
+    !!(paste0(estimate,".Quantile.0.75")) := opt(t(stats::qnorm(0.75,fit,se.fit))),
+    !!(paste0(estimate,".Quantile.0.95")) := opt(t(stats::qnorm(0.95,fit,se.fit))),
+    !!(paste0(estimate,".Quantile.0.975")) := opt(t(stats::qnorm(0.975,fit,se.fit))),
     !!(paste0(estimate,".model")) := modelName)
 }
 
 # extract the locfit result from the locfit model and format it
 nullResult = function(df, estimate, modelName, link = "value", error = "unknown error", centralValue = 0) {
   df %>% formatResult(fit = centralValue, se.fit=NA_real_, t=function(x) x, estimate, modelName, link) %>%
-    mutate(
+    dplyr::mutate(
       !!(paste0(estimate,".error")) := error
     )
 }
@@ -166,7 +148,7 @@ nullResult = function(df, estimate, modelName, link = "value", error = "unknown 
 #' @export
 renameResult = function(df, prefix, estimates = c("Growth","Est","Proportion","Rt","doublingTime")) {
   for (estimate in estimates) {
-    df = df %>% rename_with(.cols = starts_with("Growth"), .fn = ~ paste0(prefix,".",.x))
+    df = df %>% dplyr::rename_with(.cols = tidyselect::starts_with("Growth"), .fn = ~ paste0(prefix,".",.x))
   }
 }
 
@@ -174,7 +156,7 @@ renameResult = function(df, prefix, estimates = c("Growth","Est","Proportion","R
 
 # Generate the formula for a locfit model based on things I understand
 locfitFormula = function(valueVar, nrowDf, window, polynomialDegree, nearestNeighbours = TRUE, ...) {
-  valueVar=ensym(valueVar)
+  valueVar=rlang::ensym(valueVar)
   tmp_alpha = min(window/nrowDf,1)
   tmp_alpha_2 = min((window*2+1)/nrowDf,1)
   lpParams = list(
@@ -183,7 +165,7 @@ locfitFormula = function(valueVar, nrowDf, window, polynomialDegree, nearestNeig
     deg = polynomialDegree
   )
   lpParamsText = paste(names(lpParams),lpParams,sep="=",collapse=", ")
-  lpFormula = as.formula(paste0(as_label(valueVar), " ~ locfit::lp(time, ",lpParamsText,")"))
+  lpFormula = stats::as.formula(paste0(rlang::as_label(valueVar), " ~ locfit::lp(time, ",lpParamsText,")"))
   return(lpFormula)
 }
 
@@ -198,33 +180,33 @@ locfitFormula = function(valueVar, nrowDf, window, polynomialDegree, nearestNeig
 #' @return a timeseries with binomial proportion estimates (columns starting with "Proportion")
 #' @export
 locfitProportionEstimate = function(simpleTimeseries, degree = 2, window = 14, estimateMean = FALSE,... ) { #, weightBySampleSize = FALSE, weightByWeekday = FALSE, ...) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   simpleTimeseries %>% checkValid(c("date","value"))
   simpleTimeseries = simpleTimeseries %>%
-    arrange(date) %>%
-    ensureExists("total", orElse = function(ts,...) ts %>% mutate(total=1)) %>%
+    dplyr::arrange(date) %>%
+    ensureExists("total", orElse = function(ts,...) ts %>% dplyr::mutate(total=1)) %>%
     #ensureExists("weekday.wt", orElse = function(ts,...) ts %>% weekendEffect(valueVar=total)) %>%
     #ensureExists("sample.wt", orElse = function(ts,...) ts %>% sampleSizeEffect(window=window, sampleSizeVar=total)) %>%
-    ensureExists("time", orElse = function(ts,...) ts %>% mutate(time = as.integer(date-max(date)))) %>%
-    mutate(.prop = ifelse(total==0,NA,value/total))
+    ensureExists("time", orElse = function(ts,...) ts %>% dplyr::mutate(time = as.integer(date-max(date)))) %>%
+    dplyr::mutate(.prop = ifelse(total==0,NA,value/total))
 
   if(any(simpleTimeseries$.prop > 1,na.rm = TRUE)) stop("Proportions model has values greater than 1. Did you specify total column correctly?")
 
-  if(sum(na.omit(simpleTimeseries$.prop) != 0) < degree) {
+  if(sum(stats::na.omit(simpleTimeseries$.prop) != 0) < degree) {
     return(simpleTimeseries %>% nullResult(estimate = "Proportion", modelName = glue::glue("binomial:{degree}:{window}"), link = "logit", error = "not enough non zero values", centralValue = 0))
   }
 
-  if(sum(na.omit(simpleTimeseries$.prop) != 1) < degree) {
+  if(sum(stats::na.omit(simpleTimeseries$.prop) != 1) < degree) {
     return(simpleTimeseries %>% nullResult(estimate = "Proportion", modelName = glue::glue("binomial:{degree}:{window}"), link = "logit", error = "not enough non unitary values", centralValue = 1))
   }
 
-  # simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = 1)
-  # if(weightBySampleSize) simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = fit.wt*sample.wt)
-  # if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = fit.wt*weekday.wt)
+  # simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = 1)
+  # if(weightBySampleSize) simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = fit.wt*sample.wt)
+  # if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = fit.wt*weekday.wt)
   #
   # if(weightBySampleSize) {
-  #   simpleTimeseries = simpleTimeseries %>% select(-.prop) %>% group_by_all() %>% summarise(
+  #   simpleTimeseries = simpleTimeseries %>% dplyr::select(-.prop) %>% dplyr::group_by_all() %>% dplyr::summarise(
   #     .prop = c(rep(1,value),rep(1,total-value))
   #   )
   # }
@@ -240,7 +222,7 @@ locfitProportionEstimate = function(simpleTimeseries, degree = 2, window = 14, e
     )}, error=function(e) browser()
   )
 
-  # weightLbl = case_when(
+  # weightLbl = dplyr::case_when(
   #   weightBySampleSize & weightByWeekday ~ "both",
   #   weightBySampleSize ~ "sample",
   #   weightByWeekday ~ "weekday",
@@ -251,12 +233,12 @@ locfitProportionEstimate = function(simpleTimeseries, degree = 2, window = 14, e
 
   simpleTimeseries = simpleTimeseries %>%
     locfitExtractResult(model, estimate = "Proportion", modelName = glue::glue("binomial:{degree}:{window}:{weightLbl}"), link = "logit") %>%
-    select(-.prop)
+    dplyr::select(-.prop)
 
   if (estimateMean) {
     simpleTimeseries = simpleTimeseries %>%
-      mutate(
-        Proportion.value = map2_dbl(Proportion.logit, Proportion.SE.logit, .f = ~ ifelse(is.na(.y),.x,logitnorm::momentsLogitnorm(.x,.y)[["mean"]])) #();NA_real_))
+      dplyr::mutate(
+        Proportion.value = dplyr::map2_dbl(Proportion.logit, Proportion.SE.logit, .f = ~ ifelse(is.na(.y),.x,logitnorm::momentsLogitnorm(.x,.y)[["mean"]])) #();NA_real_))
       )
   }
 
@@ -273,33 +255,33 @@ locfitProportionEstimate = function(simpleTimeseries, degree = 2, window = 14, e
 #' @return a timeseries with growth rate estimates (columns starting with "Growth")
 #' @export
 locfitProportionalGrowthEstimate = function(simpleTimeseries, degree = 2, window = 14, ...) { #}, weightBySampleSize = FALSE, weightByWeekday = FALSE, ...) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   simpleTimeseries %>% checkValid(c("date","value"))
   simpleTimeseries = simpleTimeseries %>%
-    arrange(date) %>%
+    dplyr::arrange(date) %>%
     ensureExists("total", orElse = function(ts,...) {
       message("No total column in proportional timeseries - assuming value is a fraction, and total is 1.")
-      ts %>% mutate(total=1)
+      ts %>% dplyr::mutate(total=1)
     }) %>%
     # ensureExists("weekday.wt", orElse = function(ts,...) ts %>% weekendEffect(valueVar=total)) %>%
     # ensureExists("sample.wt", orElse = function(ts,...) ts %>% sampleSizeEffect(window=window, sampleSizeVar=total)) %>%
-    ensureExists("time", orElse = function(ts,...) ts %>% mutate(time = as.integer(date-max(date)))) %>%
-    mutate(.prop = ifelse(total==0,NA,value/total))
+    ensureExists("time", orElse = function(ts,...) ts %>% dplyr::mutate(time = as.integer(date-max(date)))) %>%
+    dplyr::mutate(.prop = ifelse(total==0,NA,value/total))
 
   if(any(simpleTimeseries$.prop > 1,na.rm = TRUE)) stop("Proportions model contains fractions greater than 1. Did you specify total column correctly?")
 
-  if(sum(na.omit(simpleTimeseries$.prop) != 0) < degree) {
+  if(sum(stats::na.omit(simpleTimeseries$.prop) != 0) < degree) {
     return(simpleTimeseries %>% nullResult(estimate = "Growth", modelName = glue::glue("binomial:{degree}:{window}"), link = "value",error = "not enough non zero values", centralValue = 0))
   }
 
-  if(sum(na.omit(simpleTimeseries$.prop) != 1) < degree) {
+  if(sum(stats::na.omit(simpleTimeseries$.prop) != 1) < degree) {
     return(simpleTimeseries %>% nullResult(estimate = "Proportion", modelName = glue::glue("binomial:{degree}:{window}"), link = "value", error = "not enough non unitary values", centralValue = 0))
   }
 
-  # simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = 1)
-  # if(weightBySampleSize) simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = fit.wt*sample.wt)
-  # if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = fit.wt*weekday.wt)
+  # simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = 1)
+  # if(weightBySampleSize) simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = fit.wt*sample.wt)
+  # if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = fit.wt*weekday.wt)
 
   model = locfit::locfit(
     locfitFormula(.prop, nrowDf = nrow(simpleTimeseries), window, degree, ...),
@@ -311,7 +293,7 @@ locfitProportionalGrowthEstimate = function(simpleTimeseries, degree = 2, window
     ev=simpleTimeseries$time
   )
 
-  # weightLbl = case_when(
+  # weightLbl = dplyr::case_when(
   #   weightBySampleSize & weightByWeekday ~ "both",
   #   weightBySampleSize ~ "sample",
   #   weightByWeekday ~ "weekday",
@@ -323,7 +305,7 @@ locfitProportionalGrowthEstimate = function(simpleTimeseries, degree = 2, window
   # no link function in growth rate as the derivative
   simpleTimeseries %>%
     locfitExtractResult(model = model, estimate = "Growth", modelName = glue::glue("binomial:{degree}:{window}:{weightLbl}"), link = "value") %>%
-    select(-.prop)
+    dplyr::select(-.prop)
 }
 
 #' Generate a smoothed estimate of the absolute growth rate of cases using a poisson model.
@@ -336,21 +318,21 @@ locfitProportionalGrowthEstimate = function(simpleTimeseries, degree = 2, window
 #' @return a timeseries with poisson rate estimates (columns starting with "Est")
 #' @export
 locfitPoissonRateEstimate = function(simpleTimeseries, degree = 2, window = 14, weightByWeekday = FALSE, ...) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   simpleTimeseries %>% checkValid(c("date","value"))
   simpleTimeseries = simpleTimeseries %>%
-    arrange(date) %>%
+    dplyr::arrange(date) %>%
     ensureExists("weekday.wt", orElse = function(ts,...) ts %>% weekendEffect(valueVar=value)) %>%
-    ensureExists("time", orElse = function(ts,...) ts %>% mutate(time = as.integer(date-max(date)))) %>%
-    mutate(.prop = value)
+    ensureExists("time", orElse = function(ts,...) ts %>% dplyr::mutate(time = as.integer(date-max(date)))) %>%
+    dplyr::mutate(.prop = value)
 
-  if(sum(na.omit(simpleTimeseries$.prop) != 0) < degree) {
+  if(sum(stats::na.omit(simpleTimeseries$.prop) != 0) < degree) {
     return(simpleTimeseries %>% nullResult(estimate = "Est", modelName = glue::glue("poisson:{degree}:{window}"), link = "log",error = "not enough non zero values", centralValue = 0))
   }
 
-  simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = 1)
-  if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = fit.wt*weekday.wt)
+  simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = 1)
+  if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = fit.wt*weekday.wt)
 
   model = locfit::locfit(
     locfitFormula(.prop, nrowDf = nrow(simpleTimeseries), window, degree, ...),
@@ -361,7 +343,7 @@ locfitPoissonRateEstimate = function(simpleTimeseries, degree = 2, window = 14, 
     ev=simpleTimeseries$time
   )
 
-  weightLbl = case_when(
+  weightLbl = dplyr::case_when(
     weightByWeekday ~ "weekday",
     TRUE ~ "none"
   )
@@ -369,7 +351,7 @@ locfitPoissonRateEstimate = function(simpleTimeseries, degree = 2, window = 14, 
   # no link function in growth rate as the derivative
   simpleTimeseries %>%
     locfitExtractResult(model, estimate = "Est", modelName = glue::glue("poisson:{degree}:{window}:{weightLbl}"), link="log") %>%
-    select(-.prop)
+    dplyr::select(-.prop)
 }
 
 #' Generate a smoothed estimate of the absolute growth rate of cases using a poisson model.
@@ -382,21 +364,21 @@ locfitPoissonRateEstimate = function(simpleTimeseries, degree = 2, window = 14, 
 #' @return a timeseries with growth rate estimates (columns starting with "Growth")
 #' @export
 locfitGrowthEstimate = function(simpleTimeseries, degree = 2, window = 14, weightByWeekday = FALSE, ...) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   simpleTimeseries %>% checkValid(c("date","value"))
   simpleTimeseries = simpleTimeseries %>%
-    arrange(date) %>%
+    dplyr::arrange(date) %>%
     ensureExists("weekday.wt", orElse = function(ts,...) weekendEffect(ts,valueVar=value)) %>%
-    ensureExists("time", orElse = function(ts,...) mutate(ts, time = as.integer(date-max(date)))) %>%
-    mutate(.prop = value)
+    ensureExists("time", orElse = function(ts,...) dplyr::mutate(ts, time = as.integer(date-max(date)))) %>%
+    dplyr::mutate(.prop = value)
 
-  if(sum(na.omit(simpleTimeseries$.prop) != 0) < degree) {
+  if(sum(stats::na.omit(simpleTimeseries$.prop) != 0) < degree) {
     return(simpleTimeseries %>% nullResult(estimate = "Growth", modelName = glue::glue("poisson:{degree}:{window}"), link = "value",error = "not enough non zero values", centralValue = 0))
   }
 
-  simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = 1)
-  if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% mutate(fit.wt = fit.wt*weekday.wt)
+  simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = 1)
+  if(weightByWeekday) simpleTimeseries = simpleTimeseries %>% dplyr::mutate(fit.wt = fit.wt*weekday.wt)
 
   model = locfit::locfit(
     locfitFormula(.prop, nrowDf = nrow(simpleTimeseries), window, degree, ...),
@@ -408,7 +390,7 @@ locfitGrowthEstimate = function(simpleTimeseries, degree = 2, window = 14, weigh
     ev=simpleTimeseries$time
   )
 
-  weightLbl = case_when(
+  weightLbl = dplyr::case_when(
     weightByWeekday ~ "weekday",
     TRUE ~ "none"
   )
@@ -417,7 +399,7 @@ locfitGrowthEstimate = function(simpleTimeseries, degree = 2, window = 14, weigh
   simpleTimeseries %>%
     locfitExtractResult(model = model, estimate = "Growth", modelName = glue::glue("poisson:{degree}:{window}:{weightLbl}"), link = "value") %>%
     #TODO: more statistics here?
-    select(-.prop)
+    dplyr::select(-.prop)
 }
 
 
@@ -429,7 +411,7 @@ locfitGrowthEstimate = function(simpleTimeseries, degree = 2, window = 14, weigh
 #' @export
 doublingTimeFromGrowthRate = function(simpleTimeseries) {
   reorder = function(x) (1-(stringr::str_extract(x,"[0-9]\\.[0-9]+") %>% as.numeric())) %>% sprintf(fmt="doublingTime.Quantile.%1.3g")
-  simpleTimeseries %>% mutate(across(.cols = starts_with("Growth.Quantile"), .fns = ~ log(2)/.x, .names = "{reorder(.col)}"))
+  simpleTimeseries %>% dplyr::mutate(across(.cols = tidyselect::starts_with("Growth.Quantile"), .fns = ~ log(2)/.x, .names = "{stats::reorder(.col)}"))
 }
 
 
@@ -445,7 +427,7 @@ doublingTimeFromGrowthRate = function(simpleTimeseries) {
 #' @return a timeseries with "Rt" estimates
 #' @export
 rtFromGrowthRate = function(simpleTimeseries, infectivityProfile, yMatrix = infectivityProfile$yMatrix, aVector = infectivityProfile$aVector, bootstraps = 20*dim(yMatrix)[2], quantiles = c(0.025,0.05,0.25,0.5,0.75,0.95,0.975)) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   simpleTimeseries %>% checkValid(c("date","value","Growth.value","Growth.SE.value"))
 
@@ -462,28 +444,28 @@ rtFromGrowthRate = function(simpleTimeseries, infectivityProfile, yMatrix = infe
   # get the infectivity profiles as a list of vectors, each bootstrap profile will be a vector.
   ys = asplit(y_cols, MARGIN=2)
 
-  d3 = simpleTimeseries %>% mutate(R = map2(Growth.value, Growth.SE.value, function(mean_r,sd_r) {
+  d3 = simpleTimeseries %>% dplyr::mutate(R = dplyr::map2(Growth.value, Growth.SE.value, function(mean_r,sd_r) {
 
-    #r_samples = rnorm(bootsPerInf*length(ys),mean_r,sd_r)
+    #r_samples = stats::rnorm(bootsPerInf*length(ys),mean_r,sd_r)
     qnts = seq(0,1,length.out = bootsPerInf)[2:(bootsPerInf-1)]
-    r_samples = qnorm(p=qnts,mean_r,sd_r)
+    r_samples = stats::qnorm(p=qnts,mean_r,sd_r)
     rs = asplit(matrix(r_samples,nrow=length(ys)), MARGIN=1)
     # browser()
-    out = map2(rs,ys,function(r10,y) {
+    out = dplyr::map2(rs,ys,function(r10,y) {
       # browser()
       R10 = sapply(r10, function(r) {
         # browser()
-        R = r/sum(y*(exp(-r*lag(a,default=0))-exp(-r*a))/(a - lag(a,default=0)))
+        R = r/sum(y*(exp(-r*dplyr::lag(a,default=0))-exp(-r*a))/(a - dplyr::lag(a,default=0)))
       })
     })
     R_out = as.vector(sapply(out,c))
-    R_q = quantile(R_out, quantiles)
+    R_q = stats::quantile(R_out, quantiles)
     names(R_q) = paste0("Rt.Quantile.",quantiles)
-    R_summ = enframe(R_q) %>% pivot_wider() %>% mutate(Rt.value = mean(R_out), Rt.SE.value = sd(R_out))
+    R_summ = tibble::enframe(R_q) %>% tidyr::pivot_wider() %>% dplyr::mutate(Rt.value = mean(R_out), Rt.SE.value = stats::sd(R_out))
     return(R_summ)
   }))
 
-  return(d3 %>% unnest(R) %>% mutate(Rt.model = "wallinga:growth-rate"))
+  return(d3 %>% tidyr::unnest(R) %>% dplyr::mutate(Rt.model = "wallinga:growth-rate"))
 }
 
 ## Manchester growth rate ----
@@ -500,13 +482,13 @@ rtFromGrowthRate = function(simpleTimeseries, infectivityProfile, yMatrix = infe
 # Philosophical Transactions of the Royal Society B (2021)
 #
 # gamGrowthEstimate = function(simpleTimeseries, meth="GCV.Cp", FE='WD'){
-#   if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+#   if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 #
 #   simpleTimeseries %>% checkValid(c("date","value"))
 #   simpleTimeseries = simpleTimeseries %>%
-#     arrange(date) %>%
-#     ensureExists("time", orElse = function(ts,...) ts %>% mutate(time = as.integer(date-max(date)))) %>%
-#     mutate(.incidence = value)
+#     dplyr::arrange(date) %>%
+#     ensureExists("time", orElse = function(ts,...) ts %>% dplyr::mutate(time = as.integer(date-max(date)))) %>%
+#     dplyr::mutate(.incidence = value)
 #
 #   #res <- data.frame(sdt=rep(0,npts),sdtup=rep(0,npts),sdtlow=rep(0,npts),doub=rep(0,npts),doubup=rep(0,npts),doublow=rep(0,npts))
 #   #Tv <- timev
@@ -524,15 +506,15 @@ rtFromGrowthRate = function(simpleTimeseries, infectivityProfile, yMatrix = infe
 #     }
 #   }
 #
-#   X0 <- predict(MGAM, simpleTimeseries %>% mutate(time=time-eps), type="lpmatrix")
+#   X0 <- stats::predict(MGAM, simpleTimeseries %>% dplyr::mutate(time=time-eps), type="lpmatrix")
 #   eps <- 1e-7 ## finite difference interval
-#   X1 <- predict(MGAM, simpleTimeseries %>% mutate(time=time+eps),type="lpmatrix")
+#   X1 <- stats::predict(MGAM, simpleTimeseries %>% dplyr::mutate(time=time+eps),type="lpmatrix")
 #   Xp <- (X1-X0)/(2*eps) ## maps coefficients to (fd approx.) derivatives
 #   # something to do with extracting the coefficients
 #   off <- ifelse(FE=='None',1,ifelse(FE=='WE',2,7))
 #   Xi <- Xp*0
-#   Xi[,1:9+off] <- Xp[,1:9+off] ## weekend Xi%*%coef(MGAM) = smooth deriv i
-#   df <- Xi%*%coef(MGAM)              ## ith smooth derivative
+#   Xi[,1:9+off] <- Xp[,1:9+off] ## weekend Xi%*%stats::coef(MGAM) = smooth deriv i
+#   df <- Xi%*%stats::coef(MGAM)              ## ith smooth derivative
 #   df.sd <- rowSums(Xi%*%MGAM$Vp*Xi)^.5 ## cheap diag(Xi%*%b$Vp%*%t(Xi))^.5
 #   ## derivative calculation, pers comm S. N. Wood, found in mgcv:  Mixed  GAM  Computation  Vehicle  with  automatic  smoothness  estimation.  R  packageversion 1.8-31 (2019) https://CRAN.R-project.org/package=mgcv.
 #
@@ -555,22 +537,22 @@ rtFromGrowthRate = function(simpleTimeseries, infectivityProfile, yMatrix = infe
 #' @return a dataframe of evaluation dates, growth rates, proportions and model fit
 #' @export
 pointProportionEstimate = function(simpleTimeseries, dates = max(simpleTimeseries$date)-3, window = 14, weekly = "weekday", includeModel = TRUE,...) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
-  if (find.package("logitnorm", quiet = TRUE) %>% length %>% equals(0)) {
+  if (find.package("logitnorm", quiet = TRUE) %>% length %>% magrittr::equals(0)) {
     message("Installing logitnorm needed for analyses")
-    install.packages("logitnorm", repos = "https://cloud.r-project.org")
+    utils::install.packages("logitnorm", repos = "https://cloud.r-project.org")
   }
 
   predictDates = as.Date(dates)
 
   simpleTimeseries %>% checkValid(c("date","value"))
   simpleTimeseries = simpleTimeseries %>%
-    arrange(date) %>%
-    ensureExists("total", orElse = function(ts,...) ts %>% mutate(total=1)) %>%
-    ensureExists("time", orElse = function(ts,...) ts %>% mutate(time = as.integer(date-max(date)))) %>%
+    dplyr::arrange(date) %>%
+    ensureExists("total", orElse = function(ts,...) ts %>% dplyr::mutate(total=1)) %>%
+    ensureExists("time", orElse = function(ts,...) ts %>% dplyr::mutate(time = as.integer(date-max(date)))) %>%
     ensureExists(c("weekday","is.weekend"), orElse = function(ts,...) ts %>% weekdayFromDates()) %>%
-    mutate(.prop = ifelse(total==0,NA,value/total))
+    dplyr::mutate(.prop = ifelse(total==0,NA,value/total))
 
   if(any(simpleTimeseries$.prop > 1,na.rm = TRUE)) stop("Proportions model has values greater than 1. Did you specify total column correctly?")
 
@@ -582,36 +564,36 @@ pointProportionEstimate = function(simpleTimeseries, dates = max(simpleTimeserie
     modelFormula = .prop ~ time
   }
 
-  bind_rows(lapply(predictDates, function(predictDate) {
+  dplyr::bind_rows(lapply(predictDates, function(predictDate) {
 
     dateMin = as.Date(predictDate)-floor(window/2)
     dateMax = as.Date(predictDate)+floor(window/2)
 
     suppressWarnings({
-      model = glm(
+      model = stats::glm(
         modelFormula,
-        data=simpleTimeseries %>% filter(date >= dateMin & date <= dateMax) %>% mutate(sample.wt = total/mean(total,na.rm=TRUE)),
+        data=simpleTimeseries %>% dplyr::filter(date >= dateMin & date <= dateMax) %>% dplyr::mutate(sample.wt = total/mean(total,na.rm=TRUE)),
         family="binomial",
         weights=sample.wt
       )
     })
 
-    predictAt = tibble(
+    predictAt = tibble::tibble(
       date = predictDate,
       time = as.integer(date-max(simpleTimeseries$date)),
     ) %>% weekdayFromDates()
 
-    predicted = predict(model,newdata = predictAt,se.fit = TRUE, type="link")
-    linkFn = family(model)$linkinv
+    predicted = stats::predict(model,newdata = predictAt,se.fit = TRUE, type="link")
+    linkFn = stats::family(model)$linkinv
 
     predictAt = formatResult(predictAt, unname(predicted$fit), unname(predicted$se.fit), linkFn, "Proportion", "glm", "logit")
-    predictAt = predictAt %>% mutate(
-      Proportion.value = map2_dbl(Proportion.logit, Proportion.SE.logit, .f = ~ logitnorm::momentsLogitnorm(.x, .y)[["mean"]])
+    predictAt = predictAt %>% dplyr::mutate(
+      Proportion.value = dplyr::map2_dbl(Proportion.logit, Proportion.SE.logit, .f = ~ logitnorm::momentsLogitnorm(.x, .y)[["mean"]])
     )
     gr = summary(model)$coefficients["time",]
     predictAt = formatResult(predictAt, gr[[1]], gr[[2]], function(x) x, "Growth", "glm", "value")
 
-    if(includeModel) predictAt %>% mutate(fit = list(model))
+    if(includeModel) predictAt %>% dplyr::mutate(fit = list(model))
 
   }))
 
@@ -629,16 +611,16 @@ pointProportionEstimate = function(simpleTimeseries, dates = max(simpleTimeserie
 #' @return a dataframe of evaluation dates, growth rates, poisson rates and model fit
 #' @export
 pointPoissonEstimate = function(simpleTimeseries, dates, window, weekly = "weekday", includeModel = TRUE,...) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   predictDates = as.Date(dates)
 
   simpleTimeseries %>% checkValid(c("date","value"))
   simpleTimeseries = simpleTimeseries %>%
-    arrange(date) %>%
-    ensureExists("time", orElse = function(ts,...) ts %>% mutate(time = as.integer(date-max(date)))) %>%
+    dplyr::arrange(date) %>%
+    ensureExists("time", orElse = function(ts,...) ts %>% dplyr::mutate(time = as.integer(date-max(date)))) %>%
     ensureExists(c("weekday","is.weekend"), orElse = function(ts,...) ts %>% weekdayFromDates()) %>%
-    mutate(.prop = value)
+    dplyr::mutate(.prop = value)
 
   if (weekly=="weekday") {
     modelFormula = .prop ~ time + weekday
@@ -648,30 +630,30 @@ pointPoissonEstimate = function(simpleTimeseries, dates, window, weekly = "weekd
     modelFormula = .prop ~ time
   }
 
-  bind_rows(lapply(predictDates, function(predictDate) {
+  dplyr::bind_rows(lapply(predictDates, function(predictDate) {
 
     dateMin = as.Date(predictDate)-floor(window/2)
     dateMax = as.Date(predictDate)+floor(window/2)
 
-    model = glm(
+    model = stats::glm(
       modelFormula,
-      data=simpleTimeseries %>% filter(date >= dateMin & date <= dateMax),
+      data=simpleTimeseries %>% dplyr::filter(date >= dateMin & date <= dateMax),
       family="poisson"
     )
 
-    predictAt = tibble(
+    predictAt = tibble::tibble(
       date = predictDate,
       time = as.integer(date-max(simpleTimeseries$date)),
     ) %>% weekdayFromDates()
 
-    predicted = predict(model,newdata = predictAt,se.fit = TRUE, type="link")
-    linkFn = family(model)$linkinv
+    predicted = stats::predict(model,newdata = predictAt,se.fit = TRUE, type="link")
+    linkFn = stats::family(model)$linkinv
 
     predictAt = formatResult(predictAt, unname(predicted$fit), unname(predicted$se.fit), linkFn, "Est", "glm", "log")
     gr = summary(model)$coefficients["time",]
     predictAt = formatResult(predictAt, gr[[1]], gr[[2]], function(x) x, "Growth", "glm", "value")
 
-    if(includeModel) predictAt %>% mutate(fit = list(model))
+    if(includeModel) predictAt %>% dplyr::mutate(fit = list(model))
   }))
 
 }
@@ -680,12 +662,12 @@ pointPoissonEstimate = function(simpleTimeseries, dates, window, weekly = "weekd
 ## EpiEstim wrapper ----
 #' Minimal epiestim wrapper to execute a time series R_t using a discrete infectivity profile matrix, and format the result to be consistent with the rest of this..
 epiestimRtEstimate = function(simpleTimeseries, yMatrix, bootstraps = 10*dim(yMatrix)[2], window = 14) {
-  if (simpleTimeseries %>% is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
+  if (simpleTimeseries %>% dplyr::is.grouped_df()) stop("this does not work on grouped data. use a group_modify.")
 
   siConfig = EpiEstim::make_config(method = "si_from_sample")
   tmp = simpleTimeseries %>% dplyr::select(dates=date,I=value)
 
-  simpleTimeseries = simpleTimeseries %>% dplyr::mutate(seq_id=row_number())
+  simpleTimeseries = simpleTimeseries %>% dplyr::mutate(seq_id=dplyr::row_number())
   bootsPerInf = max(c(bootstraps %/% dim(yMatrix)[2],1))
 
   siConfig$t_start = c(2:(nrow(tmp)-window))
@@ -700,27 +682,27 @@ epiestimRtEstimate = function(simpleTimeseries, yMatrix, bootstraps = 10*dim(yMa
         warn <<- w$message
         invokeRestart("muffleWarning")
       })
-  tmp5 = tmp4$R %>% mutate(seq_id=t_end, errors=NA, `Rt.window`=window) #warn)
-  tmp5 = tmp5 %>% rename_with(.cols = contains("(R)"),.fn=function(x) paste0("Rt.",stringr::str_remove(x,fixed("(R)")))) %>%
-    rename(`Rt.Quantile.0.5` = Rt.Median)
+  tmp5 = tmp4$R %>% dplyr::mutate(seq_id=t_end, errors=NA, `Rt.window`=window) #warn)
+  tmp5 = tmp5 %>% dplyr::rename_with(.cols = tidyselect::contains("(R)"),.fn=function(x) paste0("Rt.",stringr::str_remove(x,fixed("(R)")))) %>%
+    dplyr::rename(`Rt.Quantile.0.5` = Rt.Median)
   tmp6 = simpleTimeseries %>% dplyr::left_join(tmp5, by="seq_id")
-  return(tmp6 %>% select(-seq_id))
+  return(tmp6 %>% dplyr::select(-seq_id))
 
 }
 
-# plotProportionEstimate = function(simpleTimeseries, mapping = aes(), ...) {
+# plotProportionEstimate = function(simpleTimeseries, mapping = ggplot2::aes(), ...) {
 #
 #   simpleTimeseries = simpleTimeseries %>% ensureExists("Proportion.Quantile.0.5", orElse = estimateProportions(simpleTimeseries,...))
 #   # We are going to pretend there is just one
 #   simpleTimeseries
-#   tmp2 = tmp %>% filter(date <= max(date)-1) %>% mutate(
+#   tmp2 = tmp %>% dplyr::filter(date <= max(date)-1) %>% dplyr::mutate(
 #     binom::binom.confint(Negative,n,method="wilson")
 #   )
 #
-#   ggplot(estimate,aes(x=date,y=fit,ymin=lo,ymax=hi))+geom_ribbon(alpha=0.3)+geom_line(colour="blue")+
-#     geom_point(data=tmp2,mapping=aes(x=date,y=mean),inherit.aes = FALSE)+
-#     geom_errorbar(data=tmp2,mapping=aes(x=date,ymin=lower,ymax=upper),inherit.aes = FALSE)+
-#     scale_y_continuous(trans = "logit")
+#   ggplot2::ggplot(estimate,ggplot2::aes(x=date,y=fit,ymin=lo,ymax=hi))+ggplot2::geom_ribbon(alpha=0.3)+ggplot2::geom_line(colour="blue")+
+#     ggplot2::geom_point(data=tmp2,mapping=ggplot2::aes(x=date,y=mean),inherit.aes = FALSE)+
+#     ggplot2::geom_errorbar(data=tmp2,mapping=ggplot2::aes(x=date,ymin=lower,ymax=upper),inherit.aes = FALSE)+
+#     ggplot2::scale_y_continuous(trans = "logit")
 # }
 
 
@@ -730,17 +712,17 @@ epiestimRtEstimate = function(simpleTimeseries, yMatrix, bootstraps = 10*dim(yMa
 # a quasi-poisson model fitted to count data using local regression.
 # expects admissions to contain admission_week columns only defining the date of admission
 estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
-  admissionCounts = admissions %>% group_by(admission_week) %>% count()
+  admissionCounts = admissions %>% dplyr::group_by(admission_week) %>% dplyr::count()
   fit = locfit::locfit(n~locfit::lp(admission_week,nn=nn,deg=deg),data = admissionCounts,family="qpoisson")
   weeks = seq(min(admissionCounts$admission_week),max(admissionCounts$admission_week),by = 1/7)
-  tmp = preplot(fit,newdata=weeks,se.fit = TRUE,band="local")
+  tmp = stats::preplot(fit,newdata=weeks,se.fit = TRUE,band="local")
   t = tmp$tr
-  tibble(
+  tibble::tibble(
     admission_week = weeks,
     admission_date = .weeks_to_date(weeks),
-    lower = .opt(t(qnorm(0.05,tmp$fit,tmp$se.fit))),
-    median = t(qnorm(0.5,tmp$fit,tmp$se.fit)),
-    upper = .opt(t(qnorm(0.95,tmp$fit,tmp$se.fit)))
+    lower = .opt(t(stats::qnorm(0.05,tmp$fit,tmp$se.fit))),
+    median = t(stats::qnorm(0.5,tmp$fit,tmp$se.fit)),
+    upper = .opt(t(stats::qnorm(0.95,tmp$fit,tmp$se.fit)))
   )
 }
 
@@ -750,7 +732,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
 .day_interval = function(dates) {
   dates = sort(unique(dates))
   if (length(dates) < 4) return(1)
-  interval = .gcd(na.omit(dates-lag(dates)))
+  interval = .gcd(stats::na.omit(dates-dplyr::lag(dates)))
   return(interval)
 }
 
@@ -801,7 +783,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
   return(date_seq)
 }
 
-# TODO: test this a bit.
+#TODO: test this a bit.
 # full seq dates should be start of periods. interval is length of period.
 # checks to see if a date or dates is within a range of dates where the dates define the start of a period
 # of size defined by interval parameter as an integer.
@@ -828,10 +810,10 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
 
 ## .specification_from_formula( formula = n ~ specimen_date + age + gender + region )
 ## .specification_from_formula( formula = n ~ non_date(something) + specimen_date + age + gender + region )
-## .specification_from_formula( formula = count() ~ date() + age + gender + region )
-## .specification_from_formula( formula = class(variant) + count(n) ~ date() + age + gender + region )
-## .specification_from_formula( formula = class(variant) + count(n) ~ date(specimen) + age + gender + region )
-## .specification_from_formula( formula = growth.rate() + Rt() + class(variant) + count(n) ~ date(specimen) + age + gender + region )
+## .specification_from_formula( formula = dplyr::count() ~ date() + age + gender + region )
+## .specification_from_formula( formula = class(variant) + dplyr::count(n) ~ date() + age + gender + region )
+## .specification_from_formula( formula = class(variant) + dplyr::count(n) ~ date(specimen) + age + gender + region )
+## .specification_from_formula( formula = growth.rate() + Rt() + class(variant) + dplyr::count(n) ~ date(specimen) + age + gender + region )
 ## parse$observations = named_list_lhs
 ## parse$predictors = named_list_rhs
 ## parse$groups = unnamed_list_rhs
@@ -844,7 +826,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
   if(length(tmp) == 2) tmp = tmp[[2]]
   else tmp = tmp[[3]]
   if (as_formula) {
-    return(as.formula(paste0("~",tmp)))
+    return(stats::as.formula(paste0("~",tmp)))
   } else {
     return(tmp)
   }
@@ -856,7 +838,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
   if(length(tmp) == 2) return(NULL)
   else tmp = tmp[[2]]
   if (as_formula) {
-    return(as.formula(paste0("~",tmp)))
+    return(stats::as.formula(paste0("~",tmp)))
   } else {
     return(tmp)
   }
@@ -864,13 +846,13 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
 
 # combine a rhs and a lhs into a single formula
 .join_sides = function(lhs,rhs) {
-  if (is_formula(rhs)) rhs = .rhs(rhs)
+  if (rlang::is_formula(rhs)) rhs = .rhs(rhs)
   if (is.null(lhs)) {
-    return(as.formula(paste0("~",rhs)))
+    return(stats::as.formula(paste0("~",rhs)))
   } else {
     # if lhs is a formula then it is a right sided formula
-    if (is_formula(lhs)) lhs = .rhs(lhs)
-    return(as.formula(sprintf("%s ~ %s", lhs,rhs)))
+    if (rlang::is_formula(lhs)) lhs = .rhs(lhs)
+    return(stats::as.formula(sprintf("%s ~ %s", lhs,rhs)))
   }
 }
 
@@ -883,7 +865,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
   # switch rhs to lhs
   x_rhs = .rhs(x,as_formula=TRUE)
   new_rhs = .rhs(new,as_formula=TRUE)
-  update_rhs = update(x_rhs,new_rhs)
+  update_rhs = stats::update(x_rhs,new_rhs)
 
   if(is.null(.lhs(x))) {
     # If the original lhs is empty
@@ -898,7 +880,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
       if(any(all.vars(new_lhs)==".")) {
         tmp = .lhs(new,as_formula=FALSE) # this gets the LHS as a character.
         tmp = stringr::str_remove(tmp[[1]],"(\\s\\+\\s)?\\.(\\s\\+\\s)?")
-        new_lhs = as.formula(paste0("~",tmp))
+        new_lhs = stats::as.formula(paste0("~",tmp))
       }
       update_lhs = new_lhs
     }
@@ -909,7 +891,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
     if (is.null(new_lhs)) {
       update_lhs = NULL
     } else {
-      update_lhs = update(x_lhs,new_lhs)
+      update_lhs = stats::update(x_lhs,new_lhs)
     }
   }
   browser()
@@ -947,74 +929,74 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
     purrr::map(stringr::str_split,fixed("+"),n=Inf) %>%
     purrr::flatten() %>%
     purrr::map(stringr::str_trim)
-  form_df = form_chr %>% enframe() %>% unnest(c(value)) %>% mutate(
+  form_df = form_chr %>% tibble::enframe() %>% tidyr::unnest(c(value)) %>% dplyr::mutate(
       mapping = value %>% stringr::str_extract("(.*)\\(.*\\)") %>% stringr::str_remove("\\(.*\\)"),
       mapped = value %>% stringr::str_remove("(.*)\\(") %>% stringr::str_remove("\\)") %>% stringr::str_remove_all("`"),
       value = ifelse(mapped == "", mapping, mapped)
     ) %>%
-    select(-mapped) %>%
-    rename(side = name) %>%
-    mutate(value = lapply(value,as.symbol))
+    dplyr::select(-mapped) %>%
+    dplyr::rename(side = name) %>%
+    dplyr::mutate(value = lapply(value,as.symbol))
 
-  form_df %>% filter(is.na(mapping)) %>% pull(value)
+  form_df %>% dplyr::filter(is.na(mapping)) %>% dplyr::pull(value)
 
   if (!any(form_df$mapping=="date",na.rm = TRUE)) {
-    form_df = form_df %>% group_by(side) %>% mutate(mapping = replace(mapping,is.na(mapping) & side == "rhs" & !is.na(lag(mapping,default = "")),"date")) %>% ungroup()
+    form_df = form_df %>% dplyr::group_by(side) %>% dplyr::mutate(mapping = replace(mapping,is.na(mapping) & side == "rhs" & !is.na(dplyr::lag(mapping,default = "")),"date")) %>% dplyr::ungroup()
     if (!any(form_df$mapping=="date",na.rm = TRUE)) stop("No date column identified. Either date must be first term on the rhs or specifically named date(...)")
   }
 
   # This will pick up a value only if there is at least one term on the lhs (and it is not already named)
   if (!any(form_df$mapping=="count",na.rm = TRUE)) {
-    form_df = form_df %>% group_by(side) %>% mutate(mapping = replace(mapping,is.na(mapping) & side == "lhs" & !is.na(lag(mapping,default = "")),"count")) %>% ungroup()
+    form_df = form_df %>% dplyr::group_by(side) %>% dplyr::mutate(mapping = replace(mapping,is.na(mapping) & side == "lhs" & !is.na(dplyr::lag(mapping,default = "")),"count")) %>% dplyr::ungroup()
   }
 
-  if (any(duplicated(na.omit(form_df$mapping)))) stop("duplicate mappings specified in formula: "+formula)
+  if (any(duplicated(stats::na.omit(form_df$mapping)))) stop("duplicate mappings specified in formula: "+formula)
   class(form_df) = c("specification",class(form_df))
   return(form_df)
 }
 
 # convert a specification back into a formula
 .formula_from_specification = function(specification) {
-  specification %>% mutate(
+  specification %>% dplyr::mutate(
     label = sapply(value,as_label),
-    term = case_when(
+    term = dplyr::case_when(
       is.na(mapping) ~ label,
       mapping == label ~ paste0(mapping,"()"),
       TRUE ~ paste0(sprintf("%s(%s)",mapping,label)))
-  ) %>% group_by(side) %>%
-    summarise(term = paste0(term,collapse=" + ")) %>%
-    summarise(formula = paste0(term,collapse=" ~ ")) %>%
-    pull(formula) %>% as.formula()
+  ) %>% dplyr::group_by(side) %>%
+    dplyr::summarise(term = paste0(term,collapse=" + ")) %>%
+    dplyr::summarise(formula = paste0(term,collapse=" ~ ")) %>%
+    dplyr::pull(formula) %>% stats::as.formula()
 }
 
 # construst a list of utility functions from a specification object.
 .mapper = function(x,...) {
   v = x
   return(list(
-    grps = v %>% filter(side=="rhs" & is.na(mapping)) %>% pull(value),
-    date = v %>% filter(side=="rhs" & mapping=="date") %>% pull(value) %>% `[[`(1),
-    incidentals = v %>% filter(side=="lhs" & is.na(mapping)) %>% pull(value),
+    grps = v %>% dplyr::filter(side=="rhs" & is.na(mapping)) %>% dplyr::pull(value),
+    date = v %>% dplyr::filter(side=="rhs" & mapping=="date") %>% dplyr::pull(value) %>% `[[`(1),
+    incidentals = v %>% dplyr::filter(side=="lhs" & is.na(mapping)) %>% dplyr::pull(value),
     get = function(type) {
-      tmp = v %>% filter(mapping==type) %>% pull(value)
+      tmp = v %>% dplyr::filter(mapping==type) %>% dplyr::pull(value)
       if (length(tmp) == 0) return(NULL)
       tmp[[1]]
     },
     predictor = function(type) {
-      tmp = v %>% filter(side=="rhs" & mapping==type) %>% pull(value)
+      tmp = v %>% dplyr::filter(side=="rhs" & mapping==type) %>% dplyr::pull(value)
       if (length(tmp) == 0) return(NULL)
       tmp[[1]]
     },
     observation = function(type="count") {
-      tmp = v %>% filter(side=="lhs" & mapping==type) %>% pull(value)
+      tmp = v %>% dplyr::filter(side=="lhs" & mapping==type) %>% dplyr::pull(value)
       # can subst NULL using !! and it behaves as expected in ggplot and tidyselect
       if (length(tmp) == 0) return(NULL)
       tmp[[1]]
     },
     has_observation = function(type="count") {
-      nrow(v %>% filter(side=="lhs" & mapping==type)) > 0
+      nrow(v %>% dplyr::filter(side=="lhs" & mapping==type)) > 0
     },
     has_predictor = function(type) {
-      nrow(v %>% filter(side=="rhs" & mapping==type)) > 0
+      nrow(v %>% dplyr::filter(side=="rhs" & mapping==type)) > 0
     }
   ))
 }
@@ -1023,7 +1005,7 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
 # .var_from_rhs = function(formula, match="date") {
 #   if (is.null(formula)) return(NULL)
 #   v = .specification_from_formula(formula)
-#   sym = v %>% filter(side=="rhs" & mapping == match) %>% pull(value)
+#   sym = v %>% dplyr::filter(side=="rhs" & mapping == match) %>% dplyr::pull(value)
 #   if (length(sym)==0) return(NULL)
 #   return(sym)
 # }
@@ -1031,14 +1013,14 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
 # .vars_from_rhs = function(formula) {
 #   if (is.null(formula)) return(NULL)
 #   v = .specification_from_formula(formula)
-#   sym = v %>% filter(side=="rhs" & !is.na(mapping)) %>% select(mapping,value) %>% deframe()
+#   sym = v %>% dplyr::filter(side=="rhs" & !is.na(mapping)) %>% dplyr::select(mapping,value) %>% tibble::deframe()
 #   return(sym)
 # }
 #
 # .grps_from_rhs = function(formula) {
 #   if (is.null(formula)) return(NULL)
 #   v = .specification_from_formula(formula)
-#   sym = v %>% filter(side=="rhs" & is.na(mapping)) %>% pull(value)
+#   sym = v %>% dplyr::filter(side=="rhs" & is.na(mapping)) %>% dplyr::pull(value)
 #   return(sym)
 # }
 #
@@ -1054,17 +1036,17 @@ estimateWeeklyRate = function(admissions, ... ,nn=0.2,deg=2) {
 
 
 # .rdeframe = function(form_df, ...) {
-#   vars = ensyms(...)
+#   vars = rlang::ensyms(...)
 #   if (length(vars) == 1) {
-#     return(form_df %>% pull(!!vars[[1]]) %>% unlist())
+#     return(form_df %>% dplyr::pull(!!vars[[1]]) %>% unlist())
 #   }
 #   form_df %>%
-#     rename(.name = !!vars[[1]]) %>%
-#     mutate(.name = ifelse(is.na(.name),"na",as.character(.name))) %>%
-#     group_by(.name) %>% group_modify(function(d,g,...) {
+#     dplyr::rename(.name = !!vars[[1]]) %>%
+#     dplyr::mutate(.name = ifelse(is.na(.name),"na",as.character(.name))) %>%
+#     dplyr::group_by(.name) %>% dplyr::group_modify(function(d,g,...) {
 #
-#       tibble(.value = list(.rdeframe(d,!!!vars[-1])))
-#   }) %>% deframe()
+#       tibble::tibble(.value = list(.rdeframe(d,!!!vars[-1])))
+#   }) %>% tibble::deframe()
 # }
 #
 # .map
@@ -1116,7 +1098,7 @@ as.epimetadata.specification = function(x, type, interval = 1, ...) {
 
 .make_epidata = function(x, meta, cls) {
   .check_conformant(x,meta)
-  x = x %>% ungroup() %>% mutate(.id=row_number())
+  x = x %>% dplyr::ungroup() %>% dplyr::mutate(.id=dplyr::row_number())
   x = x %>% set_meta(meta)
   class(x) = c(cls, class(x))
   return(x)
@@ -1135,9 +1117,9 @@ as.epimetadata.specification = function(x, type, interval = 1, ...) {
     return(as.epi_ts.data.frame(x, meta$formula, interval = meta$interval))
   }
 
-  grpwise_count_R2 = x %>% group_by(!!!grps,!!cls,!!date) %>% count() %>% pull(n) %>% magrittr::subtract(1) %>% magrittr::raise_to_power(2) %>% mean()
-  full = .date_seq_dates(x %>% pull(!!date),interval)
-  incomplete_ts = x %>% group_by(!!!grps,!!cls) %>% summarise(matched = sum(!!date %in% full)) %>% mutate(missing = length(full)-matched, total=length(full)) %>% ungroup() %>% summarise(prop = sum(missing)/sum(total)) %>% pull(prop)
+  grpwise_count_R2 = x %>% dplyr::group_by(!!!grps,!!cls,!!date) %>% dplyr::count() %>% dplyr::pull(n) %>% magrittr::subtract(1) %>% magrittr::raise_to_power(2) %>% mean()
+  full = .date_seq_dates(x %>% dplyr::pull(!!date),interval)
+  incomplete_ts = x %>% dplyr::group_by(!!!grps,!!cls) %>% dplyr::summarise(matched = sum(!!date %in% full)) %>% dplyr::mutate(missing = length(full)-matched, total=length(full)) %>% dplyr::ungroup() %>% dplyr::summarise(prop = sum(missing)/sum(total)) %>% dplyr::pull(prop)
   if (incomplete_ts < 0.05 & grpwise_count_R2 < 0.01) {
     browser()
     as.epi_ts.data.frame(x, meta$formula, interval = meta$interval)
@@ -1150,8 +1132,8 @@ as.epimetadata.specification = function(x, type, interval = 1, ...) {
   if (!is.data.frame(x)) stop("epi data must be a data frame")
   ok = TRUE
   for (col in meta$specification$value) {
-    if (!(as_label(col) %in% colnames(x))) {
-      message("No column found: ",as_label(col))
+    if (!(rlang::as_label(col) %in% colnames(x))) {
+      message("No column found: ",rlang::as_label(col))
       ok = FALSE
     }
   }
@@ -1193,7 +1175,7 @@ as.epi_ll.data.frame = function(x, formula) {
   m = meta$m
   # date = m$date
   cls = m$observation("class")
-  multinom = !is_null(cls)
+  multinom = !rlang::is_null(cls)
   # grps = m$grps
   out_class = "epi_ll"
   if (multinom) out_class = c("epi_multi",out_class)
@@ -1211,21 +1193,21 @@ as.epi_ll.epi_ts = function(x, jitter=FALSE) {
   grps = m$grps
   date = m$date
   count = m$observation("count")
-  multinom = !is_null(cls)
+  multinom = !rlang::is_null(cls)
   # grps = m$grps
   out_class = "epi_ll"
   if (multinom) out_class = c("epi_multi",out_class)
 
   if(is.null(count)) stop("count column must be present")
-  y = x %>% group_by(!!!grps,!!date,!!cls) %>% group_modify(function(d,g,..) {
-    join = unlist(map2(d %>% pull(.id), d %>% pull(!!count), ~ rep(.x,.y)))
-    return(d %>% select(-count) %>% inner_join(tibble(.id=join), by=".id") %>% select(-.id))
+  y = x %>% dplyr::group_by(!!!grps,!!date,!!cls) %>% dplyr::group_modify(function(d,g,..) {
+    join = unlist(dplyr::map2(d %>% dplyr::pull(.id), d %>% dplyr::pull(!!count), ~ rep(.x,.y)))
+    return(d %>% dplyr::select(-count) %>% dplyr::inner_join(tibble::tibble(.id=join), by=".id") %>% dplyr::select(-.id))
   })
-  y = y %>% ungroup() %>% mutate(.id=row_number())
+  y = y %>% dplyr::ungroup() %>% dplyr::mutate(.id=dplyr::row_number())
   if (jitter & interval > 1) {
-    y = y %>% mutate(!!date := !!date+floor(runif(nrow(y),max=interval)))
+    y = y %>% dplyr::mutate(!!date := !!date+floor(stats::runif(nrow(y),max=interval)))
   }
-  specification = meta$specification %>% filter(!(side == "lhs" & mapping %in% c("count")))
+  specification = meta$specification %>% dplyr::filter(!(side == "lhs" & mapping %in% c("count")))
   meta = as.epimetadata(specification, type="ll")
   return(.make_epidata(y,meta,out_class))
 }
@@ -1259,8 +1241,8 @@ as.epi_ts.default = function(x, ...) {
 
 as.epi_ts.Date = function(x, count, class = NULL, ...) {
 
-  x = tibble(date = x, count = count, class = class)
-  formula = count() ~ date()
+  x = tibble::tibble(date = x, count = count, class = class)
+  formula = dplyr::count() ~ date()
   if(!is.null(class)) formula = .update(formula, class() + . ~ .)
   as.epidata.data.frame(x, formula, ...)
 }
@@ -1272,22 +1254,22 @@ as.epi_ts.data.frame = function(x, formula, interval = NA, rectangular = FALSE, 
   date = meta$m$date
   # Determine the frequency of the time series
   # either asserted, or by reduction from the data
-  if (is.na(meta$interval)) meta$interval = .day_interval(x %>% pull(!!date))
+  if (is.na(meta$interval)) meta$interval = .day_interval(x %>% dplyr::pull(!!date))
   .convert_dataframe(x, meta, rectangular = FALSE, verbose = TRUE, dates = dates)
 }
 
-as.epi_ts.epi_ll = function(x, formula = count() + . ~ ., interval = 1, dates = NULL) {
+as.epi_ts.epi_ll = function(x, formula = dplyr::count() + . ~ ., interval = 1, dates = NULL) {
   meta = x %>% get_meta()
   new_meta = .update(meta, formula)
   m = new_meta$m
   new_count = m$observation("count")
 
   # what dates are we looking at?
-  orig_dates = x %>% pull(!!m$date)
+  orig_dates = x %>% dplyr::pull(!!m$date)
   if (is.null(dates)) dates = orig_dates
   dates = .date_seq_dates(dates,interval, truncate_partials = TRUE)
 
-  y = .convert_dataframe(x %>% mutate(!!new_count == 1), new_meta, rectangular = TRUE, verbose = FALSE, dates = dates)
+  y = .convert_dataframe(x %>% dplyr::mutate(!!new_count == 1), new_meta, rectangular = TRUE, verbose = FALSE, dates = dates)
   return(y %>% set_meta(new_meta))
 }
 
@@ -1301,11 +1283,11 @@ as.epi_ts.epi_ll = function(x, formula = count() + . ~ ., interval = 1, dates = 
   grps = m$grps
 
   out_class = c("epi_ts")
-  multinom = !is_null(cls)
+  multinom = !rlang::is_null(cls)
   if (multinom) out_class = c("epi_multi",out_class)
 
   dates_given = !is.null(dates)
-  orig_dates = x %>% pull(!!date)
+  orig_dates = x %>% dplyr::pull(!!date)
   if(!dates_given) dates = .date_seq_dates(orig_dates,interval)
 
   # make sure data dates are within the range of the desired interval dates
@@ -1313,23 +1295,23 @@ as.epi_ts.epi_ll = function(x, formula = count() + . ~ ., interval = 1, dates = 
   if (interval > 1) {
     # this is good for linelist type data where we want to make sure we have whole intervals
     # not so good for data already in time series which may "finish" on the first date of an interval.
-    x = x %>% filter(.within_sequence(!!date, dates, interval))
-    x = x %>% mutate(!!date := .floor_sequence(!!date, interval))
+    x = x %>% dplyr::filter(.within_sequence(!!date, dates, interval))
+    x = x %>% dplyr::mutate(!!date := .floor_sequence(!!date, interval))
   }
 
   # check count values are unique for each combination of date, grouping, and multinom class
-  tmp = x %>% group_by(!!!grps, !!cls, !!date) %>% count()
+  tmp = x %>% dplyr::group_by(!!!grps, !!cls, !!date) %>% dplyr::count()
 
   if (any(tmp$n > 1)) {
     browser()
-    # TODO have to reconsider this as count is a very optional column of time series but others must be
+    #TODO have to reconsider this as count is a very optional column of time series but others must be
     if (verbose) message("Input dataframe has more than one row per date (and class combination), which may be intentional. Combining (class) counts in multiple rows by summation, any other observations will be lost.")
     if (!is.null(value)) {
-      if(any(is.na(tmp %>% pull(!!value)))) warning("Count column contains some NA values. The combined count will be NA for these rows.")
-      x = x %>% group_by(!!!grps, !!cls, !!date) %>% summarise(!!value := sum(!!value))
+      if(any(is.na(tmp %>% dplyr::pull(!!value)))) warning("Count column contains some NA values. The combined count will be NA for these rows.")
+      x = x %>% dplyr::group_by(!!!grps, !!cls, !!date) %>% dplyr::summarise(!!value := sum(!!value))
     }
     # since group by summarise steps will remove all other observations we need to make sure that the metadata is updated with the lhs including only class and count.
-    specification = meta$specification %>% filter(!(side == "lhs" & mapping %in% c("class","count")))
+    specification = meta$specification %>% dplyr::filter(!(side == "lhs" & mapping %in% c("class","count")))
     meta = as.epimetadata(specification, type=meta$type, interval=meta$interval)
   }
 
@@ -1337,11 +1319,11 @@ as.epi_ts.epi_ll = function(x, formula = count() + . ~ ., interval = 1, dates = 
   # step 1 setup the complete combination of dates and classes (if present)
   if (multinom) {
     # ensure counts are complete for each of the outcome classes also as well as for each date.
-    clsses = tibble(x) %>% pull(!!cls) %>% unique() %>% sort()
-    join_cols = c(as_label(date),as_label(cls))
+    clsses = tibble::tibble(x) %>% dplyr::pull(!!cls) %>% unique() %>% sort()
+    join_cols = c(rlang::as_label(date),rlang::as_label(cls))
   } else {
     clsses = NULL
-    join_cols = as_label(date)
+    join_cols = rlang::as_label(date)
   }
   # step 2 generate a crossing dataframe of all combination of dates and optionally classes
   # this is the version for rectangular time series, where a single source of data contains
@@ -1350,53 +1332,53 @@ as.epi_ts.epi_ll = function(x, formula = count() + . ~ ., interval = 1, dates = 
   lhs = .dates_and_classes(date,dates,cls,clsses)
   # step 3 left join crossing dataframe with data and fill missing counts with zero.
   # ensuring that the result is valid
-  x = tibble(x) %>%
-    group_by(!!!grps) %>%
-    group_modify(function(d,g,...) {
+  x = tibble::tibble(x) %>%
+    dplyr::group_by(!!!grps) %>%
+    dplyr::group_modify(function(d,g,...) {
       # do a groupwise join. the lhs is either all dates or all dates and class levels
       # or if we are not using rectangular time series then calculate a group-wise lhs
       # including the range present in the data.
       if (!rectangular & !dates_given) {
-        tmp = d %>% pull(!!date)
+        tmp = d %>% dplyr::pull(!!date)
         dates = .date_seq_dates(tmp,interval)
         lhs = .dates_and_classes(date,dates,cls,clsses)
       }
       # do the fill for missing counts.
       d = lhs %>%
-        left_join(d, by = join_cols)
+        dplyr::left_join(d, by = join_cols)
       if (!is.null(value)) {
-        # TODO: what about other observations?
-        d = d %>% mutate(!!value := ifelse(is.na(!!value),0,!!value))
+        #TODO: what about other observations?
+        d = d %>% dplyr::mutate(!!value := ifelse(is.na(!!value),0,!!value))
       }
       return(d)
 
-  }) %>% ungroup()
+  }) %>% dplyr::ungroup()
 
   if (!".id" %in% colnames(x)) {
     # add an .id column only if there is not one already.
-    x = x %>% mutate(.id=row_number())
+    x = x %>% dplyr::mutate(.id=dplyr::row_number())
   }
 
   return(.make_epidata(
-      as_tibble(x),
+      tibble::as_tibble(x),
       meta,
       out_class))
 }
 
 .dates_and_classes = function(date, dates, cls, clsses) {
   if (!is.null(clsses)) {
-    lhs = crossing(!!date := dates, !!cls := clsses)
+    lhs = tidyr::crossing(!!date := dates, !!cls := clsses)
   } else {
-    lhs = tibble(!!date := dates)
+    lhs = tibble::tibble(!!date := dates)
   }
 }
 
 summary.epi_ts = function(x, ...) {
   epi = x %>% get_meta()
   m = epi$m
-  dates = x %>% pull(!!(m$date)) %>% range()
-  grpCount = x %>% select(!!!m$grps) %>% distinct() %>% nrow()
-  cat(sprintf("%1.0f timeseries, with interval %s day(s), from %s up to (but not including) %s, %1.0f total records", grpCount, epi$interval, dates[[1]], dates[[2]]+1+epi$interval, nrow(x)),"\n")
+  dates = x %>% dplyr::pull(!!(m$date)) %>% range()
+  grpCount = x %>% dplyr::select(!!!m$grps) %>% dplyr::distinct() %>% nrow()
+  cat(sprintf("%1.0f timeseries, with interval %s lubridate::day(s), from %s up to (but not including) %s, %1.0f total records", grpCount, epi$interval, dates[[1]], dates[[2]]+1+epi$interval, nrow(x)),"\n")
   print(epi$formula, showEnv = FALSE)
 }
 
@@ -1426,21 +1408,21 @@ glimpse.epi_ts = function(x,...) {
     # rename the columns to their canonical names defined in the specification.
     if (!is.na(map)) {
       value = m$get(map)
-      y = y %>% mutate(!!map := !!value)
+      y = y %>% dplyr::mutate(!!map := !!value)
     }
   }
   all = meta$specification$value
   if (is.na(interval)) interval = .day_interval(y$date)
 
   y = y %>%
-    select(all_of(na.omit(meta$specification$mapping)), !!!grps, .id)
+    dplyr::select(tidyselect::all_of(stats::na.omit(meta$specification$mapping)), !!!grps, .id)
 
-  y = y %>% group_by(!!!grps) %>% mutate(
-    .grpId = cur_group_id(),
+  y = y %>% dplyr::group_by(!!!grps) %>% dplyr::mutate(
+    .grpId = dplyr::cur_group_id(),
     .time = .date_to_time(date, interval),
-  ) %>% group_by(!!!grps, .grpId)
+  ) %>% dplyr::group_by(!!!grps, .grpId)
   if (multinom) {
-    y = y %>% group_by(!!!grps, class) %>% mutate(.subGrpId = cur_group_id()) %>% group_by(!!!grps, .grpId)
+    y = y %>% dplyr::group_by(!!!grps, class) %>% dplyr::mutate(.subGrpId = dplyr::cur_group_id()) %>% dplyr::group_by(!!!grps, .grpId)
     class(y) = c("epi_multi",class(y))
   } else {
     class(y) = c("epi_simple",class(y))
@@ -1452,19 +1434,19 @@ glimpse.epi_ts = function(x,...) {
   y=x
   if (".time" %in% colnames(y)) {
     if (!("date" %in% colnames(y))) {
-      y = y %>% mutate(date = .time_to_date(.time))
+      y = y %>% dplyr::mutate(date = .time_to_date(.time))
     } else if (any(is.na(y$date))) {
-      y = y %>% mutate(date = .time_to_date(.time))
+      y = y %>% dplyr::mutate(date = .time_to_date(.time))
     }
   }
-  y = y %>% select(-.time)
+  y = y %>% dplyr::select(-.time)
   for (map in meta$specification$mapping) {
     # rename the columns to their denormalised names defined in the specification.
     # group columns will probably not have changed name
     if (!is.na(map)) {
       value = m$get(map)
       if (map %in% colnames(y)) {
-        y = y %>% rename(!!value := !!map)
+        y = y %>% dplyr::rename(!!value := !!map)
       }
     }
   }
@@ -1473,19 +1455,19 @@ glimpse.epi_ts = function(x,...) {
   new_cols = colnames(y)[!colnames(y) %in% old_cols]
   new_obs = new_cols %>% magrittr::extract(!stringr::str_starts(.,stringr::fixed(".")))
   # all new cols are added as new observations onto the lhs
-  new_cols_df = tibble(
+  new_cols_df = tibble::tibble(
     side = "lhs",
     value = sapply(new_obs, as.symbol,USE.NAMES = FALSE),
     mapping = new_obs
   )
 
-  new_spec = bind_rows(
-    meta$specification %>% filter(sapply(value, as_label, USE.NAMES = FALSE) %in% colnames(y)),
+  new_spec = dplyr::bind_rows(
+    meta$specification %>% dplyr::filter(sapply(value, as_label, USE.NAMES = FALSE) %in% colnames(y)),
     new_cols_df)
   new_meta = as.epimetadata.specification(new_spec, type=meta$type, interval = meta$interval)
 
-  y = y %>% ungroup() %>% select(any_of(old_cols),all_of(new_obs),any_of(".id"))
-  # y = y %>% ungroup() %>% select(c(!starts_with("."),.id)) %>% dplyr::glimpse()
+  y = y %>% dplyr::ungroup() %>% dplyr::select(tidyselect::any_of(old_cols),tidyselect::all_of(new_obs),tidyselect::any_of(".id"))
+  # y = y %>% dplyr::ungroup() %>% dplyr::select(c(!tidyselect::starts_with("."),.id)) %>% dplyr::glimpse()
   return(y %>% .guess_type(new_meta))
 }
 
@@ -1509,13 +1491,13 @@ execute_epifunction = function(x, .f, ...) {
       stop("must contain column mappings for: ",paste0(requires,collapse = ","))
     }
   }
-  output = input %>% group_modify(function(d,g,...) {
+  output = input %>% dplyr::group_modify(function(d,g,...) {
     if ("epi_ll" %in% class(x)) {
       class(d) = c("std_ll",class(d))
       return(.f(d, g=g, ...))
     } else {
       class(d) = c("std_ts",class(d))
-      # TODO: informative error messages
+      #TODO: informative error messages
       return(.f(d, g=g, ..., interval = meta$interval))
     }
     # execute the epifunction call
@@ -1551,20 +1533,20 @@ ensure_exists = function(df, column, or_else = function(df) {stop("Missing colum
 # format a transformed normally distributed variable into quantiles
 .format_result = function(df, fit, se.fit, t, estimate, modelName,link, error=NA_character_) {
   est = #purrr::map2(fit,se.fit,.f = function(fit,se.fit) {
-    tibble(
+    tibble::tibble(
       !!(paste0(link,"(x)")) := fit,
       !!(paste0("SE.",link,"(x)")) := se.fit,
-      Quantile.0.025 = .opt(t(qnorm(0.025,fit,se.fit))),
-      Quantile.0.05 = .opt(t(qnorm(0.05,fit,se.fit))),
-      Quantile.0.25 = .opt(t(qnorm(0.25,fit,se.fit))),
+      Quantile.0.025 = .opt(t(stats::qnorm(0.025,fit,se.fit))),
+      Quantile.0.05 = .opt(t(stats::qnorm(0.05,fit,se.fit))),
+      Quantile.0.25 = .opt(t(stats::qnorm(0.25,fit,se.fit))),
       Quantile.0.5 = t(fit),
-      Quantile.0.75 = .opt(t(qnorm(0.75,fit,se.fit))),
-      Quantile.0.95 = .opt(t(qnorm(0.95,fit,se.fit))),
-      Quantile.0.975 = .opt(t(qnorm(0.975,fit,se.fit))),
+      Quantile.0.75 = .opt(t(stats::qnorm(0.75,fit,se.fit))),
+      Quantile.0.95 = .opt(t(stats::qnorm(0.95,fit,se.fit))),
+      Quantile.0.975 = .opt(t(stats::qnorm(0.975,fit,se.fit))),
       model = modelName,
       error = error)
     #})
-  df %>% mutate(!!estimate := est)
+  df %>% dplyr::mutate(!!estimate := est)
 }
 
 # extract the locfit result from the locfit model and format it
@@ -1573,13 +1555,13 @@ ensure_exists = function(df, column, or_else = function(df) {stop("Missing colum
 }
 
 .empty_result = function(df, estimate) {
-  df %>% mutate(!!estimate := tibble())
+  df %>% dplyr::mutate(!!estimate := tibble::tibble())
 }
 
 .inv = list(
   value = function(x) x,
   log = function(x) {ifelse(x==-Inf, 0, exp(x))},
-  logit = function(x) {case_when(x==-Inf ~ 0,x==Inf ~ 1, TRUE ~ 1/(1+exp(-x)))}
+  logit = function(x) {dplyr::case_when(x==-Inf ~ 0,x==Inf ~ 1, TRUE ~ 1/(1+exp(-x)))}
 )
 
 # This is just to format locfit results given a locfit model.
@@ -1588,7 +1570,7 @@ ensure_exists = function(df, column, or_else = function(df) {stop("Missing colum
 .locfit_extract_result = function(df, model, estimate, modelName, link = "value") {
 
   tryCatch({
-    points = preplot(model,se.fit = TRUE,band="local", newdata = df)
+    points = stats::preplot(model,se.fit = TRUE,band="local", newdata = df)
 
     t = points$trans
     fit = points$fit
@@ -1611,7 +1593,7 @@ ensure_exists = function(df, column, or_else = function(df) {stop("Missing colum
 
 # Generate the formula for a locfit model based on things I understand
 .locfit_formula = function(valueVar, nrowDf, window, polynomialDegree, nearestNeighbours = TRUE, ...) {
-  valueVar=ensym(valueVar)
+  valueVar=rlang::ensym(valueVar)
   tmp_alpha = min(window/nrowDf,1)
   tmp_alpha_2 = min((window*2+1)/nrowDf,1)
   lpParams = list(
@@ -1620,7 +1602,7 @@ ensure_exists = function(df, column, or_else = function(df) {stop("Missing colum
     deg = polynomialDegree
   )
   lpParamsText = paste(names(lpParams),lpParams,sep="=",collapse=", ")
-  lpFormula = as.formula(paste0(as_label(valueVar), " ~ locfit::lp(.time, ",lpParamsText,")"))
+  lpFormula = stats::as.formula(paste0(rlang::as_label(valueVar), " ~ locfit::lp(.time, ",lpParamsText,")"))
   return(lpFormula)
 }
 
@@ -1639,7 +1621,7 @@ estimate_proportion = function(d, ..., interval = .day_interval(d$date), window 
   d = d %>% ensure_exists("date")
   d = d %>% ensure_exists("class")
   # convert dates to times
-  d = d %>% ensure_exists(".time", or_else = ~ mutate(., .time = .date_to_time(date, interval)))
+  d = d %>% ensure_exists(".time", or_else = ~ dplyr::mutate(., .time = .date_to_time(date, interval)))
   if (is.na(quick)) {
     quick = !((.has_count(d) & sum(d$count) < 10000) | (!.has_count(d) & nrow(d) < 10000))
   }
@@ -1653,37 +1635,37 @@ estimate_proportion = function(d, ..., interval = .day_interval(d$date), window 
   cumulative = is.ordered(d$class)
   model_name = sprintf("locfit:probability:%s:%s:%1.0f*%1.0f:%1.0f",if(cumulative) "cumulative" else "binomial",if(quick) "counts" else "linelist", window, interval,degree)
 
-  out = tibble()
-  # repeat once for each class level. This is a binomial comparison (x vs not(x)) or cumulative (<=x) vs (>x)
+  out = tibble::tibble()
+  # repeat once for each class level. This is a binomial comparison (x vs magrittr::not(x)) or cumulative (<=x) vs (>x)
   for (level in sort(unique(d$class))) {
 
     if (cumulative) {
-      tmpdf = d %>% mutate(class_bool = class <= level)
+      tmpdf = d %>% dplyr::mutate(class_bool = class <= level)
       est_name = "probability.cumulative"
     } else {
-      tmpdf = d %>% mutate(class_bool = class == level)
+      tmpdf = d %>% dplyr::mutate(class_bool = class == level)
       est_name = "probability"
     }
     if (is_ts) {
       # summarise the counts
-      tmpdf_quick = tmpdf %>% group_by(.time,class_bool) %>% summarise(count = sum(count),.groups="drop")
-      if(!quick) tmpdf_slow = tmpdf_quick %>% group_by(.time,class_bool) %>% group_modify(function(d,g,..) {return(tibble(count = rep(1,d$count)))})
+      tmpdf_quick = tmpdf %>% dplyr::group_by(.time,class_bool) %>% dplyr::summarise(count = sum(count),.groups="drop")
+      if(!quick) tmpdf_slow = tmpdf_quick %>% dplyr::group_by(.time,class_bool) %>% dplyr::group_modify(function(d,g,..) {return(tibble::tibble(count = rep(1,d$count)))})
     } %>% {
       tmpdf_slow = tmpdf
-      if(quick) tmpdf_quick = tmpdf %>% group_by(.time,class_bool) %>% summarise(count = n(),.groups="drop") %>% tidyr::complete(.time = data_times, class_bool, fill=list(count=0) )
+      if(quick) tmpdf_quick = tmpdf %>% dplyr::group_by(.time,class_bool) %>% dplyr::summarise(count = dplyr::n(),.groups="drop") %>% tidyr::complete(.time = data_times, class_bool, fill=list(count=0) )
     }
 
-    result = tibble(.time=predict_times, class=level)
+    result = tibble::tibble(.time=predict_times, class=level)
 
     if (nrow(tmpdf) == 0) {
       # empty estimate
-      out = out %>% bind_rows(result %>% .fixed_result(est_name,model_name,link = "logit",mean = NA,se = NA, error = "no data"))
+      out = out %>% dplyr::bind_rows(result %>% .fixed_result(est_name,model_name,link = "logit",mean = NA,se = NA, error = "no data"))
     } else if (sum(tmpdf$class_bool) < degree) {
       # zero estimate
-      out = out %>% bind_rows(result %>% .fixed_result(est_name,model_name,link = "logit",mean = -Inf,se = 10000, error = "all zeros"))
+      out = out %>% dplyr::bind_rows(result %>% .fixed_result(est_name,model_name,link = "logit",mean = -Inf,se = 10000, error = "all zeros"))
     } else if (sum(!tmpdf$class_bool) < degree) {
       # one estimate
-      out = out %>% bind_rows(result %>% .fixed_result(est_name,model_name,link = "logit",mean = Inf,se = 10000, error = "all ones"))
+      out = out %>% dplyr::bind_rows(result %>% .fixed_result(est_name,model_name,link = "logit",mean = Inf,se = 10000, error = "all ones"))
     } else {
 
       tryCatch({
@@ -1696,10 +1678,10 @@ estimate_proportion = function(d, ..., interval = .day_interval(d$date), window 
           #    family="qbinomial", link="logit")
 
           # This is what seems to work but does not include any sample size in weighting.
-          tmpdf_quick = tmpdf_quick %>% group_by(.time) %>% mutate(total = sum(count), p=count/total) %>%
-            filter(class_bool) # %>%
+          tmpdf_quick = tmpdf_quick %>% dplyr::group_by(.time) %>% dplyr::mutate(total = sum(count), p=count/total) %>%
+            dplyr::filter(class_bool) # %>%
             # this bit does not work either
-            # mutate(inv_var = 1/(total*p*(1-p))) %>% mutate(inv_var = ifelse(is.finite(inv_var),inv_var,1))
+            # dplyr::mutate(inv_var = 1/(total*p*(1-p))) %>% dplyr::mutate(inv_var = ifelse(is.finite(inv_var),inv_var,1))
 
           lf_form = .locfit_formula(p, time_span, window = window, polynomialDegree = degree, nearestNeighbours = FALSE)
           # timeseries model when there are counts
@@ -1721,11 +1703,11 @@ estimate_proportion = function(d, ..., interval = .day_interval(d$date), window 
         }
         tmp = result %>% .locfit_extract_result(model = fit, estimate = est_name, modelName = model_name, link = "logit")
 
-        out = out %>% bind_rows(tmp)
+        out = out %>% dplyr::bind_rows(tmp)
 
       }, error = function(e) {
         browser()
-        out = out %>% bind_rows(result %>% .fixed_result(est_name,model_name,link="logit",error = e$message))
+        out = out %>% dplyr::bind_rows(result %>% .fixed_result(est_name,model_name,link="logit",error = e$message))
 
       })
 
@@ -1734,10 +1716,10 @@ estimate_proportion = function(d, ..., interval = .day_interval(d$date), window 
   }
 
   # convert times back to dates
-  out = out %>% mutate(date = .time_to_date(.time))
+  out = out %>% dplyr::mutate(date = .time_to_date(.time))
 
   # swap factor levels back in
-  if (is.factor(d$class)) out = out %>% mutate(class = factor(class, levels(d$class), ordered = is.ordered(d$class)))
+  if (is.factor(d$class)) out = out %>% dplyr::mutate(class = factor(class, levels(d$class), ordered = is.ordered(d$class)))
   return(out)
 
 }
@@ -1753,23 +1735,23 @@ estimateProportion = function(admissions, ... ,nn=0.2, deg=2, cumulative = is.or
   # get the output as fractional weeks - we wil convert this to days later.
   weeks = seq(min(admissions$admission_week),max(admissions$admission_week),by = 1/7)
 
-  out = tibble()
+  out = tibble::tibble()
   # we are doing a binomial this for each level in the factor versus all other levels.
   # this lets us create an estimate for multinomial data that I'm going to use later.
   # I've never been sure about whether multinomial proportions can be treated as the sum of
   # binomial 1 vs others, my suspicion is they can't, but I'm going to do it anyway
   for (level in levels(admissions$class)) {
     if (cumulative) {
-      tmpdf = admissions %>% mutate(class_bool = class <= level)
+      tmpdf = admissions %>% dplyr::mutate(class_bool = class <= level)
     } else {
-      tmpdf = admissions %>% mutate(class_bool = class == level)
+      tmpdf = admissions %>% dplyr::mutate(class_bool = class == level)
     }
     if (any(is.na(tmpdf$class_bool))) browser()
     # detect some edge cases
     if (nrow(tmpdf) == 0) {
       # data set is empty
-      out = out %>% bind_rows(
-        tibble(
+      out = out %>% dplyr::bind_rows(
+        tibble::tibble(
           class = level,
           admission_week = weeks,
           admission_date = .weeks_to_date(weeks),
@@ -1780,8 +1762,8 @@ estimateProportion = function(admissions, ... ,nn=0.2, deg=2, cumulative = is.or
       )
     } else if (!any(tmpdf$class_bool)) {
       # for a given class there is no data or all observations are negative
-      out = out %>% bind_rows(
-        tibble(
+      out = out %>% dplyr::bind_rows(
+        tibble::tibble(
           class = level,
           admission_week = weeks,
           admission_date = .weeks_to_date(weeks),
@@ -1792,8 +1774,8 @@ estimateProportion = function(admissions, ... ,nn=0.2, deg=2, cumulative = is.or
       )
     } else if (all(tmpdf$class_bool)) {
       # for a given class all the observations are positive
-      out = out %>% bind_rows(
-        tibble(
+      out = out %>% dplyr::bind_rows(
+        tibble::tibble(
           class = level,
           admission_week = weeks,
           admission_date = .weeks_to_date(weeks),
@@ -1805,21 +1787,21 @@ estimateProportion = function(admissions, ... ,nn=0.2, deg=2, cumulative = is.or
     } else {
       fit = locfit::locfit(class_bool ~ locfit::lp(admission_week,nn=nn,deg=deg),
                            data = tmpdf,family="qbinomial", link="logit")
-      tmp = preplot(fit,newdata=weeks,se.fit = TRUE,band="local")
+      tmp = stats::preplot(fit,newdata=weeks,se.fit = TRUE,band="local")
       t = tmp$tr
-      out = out %>% bind_rows(
-        tibble(
+      out = out %>% dplyr::bind_rows(
+        tibble::tibble(
           class = level,
           admission_week = weeks,
           admission_date = .weeks_to_date(weeks),
-          lower = .opt(t(qnorm(0.05,tmp$fit,tmp$se.fit))),
+          lower = .opt(t(stats::qnorm(0.05,tmp$fit,tmp$se.fit))),
           median = t(tmp$fit), #only because fit is normally distributed so mean=median
-          upper = .opt(t(qnorm(0.95,tmp$fit,tmp$se.fit)))
+          upper = .opt(t(stats::qnorm(0.95,tmp$fit,tmp$se.fit)))
         )
       )
     }
   }
-  out = out %>% mutate(class = factor(class, levels(admissions$class)))
+  out = out %>% dplyr::mutate(class = factor(class, levels(admissions$class)))
   return(out)
 
 }

@@ -31,8 +31,6 @@ Grouped by: boot.
 data(covid_ip)
 }
 \description{
-A COVID-19 infectivity profile based on an empirical resampling approach
-
-The covid_ip dataset
+An infectivity profile derived from a meta-analysis of serial intervals.
 }
-\keyword{datasets}
+\concept{datasets}

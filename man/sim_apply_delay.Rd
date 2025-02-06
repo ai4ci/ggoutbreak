@@ -78,7 +78,7 @@ tmp = sim_branching_process(
 )
 
 tmp2 = tmp \%>\% sim_apply_delay()
-tmp2 \%>\% glimpse()
+tmp2 \%>\% dplyr::glimpse()
 
 }
 \concept{test}

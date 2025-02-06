@@ -16,7 +16,7 @@ imputeAndWeeklyAverage = function(covidTimeseries, window=7, ...) {
         logValue1 = log(value+1)) %>%
       covidStandardGrouping() %>%
       dplyr::group_modify(function(d,g,...) {
-        d = d %>% arrange(date)
+        d = d %>% dplyr::arrange(date)
         if (sum(!is.na(d$logValue1)) < 2) {
           d$logValue1 = rep(NA,length(d$logValue1))
         } else {
@@ -47,12 +47,12 @@ imputeAndWeeklyAverage = function(covidTimeseries, window=7, ...) {
 #' @return - the same timeseries with totally missing days replaced with NA
 #' TODO: do we want to store the original somewhere?
 removeZeroDays = function(r0Timeseries, valueVar = "value") {
-  valueVar = ensym(valueVar)
+  valueVar = rlang::ensym(valueVar)
   r0Timeseries %>%
-    group_by(date) %>%
-    mutate(.anyNonZero = any(!!valueVar!=0)) %>%
-    mutate(!!valueVar := ifelse(.anyNonZero,!!valueVar,NA_real_)) %>%
-    select(-.anyNonZero) %>%
+    dplyr::group_by(date) %>%
+    dplyr::mutate(.anyNonZero = any(!!valueVar!=0)) %>%
+    dplyr::mutate(!!valueVar := ifelse(.anyNonZero,!!valueVar,NA_real_)) %>%
+    dplyr::select(-.anyNonZero) %>%
     return()
 }
 
@@ -69,18 +69,18 @@ removeZeroDays = function(r0Timeseries, valueVar = "value") {
 #' @return an timeseries with Anomaly column
 completeAndRemoveAnomalies = function(r0Timeseries, window=9, p = 0.999, min = 1, valueVar = "value", originalValueVar = "value.original", allowZeroDays=FALSE) {covidTimeseriesFormat %def% {
 
-  # TODO: generate more tests for this from manual review of:
-  # View(symptomaticTimeseries %>% filter(is.na(stats::filter(value,rep(1,9)))))
+  #TODO: generate more tests for this from manual review of:
+  # utils::View(symptomaticTimeseries %>% dplyr::filter(is.na(stats::filter(value,rep(1,9)))))
 
-  valueVar = ensym(valueVar)
-  originalValueVar = ensym(originalValueVar)
+  valueVar = rlang::ensym(valueVar)
+  originalValueVar = rlang::ensym(originalValueVar)
   if ("Anomaly" %in% colnames(r0Timeseries)) {
     # detection already performed
     return(r0Timeseries)
   }
   # trim tailing NAs
   tmp = self$trimNAs(r0Timeseries)
-  groups = tmp %>% covidStandardGrouping() %>% n_groups()
+  groups = tmp %>% covidStandardGrouping() %>% dplyr::n_groups()
   if (!allowZeroDays & groups>1) tmp = tmp %>% self$removeZeroDays()
 
   # the minimum value of lambda is set so that 0 is within the confidence limits.
@@ -90,15 +90,15 @@ completeAndRemoveAnomalies = function(r0Timeseries, window=9, p = 0.999, min = 1
   tmp = tmp %>%
     dplyr::ungroup() %>%
     dplyr::mutate(!!originalValueVar := !!valueVar) %>%
-    self$complete() %>%
+    self$tidyr::complete() %>%
     covidStandardGrouping() %>%
 
     dplyr::group_modify(function(d,g,...) {
 
-      d = d %>% mutate(Anomaly = FALSE)
+      d = d %>% dplyr::mutate(Anomaly = FALSE)
 
       fn = function(e) {
-        y_orig = e %>% pull(!!valueVar)
+        y_orig = e %>% dplyr::pull(!!valueVar)
         # #TODO: make this a more generic way of doing windowing & tidyify it
         y = log(y_orig+1)
         i = 1:(length(y))
@@ -129,8 +129,8 @@ completeAndRemoveAnomalies = function(r0Timeseries, window=9, p = 0.999, min = 1
         # m_lambda = pmax(exp(m_mean)-1, minLambda)
         # m_p = 1-m_mean/m_sd^2
         # m_r = m_mean^2/(m_sd^2-m_mean)
-        # p_obs = abs(ppois(y_orig, m_lambda)-0.5)*2
-        p_obs = abs(pnorm(y, mean = m_mean,sd = m_sd)-0.5)*2
+        # p_obs = abs(stats::ppois(y_orig, m_lambda)-0.5)*2
+        p_obs = abs(stats::pnorm(y, mean = m_mean,sd = m_sd)-0.5)*2
         Anomaly = p_obs > p | !is.finite(p_obs) #& !(m_lambda==0 & y_orig==0)
         # browser()
         return(Anomaly)

@@ -16,8 +16,8 @@ proportion_glm_model(
 
 A dataframe containing the following columns: 
 \itemize{
-\item denom (positive_integer) - Total test counts associated with the specified timeframe
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item denom (positive_integer) - Total test counts associated with the specified time frame
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
@@ -54,13 +54,13 @@ varying rate as a natural cubic spline with approx one degree of freedom per
 }
 \examples{
 
-# TODO: find out cause of the warnings
-# "observations with zero weight not used for calculating dispersion"
-suppressWarnings(
-  ggoutbreak::england_covid \%>\%
-   ggoutbreak::proportion_glm_model(window=21) \%>\%
-   dplyr::glimpse()
-)
+ggoutbreak::england_covid_proportion \%>\%
+  dplyr::filter(date < "2021-01-01") \%>\%
+  time_aggregate() \%>\%
+  ggoutbreak::proportion_glm_model(window=5) \%>\%
+  dplyr::glimpse()
 
+# TODO: deal with error conditions
+# "observations with zero weight not used for calculating dispersion
 }
 \concept{models}

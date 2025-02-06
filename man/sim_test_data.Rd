@@ -8,13 +8,11 @@ sim_test_data(ip = test_ip, duration = 500, period = 50)
 }
 \arguments{
 \item{ip}{an infectivity profile. any uncertainty will be collapsed into the
-central distribution. - (defaults to \code{structure(list(tau = c(0L, 1L, 2L, 3L, 4L, 5L, 6L, 7L, 8L, 9L, })}
+central distribution.}
 
 \item{duration}{the total length of the time-series}
 
-\item{period}{the duration of each positivie or negative growth phase}
-
-\item{NA}{NA}
+\item{period}{the duration of each positive or negative growth phase}
 }
 \value{
 a time series with \code{count}, \code{incidence}, \code{growth}, \code{rt},
@@ -31,3 +29,4 @@ and a relative growth rate that is the same as the growth rate.
 sim_test_data() \%>\% dplyr::glimpse()
 
 }
+\concept{test}

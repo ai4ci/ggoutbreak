@@ -45,8 +45,8 @@ had a \code{class} column. The most detailed output will be:
 
 A dataframe containing the following columns:
 \itemize{
-\item denom (positive_integer) - Total test counts associated with the specified timeframe
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item denom (positive_integer) - Total test counts associated with the specified time frame
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 }
 
@@ -56,7 +56,7 @@ or a more minimal output if the input is only a plain list of dated events:
 
 A dataframe containing the following columns:
 \itemize{
-\item count (positive_integer) - Positive case counts associated with the specified timeframe
+\item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
 }
 

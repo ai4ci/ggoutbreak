@@ -34,9 +34,13 @@
 dgamma2(x, mean, sd = sqrt(mean), log = FALSE, convex = TRUE)
 }
 \arguments{
+\item{x}{vector of quantiles}
+
 \item{mean}{the mean value on the true scale (vectorised)}
 
 \item{sd}{the standard deviation on the true scale (vectorised)}
+
+\item{log}{logical; if TRUE, probabilities p are given as log(p).}
 
 \item{convex}{Show a warning if the distribution selected is not a convex
 function}

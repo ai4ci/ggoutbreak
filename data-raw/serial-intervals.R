@@ -42,7 +42,7 @@ if(interactive()) {
 })
 
 
-# TODO: Du et al. data
+#TODO: Du et al. data
 # https://github.com/MeyersLabUTexas/COVID-19/raw/refs/heads/master/Table%20S5.xlsx
 # [1] Z. Du, X. Xu, Y. Wu, L. Wang, B. J. Cowling, and L. A. Meyers, ‘Serial Interval of COVID-19 among Publicly Reported Confirmed Cases’, Emerg Infect Dis, vol. 26, no. 6, pp. 1341–1343, Jun. 2020, doi: 10.3201/eid2606.200357.
 
@@ -61,5 +61,5 @@ if(interactive()) {
   interfacer::use_dataframe(du_serial_interval_ip)
 }
 
-# TODO:
+#TODO: look at using fitdistrplus for infectivity profiles
 # fitdistrplus::fitdist(du_data$tau[du_data$tau>0],distr = "gamma")

@@ -65,10 +65,12 @@ any uncertainty.
 
 tmp = ggoutbreak::england_covid \%>\%
   ggoutbreak::proportion_locfit_model(window=21) \%>\%
-  ggoutbreak::normalise_proportion(ggoutbreak::england_demographics) \%>\%
+  ggoutbreak::infer_risk_ratio(ggoutbreak::england_demographics) \%>\%
   dplyr::glimpse()
 
-plot_growth_phase(tmp)
+if(interactive()) {
+  plot_growth_phase(tmp)
+}
 
 }
 \concept{models}

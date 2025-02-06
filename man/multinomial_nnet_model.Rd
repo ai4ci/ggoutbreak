@@ -13,7 +13,7 @@ multinomial_nnet_model(
 )
 }
 \arguments{
-\item{d}{Multiclass count input}
+\item{d}{multi-class count input}
 
 \item{...}{not used and present to allow proportion model to be used in a group_modify}
 

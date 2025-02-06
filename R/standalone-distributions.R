@@ -19,14 +19,17 @@
 #' certain parts of the distribution.
 #'
 #' @param n number of observations
-#' @param x,q vector of quantiles
+#' @param x vector of quantiles
+#' @param q vector of quantiles
 #' @param p vector of probabilities
-#' @param log,log.p logical; if TRUE, probabilities p are given as log(p).
+#' @param log logical; if TRUE, probabilities p are given as log(p).
+#' @param log.p logical; if TRUE, probabilities p are given as log(p).
 #' @param lower.tail logical; if TRUE (default), probabilities are `P[X<=x]`
 #'   otherwise `P[X>x]`.
 #' @param a a gradient from -2 (left skewed) to 2 (right skewed)
 #' @return a vector of probabilities, quantiles, densities or samples.
 #' @name wedge
+#' @concept distributions
 #' @examples
 #'
 #' pwedge(seq(0,1,0.1), a=1)
@@ -120,6 +123,7 @@ rbern = function(n, prob) {
 #'   of `prob` or from a character vector in `factor`.
 #'
 #' @export
+#' @concept distributions
 #' @examples
 #'
 #' prob = c("one"=0.1,"two"=0.2,"seven"=0.7)
@@ -131,7 +135,7 @@ rcategorical = function(n, prob, factor=FALSE) {
   if (length(n) > 0) {
     prob = prob/sum(prob)
     to_test = cumsum(prob)
-    against = runif(if(is.numeric(n) && length(n)==1) n else length(n))
+    against = stats::runif(if(is.numeric(n) && length(n)==1) n else length(n))
     tmp = matrix(sapply(to_test, FUN = function(x) x <= against),nrow=length(against))
     which = apply(tmp,MARGIN=1,sum)+1
   } else {
@@ -159,14 +163,16 @@ rcategorical = function(n, prob, factor=FALSE) {
 }
 
 
-## Beta paramterisations ----
+## Beta parametrisations ----
 
-#' Re-parameterised distributions
+#' Re-parametrised distributions
 #'
 #' @param n number of observations
-#' @param x,q vector of quantiles
+#' @param x vector of quantiles
+#' @param q vector of quantiles
 #' @param p vector of probabilities
-#' @param log,log.p logical; if TRUE, probabilities p are given as log(p).
+#' @param log logical; if TRUE, probabilities p are given as log(p).
+#' @param log.p logical; if TRUE, probabilities p are given as log(p).
 #' @param lower.tail logical; if TRUE (default), probabilities are `P[X<=x]`
 #'   otherwise `P[X>x]`.
 #' @param convex Show a warning if the distribution selected is not a convex

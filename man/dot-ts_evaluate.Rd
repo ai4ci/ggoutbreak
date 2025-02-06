@@ -15,7 +15,7 @@
 a vector, the result of applying the function to df.
 }
 \description{
-Evaluate a function in a timeseries dataframe
+N.B. only exported as used in one vignette for demo purposes
 }
 \examples{
 test = tibble::tibble(

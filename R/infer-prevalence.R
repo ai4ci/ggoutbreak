@@ -21,19 +21,22 @@
 #'
 #' @return the modelled input with additional proportion columns
 #' @export
+#' @concept models
 #'
 #' @examples
 #' tmp = ggoutbreak::england_covid %>%
+#'   dplyr::filter(date < "2021-01-01") %>%
 #'   time_aggregate(count=sum(count)) %>%
 #'   ggoutbreak::poisson_locfit_model(window=21) %>%
 #'   ggoutbreak::infer_prevalence(
 #'      pop = 56489700,
-#'      # N.B. timiing is difficult in this example, as we are using cases.
+#'      # N.B. timing is difficult in this example, as we are using cases.
 #'      ip = ggoutbreak::covid_test_sensitivity
-#'   ) %>%
-#'   dplyr::glimpse()
+#'   )
 #'
-#' plot_prevalence(tmp)
+#' if(interactive()) {
+#'   plot_prevalence(tmp)
+#' }
 infer_prevalence = function(
     modelled = i_incidence_model,
     pop = i_population_data,
@@ -54,7 +57,7 @@ infer_prevalence = function(
   # resampling as the infectivity profiles can be anything. This is very similar
   # to the way we calculate the renewal equation based Rt
 
-  # TODO: test negative serial interval
+  #TODO: test negative serial interval
   start = min(ip$tau)
 
   # omega is a matrix 13x100

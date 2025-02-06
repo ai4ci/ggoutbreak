@@ -8,10 +8,9 @@ vignette: >
 ---
 
 ```{r setup}
-library(EpiEstim)
-library(tidyverse)
+library(ggoutbreak)
 library(patchwork)
-utils::data("MockRotavirus")
+utils::data("MockRotavirus",package = "EpiEstim")
 si_data = MockRotavirus$si_data
 si_distr = MockRotavirus$si_distr
 source(here::here("vignettes/vignette-utils.R"))
@@ -56,7 +55,7 @@ gammas = SI_fit_clever@samples %>%
     lmean = log(mean), 
     lsd = log(sd))
 
-max_x = ceiling(stats::quantile(qgamma(0.95, gammas$shape, gammas$rate),0.75))
+max_x = ceiling(stats::quantile(stats::qgamma(0.95, gammas$shape, gammas$rate),0.75))
 
 if (is.null(si_distr)) si_distr = EpiEstim::discr_si(0:max_x, stats::quantile(gammas$mean, 0.5), stats::quantile(gammas$sd, 0.5))
 
@@ -82,7 +81,7 @@ requires that the mean of the infectivity profile distribution is greater than
 1. This results in some MCMC fitted distributions being unsuitable especially in
 this case where the mean is short.
 
-If we using a framework for estimating $R_t$ that does not have this requirement
+If we are using a framework for estimating $R_t$ that does not have this requirement
 a more natural discretisation using the the cumulative density of the
 untransformed gamma distribution and cut points based on 0.5 day intervals is
 possible.
@@ -114,7 +113,7 @@ cdf_disc = gammas %>%
     ) %>% tidyr::unnest(discr)
 
 
-tmp = bind_rows(original_disc,cdf_disc) %>% 
+tmp = dplyr::bind_rows(original_disc,cdf_disc) %>% 
   dplyr::mutate(disc_type=factor(disc_type, levels = c("discr_si","cdf")))
 
 sources = length(levels(tmp$disc_type))
@@ -128,13 +127,13 @@ tmp_summ = tmp %>% dplyr::group_by(source = disc_type,a0,a) %>% dplyr::summarise
 #     gammas %>% dplyr::summarise(sd = stats::sd(mean),mean=mean(mean), parameter="mean",source="none")
 #   )
 
-ggplot2::ggplot(tmp %>% rename(source = disc_type))+
+ggplot2::ggplot(tmp %>% dplyr::rename(source = disc_type))+
   ggplot2::geom_segment(mapping=ggplot2::aes(x=a0,xend=a,y=p, colour=source), alpha=0.01)+
   ggplot2::geom_segment(data = tmp_summ, mapping=ggplot2::aes(x=a0,xend=a,y=p), colour="black")+
   ggplot2::xlab("time")+
   ggplot2::coord_cartesian(xlim=c(0,max_x+1))+
   ggplot2::guides(colour = ggplot2::guide_legend(override.aes = list(alpha = 1)))+
-  facet_wrap(~source)
+  ggplot2::facet_wrap(~source)
 
 # tmp_mean
 
@@ -157,18 +156,18 @@ $R_t$ using `EpiEstim`, and using the `discr_si` strategy is also included.
 
 ```{r}
 
-R_t = tmp %>% nest(dist = c(p,a,a0)) %>% 
+R_t = tmp %>% tidyr::nest(dist = c(p,a,a0)) %>% 
   tidyr::crossing(r = c(0.4,0.2,0.1,0.05,0,-0.05,-0.1)) %>%
-  mutate(
+  dplyr::mutate(
     R_t = purrr::map2_dbl(r, dist, ~ ggoutbreak::wallinga_lipsitch(.x, y = .y$p, a0 = .y$a0, a = .y$a)),
     source = sprintf("wall-lips (%s)",disc_type)
   ) %>%
-  filter(!is.na(R_t))
+  dplyr::filter(!is.na(R_t))
   
-R_t_summ = R_t %>% group_by(r,source) %>% summarise(
-  median = quantile(R_t,0.5),
-  lower = quantile(R_t,0.025),
-  upper = quantile(R_t,0.975)
+R_t_summ = R_t %>% dplyr::group_by(r,source) %>% dplyr::summarise(
+  median = stats::quantile(R_t,0.5),
+  lower = stats::quantile(R_t,0.025),
+  upper = stats::quantile(R_t,0.975)
 )
 
 ```
@@ -190,26 +189,26 @@ cached_estimate_R = memoise::memoise(EpiEstim::estimate_R)
 
 compare_R = tmp2 %>% dplyr::mutate(R = purrr::map2(si_matrix, r, ~ {
   ts = tibble::tibble(
-        t = 0:50
+        t = 0:30
       ) %>% dplyr::mutate(
         I = 100*exp(.y*t)
       )
   return(cached_estimate_R(ts, 
       method="si_from_sample", si_sample = .x,
-      config = EpiEstim::make_config(t_start=2, t_end = 50))$R)
+      config = EpiEstim::make_config(t_start=2, t_end = 30))$R)
   })
 )
 
-plot2data = compare_R %>% unnest(R) %>% glimpse()
+plot2data = compare_R %>% tidyr::unnest(R) %>% dplyr::glimpse()
 ```
 
 ```{r}
-ggplot(R_t_summ )+
-  geom_point(aes(y=median, x = factor(r), colour = source), position=position_dodge(width=0.4))+
-  geom_errorbar(aes(ymin=lower, ymax=upper, x = factor(r), colour = source), width=0.2,position=position_dodge(width=0.4))+
-  geom_point(data = plot2data, mapping=aes(y=`Median(R)`, x = factor(r), colour="epiestim (discr_si)"))+
-  geom_errorbar(data = plot2data, mapping=aes(ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`, x = factor(r), colour="epiestim (discr_si)"), width=0.1)+
-  xlab("Growth rate (days⁻¹)")+ylab("Reproduction number")
+ggplot2::ggplot(R_t_summ )+
+  ggplot2::geom_point(ggplot2::aes(y=median, x = factor(r), colour = source), position=ggplot2::position_dodge(width=0.4))+
+  ggplot2::geom_errorbar(ggplot2::aes(ymin=lower, ymax=upper, x = factor(r), colour = source), width=0.2,position=ggplot2::position_dodge(width=0.4))+
+  ggplot2::geom_point(data = plot2data, mapping=ggplot2::aes(y=`Median(R)`, x = factor(r), colour="epiestim (discr_si)"))+
+  ggplot2::geom_errorbar(data = plot2data, mapping=ggplot2::aes(ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`, x = factor(r), colour="epiestim (discr_si)"), width=0.1)+
+  ggplot2::xlab("Growth rate (days⁻¹)")+ggplot2::ylab("Reproduction number")
 
 ```
 
@@ -229,7 +228,7 @@ discrete probability distribution and that the probability of transmission at
 time zero is zero. For diseases with a shorter serial interval, these
 constraints are difficult to resolve, and discretisation of the infectivity
 profile distribution using a offset 1 gamma distribution results in an unusual
-shape to the discrete distribution. In the Wallinga-Lispitch framework for
+shape to the discrete distribution. In the Wallinga-Lipsitch framework for
 estimating the reproduction number from the growth rate these constraints do not
 apply and we can compare `EpiEstim`s discretisation approach to one that is
 closer to the originally estimated continuous distribution, but which requires

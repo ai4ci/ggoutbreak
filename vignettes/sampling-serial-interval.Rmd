@@ -23,10 +23,9 @@ which is investigated here.
 
 
 ```{r setup}
-library(EpiEstim)
-library(tidyverse)
 library(patchwork)
-utils::data("MockRotavirus")
+library(ggoutbreak)
+utils::data("MockRotavirus",package="EpiEstim")
 si_data = MockRotavirus$si_data
 si_distr = MockRotavirus$si_distr
 source(here::here("vignettes/vignette-utils.R"))
@@ -71,7 +70,7 @@ gammas = SI_fit_clever@samples %>%
     lmean = log(mean), 
     lsd = log(sd))
 
-max_x = ceiling(stats::quantile(qgamma(0.95, gammas$shape, gammas$rate),0.75))
+max_x = ceiling(stats::quantile(stats::qgamma(0.95, gammas$shape, gammas$rate),0.75))
 
 if (is.null(si_distr)) si_distr = EpiEstim::discr_si(0:max_x, stats::quantile(gammas$mean, 0.5), stats::quantile(gammas$sd, 0.5))
 
@@ -190,8 +189,8 @@ accurately in this instance.
 
 comparison = dplyr::bind_rows(
     epiestim_si_samples %>% dplyr::mutate(source="epiestim"),
-    gammas %>% dplyr::mutate(source = "mcmc")
-  ) %>% mutate(source = factor(source,labels = c("mcmc","epiestim")))
+    gammas %>% dplyr::mutate(source = "raw mcmc")
+  ) %>% dplyr::mutate(source = factor(source,labels = c("raw mcmc","epiestim")))
 
 p1 = ggplot2::ggplot(comparison)+
   ggplot2::geom_point(mapping=ggplot2::aes(x=mean,y=sd,colour=source), alpha = 0.1)+
@@ -246,8 +245,8 @@ assume we know the degree of correlation.
 # on the log scale.
 quantiles = gammas %>% 
   dplyr::select(mean, sd) %>% 
-  dplyr::reframe(across(tidyselect::everything(), ~ stats::quantile(p=c(0.025,0.5,0.975),.x))) %>% dplyr::mutate(p=c(0.025,0.5,0.975))
-quantiles %>% glimpse()
+  dplyr::reframe(dplyr::across(tidyselect::everything(), ~ stats::quantile(p=c(0.025,0.5,0.975),.x))) %>% dplyr::mutate(p=c(0.025,0.5,0.975))
+quantiles %>% dplyr::glimpse()
 
 ```
 
@@ -288,9 +287,9 @@ approach, but does assume we can estimate the correlation between mean and SD.
 
 ```{r}
 comparison2 = dplyr::bind_rows(
-    simulated2 %>% dplyr::mutate(source="resampled"),
-    gammas %>% dplyr::mutate(source = "mcmc")
-  ) %>% mutate(source = factor(source,labels = c("mcmc","resampled")))
+    simulated2 %>% dplyr::mutate(source="corr log normal"),
+    gammas %>% dplyr::mutate(source = "raw mcmc")
+  ) %>% dplyr::mutate(source = factor(source,labels = c("raw mcmc","corr log normal")))
 
 p1 = ggplot2::ggplot(comparison2)+
   ggplot2::geom_point(mapping=ggplot2::aes(x=mean,y=sd,colour=source), alpha = 0.1)+
@@ -314,8 +313,8 @@ Does this make any difference?
 
 comparison = dplyr::bind_rows(
     epiestim_si_samples %>% dplyr::mutate(source="epiestim"),
-    simulated2 %>% dplyr::mutate(source="resampled"),
-    gammas %>% dplyr::mutate(source = "mcmc")
+    simulated2 %>% dplyr::mutate(source="corr log normal"),
+    gammas %>% dplyr::mutate(source = "raw mcmc")
   )
 
 original_disc = comparison %>%
@@ -330,7 +329,7 @@ original_disc = comparison %>%
 ) %>% tidyr::unnest(disc)
 
 
-tmp = original_disc %>% dplyr::mutate(source=factor(source, levels = c("mcmc","epiestim","resampled")))
+tmp = original_disc %>% dplyr::mutate(source=factor(source, levels = c("raw mcmc","epiestim","corr log normal")))
 
 sources = length(levels(tmp$source))
 
@@ -338,7 +337,7 @@ tmp_summ = tmp %>% dplyr::group_by(source,x) %>% dplyr::summarise(p = mean(p))
 
 tmp_mean = tmp %>% dplyr::group_by(source,coll) %>% 
   dplyr::summarise(mean = sum(x*p)) %>% 
-  dplyr::summarise(sd = stats::sd(mean),mean = mean(mean), parameter="mean") %>%
+  dplyr::summarise(sd = stats::sd(mean),mean = mean(mean), parameter="mean", disc_type="epiestim") %>%
   dplyr::bind_rows(
     gammas %>% dplyr::summarise(sd = stats::sd(mean),mean=mean(mean), parameter="mean",source="raw",disc_type="none" )
   )
@@ -356,14 +355,14 @@ tmp_mean
 
 `EpiEstim`'s default resampling strategy in this example results in a slightly
 less skewed discretised infectivity profile distribution than either the
-original data derived (`mcmc`) or log-normally resampled with correlation
-(`resampled`). The result of this can be examined by looking at `EpiEstim`
+original data derived (`raw mcmc`) or log-normally resampled with correlation
+(`corr log normal`). The result of this can be examined by looking at `EpiEstim`
 estimates of the reproduction number using each of the different infectivity
 profiles. We simulate an artificial incidence timeseries for each of a set of
 growth rates and use `EpiEstim` to produce reproduction number estimates for
 each of these synthetic timeseries using either the data-derived infectivity
-profiles (`mcmc`), `EpiEstim` resampled infectivity profiles (`epiestim`), and
-correlated log-normal resampled infectivity profiles (`resampled`):
+profiles (`raw mcmc`), `EpiEstim` resampled infectivity profiles (`epiestim`), and
+correlated log-normal resampled infectivity profiles (`corr log normal`):
 
 
 ```{r}
@@ -393,8 +392,8 @@ compare_R = tmp2 %>% dplyr::mutate(R = purrr::map2(si_matrix, r, ~ {
 )
 
 ggplot2::ggplot(compare_R %>% tidyr::unnest(R))+
-  ggplot2::geom_point(aes(x=as.factor(r), colour=source, y=`Median(R)`), position=ggplot2::position_dodge(width=0.8))+
-  ggplot2::geom_errorbar(aes(x=as.factor(r), colour=source, ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`), position=ggplot2::position_dodge(width=0.8), width=0.2)+
+  ggplot2::geom_point(ggplot2::aes(x=as.factor(r), colour=source, y=`Median(R)`), position=ggplot2::position_dodge(width=0.8))+
+  ggplot2::geom_errorbar(ggplot2::aes(x=as.factor(r), colour=source, ymin=`Quantile.0.025(R)`, ymax=`Quantile.0.975(R)`), position=ggplot2::position_dodge(width=0.8), width=0.2)+
   ggplot2::xlab("Growth rate (day⁻¹)")+
   ggplot2::ylab("Reproduction number")+
   ggplot2::geom_hline(yintercept=1)
@@ -403,11 +402,9 @@ ggplot2::ggplot(compare_R %>% tidyr::unnest(R))+
 ```
 
 Compared to reproduction number estimates from the `mcmc` originals, `epiestim`
-resampled tend to produce a slightly higher reproduction number estimate but
-this is only noticeable at high values of the reproduction number. `resampled`
-correlated log-normals do better but the difference is small. To produce the 
+and re-sampling using correlated log-normals are very similar. To produce the 
 correlated log-normals we are assuming knowledge of the correlation between
-mean and SD, which is not usually made available in published data.
+mean and SD, which is not usually specified in published data.
 
 # Conclusion
 
@@ -427,10 +424,65 @@ We find no evidence that there is benefit in changing the resampling procedure
 from that used in `EpiEstim`, but care must be taken to ensure that the
 resampling algorithm is given the correct parameters. Published serial interval
 estimates are often given as the median and 95% credible intervals of
-distribution mean and SD parameters which is not what `EpiEstim` requires.
+distribution mean and SD parameters which is not what `EpiEstim` expects.
 
 Any reproduction number estimation using `EpiEstim` is subject to the constraint
 that the infectivity at time zero is zero. Coupled with discretisation this is
 another potential source of bias that can only be investigated using a different
 reproduction number framework.
 
+# Addendum
+
+It is possible that the left truncation that is inherent in `EpiEstim`
+discretisation and $R_t$ estimation is hiding an effect so we repeated the
+analysis. This time we make infectivity profiles from posterior samples or from
+resampled of summarised parameters from `EpiEstim` and using the correlated
+log-normal method described here but using a different discretisation framework,
+and estimate $R_t$ using a method that does not require that the probability of
+infection at time 0 is zero. The result is more or less the same - although we
+could possibly argue in this case that the `EpiEstim` re-sampling procedure has
+resulted in more uncertainty at higher growth rates, but in this analysis using
+correlated log-normal resampling does not make a huge improvement.
+
+
+```{r}
+
+
+comparison2 = dplyr::bind_rows(
+  do.call(make_posterior_ip, gammas %>% dplyr::select(shape,rate)) %>% dplyr::mutate(source="raw mcmc"),
+  do.call(make_posterior_ip, simulated2 %>% dplyr::select(shape,rate)) %>% dplyr::mutate(source="corr log normal"),
+  do.call(make_posterior_ip, epiestim_si_samples %>% dplyr::select(shape,rate)) %>% dplyr::mutate(source="epiestim")
+) %>% tidyr::nest(ip = -source)
+
+tmp3 = tibble::tibble(r = r) %>%
+  dplyr::mutate(
+    data = purrr::map(r, ~ {
+      tibble::tibble(
+        time = 0:30,
+        count = stats::rpois(0:30, 100*exp(.x*0:30))
+      )}
+    )) %>%
+  dplyr::cross_join(comparison2) %>%
+  dplyr::mutate(fit = purrr::map2(data,ip, ~
+      .x %>% 
+        poisson_locfit_model() %>%
+        rt_from_incidence(ip = .y)
+    )
+  )
+
+tmp4 = tmp3 %>% dplyr::select(-ip) %>% tidyr::unnest(fit) %>% dplyr::filter(time>10) %>% 
+  dplyr::group_by(source,r) %>%
+  dplyr::summarise(
+    rt.0.025 = mean(rt.0.025),
+    rt.0.5 = mean(rt.0.5),
+    rt.0.975 = mean(rt.0.975)
+  )
+
+ggplot2::ggplot(tmp4)+
+  ggplot2::geom_point(ggplot2::aes(x=as.factor(r), colour=source, y=rt.0.5), position=ggplot2::position_dodge(width=0.8))+
+  ggplot2::geom_errorbar(ggplot2::aes(x=as.factor(r), colour=source, ymin=rt.0.025, ymax=rt.0.975), position=ggplot2::position_dodge(width=0.8), width=0.2)+
+  ggplot2::xlab("Growth rate (day⁻¹)")+
+  ggplot2::ylab("Reproduction number")+
+  ggplot2::geom_hline(yintercept=1)
+
+```

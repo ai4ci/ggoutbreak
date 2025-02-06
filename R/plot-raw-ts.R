@@ -21,7 +21,9 @@
 #'
 #' # normalised by England population (56489700 people)
 #'
-#' plot_counts(tmp, colour="blue",size=0.25)
+#' if(interactive()) {
+#'   plot_counts(tmp, colour="blue",size=0.25)
+#' }
 #'
 plot_counts = function(
     raw = i_incidence_data,
@@ -63,7 +65,7 @@ plot_counts.default = function(
       mapping=ggplot2::aes(x=as.Date(time),y=count,!!!mapping),
       ...
     )+
-    ggplot2::scale_y_continuous(breaks = .integer_breaks())+
+    ggplot2::scale_y_continuous(breaks = integer_breaks())+
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(raw$time)))+
     ggplot2::xlab(NULL)+
     ggplot2::theme(legend.title=ggplot2::element_blank())
@@ -79,7 +81,7 @@ plot_counts.per_capita = function(
   population_unit = unique(raw$population_unit)
   time_unit = raw$time_unit[[1]] # e.g. raw normalised time unit is per year
   # unique() does not work on lubridate::periods
-  # TODO assume no-one is obtuse enough to have different durations in same dataframe
+  #TODO assume no-one is obtuse enough to have different durations in same dataframe
 
   timefrac = time_unit/.get_meta(raw$time)$unit # original time unit is per week => we want to *52/7
   raw = interfacer::ivalidate(raw)
@@ -124,7 +126,9 @@ plot_counts.per_capita = function(
 #'   denom = count*time
 #' )
 #'
-#' plot_proportions(tmp)+ggplot2::geom_line()
+#' if(interactive()) {
+#'   plot_proportions(tmp)+ggplot2::geom_line()
+#' }
 #'
 plot_proportions = function(
     raw = i_proportion_data,
@@ -177,8 +181,9 @@ plot_proportions = function(
 #'   class = rep(c("one","two","three"), length.out=50)
 #' )
 #'
-#' plot_cases(tmp)
-#'
+#' if(interactive()) {
+#'   plot_cases(tmp)
+#' }
 plot_cases = function(
     raw = i_timestamped,
     ...,
@@ -220,7 +225,7 @@ plot_cases.default = function(
   raw = raw %>%
     dplyr::arrange(time,.by_group = TRUE) %>%
     dplyr::group_by(time) %>%
-    dplyr::mutate(y=row_number())
+    dplyr::mutate(y=dplyr::row_number())
   unit = attr(raw$time,"unit")
   days = as.integer(unit)/(24*60*60)
 
@@ -242,7 +247,7 @@ plot_cases.default = function(
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(raw$time)))+
     ggplot2::xlab(NULL)+
     ggplot2::theme(legend.title=ggplot2::element_blank())+
-    ggplot2::scale_y_continuous(breaks = .integer_breaks())+
+    ggplot2::scale_y_continuous(breaks = integer_breaks())+
     {if (individual) ggplot2::coord_fixed() else NULL}
 }
 

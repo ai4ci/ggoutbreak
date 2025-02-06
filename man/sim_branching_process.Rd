@@ -53,6 +53,8 @@ of it can be specified directly as a \code{case_when} style function. The functi
 must be vectorised and assume no grouping structure. If the function has
 named parameters it can reference any of the metadata columns, or time
 (as \code{t}). The \code{\link[=rcategorical]{rcategorical()}} function may be useful in this scenario.}
+
+\item{...}{not used}
 }
 \value{
 a line list of cases, with individual ids, infection times,
@@ -70,7 +72,9 @@ tmp = sim_branching_process(
   fn_imports = ~ ifelse(.x<10,1,0)
 )
 
-plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1)
+if(interactive()) {
+  plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1)
+}
 
 # imports can also be specified as a dataframe, which allows additional
 # metadata in the line list. An example of which is as follows:

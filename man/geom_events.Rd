@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-common.R
 \name{geom_events}
 \alias{geom_events}
-\title{Add time series event markers to a timeseries plot.}
+\title{Add time series event markers to a time series plot.}
 \usage{
 geom_events(
   events = i_events,
@@ -43,7 +43,7 @@ A default value is defined.}
 \item{hide_labels}{do not show labels at all}
 
 \item{guide_axis}{a guide axis configuration for the labels
-(see ggplot2::guide_axis and ggplot2::dup_axis). This can be used to
+(see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
 
 \item{...}{
@@ -129,7 +129,7 @@ bounds values with \code{NA}.
 }}
 }
 \value{
-a set of geoms for a timeseries.
+a set of \code{geoms} for a time series.
 }
 \description{
 The x axis must be a date.

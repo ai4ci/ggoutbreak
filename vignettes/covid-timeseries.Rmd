@@ -85,7 +85,8 @@ plot_growth_phase(fit,
     timepoints = as.Date(c("Xmas 2020"="2020-12-25","Xmas 2021"="2021-12-25","Xmas 2022"="2022-12-25")),
     duration = 70, 
     interval = 7,
-    colour="blue"
+    colour="blue",
+    strip.position = "top"
 )
 
 ```
@@ -133,9 +134,10 @@ plot_rt(rt_fit, events = england_events, colour="blue")+
   ggplot2::geom_errorbar(data=england_consensus_rt,ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="red")
 ```
 
-EpiEstim $R_t$ fits for comparison for the same data, and the same infectivity
+`EpiEstim` $R_t$ fits for comparison for the same data, and the same infectivity
 profile are much more certain and exhibit some oscillation due to the weekly
-periodicity of the underlying time series. 
+periodicity of the underlying time series. This oscillation is accentuated by
+the truncated infectivity profile we are using here.
 
 ```{r}
 

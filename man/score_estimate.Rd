@@ -35,3 +35,4 @@ obs = tmp2 \%>\% dplyr::mutate(rt.obs = rt.weighted)
 score_estimate(est,obs) \%>\% dplyr::glimpse()
 
 }
+\concept{test}

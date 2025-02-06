@@ -47,7 +47,7 @@ data is grouped by other columns.
 ## Multinomial proportions model.
 
 Genomic testing happened only in a subset of cases. The testing effort varied 
-significantly over time. The frequency of each variant over time can be determined
+significantly over time. The proportion of each variant over time can be estimated
 with a multinomial model.
 
 ```{r}
@@ -62,9 +62,9 @@ plot_multinomial(probs)+
 
 ## Binomial proportions model
 
-The binomial proportions are not very different to the multinomial probabilities
-calculated above, but come with confidence intervals, however the median values
-do not necessarily sum to 1.
+The binomial (one versus others) proportions are not very different to the
+multinomial probabilities calculated above, but come with confidence intervals,
+however the median values do not necessarily sum to 1.
 
 ```{r}
 

@@ -24,3 +24,4 @@ This is useful if you want to fill in missing values that should have been obser
 \examples{
 date_seq(c(1, 2, 4, 5, 10), 1)
 }
+\concept{time_period}

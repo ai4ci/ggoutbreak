@@ -58,7 +58,7 @@ plot_growth_phase(tmp)
 
 ## Multinomial data
 
-Multiple classes are simulated as 3 independent epdiemics ('variant1',
+Multiple classes are simulated as 3 independent epidemics ('variant1',
 'variant2' and 'variant3') with known growth rates and initial sample size
 resulting in 3 parallel time series. These are combined to give an overall
 epidemic and a proportional distribution of each 'variant' as a fraction of the

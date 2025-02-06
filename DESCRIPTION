@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.4.0.9000
+Version: 0.4.1
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -9,12 +9,12 @@ Authors@R:
            comment = c(ORCID = "0000-0002-5504-7768"))
 Description: Simple statistical models and visualisations for calculating the 
   incidence, proportion, exponential growth rate, and reproduction number of 
-  infectious disease case timeseries. This toolkit was largely developed during 
+  infectious disease case time series. This toolkit was largely developed during 
   the COVID-19 pandemic.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2.9004
+RoxygenNote: 7.3.2.9003
 Suggests: 
     downloader,
     fs,
@@ -28,12 +28,15 @@ Suggests:
     testthat (>= 3.0.0),
     devtools,
     patchwork,
-    memoise,
-    coarseDataTools
+    coarseDataTools,
+    forcats,
+    scoringutils,
+    lobstr
 VignetteBuilder: knitr
 Imports: 
     dplyr,
     magrittr,
+    memoise,
     nnet,
     rlang,
     stats,
@@ -59,3 +62,4 @@ Config/testthat/edition: 3
 Depends: 
     R (>= 2.10)
 LazyData: true
+Language: en-GB

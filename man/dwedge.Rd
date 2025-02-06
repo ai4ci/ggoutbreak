@@ -7,10 +7,14 @@
 dwedge(x, a, lower.tail = TRUE, log = FALSE)
 }
 \arguments{
+\item{x}{vector of quantiles}
+
 \item{a}{a gradient from -2 (left skewed) to 2 (right skewed)}
 
 \item{lower.tail}{logical; if TRUE (default), probabilities are \code{P[X<=x]}
 otherwise \code{P[X>x]}.}
+
+\item{log}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 a vector of probabilities, quantiles, densities or samples.
