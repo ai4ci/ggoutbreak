@@ -188,7 +188,8 @@ rcategorical = function(n, prob, factor=FALSE) {
 #' @name reparam-dist
 NULL
 
-#' @inherit stats::rbeta
+#' @inherit stats::rbeta return title description
+#' @seealso [stats::rbeta()]
 #' @inheritParams reparam-dist
 #'
 #' @export
@@ -208,7 +209,8 @@ rbeta2 = function(n, prob, kappa) {
   )
 }
 
-#' @inherit stats::dbeta
+#' @inherit stats::dbeta return title description
+#' @seealso [stats::dbeta()]
 #' @inheritParams reparam-dist
 #'
 #' @export
@@ -227,7 +229,8 @@ dbeta2 = function(x, prob, kappa, log = FALSE) {
   )
 }
 
-#' @inherit stats::pbeta
+#' @inherit stats::pbeta return title description
+#' @seealso [stats::pbeta()]
 #' @inheritParams reparam-dist
 #'
 #' @export
@@ -246,7 +249,8 @@ pbeta2 = function(q, prob, kappa, lower.tail = TRUE, log.p = FALSE) {
   )
 }
 
-#' @inherit stats::qbeta
+#' @inherit stats::qbeta return title description
+#' @seealso [stats::qbeta()]
 #' @inheritParams reparam-dist
 #'
 #' @export
@@ -368,7 +372,8 @@ rlnorm2 = function(n, mean = 1, sd = sqrt(exp(1)-1)) {
   ))
 }
 
-#' @inherit stats::rgamma
+#' @inherit stats::rgamma return title description
+#' @seealso [stats::rgamma()]
 #' @inheritParams reparam-dist
 #'
 #' @export
@@ -383,7 +388,8 @@ rgamma2 = function(n, mean, sd=sqrt(mean), convex=TRUE) {
   )
 }
 
-#' @inherit stats::qgamma
+#' @inherit stats::qgamma return title description
+#' @seealso [stats::qgamma()]
 #' @inheritParams reparam-dist
 #'
 #' @export
@@ -398,7 +404,8 @@ qgamma2 = function(p, mean, sd=sqrt(mean), lower.tail = TRUE, log.p = FALSE, con
   )
 }
 
-#' @inherit stats::dgamma
+#' @inherit stats::dgamma return title description
+#' @seealso [stats::dgamma()]
 #' @inheritParams reparam-dist
 #'
 #' @export
@@ -413,7 +420,8 @@ dgamma2 = function(x,mean, sd=sqrt(mean), log = FALSE, convex=TRUE) {
   )
 }
 
-#' @inherit stats::pgamma
+#' @inherit stats::pgamma return title description
+#' @seealso [stats::pgamma()]
 #' @inheritParams reparam-dist
 #'
 #' @export

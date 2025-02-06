@@ -1574,7 +1574,7 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
     dplyr::summarise(probability = mean(probability)) %>%
     dplyr::mutate(cum = cumsum(probability))
 
-  if (max(tmp$cum) != 1) stop("input does not seem to be a valid probability distribution")
+  if (abs(max(tmp$cum)-1) > .Machine$double.eps^2) stop("input does not seem to be a valid probability distribution")
 
   left = min(which(tmp$cum>0))
   right = max(which(tmp$cum<1))
