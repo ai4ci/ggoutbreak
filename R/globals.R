@@ -161,7 +161,8 @@ utils::globalVariables(c(
 	"y",
 	"ymax",
 	"ymin",
-	"I_t","Lambda_t","n_t","s"
+	"I_t","Lambda_t","n_t","s",
+	"prediction","quantile","true_value"
 ))
 
 

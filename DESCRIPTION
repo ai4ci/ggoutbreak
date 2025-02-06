@@ -29,9 +29,7 @@ Suggests:
     devtools,
     patchwork,
     coarseDataTools,
-    forcats,
-    scoringutils,
-    lobstr
+    forcats
 VignetteBuilder: knitr
 Imports: 
     dplyr,
@@ -53,7 +51,9 @@ Imports:
     ragg,
     withr,
     MASS,
-    interfacer (>= 0.3.3)
+    scoringutils (>= 2.0.0),
+    interfacer (>= 0.3.3),
+    lobstr
 Remotes: github::ai4ci/interfacer
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,

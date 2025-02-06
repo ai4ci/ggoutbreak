@@ -176,9 +176,21 @@ score_estimate = function(est, obs, lags = NULL) {
   if(!"model" %in% colnames(scores)) scores = scores %>% dplyr::mutate(model="undefined")
 
   scores = scores %>%
-    scoringutils::score(metrics = setdiff(scoringutils::available_metrics(),c("crps","bias"))) %>%
-    scoringutils::summarise_scores() %>%
-    tibble::as_tibble() %>%
+    # dplyr::group_by(model, .add = TRUE) %>%
+    dplyr::group_modify(function(d,g,...) {
+
+      tmp = scoringutils::as_forecast_quantile(
+        d %>% dplyr::rename(predicted = prediction, observed=true_value, quantile_level = quantile))
+
+      metrics = scoringutils::get_metrics(tmp)
+      metrics = metrics[!names(metrics) %in% c("crps","bias")]
+
+      return(
+        tmp %>%
+          scoringutils::score(metrics = metrics) %>%
+          scoringutils::summarise_scores(by = c("model", ".type", "time"))
+      )
+    }) %>%
     dplyr::left_join(crps_data %>% dplyr::select(-lag), by=c(join_cols,".type")) %>%
     dplyr::rename(true_value = .ref, estimate=.type) %>%
     dplyr::group_by(model,!!!(est %>% dplyr::groups()),estimate)
