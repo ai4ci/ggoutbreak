@@ -5,21 +5,29 @@
 \title{Plot a raw case counts as a histogram}
 \usage{
 plot_cases(
-  raw = i_timestamped,
+  raw,
   ...,
   mapping = .check_for_aes(raw, ..., class_aes = "fill"),
   events = i_events
 )
 }
 \arguments{
-\item{raw}{The raw case data either as a summarised count or as a line-list
+\item{raw}{The raw case data either as a summarised count or as a line-list - EITHER: a dataframe with columns:
+\itemize{
+\item count (positive_integer) - Positive case counts associated with the specified time frame
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+}
 
-A dataframe containing the following columns: 
+Any grouping allowed.
+
+OR with columns:
 \itemize{
 \item time (ggoutbreak::time_period) - A set of events with a timestamp as a `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
@@ -119,9 +127,7 @@ bounds values with \code{NA}.
 to something if there are multiple types of event in the plot. If a \code{class}
 column is present the mapping will default to using this.}
 
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -130,7 +136,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 a ggplot object

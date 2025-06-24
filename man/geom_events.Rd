@@ -17,9 +17,7 @@ geom_events(
 )
 }
 \arguments{
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -28,7 +26,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{event_label_size}{how big to make the event label}
 

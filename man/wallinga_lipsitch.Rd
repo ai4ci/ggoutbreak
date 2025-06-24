@@ -23,7 +23,7 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 A default value is defined.}
 
 \item{a1}{the end time of the infectivity profile probability estimate (defaults to 0.5,1.5,2.5,...).}

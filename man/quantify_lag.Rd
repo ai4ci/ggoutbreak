@@ -11,9 +11,7 @@ quantify_lag(pipeline, ip = i_empirical_ip, lags = -10:30)
 inputs and producing an estimate as output. This is the whole parametrised
 pipeline including any other inputs. This can be a \code{purrr} style function.}
 
-\item{ip}{the infectivity profile.
-
-A dataframe containing the following columns: 
+\item{ip}{the infectivity profile. - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
@@ -21,9 +19,10 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{lags}{a vector with the delays to test. Defaults to -10 to +30 days}
 }

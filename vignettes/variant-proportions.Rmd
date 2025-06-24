@@ -80,8 +80,8 @@ others on a logistic scale can be used to work out the exponential growth rate
 of one variant relative to the others. Because this is a relative growth rate
 taken together the estimates of all variants at a given time are centred around
 zero. If one variant has a growth advantage, by definition others have a growth
-disadvantage despite potentially causing a larger disease burden and having
-increasing numbers in a growing epidemic.
+disadvantage despite potentially causing a larger disease burden and potentially
+having increasing numbers in a growing epidemic.
 
 ```{r}
 
@@ -90,11 +90,12 @@ plot_growth_rate(probs2) +
 
 ```
 
-The binomial relative growth rate per day is a growth advantage over existing variants.
-This has a dependency on the unit of time which is controlled by the `time_period`
-configuration. In the data provided here the `time_period` is defined on a daily basis
-despite the data being provided weekly. Doubling time does not make strict sense when
-describing relative growth rates and is not shown here. The variant advantage in 
-terms of reproduction number needs additional information about the infectivity
-profile (aka generation time distribution) and as a result is much more complex.
+The binomial relative growth rate per day is a growth advantage over existing
+variants. This has a dependency on the unit of time which is controlled by the
+`time_period` configuration. In the data provided here the `time_period` is
+defined on a daily basis despite the data being provided weekly. Doubling time
+does not make strict sense when describing relative growth rates and is not
+shown here. The variant advantage in terms of reproduction number needs
+additional information about the infectivity profile (aka generation time
+distribution) and as a result is much more complex.
 

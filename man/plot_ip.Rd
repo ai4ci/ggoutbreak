@@ -7,9 +7,7 @@
 plot_ip(ip = i_empirical_ip, alpha = 0.1, ...)
 }
 \arguments{
-\item{ip}{A long format infectivity profile
-
-A dataframe containing the following columns: 
+\item{ip}{A long format infectivity profile - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
@@ -17,9 +15,10 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{alpha}{the alpha value of the bootstrap lines}
 

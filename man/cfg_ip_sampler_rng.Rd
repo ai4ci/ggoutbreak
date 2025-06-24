@@ -7,9 +7,7 @@
 cfg_ip_sampler_rng(ip = i_empirical_ip)
 }
 \arguments{
-\item{ip}{a long format empirical distribution
-
-A dataframe containing the following columns: 
+\item{ip}{a long format empirical distribution - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
@@ -17,9 +15,10 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 a function which accepts \code{n} parameter which produces random samples

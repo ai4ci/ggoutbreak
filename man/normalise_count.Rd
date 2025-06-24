@@ -13,24 +13,22 @@ normalise_count(
 )
 }
 \arguments{
-\item{raw}{The count data
-
-A dataframe containing the following columns: 
+\item{raw}{The count data - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
-\item{pop}{The population data must be grouped in the same way as \code{raw}.
-
-A dataframe containing the following columns: 
+\item{pop}{The population data must be grouped in the same way as \code{raw}. - a dataframe with columns:
 \itemize{
 \item population (positive_integer) - Size of population
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{...}{not used}
 
@@ -48,8 +46,6 @@ A dataframe containing the following columns:
 \item population (positive_integer) - Size of population
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
-\item population_unit (double) - The population unit on which the per capita incidence rate is calculated
-\item time_unit (lubridate::as.period) - The time period over which the per capita incidence rate is calculated
 }
 
 Any grouping allowed.

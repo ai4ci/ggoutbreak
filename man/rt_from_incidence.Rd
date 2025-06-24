@@ -4,12 +4,15 @@
 \alias{rt_from_incidence}
 \title{Reproduction number from modelled incidence}
 \usage{
-rt_from_incidence(df = i_incidence_model, ip = i_discrete_ip, approx = FALSE)
+rt_from_incidence(
+  df = i_incidence_model,
+  ip = i_discrete_ip,
+  approx = FALSE,
+  .progress = interactive()
+)
 }
 \arguments{
-\item{df}{modelled incidence estimate
-
-A dataframe containing the following columns: 
+\item{df}{modelled incidence estimate - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
@@ -19,22 +22,24 @@ A dataframe containing the following columns:
 \item incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
-\item{ip}{an infectivity profile (aka generation time distribution)
-
-A dataframe containing the following columns: 
+\item{ip}{an infectivity profile (aka generation time distribution) - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
 \item tau (integer + complete) - the days since the index event.
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{approx}{use a faster, but approximate, estimate of quantiles}
+
+\item{.progress}{show a CLI progress bar}
 }
 \value{
 A dataframe containing the following columns:
@@ -58,19 +63,20 @@ the \code{ip} distribution, and that this is daily, if this is not the case then
 \code{\link[=rescale_model]{rescale_model()}} may be able to fix it.
 }
 \examples{
-df = ggoutbreak::england_covid \%>\%
+tmp = ggoutbreak::england_covid \%>\%
   dplyr::filter(date < "2021-01-01") \%>\%
   time_aggregate(count=sum(count)) \%>\%
-  poisson_locfit_model()
+  poisson_locfit_model() \%>\%
+  rt_from_incidence()
+
 
 if (interactive()) {
-  # not run
-  withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-    tmp3 = df \%>\% rt_from_incidence(ganyani_ip)
-  })
+  plot_rt(tmp, date_labels="\%b \%y") \%above\%
+   ggplot2::geom_errorbar(
+     data=england_consensus_rt \%>\% dplyr::filter(date < "2021-01-01"),
+     mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
+   ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
 }
-
-tmp = df \%>\% rt_from_incidence(du_serial_interval_ip)
 
 }
 \concept{models}

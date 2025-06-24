@@ -12,9 +12,7 @@ plot_rt(
 )
 }
 \arguments{
-\item{modelled}{the modelled Rt estimate
-
-A dataframe containing the following columns: 
+\item{modelled}{the modelled Rt estimate - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item rt.fit (double) - an estimate of the reproduction number
@@ -24,7 +22,8 @@ A dataframe containing the following columns:
 \item rt.0.975 (double) - upper confidence limit of the reproduction number
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
@@ -123,9 +122,7 @@ bounds values with \code{NA}.
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
 to something if there are multiple incidence time series in the plot}
 
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -134,7 +131,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 a ggplot timeseries

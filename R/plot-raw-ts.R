@@ -26,7 +26,7 @@
 #' }
 #'
 plot_counts = function(
-    raw = i_incidence_data,
+    raw,
     ...,
     mapping = .check_for_aes(raw,...),
     events = i_events
@@ -47,7 +47,7 @@ plot_counts.default = function(
   events = i_events
 ) {
 
-  raw = interfacer::ivalidate(raw)
+  # raw = interfacer::ivalidate(raw)
   # unit = attr(raw$time,"unit")
   # days = as.integer(unit)/(24*60*60)
 
@@ -72,7 +72,7 @@ plot_counts.default = function(
 }
 
 plot_counts.per_capita = function(
-  raw = i_incidence_per_capita_data,
+  raw = i_incidence_per_capita_normalised,
   ...,
   mapping = .check_for_aes(raw,...),
   events = i_events
@@ -185,7 +185,7 @@ plot_proportions = function(
 #'   plot_cases(tmp)
 #' }
 plot_cases = function(
-    raw = i_timestamped,
+    raw,
     ...,
     mapping = .check_for_aes(raw,...,class_aes = "fill"),
     events = i_events

@@ -5,7 +5,7 @@
 \title{Plot an incidence or proportion versus growth phase diagram}
 \usage{
 plot_growth_phase(
-  modelled = i_timestamped,
+  modelled,
   timepoints = NULL,
   duration = max(dplyr::count(modelled)$n),
   interval = 7,
@@ -16,11 +16,30 @@ plot_growth_phase(
 )
 }
 \arguments{
-\item{modelled}{Either:
-
-A dataframe containing the following columns:
+\item{modelled}{Growth rates and incidence / proportion timeseries as the
+outputs of functions such as \code{proportion_locfit_model}, \code{poisson_locfit_model},
+or similar. - EITHER: a dataframe with columns:
 \itemize{
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item incidence.per_capita.fit (double) - an estimate of the incidence per capita rate on a log scale
+\item incidence.per_capita.se.fit (positive_double) - the standard error of the incidence per capita rate estimate on a log scale
+\item incidence.per_capita.0.025 (positive_double) - lower confidence limit of the incidence per capita rate (true scale)
+\item incidence.per_capita.0.5 (positive_double) - median estimate of the incidence per capita rate (true scale)
+\item incidence.per_capita.0.975 (positive_double) - upper confidence limit of the incidence per capita rate (true scale)
+\item population_unit (double) - The population unit on which the per capita incidence rate is calculated
+\item time_unit (lubridate::as.period) - The time period over which the per capita incidence rate is calculated
+\item growth.fit (double) - an estimate of the growth rate
+\item growth.se.fit (positive_double) - the standard error the growth rate
+\item growth.0.025 (double) - lower confidence limit of the growth rate
+\item growth.0.5 (double) - median estimate of the growth rate
+\item growth.0.975 (double) - upper confidence limit of the growth rate
+}
+
+Any grouping allowed.
+
+OR with columns:
+\itemize{
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
@@ -35,11 +54,12 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-OR:
-
-A dataframe containing the following columns:
+OR with columns:
 \itemize{
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item risk_ratio.0.025 (positive_double) - lower confidence limit of the excess risk ratio for a population group
+\item risk_ratio.0.5 (positive_double) - median estimate of the excess risk ratio for a population group
+\item risk_ratio.0.975 (positive_double) - upper confidence limit of the excess risk ratio for a population group
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
 \item proportion.se.fit (positive_double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)
@@ -52,7 +72,28 @@ A dataframe containing the following columns:
 \item relative.growth.0.975 (double) - upper confidence limit of the relative growth rate
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+
+OR with columns:
+\itemize{
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item proportion.fit (double) - an estimate of the proportion on a logit scale
+\item proportion.se.fit (positive_double) - the standard error of proportion estimate on a logit scale
+\item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)
+\item proportion.0.5 (proportion) - median estimate of proportion (true scale)
+\item proportion.0.975 (proportion) - upper confidence limit of proportion (true scale)
+\item relative.growth.fit (double) - an estimate of the relative growth rate
+\item relative.growth.se.fit (positive_double) - the standard error the relative growth rate
+\item relative.growth.0.025 (double) - lower confidence limit of the relative growth rate
+\item relative.growth.0.5 (double) - median estimate of the relative growth rate
+\item relative.growth.0.975 (double) - upper confidence limit of the relative growth rate
+}
+
+Any grouping allowed.
+
+OR with NULL
+
+}
 
 \item{timepoints}{time points (as \code{Date} or \code{time_period} vector) of dates to
 plot phase diagrams. If multiple this will result in a sequence of plots
@@ -68,9 +109,7 @@ as facets. If \code{NULL} (the default) it will be the last time point in the se
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
-    \item{\code{events}}{Significant events or time spans
-
-A dataframe containing the following columns: 
+    \item{\code{events}}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -79,7 +118,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 \item{\code{event_label_size}}{how big to make the event label}
 \item{\code{event_label_colour}}{the event label colour}
 \item{\code{event_label_angle}}{the event label colour}

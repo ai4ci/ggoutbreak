@@ -5,7 +5,7 @@
 \title{Plot an incidence timeseries}
 \usage{
 plot_incidence(
-  modelled = i_incidence_model,
+  modelled,
   raw = i_incidence_data,
   ...,
   mapping = .check_for_aes(modelled, ...),
@@ -16,11 +16,24 @@ plot_incidence(
 \item{modelled}{An optional estimate of the incidence time series. If \code{modelled} is
 missing then it is estimated from \code{raw} using a \code{poisson_locfit_model}.
 In this case parameters \code{window} and \code{deg} may be supplied to control the
-fit.
-
-A dataframe containing the following columns:
+fit. \code{modelled} can also be the output from \code{normalise_incidence} in which case
+the plot uses the per capita rates calculated by that function. - EITHER: a dataframe with columns:
 \itemize{
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item incidence.per_capita.fit (double) - an estimate of the incidence per capita rate on a log scale
+\item incidence.per_capita.se.fit (positive_double) - the standard error of the incidence per capita rate estimate on a log scale
+\item incidence.per_capita.0.025 (positive_double) - lower confidence limit of the incidence per capita rate (true scale)
+\item incidence.per_capita.0.5 (positive_double) - median estimate of the incidence per capita rate (true scale)
+\item incidence.per_capita.0.975 (positive_double) - upper confidence limit of the incidence per capita rate (true scale)
+\item population_unit (double) - The population unit on which the per capita incidence rate is calculated
+\item time_unit (lubridate::as.period) - The time period over which the per capita incidence rate is calculated
+}
+
+Any grouping allowed.
+
+OR with columns:
+\itemize{
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
@@ -30,18 +43,16 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-\code{modelled} can also be the output from \code{normalise_incidence} in which case
-the plot uses the per capita rates calculated by that function}
+}
 
-\item{raw}{The raw count data
-
-A dataframe containing the following columns: 
+\item{raw}{The raw count data - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
@@ -137,36 +148,34 @@ bounds values with \code{NA}.
 }}
 }
   Named arguments passed on to \code{\link[=poisson_locfit_model]{poisson_locfit_model}}\describe{
-    \item{\code{d}}{input data
-
-A dataframe containing the following columns: 
+    \item{\code{d}}{input data - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.}
+Ungrouped.
+}
 \item{\code{...}}{not used and present to allow proportion model to be used in a
 \code{group_modify}}
 \item{\code{window}}{a number of data points defining the bandwidth of the estimate,
 smaller values result in less smoothing, large value in more. The default
 value of 14 is calibrated for data provided on a daily frequency, with
-weekly data a lower value may be preferred. - (defaults to \code{14})}
+weekly data a lower value may be preferred. - default \code{14}}
 \item{\code{deg}}{polynomial degree (min 1) - higher degree results in less
 smoothing, lower values result in more smoothing. A degree of 1 is fitting
-a linear model piece wise. - (defaults to \code{1})}
+a linear model piece wise. - default \code{1}}
 \item{\code{frequency}}{the density of the output estimates as a time period such as
-\verb{7 days} or \verb{2 weeks}. - (defaults to \code{"1 day"})}
+\verb{7 days} or \verb{2 weeks}. - default \code{1 day}}
 \item{\code{predict}}{result is a prediction dataframe. If false we return the
-\code{locfit} models (advanced). - (defaults to \code{TRUE})}
+\code{locfit} models (advanced). - default \code{TRUE}}
+\item{\code{.progress}}{show a CLI progress bar}
 }}
 
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
 to something if there are multiple incidence timeseries in the plot}
 
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -175,7 +184,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 a ggplot object

@@ -47,7 +47,7 @@ if input is a vector.
 }
 \description{
 The infectivity profile is typically fitted to data by MCMC and reported
-as median and 95\% credible intervals, of the mean, and the SD of (usually_ a
+as median and 95\% credible intervals, of the mean, and the SD of (usually) a
 gamma distribution. This function generates a discrete infectivity probability
 distribution representing the chance that an infectee was infected on any specific
 day after the infector was infected (given that the infectee was infected).
@@ -59,14 +59,15 @@ discretised using a gamma distribution offset by 1 day, to enforce that the
 probability of infection on day zero is zero.
 
 This constraint changes the shape of the distribution somewhat and may cause
-a small bias (although there is no ground truth to evaluate). A different
-sampling and discretisation strategy is provided. The sampler uses log-normal
-distributions for both mean and SD with a degree of correlation. The
-discretizer assigns probabilities direct from the CDF of the gamma
-distribution without offset. This results in non zero values for the
+a small bias (although there is no ground truth to evaluate). In this
+function two different sampling and discretisation strategy are provided. The
+sampler uses log-normal distributions for both mean and SD with a degree of
+correlation. The discretizer assigns probabilities direct from the CDF of the
+gamma distribution without offset. This results in non zero values for the
 probability at time zero and can only be used with Rt estimation methods that
 can handle zero/negative serial intervals (e.g. \code{rt_from_incidence} or
-\code{rt_from_renewal}, or \code{rt_from_growth_rate}).
+\code{rt_from_renewal}, or \code{rt_from_growth_rate}). The alternative follows
+\code{EpiEstim}s algorithm.
 }
 \examples{
 # COVID-19 estimates from Ganyani et al 2020.

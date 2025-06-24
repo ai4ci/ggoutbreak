@@ -15,7 +15,24 @@ sim_apply_delay(
 )
 }
 \arguments{
-\item{df}{a line list dataframe arising from e.g. \code{\link[=sim_branching_process]{sim_branching_process()}}}
+\item{df}{a line list dataframe arising from e.g. \code{\link[=sim_branching_process]{sim_branching_process()}} - EITHER: a dataframe with columns:
+\itemize{
+\item id (unique_id) - Patient level unique id
+\item time (ggoutbreak::time_period) - Time of infection. A `time_period`
+}
+
+Any grouping allowed.
+
+OR with columns:
+\itemize{
+\item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
+\item count (positive_integer) - Positive case counts associated with the specified time frame
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+}
+
+Minimally grouped by: statistic (and other groupings allowed).
+
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=sim_apply_delay.linelist]{sim_apply_delay.linelist}}\describe{

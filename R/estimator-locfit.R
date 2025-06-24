@@ -1,4 +1,4 @@
-# GLM simple spline models ----
+# LOCFIT polynomial models ----
 
 .nn_from_window = function(window, d) {
   nn = 2*window/nrow(d)
@@ -49,9 +49,12 @@
 #'   time_aggregate() %>%
 #'   proportion_locfit_model(window=5, degree=2) %>%
 #'   dplyr::glimpse()
-proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE) {
+proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE, .progress = interactive()) {
 
-  interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("proportion & growth rate (locfit)", total = dplyr::n_groups(d), .envir = env)
+
+  modelled = interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
 
     output_times = date_seq.time_period(d$time, period = frequency)
     nn = .nn_from_window(window, d)
@@ -99,11 +102,18 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
       .result_from_fit(type = "proportion", tmp$fit, tmp$se.fit, t) %>%
       .keep_cdf(type = "proportion", mean=tmp$fit, sd=tmp$se.fit, trans_fn = .logit) %>%
       .result_from_fit(type = "relative.growth", tmp2$fit, tmp2$se.fit, t2) %>%
-      .keep_cdf(type = "relative.growth", mean=tmp2$fit, sd=tmp2$se.fit) %>%
+      .keep_cdf(type = "relative.growth", mean=tmp2$fit, sd=tmp2$se.fit)
+
+    if (.progress) cli::cli_progress_update(.envir = env)
 
     return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
+
+  return(modelled)
+
 }
 
 
@@ -131,6 +141,7 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
 #'   `7 days` or `2 weeks`.
 #' @iparam predict result is a prediction dataframe. If false we return the
 #'   `locfit` models (advanced).
+#' @param .progress show a CLI progress bar
 #'
 #' @return `r i_incidence_rate`
 #'
@@ -145,7 +156,10 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
 #'     dplyr::glimpse()
 #' })
 #'
-poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE) {
+poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE, .progress = interactive()) {
+
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("incidence & growth rate (locfit)", total = dplyr::n_groups(d), .envir = env)
 
   modelled = interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
 
@@ -186,15 +200,19 @@ poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1
       .tidy_fit("incidence", incidence.se.fit > 4) %>%
       .tidy_fit("growth", growth.se.fit > 0.25)
 
+    if (.progress) cli::cli_progress_update(.envir = env)
+
     return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
 
   return(modelled %>% .normalise_from_raw(d))
 
 }
 
-#TODO: integrate normalise_incidence into this in a scaleable way, so that if
+# TODO: integrate normalise_incidence into this in a scaleable way, so that if
 # the count data has been normalised by population then the result data is too:
 # if (interfacer::is_col_present(d,population,population_unit,time_unit)) {
 #   population_unit = unique(d$population_unit)

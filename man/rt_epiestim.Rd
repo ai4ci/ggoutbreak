@@ -11,32 +11,31 @@ rt_epiestim(
   window = 14,
   mean_prior = 1,
   std_prior = 2,
-  ...
+  ...,
+  .progress = interactive()
 )
 }
 \arguments{
-\item{df}{Count data. Extra groups are allowed.
-
-A dataframe containing the following columns: 
+\item{df}{Count data. Extra groups are allowed. - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.}
+Ungrouped.
+}
 
-\item{ip}{infectivity profile
-
-A dataframe containing the following columns: 
+\item{ip}{infectivity profile - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
 \item tau (integer + complete) - the days since the index event.
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{bootstraps}{\itemize{
 \item the number of bootstraps to take to calculate for each point.
@@ -56,6 +55,8 @@ numbers drop to a low value.}
 \item{std_prior}{the prior for the $R_t$ SD.}
 
 \item{...}{not used}
+
+\item{.progress}{show a CLI progress bar}
 }
 \value{
 A dataframe containing the following columns:

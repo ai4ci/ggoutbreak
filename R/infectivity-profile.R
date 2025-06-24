@@ -1,7 +1,7 @@
 #' Make an infectivity profile from published data
 #'
 #' The infectivity profile is typically fitted to data by MCMC and reported
-#' as median and 95% credible intervals, of the mean, and the SD of (usually_ a
+#' as median and 95% credible intervals, of the mean, and the SD of (usually) a
 #' gamma distribution. This function generates a discrete infectivity probability
 #' distribution representing the chance that an infectee was infected on any specific
 #' day after the infector was infected (given that the infectee was infected).
@@ -12,14 +12,15 @@
 #' probability of infection on day zero is zero.
 #'
 #' This constraint changes the shape of the distribution somewhat and may cause
-#' a small bias (although there is no ground truth to evaluate). A different
-#' sampling and discretisation strategy is provided. The sampler uses log-normal
-#' distributions for both mean and SD with a degree of correlation. The
-#' discretizer assigns probabilities direct from the CDF of the gamma
-#' distribution without offset. This results in non zero values for the
+#' a small bias (although there is no ground truth to evaluate). In this
+#' function two different sampling and discretisation strategy are provided. The
+#' sampler uses log-normal distributions for both mean and SD with a degree of
+#' correlation. The discretizer assigns probabilities direct from the CDF of the
+#' gamma distribution without offset. This results in non zero values for the
 #' probability at time zero and can only be used with Rt estimation methods that
 #' can handle zero/negative serial intervals (e.g. `rt_from_incidence` or
-#' `rt_from_renewal`, or `rt_from_growth_rate`).
+#' `rt_from_renewal`, or `rt_from_growth_rate`). The alternative follows
+#' `EpiEstim`s algorithm.
 #'
 #' @param median_of_mean,lower_ci_of_mean,upper_ci_of_mean Parameters of the
 #'   infectivity profile mean.
@@ -189,8 +190,8 @@ make_gamma_ip = function(
 #'
 #' @param omega a matrix of probabilities, starting at time zero, with columns
 #'   representing one possible infectivity profile, with the fist value being
-#'   the probability at time zero to 0.5. Or a vector of probabilities for one
-#'   single profile, resulting in 1 bootstrap.
+#'   the probability at time zero (to 0.5). Alternatively this can be a vector
+#'   of probabilities for one single profile, resulting in 1 bootstrap.
 #' @param normalise is this a probability mass function? In which case we make the
 #'   sum of this equal to one (the default). If `FALSE` then the input matrix,
 #'   or vector is clipped so that its maximum value is one. If this is a number
@@ -478,15 +479,29 @@ format_ip = function(ip = i_empirical_ip) {
 }
 
 
+# .groupdata is a single row tibble of the grouping we are trying to match
+# the IP for.
+# selects the subset of th eIP distribution that is relevant to this group.
+.select_ip = function(ip, .groupdata) {
+  joincols = intersect(colnames(.groupdata),colnames(ip))
+  if (length(joincols)>0) {
+    ip = ip %>% dplyr::semi_join(.groupdata, by=joincols)
+  }
+  ip %>% dplyr::ungroup() %>%
+    dplyr::select(probability, tau, boot) %>%
+    dplyr::group_by(boot)
+}
+
+
 ## Internal infectivity profile utilities ----
 
 #' Generate a infectivity profile matrix from a long format
 #'
-#' Makes sure that this starts at zero. No guarantee matric columns adds up to 1.
+#' Makes sure that this starts at zero. No guarantee matrix columns adds up to 1.
 #'
 #' @param ip long format infectivity profile
 #'
-#' @return a maxrix
+#' @return a matrix
 #' @noRd
 #'
 #' @examples

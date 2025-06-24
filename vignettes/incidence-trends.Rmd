@@ -31,20 +31,22 @@ dplyr::glimpse(england_demographics)
 
 # Incidence Poisson rate model
 
-A plot of the normalised incidence rates of COVID-19 by population size, shows 
+A plot of the normalised incidence rates of COVID-19 by population size, shows
 initially the rate of COVID cases was highest in the elderly. By late 2020 this
-pattern had changed and rates were uniform across age groups. In early 2021
-as vaccination took hold and school testing was rolled out, younger age groups
-had higher rates of COVID positive tests, with a curious spike in the very young
-age groups around November 2021. In early 2022 the pattern reversed and the 
-elderly again became the age group with the highest rates, and that pattern has
-persisted until the present.
+pattern had changed and rates were uniform across age groups. In early 2021 as
+vaccination took hold and school testing was rolled out, younger age groups had
+higher rates of COVID positive tests, with a curious spike in the very young age
+groups around November 2021. In early 2022 the pattern reversed and the elderly
+again became the age group with the highest rates, and that pattern has
+persisted until the present. Transiently the instantaneous rates per 1000 person
+years exceeded 1000 in some age groups, this is possible for limited time
+periods, or if multiple episodes per year can be observed.
 
 ```{r}
 
 tmp = ggoutbreak::england_covid %>%
    ggoutbreak::poisson_locfit_model(window=21) %>%
-   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics)
+   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics, population_unit=1000, normalise_time="1 year")
 
 raw_pop = ggoutbreak::england_covid %>% 
   ggoutbreak::normalise_count(ggoutbreak::england_demographics, population_unit=1000, normalise_time="1 year")
@@ -215,12 +217,15 @@ probability of successful viral culture as a function of time after symptom onse
 In this case the ratio of prevalence derived from positive case counts,
 resulting from symptomatic testing, and prevalence measured directly on a random
 sample by the ONS survey has a connection with the ascertainment rate. The
-actual value of the ascertainment rate calculated by this method depends on
-assumptions on the duration of infection, however the relative change in this
-number is informative (panel C).
+actual value of the ascertainment rate calculated by this method depends very
+heavily on assumptions on the duration of infection, and hence the prevalence
+that is derived from case rates, and absolute value of the derived ascertainment
+is not reliable, however the relative change in this number is still informative
+and demonstrates that case ascertainment fell abruptly during the omicron wave
+(panel C).
 
 
-```{r}
+```{r fig.height=6, fig.width=8}
 england_pop = ggoutbreak::england_demographics %>% dplyr::ungroup() %>% dplyr::summarise(population = sum(population))
 
 p3 = ggoutbreak::england_covid_pcr_positivity %>% 

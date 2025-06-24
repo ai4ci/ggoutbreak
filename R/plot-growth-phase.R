@@ -2,14 +2,9 @@
 
 #' Plot an incidence or proportion versus growth phase diagram
 #'
-#' @param modelled
-#' Either:
-#'
-#' `r interfacer::idocument(plot_growth_rate.incidence, modelled)`
-#'
-#' OR:
-#'
-#' `r interfacer::idocument(plot_growth_rate.proportion, modelled)`
+#' @iparam modelled Growth rates and incidence / proportion timeseries as the
+#'   outputs of functions such as `proportion_locfit_model`, `poisson_locfit_model`,
+#'   or similar.
 #' @param timepoints time points (as `Date` or `time_period` vector) of dates to
 #'   plot phase diagrams. If multiple this will result in a sequence of plots
 #'   as facets. If `NULL` (the default) it will be the last time point in the series
@@ -44,7 +39,7 @@
 #'   plot_growth_phase(tmp2, timepoints, duration=108)
 #' }
 plot_growth_phase = function(
-    modelled = i_timestamped,
+    modelled,
     timepoints = NULL,
     duration = max(dplyr::count(modelled)$n),
     interval = 7,

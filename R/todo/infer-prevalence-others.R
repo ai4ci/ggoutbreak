@@ -1,4 +1,6 @@
-#
+
+
+# NOT ENABLED
 
 #' Infer the prevalence of disease from incidence estimates and population size.
 #'
@@ -9,13 +11,13 @@
 #'
 #' @iparam pop The population data must be grouped in the same way as `modelled`.
 #' @iparam modelled model output from processing the `raw` dataframe with something like
-#'   `poisson_locfit_model`
+#'   `poisson_locfit_model`.
 #' @iparam ip An infectivity profile.
 #' @param bootstraps the number of samples to take at each time point. This will
 #'   be rounded up to a whole multiple of the infectivity profile distribution
 #'   length.
 #' @param seed a random number seed for reproducibility
-#' @param ... not used
+#' @param ... not used (for future use)
 #'
 #' @return the modelled input with additional prevalence columns
 #' @export
@@ -30,7 +32,7 @@
 #'   ) %>%
 #'   dplyr::glimpse()
 infer_prevalence = function(
-    modelled = i_timeseries,
+    modelled,
     pop = i_population_data,
     ip = i_discrete_ip,
     bootstraps = 1000,
@@ -39,8 +41,8 @@ infer_prevalence = function(
 ) {
 
   interfacer::idispatch(modelled,
-                        infer_prevalence.proportion = i_proportion_model,
-                        infer_prevalence.incidence = i_incidence_model
+    infer_prevalence.proportion = i_proportion_model,
+    infer_prevalence.incidence = i_incidence_model
   )
 
 }

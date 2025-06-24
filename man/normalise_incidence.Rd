@@ -14,9 +14,7 @@ normalise_incidence(
 }
 \arguments{
 \item{modelled}{Model output from processing the \code{raw} dataframe with something like
-\code{poission_locfit_model}
-
-A dataframe containing the following columns: 
+\code{poission_locfit_model} - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
@@ -26,16 +24,16 @@ A dataframe containing the following columns:
 \item incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
-\item{pop}{The population data must be grouped in the same way as \code{modelled}.
-
-A dataframe containing the following columns: 
+\item{pop}{The population data must be grouped in the same way as \code{modelled}. - a dataframe with columns:
 \itemize{
 \item population (positive_integer) - Size of population
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{...}{not used}
 

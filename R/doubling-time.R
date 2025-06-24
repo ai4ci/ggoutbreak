@@ -2,14 +2,7 @@
 #'
 #' The unit of doubling times is always days.
 #'
-#' @param x a dataframe calculated from either proportion or incidence growth
-#'   rate calculations:
-#'
-#'   e.g. `r i_incidence_rate`
-#'
-#'   OR
-#'
-#'   `r i_proportion_rate`
+#' @iparam x proportion or incidence growth rates
 #' @param ... not used
 #'
 #' @return the same dataframe with additional columns for doubling time

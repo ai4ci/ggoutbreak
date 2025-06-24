@@ -351,13 +351,7 @@ sim_test_data = function(ip = test_ip, duration=500, period=50) {
 #'
 #' @export
 #' @concept test
-#' @return A dataframe containing the following columns:
-#'
-#' * count (positive_integer) - Positive case counts associated with the specified time frame
-#' * time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
-#'
-#' Ungrouped.
-#'
+#' @ireturn A dataframe of case counts
 #' @examples
 #'
 #' tmp2 = sim_poisson_model(seed=100, fn_imports = ~ ifelse(.x %in% c(0,50),100,0))
@@ -405,11 +399,11 @@ sim_poisson_model = function(
 
   })
 
-  return(structure(
-    interfacer::ireturn(tmp,i_sim_count_data),
+  interfacer::ireturn(structure(
+    tmp,
     events = .extract_events(tmp, growth, time, "growth=%1.2f"),
     fn = fn_growth
-  ))
+  ),i_sim_count_data)
 
 }
 
@@ -433,13 +427,7 @@ sim_poisson_model = function(
 #'
 #' @export
 #' @concept test
-#' @return A dataframe containing the following columns:
-#'
-#' * count (positive_integer) - Positive case counts associated with the specified timeframe
-#' * time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
-#'
-#' Ungrouped.
-#'
+#' @ireturn A dataframe of case counts
 #' @examples
 #'
 #' tmp = sim_poisson_Rt_model(kappa=1, seed=100, fn_imports = ~ ifelse(.x %in% c(0,50),100,0))
@@ -502,11 +490,11 @@ sim_poisson_Rt_model = function(
 
   })
 
-  return(structure(
-    interfacer::ireturn(tmp,i_sim_count_data),
+  interfacer::ireturn(structure(
+    tmp,
     events = .extract_events(tmp, rt, time, "Rt=%1.2f"),
     fn = fn_Rt
-  ))
+  ),i_sim_count_data)
 
 }
 
@@ -669,8 +657,7 @@ sim_multinomial = function(
 #'   (as `t`). The [rcategorical()] function may be useful in this scenario.
 #' @param ... not used
 #'
-#' @return a line list of cases, with individual ids, infection times,
-#'    and infector ids, for a simulated outbreak
+#' @ireturn a line list of cases for a simulated outbreak
 #' @export
 #' @concept test
 #'
@@ -839,17 +826,18 @@ sim_branching_process = function(
       .extract_events(Rt, time, "Rt=%1.2f")
 
     out = out %>%
-      dplyr::mutate(time = as.time_period(time, unit="1 day")) %>%
-      interfacer::ireturn(i_sim_linelist)
+      dplyr::mutate(time = as.time_period(time, unit="1 day"))
 
-    return(structure(
+
+    interfacer::ireturn(structure(
       out,
       ip_cache= ip_cache %>% dplyr::mutate(
         time = as.time_period(time, unit="1 day"),
         t_tau = as.time_period(t_tau, unit="1 day")
       ),
       events = events
-    ))
+    ),i_sim_linelist)
+
   })
 }
 
@@ -1406,8 +1394,7 @@ sim_apply_delay.linelist = function(df = i_sim_linelist,
 #'   the simulation infection time. N.B. since infection is not observed you
 #'   can't censor it.
 #' @param max_time the censoring time for this observation.
-#' @return a count data frame with various R_t measures, ascertainment, and
-#'   underlying infection count.
+#' @ireturn a count data frame with additional statistics.
 #' @concept test
 #' @export
 #' @examples
@@ -1533,11 +1520,11 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
     tidyr::pivot_longer(cols = -c(!!!grps,time,rt.case,dispersion,rt.weighted,force,rt.inst),names_to = "statistic", values_to = "count") %>%
     dplyr::filter(!is.na(count)) %>%
     dplyr::mutate(time = ggoutbreak::as.time_period(time, "1 day")) %>%
-    dplyr::group_by(statistic,!!!grps) %>%
-    interfacer::ireturn(i_sim_count_data)
+    dplyr::group_by(statistic,!!!grps)
+
 
   attr(out,"events") = events
-  return(out)
+  interfacer::ireturn(out,i_sim_count_data)
 }
 
 

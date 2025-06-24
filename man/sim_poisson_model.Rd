@@ -32,13 +32,16 @@ number of imported cases at times \code{t}.}
 \item{time_unit}{e.g. a daily or weekly time series: "1 day", "7 days"}
 }
 \value{
-A dataframe containing the following columns:
+A dataframe of case counts
+
+A dataframe containing the following columns: 
 \itemize{
+\item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
 \item count (positive_integer) - Positive case counts associated with the specified time frame
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.
+Minimally grouped by: statistic (and other groupings may be present).
 }
 \description{
 Generate an outbreak case count series defined by growth rates using a poisson model.

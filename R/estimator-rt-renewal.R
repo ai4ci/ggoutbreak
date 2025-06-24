@@ -20,6 +20,7 @@
 #'   be rounded up to a whole multiple of the infectivity profile distribution
 #'   length.
 #' @param seed a random number seed for reproducibility
+#' @param .progress show a CLI progress bar
 #'
 #' @return `r i_reproduction_number`
 #' @export
@@ -38,13 +39,14 @@
 #'
 #' }
 #'
-rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstraps = 1000, seed = Sys.time()) { #, assume_start = TRUE) {
+rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstraps = 1000, seed = Sys.time(), .progress = interactive()) { #, assume_start = TRUE) {
 
   ip = interfacer::ivalidate(ip)
 
-  #TODO: test negative serial interval
+  #test negative serial interval
   start = min(ip$tau)
 
+  #TODO: nest into igroup_rprocess
   # omega is a matrix 13x100
   omega = ip %>% .omega_matrix(epiestim_compat = FALSE)
 
@@ -56,8 +58,12 @@ rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstrap
   # This reverses order so that the convolution can happen correctly without
   # reordering the timeseries.
   logomega = log(omega)[window:1]
+  #TODO: nest into igroup_rprocess ^^^
 
-  interfacer::igroup_process(df, function(df, logomega, window,...) {
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("Rt (renewal)", total = dplyr::n_groups(df), .envir = env)
+
+  modelled = interfacer::igroup_process(df, function(df, logomega, window,...) {
 
     .stop_if_not_daily(df$time)
     pad = .ln_pad(window, df$incidence.fit[1], df$incidence.se.fit[1], spread = 1.1 )
@@ -89,7 +95,7 @@ rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstrap
       }
     }
 
-    tmp2 = tmp %>%
+    new_data = tmp %>%
       dplyr::filter(!imputed) %>%
       dplyr::mutate(
         rt.fit = purrr::map_dbl(rt.samples, .finite(mean)),
@@ -103,8 +109,14 @@ rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstrap
       .keep_cdf(type = "rt", .$rt.samples) %>%
       dplyr::select(-rt.samples, -incidence.logsamples, -imputed)
 
-    return(tmp2)
+    if (.progress) cli::cli_progress_update(.envir = env)
+
+    return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
+
+  return(modelled)
 
 }

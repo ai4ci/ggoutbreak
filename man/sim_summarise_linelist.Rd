@@ -12,15 +12,14 @@ sim_summarise_linelist(
 )
 }
 \arguments{
-\item{df}{a line list dataframe arising from e.g. \code{\link[=sim_branching_process]{sim_branching_process()}}
-
-A dataframe containing the following columns: 
+\item{df}{a line list dataframe arising from e.g. \code{\link[=sim_branching_process]{sim_branching_process()}} - a dataframe with columns:
 \itemize{
 \item id (unique_id) - Patient level unique id
 \item time (ggoutbreak::time_period) - Time of infection. A `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{...}{the grouping to include in the summarisation.}
 
@@ -35,8 +34,16 @@ can't censor it.}
 \item{max_time}{the censoring time for this observation.}
 }
 \value{
-a count data frame with various R_t measures, ascertainment, and
-underlying infection count.
+a count data frame with additional statistics.
+
+A dataframe containing the following columns: 
+\itemize{
+\item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
+\item count (positive_integer) - Positive case counts associated with the specified time frame
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+}
+
+Minimally grouped by: statistic (and other groupings may be present).
 }
 \description{
 This function converts a line list into a daily count of incident cases, plus

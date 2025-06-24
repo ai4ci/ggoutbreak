@@ -32,7 +32,11 @@ i_baseline_incidence_data = interfacer::iface(
 
 i_incidence_per_capita_data = interfacer::iface(
   i_population_data,
-  i_incidence_data,
+  i_incidence_data
+)
+
+i_incidence_per_capita_normalised = interfacer::iface(
+  i_incidence_per_capita_data,
   population_unit = double ~ "The population unit on which the per capita incidence rate is calculated",
   time_unit = lubridate::as.period ~ "The time period over which the per capita incidence rate is calculated"
 )
@@ -210,7 +214,7 @@ i_ip_base = interfacer::iface(
 i_discrete_ip = interfacer::iface(
   i_ip_base,
   tau = integer + complete ~ "the days since the index event.",
-  .groups = ~ boot,
+  .groups = ~ . + boot,
   .default = ggoutbreak::covid_ip
 )
 
@@ -218,7 +222,7 @@ i_empirical_ip = interfacer::iface(
   i_ip_base,
   a0 = double ~ "the beginning of the time period (in days)",
   a1 = double ~ "the end of the time period (in days)",
-  .groups = ~ boot ,
+  .groups = ~ . + boot ,
   .default = ggoutbreak::covid_ip
 )
 

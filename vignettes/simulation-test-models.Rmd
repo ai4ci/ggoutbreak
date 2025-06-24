@@ -553,7 +553,7 @@ default set of delays which keying off an infection event, generate a delayed
 set of symptom observations, test samples, results, hospitalisations and death 
 time series.
 
-```{r}
+```{r fig.height=8}
 
 
 seasonal_rt_fn = \(t) dplyr::case_when(
@@ -635,7 +635,7 @@ linelist = sim_branching_process(
    fn_imports = ~ ifelse(.x<10,8,0)
 )
 
-plot_cases(linelist, events = attr(linelist,"events"),individual=TRUE)+ggplot2::coord_cartesian()
+plot_cases(linelist, events = attr(linelist,"events"))+ggplot2::coord_cartesian()
 
 ```
 

@@ -13,9 +13,7 @@ plot_multinomial(
 )
 }
 \arguments{
-\item{modelled}{the multinomial count data
-
-A dataframe containing the following columns: 
+\item{modelled}{the multinomial count data - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item class (factor) - A factor specifying the type of observation. This will be things like
@@ -23,7 +21,8 @@ variant, or serotype, for a multinomial model. Any missing data points are ignor
 \item proportion.0.5 (proportion) - median estimate of proportion (true scale)
 }
 
-Must be grouped by: class (exactly).}
+Must be grouped by: class (exactly).
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
@@ -122,9 +121,7 @@ bounds values with \code{NA}.
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
 to something if there are multiple incidence timeseries in the plot}
 
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -133,7 +130,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{normalise}{make sure the probabilities add up to one - this can be a
 bad idea if you know you may have missing values.}

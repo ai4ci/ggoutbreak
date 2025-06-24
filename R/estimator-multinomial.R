@@ -12,6 +12,7 @@
 #'   less smoothing, large value in more.
 #' @param frequency the density of the output estimates.
 #' @param predict result a prediction. If false we return the model.
+#' @param .progress show a CLI progress bar
 #'
 #' @return a new dataframe with `time` (as a time period), `class`, and `proportion.0.5`, or a model object
 #' @export
@@ -24,9 +25,12 @@
 #'     ggoutbreak::multinomial_nnet_model(window=21) %>%
 #'     dplyr::glimpse()
 #' }
-multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, frequency = "1 day", predict = TRUE) { #, output_unit="1 day") {
+multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, frequency = "1 day", predict = TRUE, .progress=interactive()) { #, output_unit="1 day") {
 
-  interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("multinomial (nnet)", total = dplyr::n_groups(d), .envir = env)
+
+  modelled = interfacer::igroup_process(d, function(d, ..., window, frequency, predict) {
 
     # remove zero count time points as these crash the algorithm
     tmp2 = d %>% dplyr::group_by(time) %>% dplyr::filter(sum(count)>0) %>% dplyr::ungroup()
@@ -56,16 +60,24 @@ multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, fre
     # colnames(preds) = colnames(response)
 
     preds2 = stats::predict(model,newdata = new_data,type = "probs")
-
     probs = dplyr::bind_cols(new_data, as.data.frame(preds2))
     probs = probs %>%
       tidyr::pivot_longer(cols = -time, names_to = "class", values_to = "proportion.0.5") %>%
       dplyr::mutate(class = factor(class,levels=levels(d$class))) %>%
       dplyr::group_by(class)
 
-    return(interfacer::ireturn(probs, i_multinomial_proportion_model))
+    # return(interfacer::ireturn(probs, i_multinomial_proportion_model))
+
+    if (.progress) cli::cli_progress_update(.envir = env)
+
+    return(probs)
 
   })
+
+  if (.progress) cli::cli_progress_done()
+
+  return(modelled)
+
 
 }
 

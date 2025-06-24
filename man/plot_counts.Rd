@@ -4,24 +4,28 @@
 \alias{plot_counts}
 \title{Plot a raw case count timeseries}
 \usage{
-plot_counts(
-  raw = i_incidence_data,
-  ...,
-  mapping = .check_for_aes(raw, ...),
-  events = i_events
-)
+plot_counts(raw, ..., mapping = .check_for_aes(raw, ...), events = i_events)
 }
 \arguments{
 \item{raw}{The raw count data, or the raw count data normalised by population (
-see \code{\link[=normalise_count]{normalise_count()}})
+see \code{\link[=normalise_count]{normalise_count()}}) - EITHER: a dataframe with columns:
+\itemize{
+\item population (positive_integer) - Size of population
+\item count (positive_integer) - Positive case counts associated with the specified time frame
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+}
 
-A dataframe containing the following columns: 
+Any grouping allowed.
+
+OR with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
@@ -120,9 +124,7 @@ bounds values with \code{NA}.
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
 to something if there are multiple incidence timeseries in the plot}
 
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -131,7 +133,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 a ggplot object

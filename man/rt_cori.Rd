@@ -12,32 +12,31 @@ rt_cori(
   std_prior = 2,
   ...,
   epiestim_compat = FALSE,
-  approx = FALSE
+  approx = FALSE,
+  .progress = interactive()
 )
 }
 \arguments{
-\item{df}{The count data. Extra groups are allowed.
-
-A dataframe containing the following columns: 
+\item{df}{The count data. Extra groups are allowed. - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.}
+Ungrouped.
+}
 
-\item{ip}{A long format infectivity profile.
-
-A dataframe containing the following columns: 
+\item{ip}{A long format infectivity profile. - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
 \item tau (integer + complete) - the days since the index event.
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{window}{\itemize{
 \item the widths of the Cori method window to include in the estimate.
@@ -61,6 +60,8 @@ selected there can also only be one value for window.}
 
 \item{approx}{approximate the quantiles of the mixture distribution with a
 gamma distribution with the same first mean and SD.}
+
+\item{.progress}{show a CLI progress bar}
 }
 \value{
 A dataframe containing the following columns:
@@ -111,11 +112,11 @@ comp = dplyr::bind_rows(
 ) \%>\% dplyr::group_by(class)
 
 if (interactive()) {
-  plot_rt(comp)+
+  plot_rt(comp, date_labels="\%b \%y") \%above\%
    ggplot2::geom_errorbar(
      data=england_consensus_rt \%>\% dplyr::filter(date < "2021-01-01"),
-     mapping=ggplot2::aes(x=date,ymin=low,ymax=high),colour="black")+
-   ggplot2::coord_cartesian(ylim=c(0.5,1.75))
+     mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
+   ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
 }
 
 }

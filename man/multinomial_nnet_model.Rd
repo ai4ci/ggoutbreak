@@ -9,7 +9,8 @@ multinomial_nnet_model(
   ...,
   window = 14,
   frequency = "1 day",
-  predict = TRUE
+  predict = TRUE,
+  .progress = interactive()
 )
 }
 \arguments{
@@ -23,6 +24,8 @@ less smoothing, large value in more.}
 \item{frequency}{the density of the output estimates.}
 
 \item{predict}{result a prediction. If false we return the model.}
+
+\item{.progress}{show a CLI progress bar}
 }
 \value{
 a new dataframe with \code{time} (as a time period), \code{class}, and \code{proportion.0.5}, or a model object

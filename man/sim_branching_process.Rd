@@ -57,8 +57,15 @@ named parameters it can reference any of the metadata columns, or time
 \item{...}{not used}
 }
 \value{
-a line list of cases, with individual ids, infection times,
-and infector ids, for a simulated outbreak
+a line list of cases for a simulated outbreak
+
+A dataframe containing the following columns: 
+\itemize{
+\item id (unique_id) - Patient level unique id
+\item time (ggoutbreak::time_period) - Time of infection. A `time_period`
+}
+
+Any grouping possible.
 }
 \description{
 Generate a line list from a branching process model parametrised by

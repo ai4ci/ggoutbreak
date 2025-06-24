@@ -41,9 +41,12 @@
 #'   ggoutbreak::proportion_glm_model(window=5) %>%
 #'   dplyr::glimpse()
 #'
-proportion_glm_model = function(d = i_proportion_input, ..., window = 14, frequency = "1 day") { #, output_unit = "1 day") {
+proportion_glm_model = function(d = i_proportion_input, ..., window = 14, frequency = "1 day", .progress=interactive()) { #, output_unit = "1 day") {
 
-  interfacer::igroup_process(d, function(d, ..., window, frequency) {
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("proportion (GLM)", total = dplyr::n_groups(d), .envir = env)
+
+  modelled = interfacer::igroup_process(d, function(d, ..., window, frequency) {
 
     output_times = date_seq.time_period(d$time, period = frequency)
     df = .df_from_window(window,timeseries = d)
@@ -67,9 +70,18 @@ proportion_glm_model = function(d = i_proportion_input, ..., window = 14, freque
     new_data = new_data %>%
       .result_from_fit(type = "proportion", est2$fit, est2$se.fit, model$family$linkinv) %>%
       .keep_cdf(type = "proportion", mean=est2$fit, sd=est2$se.fit, trans_fn = .logit)
-    return(interfacer::ireturn(new_data,i_proportion_model))
+
+    # return(interfacer::ireturn(new_data,i_proportion_model))
+
+    if (.progress) cli::cli_progress_update(.envir = env)
+
+    return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
+
+  return(modelled)
 }
 
 
@@ -91,11 +103,13 @@ proportion_glm_model = function(d = i_proportion_input, ..., window = 14, freque
 #'  time_aggregate(count=sum(count)) %>%
 #'  ggoutbreak::poisson_glm_model(window=21) %>%
 #'  dplyr::glimpse()
-poisson_glm_model = function(d = i_incidence_input, ..., window = 14, frequency = "1 day") {
+poisson_glm_model = function(d = i_incidence_input, ..., window = 14, frequency = "1 day", .progress=interactive()) {
 
   #TODO: Extract the gradient from the spline.
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("incidence (GLM)", total = dplyr::n_groups(d), .envir = env)
 
-  modelled = interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
+  modelled = interfacer::igroup_process(d, function(d, ..., window, frequency) {
 
     output_times = date_seq.time_period(d$time, period = frequency)
     # We normalise the spline degrees of freedom by data length
@@ -116,9 +130,13 @@ poisson_glm_model = function(d = i_incidence_input, ..., window = 14, frequency 
       .keep_cdf(type = "incidence", meanlog = est2$fit, sdlog = est2$se.fit) %>%
       .tidy_fit("incidence", incidence.se.fit > 4)
 
+    if (.progress) cli::cli_progress_update(.envir = env)
+
     return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
 
   return(modelled %>% .normalise_from_raw(d))
 }

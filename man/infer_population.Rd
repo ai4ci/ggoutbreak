@@ -7,25 +7,23 @@
 infer_population(df = i_timeseries, pop = i_population_data)
 }
 \arguments{
-\item{df}{A time series, or a grouped collection of time series.
-
-A dataframe containing the following columns: 
+\item{df}{A time series, or a grouped collection of time series. - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{pop}{The population data must be grouped in the same way as \code{df}. It
 might also have a \code{time} column as a \code{time_period} if the population is not
-static
-
-A dataframe containing the following columns: 
+static - a dataframe with columns:
 \itemize{
 \item population (positive_integer) - Size of population
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 }
 \value{
 the \code{df} timeseries with additional \code{population} column

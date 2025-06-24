@@ -24,6 +24,7 @@
 #'   numbers drop to a low value.
 #' @param std_prior the prior for the $R_t$ SD.
 #' @param ... not used
+#' @param .progress show a CLI progress bar
 #'
 #' @return `r i_reproduction_number`
 #' @export
@@ -38,7 +39,7 @@
 #' }
 #'
 #'
-rt_epiestim = function(df = i_incidence_input, ip = i_discrete_ip, bootstraps = 2000, window = 14, mean_prior = 1, std_prior = 2, ...) {
+rt_epiestim = function(df = i_incidence_input, ip = i_discrete_ip, bootstraps = 2000, window = 14, mean_prior = 1, std_prior = 2, ..., .progress=interactive()) {
 
   ip = interfacer::ivalidate(ip)
   ip_boots = dplyr::n_distinct(ip$boot)
@@ -48,7 +49,10 @@ rt_epiestim = function(df = i_incidence_input, ip = i_discrete_ip, bootstraps = 
 
   siConfig$n2 = max(bootstraps %/% ip_boots,10)
 
-  interfacer::igroup_process(df, function(df,siConfig,window,...) {
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("Rt (EpiEstim)", total = dplyr::n_groups(df), .envir = env)
+
+  modelled = interfacer::igroup_process(df, function(df,siConfig,window,...) {
     .stop_if_not_daily(df$time)
 
     meta = .get_meta(df$time)
@@ -65,7 +69,7 @@ rt_epiestim = function(df = i_incidence_input, ip = i_discrete_ip, bootstraps = 
           invokeRestart("muffleWarning")
         })
 
-    out = tmp4$R %>% dplyr::transmute(
+    new_data = tmp4$R %>% dplyr::transmute(
       time = as.time_period(t_end, meta$unit, meta$start_date),
       rt.fit = `Mean(R)`,
       rt.se.fit = `Std(R)`,
@@ -79,8 +83,15 @@ rt_epiestim = function(df = i_incidence_input, ip = i_discrete_ip, bootstraps = 
       rt.warn = rt.warn
     )
 
-    return(out)
+    if (.progress) cli::cli_progress_update(.envir = env)
+
+    return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
+
+  return(modelled)
+
 }
 

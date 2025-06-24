@@ -12,25 +12,27 @@
 #' @iparam ip Infectivity profile
 #' @param bootstraps - the number of bootstraps to take to calculate for each point.
 #' @param seed a random number generator seed
+#' @param .progress show a CLI progress bar
 #'
 #' @return `r i_reproduction_number`
 #' @export
 #' @concept models
 #' @examples
 #' tmp = ggoutbreak::england_covid %>%
-#'   time_aggregate(count=sum(count))
-#'
+#'   dplyr::filter(date < "2021-01-01")%>%
+#'   time_aggregate(count=sum(count)) %>%
+#'   poisson_locfit_model() %>%
+#'   rt_from_growth_rate()
 #'
 #' if (interactive()) {
-#'   # not run
-#'   withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#'    tmp2 = tmp %>%
-#'       poisson_locfit_model() %>%
-#'       rt_from_growth_rate()
-#'   })
+#'   plot_rt(tmp, date_labels="%b %y") %above%
+#'    ggplot2::geom_errorbar(
+#'      data=england_consensus_rt %>% dplyr::filter(date < "2021-01-01"),
+#'      mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
+#'    ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
 #' }
 #'
-rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstraps = 1000, seed = Sys.time()) {
+rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstraps = 1000, seed = Sys.time(), .progress=interactive()) {
 
   df = interfacer::ivalidate(df)
   ip = interfacer::ivalidate(ip, .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5))
@@ -45,7 +47,7 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
   boots = boots_per_ip*ip_boots
 
   df = df %>% dplyr::mutate(
-    rt = purrr::map2(growth.fit, growth.se.fit, .progress = interactive(), function(mean_r, sd_r) {
+    rt = purrr::map2(growth.fit, growth.se.fit, .progress = .progress, function(mean_r, sd_r) {
 
       mean_r = .daily_unit*mean_r
       sd_r = .daily_unit*sd_r

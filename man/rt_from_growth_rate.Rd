@@ -8,13 +8,12 @@ rt_from_growth_rate(
   df = i_growth_rate,
   ip = i_empirical_ip,
   bootstraps = 1000,
-  seed = Sys.time()
+  seed = Sys.time(),
+  .progress = interactive()
 )
 }
 \arguments{
-\item{df}{Growth rate estimates
-
-A dataframe containing the following columns: 
+\item{df}{Growth rate estimates - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item growth.fit (double) - an estimate of the growth rate
@@ -24,11 +23,10 @@ A dataframe containing the following columns:
 \item growth.0.975 (double) - upper confidence limit of the growth rate
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
-\item{ip}{Infectivity profile
-
-A dataframe containing the following columns: 
+\item{ip}{Infectivity profile - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
@@ -36,15 +34,18 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{bootstraps}{\itemize{
 \item the number of bootstraps to take to calculate for each point.
 }}
 
 \item{seed}{a random number generator seed}
+
+\item{.progress}{show a CLI progress bar}
 }
 \value{
 A dataframe containing the following columns:
@@ -69,16 +70,17 @@ nor case (forward looking) reproduction number but somewhere between the two.
 }
 \examples{
 tmp = ggoutbreak::england_covid \%>\%
-  time_aggregate(count=sum(count))
-
+  dplyr::filter(date < "2021-01-01")\%>\%
+  time_aggregate(count=sum(count)) \%>\%
+  poisson_locfit_model() \%>\%
+  rt_from_growth_rate()
 
 if (interactive()) {
-  # not run
-  withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-   tmp2 = tmp \%>\%
-      poisson_locfit_model() \%>\%
-      rt_from_growth_rate()
-  })
+  plot_rt(tmp, date_labels="\%b \%y") \%above\%
+   ggplot2::geom_errorbar(
+     data=england_consensus_rt \%>\% dplyr::filter(date < "2021-01-01"),
+     mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
+   ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
 }
 
 }

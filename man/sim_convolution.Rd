@@ -17,16 +17,15 @@ sim_convolution(
 }
 \arguments{
 \item{df}{a count dataframe from e.g. \code{\link[=sim_poisson_model]{sim_poisson_model()}} or
-\code{\link[=sim_summarise_linelist]{sim_summarise_linelist()}}
-
-A dataframe containing the following columns: 
+\code{\link[=sim_summarise_linelist]{sim_summarise_linelist()}} - a dataframe with columns:
 \itemize{
 \item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Minimally grouped by: statistic (and other groupings allowed).}
+Minimally grouped by: statistic (and other groupings allowed).
+}
 
 \item{p_fn}{a function that takes a time parameter and potentially and
 returns probability of observation given something occurs. a no-op for this

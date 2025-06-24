@@ -9,8 +9,8 @@ make_empirical_ip(omega, normalise = TRUE)
 \arguments{
 \item{omega}{a matrix of probabilities, starting at time zero, with columns
 representing one possible infectivity profile, with the fist value being
-the probability at time zero to 0.5. Or a vector of probabilities for one
-single profile, resulting in 1 bootstrap.}
+the probability at time zero (to 0.5). Alternatively this can be a vector
+of probabilities for one single profile, resulting in 1 bootstrap.}
 
 \item{normalise}{is this a probability mass function? In which case we make the
 sum of this equal to one (the default). If \code{FALSE} then the input matrix,

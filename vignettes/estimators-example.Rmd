@@ -149,7 +149,8 @@ plot_multinomial(tmp4)
 
 ## Poisson model
 
-* Spline currently only good for incidence
+Run a poisson model on input data using `glm` this returns incidence
+only and derived growth rates are not at this point supported.
 
 ```{r}
 
@@ -160,7 +161,8 @@ plot_incidence(tmp5,data)
 
 ## Binomial model
 
-Absolute proportions only
+Run a binomial model on input data using `glm` this returns absolute proportions 
+only and derived growth rates are not at this point supported.
 
 ```{r}
 

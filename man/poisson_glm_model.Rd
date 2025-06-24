@@ -4,18 +4,23 @@
 \alias{poisson_glm_model}
 \title{Poisson time-series model.}
 \usage{
-poisson_glm_model(d = i_incidence_input, ..., window = 14, frequency = "1 day")
+poisson_glm_model(
+  d = i_incidence_input,
+  ...,
+  window = 14,
+  frequency = "1 day",
+  .progress = interactive()
+)
 }
 \arguments{
-\item{d}{Count model input
-
-A dataframe containing the following columns: 
+\item{d}{Count model input - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.}
+Ungrouped.
+}
 
 \item{...}{not used and present to allow proportion model to be used in a
 \code{group_modify}}
@@ -23,10 +28,12 @@ Ungrouped.}
 \item{window}{a number of data points defining the bandwidth of the estimate,
 smaller values result in less smoothing, large value in more. The default
 value of 14 is calibrated for data provided on a daily frequency, with
-weekly data a lower value may be preferred. - (defaults to \code{14})}
+weekly data a lower value may be preferred. - default \code{14}}
 
 \item{frequency}{the density of the output estimates as a time period such as
-\verb{7 days} or \verb{2 weeks}. - (defaults to \code{"1 day"})}
+\verb{7 days} or \verb{2 weeks}. - default \code{1 day}}
+
+\item{.progress}{show a CLI progress bar}
 }
 \value{
 A dataframe containing the following columns:

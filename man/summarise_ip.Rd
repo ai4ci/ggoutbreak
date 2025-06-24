@@ -8,9 +8,7 @@ summarise_ip(ip = i_empirical_ip)
 }
 \arguments{
 \item{ip}{the infectivity profile to summarise. \code{a0} and \code{a1} columns are
-optional if \code{tau} is given.
-
-A dataframe containing the following columns: 
+optional if \code{tau} is given. - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
@@ -18,9 +16,10 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 an infectivity profile

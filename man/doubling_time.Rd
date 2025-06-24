@@ -7,12 +7,9 @@
 doubling_time(x, ...)
 }
 \arguments{
-\item{x}{a dataframe calculated from either proportion or incidence growth
-rate calculations:
-
-e.g. A dataframe containing the following columns:
+\item{x}{proportion or incidence growth rates - EITHER: a dataframe with columns:
 \itemize{
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
@@ -27,11 +24,9 @@ e.g. A dataframe containing the following columns:
 
 Any grouping allowed.
 
-OR
-
-A dataframe containing the following columns:
+OR with columns:
 \itemize{
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
 \item proportion.se.fit (positive_double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)
@@ -44,7 +39,9 @@ A dataframe containing the following columns:
 \item relative.growth.0.975 (double) - upper confidence limit of the relative growth rate
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+
+}
 
 \item{...}{not used}
 }

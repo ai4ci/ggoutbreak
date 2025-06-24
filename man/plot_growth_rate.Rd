@@ -5,18 +5,16 @@
 \title{Growth rate timeseries diagram}
 \usage{
 plot_growth_rate(
-  modelled = i_timeseries,
+  modelled,
   ...,
   mapping = .check_for_aes(modelled, ...),
   events = i_events
 )
 }
 \arguments{
-\item{modelled}{Either:
-
-A dataframe containing the following columns:
+\item{modelled}{a growth rate dataframe. - EITHER: a dataframe with columns:
 \itemize{
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
 \item incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale
 \item incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)
@@ -31,11 +29,9 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-OR:
-
-A dataframe containing the following columns:
+OR with columns:
 \itemize{
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a \code{time_period}
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
 \item proportion.se.fit (positive_double) - the standard error of proportion estimate on a logit scale
 \item proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)
@@ -48,7 +44,9 @@ A dataframe containing the following columns:
 \item relative.growth.0.975 (double) - upper confidence limit of the relative growth rate
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
@@ -147,9 +145,7 @@ bounds values with \code{NA}.
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
 to something if there are multiple incidence time series in the plot}
 
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -158,7 +154,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 a ggplot

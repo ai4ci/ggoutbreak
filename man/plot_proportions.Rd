@@ -12,16 +12,15 @@ plot_proportions(
 )
 }
 \arguments{
-\item{raw}{The raw count and denominator data
-
-A dataframe containing the following columns: 
+\item{raw}{The raw count and denominator data - a dataframe with columns:
 \itemize{
 \item denom (positive_integer) - Total test counts associated with the specified time frame
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{...}{
   Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
@@ -120,9 +119,7 @@ bounds values with \code{NA}.
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
 to something if there are multiple incidence timeseries in the plot}
 
-\item{events}{Significant events or time spans
-
-A dataframe containing the following columns: 
+\item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
 \item start (date) - the start date, or the date of the event
@@ -131,7 +128,8 @@ A dataframe containing the following columns:
 
 Any grouping allowed.
 
-A default value is defined.}
+A default value is defined.
+}
 }
 \value{
 a ggplot object

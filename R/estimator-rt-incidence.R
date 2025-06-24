@@ -11,43 +11,48 @@
 #' @iparam df modelled incidence estimate
 #' @iparam ip an infectivity profile (aka generation time distribution)
 #' @param approx use a faster, but approximate, estimate of quantiles
+#' @param .progress show a CLI progress bar
 #'
 #' @return `r i_reproduction_number`
 #' @export
 #' @concept models
 #' @examples
-#' df = ggoutbreak::england_covid %>%
+#' tmp = ggoutbreak::england_covid %>%
 #'   dplyr::filter(date < "2021-01-01") %>%
 #'   time_aggregate(count=sum(count)) %>%
-#'   poisson_locfit_model()
+#'   poisson_locfit_model() %>%
+#'   rt_from_incidence()
+#'
 #'
 #' if (interactive()) {
-#'   # not run
-#'   withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#'     tmp3 = df %>% rt_from_incidence(ganyani_ip)
-#'   })
+#'   plot_rt(tmp, date_labels="%b %y") %above%
+#'    ggplot2::geom_errorbar(
+#'      data=england_consensus_rt %>% dplyr::filter(date < "2021-01-01"),
+#'      mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
+#'    ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
 #' }
 #'
-#' tmp = df %>% rt_from_incidence(du_serial_interval_ip)
-#'
-rt_from_incidence = function(df = i_incidence_model, ip = i_discrete_ip, approx = FALSE) { #, assume_start = TRUE) {
+rt_from_incidence = function(df = i_incidence_model, ip = i_discrete_ip, approx = FALSE, .progress=interactive()) { #, assume_start = TRUE) {
 
   ip = interfacer::ivalidate(ip)
 
-  # relax assumption that time in infectivity profile starts at 1.
-  # we haven;t yet tested that negative serial intervals will work but there is
-  # no good reason why not.
-  start = min(ip$tau)
 
-  # omega is a matrix
-  omega = ip %>% .omega_matrix(epiestim_compat = FALSE)
 
-  window = nrow(omega)
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("Rt (modelled incidence)", total = dplyr::n_groups(df), .envir = env)
 
-  interfacer::igroup_process(df, function(df,omega, window, start,...) {
+  modelled = interfacer::igroup_process(df, function(df, .groupdata, ...) {
     .stop_if_not_daily(df$time)
 
+    tmp_ip=.select_ip(ip,.groupdata)
+    # omega is a matrix
+    omega = tmp_ip %>% .omega_matrix(epiestim_compat = FALSE)
+    window = nrow(omega)
+    # relax assumption that time in infectivity profile starts at 1.
+    # negative serial intervals should be OK
+    start = min(tmp_ip$tau)
     end = nrow(df)+min(c(start,0))
+
     rt = lapply(1:end, function(i) {
 
       if (i<window+start) {
@@ -79,13 +84,19 @@ rt_from_incidence = function(df = i_incidence_model, ip = i_discrete_ip, approx 
       rt = c(rt,rep(list(NULL), nrow(df)-length(rt)))
     }
 
-    df2 = df %>%
+    new_data = df %>%
       dplyr::mutate(rt = rt) %>%
       tidyr::unnest(rt,keep_empty = TRUE)
 
-    return(df2)
+    if (.progress) cli::cli_progress_update(.envir = env)
+
+    return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
+
+  return(modelled)
 
 }
 

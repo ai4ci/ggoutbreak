@@ -38,6 +38,7 @@
 #'   selected there can also only be one value for window.
 #' @param approx approximate the quantiles of the mixture distribution with a
 #'   gamma distribution with the same first mean and SD.
+#' @param .progress show a CLI progress bar
 #'
 #' @return `r i_reproduction_number`
 #' @export
@@ -59,14 +60,14 @@
 #' ) %>% dplyr::group_by(class)
 #'
 #' if (interactive()) {
-#'   plot_rt(comp)+
+#'   plot_rt(comp, date_labels="%b %y") %above%
 #'    ggplot2::geom_errorbar(
 #'      data=england_consensus_rt %>% dplyr::filter(date < "2021-01-01"),
-#'      mapping=ggplot2::aes(x=date,ymin=low,ymax=high),colour="black")+
-#'    ggplot2::coord_cartesian(ylim=c(0.5,1.75))
+#'      mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
+#'    ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
 #' }
 #'
-rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean_prior = 1, std_prior = 2, ..., epiestim_compat = FALSE, approx = FALSE) {
+rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean_prior = 1, std_prior = 2, ..., epiestim_compat = FALSE, approx = FALSE, .progress=interactive()) {
 
   if (any(window<2)) stop("Minimum value for `window` parameter is 2.")
   if (epiestim_compat) window = window[1]
@@ -77,11 +78,14 @@ rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean
   shape_prior = mean_prior^2/std_prior^2
   rate_prior = mean_prior/std_prior^2
 
-  interfacer::igroup_process(df, function(df, window, ...) {
+  env = rlang::current_env()
+  if (.progress) cli::cli_progress_bar("Rt (Cori+)", total = dplyr::n_groups(df), .envir = env)
+
+  modelled = interfacer::igroup_process(df, function(df, window, .groupdata, ...) {
     .stop_if_not_daily(df$time)
 
     df2 = df %>%
-      dplyr::cross_join(ip %>% dplyr::select(omega_t_tau = probability, tau, boot)) %>%
+      dplyr::cross_join(.select_ip(ip,.groupdata) %>% dplyr::rename(omega_t_tau = probability)) %>%
       dplyr::group_by(boot)
 
     # Calculate the FOI (Lambda_t) for every timepoint (and boot)
@@ -180,8 +184,17 @@ rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean
 
     }
 
-    return(df6)
+    new_data = df6
+
+    if (.progress) cli::cli_progress_update(.envir = env)
+
+    return(new_data)
 
   })
+
+  if (.progress) cli::cli_progress_done()
+
+  return(modelled)
+
 }
 

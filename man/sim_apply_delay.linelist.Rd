@@ -20,15 +20,14 @@ sim_apply_delay.linelist(
 )
 }
 \arguments{
-\item{df}{a line list dataframe arising from e.g. \code{\link[=sim_branching_process]{sim_branching_process()}}
-
-A dataframe containing the following columns: 
+\item{df}{a line list dataframe arising from e.g. \code{\link[=sim_branching_process]{sim_branching_process()}} - a dataframe with columns:
 \itemize{
 \item id (unique_id) - Patient level unique id
 \item time (ggoutbreak::time_period) - Time of infection. A `time_period`
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{fn_p_symptomatic, fn_p_admitted, fn_p_died, fn_p_tested}{Function that
 returns a probability between 0 and 1 for each row of the input dataframe.

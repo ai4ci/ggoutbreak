@@ -11,9 +11,7 @@ infer_risk_ratio(
 )
 }
 \arguments{
-\item{modelled}{Model output from something like \code{\link[=proportion_locfit_model]{proportion_locfit_model()}}
-
-A dataframe containing the following columns: 
+\item{modelled}{Model output from something like \code{\link[=proportion_locfit_model]{proportion_locfit_model()}} - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item proportion.fit (double) - an estimate of the proportion on a logit scale
@@ -23,17 +21,17 @@ A dataframe containing the following columns:
 \item proportion.0.975 (proportion) - upper confidence limit of proportion (true scale)
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{base}{The baseline data must be grouped in the same way as \code{modelled}.
-It may be a time series but does not have to be.
-
-A dataframe containing the following columns: 
+It may be a time series but does not have to be. - a dataframe with columns:
 \itemize{
 \item baseline_proportion (proportion) - Baseline proportion for comparison
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
 \item{...}{not used}
 }

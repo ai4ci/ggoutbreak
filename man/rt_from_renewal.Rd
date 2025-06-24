@@ -9,13 +9,12 @@ rt_from_renewal(
   df = i_incidence_model,
   ip = i_discrete_ip,
   bootstraps = 1000,
-  seed = Sys.time()
+  seed = Sys.time(),
+  .progress = interactive()
 )
 }
 \arguments{
-\item{df}{modelled incidence estimate
-
-A dataframe containing the following columns: 
+\item{df}{modelled incidence estimate - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
@@ -25,26 +24,28 @@ A dataframe containing the following columns:
 \item incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)
 }
 
-Any grouping allowed.}
+Any grouping allowed.
+}
 
-\item{ip}{infectivity profile
-
-A dataframe containing the following columns: 
+\item{ip}{infectivity profile - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
 \item tau (integer + complete) - the days since the index event.
 }
 
-Must be grouped by: boot (exactly).
+Minimally grouped by: boot (and other groupings allowed).
 
-A default value is defined.}
+A default value is defined.
+}
 
 \item{bootstraps}{the number of samples to take at each time point. This will
 be rounded up to a whole multiple of the infectivity profile distribution
 length.}
 
 \item{seed}{a random number seed for reproducibility}
+
+\item{.progress}{show a CLI progress bar}
 }
 \value{
 A dataframe containing the following columns:

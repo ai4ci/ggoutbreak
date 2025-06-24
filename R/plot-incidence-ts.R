@@ -3,15 +3,11 @@
 #' Plot an incidence timeseries
 #'
 #' @iparam raw The raw count data
-#' @param modelled An optional estimate of the incidence time series. If `modelled` is
+#' @iparam modelled An optional estimate of the incidence time series. If `modelled` is
 #'   missing then it is estimated from `raw` using a `poisson_locfit_model`.
 #'   In this case parameters `window` and `deg` may be supplied to control the
-#'   fit.
-#'
-#'   `r interfacer::idocument(plot_incidence, modelled)`
-#'
-#'   `modelled` can also be the output from `normalise_incidence` in which case
-#'   the plot uses the per capita rates calculated by that function
+#'   fit. `modelled` can also be the output from `normalise_incidence` in which case
+#'   the plot uses the per capita rates calculated by that function.
 #' @param mapping a `ggplot2::aes` mapping. Most importantly setting the `colour`
 #'   to something if there are multiple incidence timeseries in the plot
 #' @inheritParams geom_events
@@ -35,7 +31,7 @@
 #' }
 #'
 plot_incidence = function(
-    modelled = i_incidence_model,
+    modelled,
     raw = i_incidence_data,
     ...,
     mapping = .check_for_aes(modelled,...),
@@ -126,13 +122,12 @@ plot_incidence.per_capita = function(
 
     raw = interfacer::ivalidate(raw)
 
-    raw_time_unit = raw$time_unit[[1]]
+    # make sure the raw data is on the same temporal unit as the incidence estimate.
+    raw_time_unit = .get_meta(raw$time)$unit
     timefrac = time_unit/raw_time_unit
-    raw_population_unit = unique(raw$population_unit)
-    popfrac = population_unit/raw_population_unit
 
-    # make sure the raw data is on the same temporal and population unit as the modelled data.
-    raw = raw %>% dplyr::mutate(count.per_capita = count.per_capita*timefrac*popfrac)
+    # normalise the population to the same as the incidence estimate.
+    raw = raw %>% dplyr::mutate(count.per_capita = count/population*timefrac*population_unit)
     plot_points = TRUE
   } else {
     plot_points = FALSE

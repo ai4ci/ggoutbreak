@@ -2,15 +2,7 @@
 
 #' Growth rate timeseries diagram
 #'
-#' @param modelled
-#' Either:
-#'
-#' `r interfacer::idocument(plot_growth_rate.incidence, modelled)`
-#'
-#' OR:
-#'
-#' `r interfacer::idocument(plot_growth_rate.proportion, modelled)`
-#'
+#' @iparam modelled a growth rate dataframe.
 #' @param mapping a `ggplot2::aes` mapping. Most importantly setting the `colour`
 #'   to something if there are multiple incidence time series in the plot
 #' @inheritParams geom_events
@@ -45,7 +37,7 @@
 #' }
 #'
 plot_growth_rate = function(
-    modelled = i_timeseries,
+    modelled,
     ...,
     mapping = .check_for_aes(modelled,...),
     events = i_events
