@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -116,7 +117,7 @@ observed.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">tmp</span>,raw <span class="op">=</span> <span class="va">raw_pop</span>, size<span class="op">=</span><span class="fl">0.25</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="../reference/scale_y_log1p.html">scale_y_log1p</a></span><span class="op">(</span>n<span class="op">=</span><span class="fl">7</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_d</a></span><span class="op">(</span>aesthetics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fill"</span>,<span class="st">"colour"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="incidence-trends_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<p><img src="incidence-trends_files/figure-html/unnamed-chunk-2-1.png" width="576"></p>
 <p>The use of test positives as a proxy for COVID incidence is clearly
 potentially biased by testing (particularly in the first wave where
 testing was limited to those in hospital). A more reliable comparison in
@@ -133,10 +134,8 @@ be easy to over-interpret.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_growth_rate.html">plot_growth_rate</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>aesthetics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"fill"</span>,<span class="st">"colour"</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span>,<span class="fl">0.15</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Coordinate system already present. Adding new coordinate system, which will</span></span>
-<span><span class="co">#&gt; replace the existing one.</span></span></code></pre></div>
-<p><img src="incidence-trends_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.15</span>,<span class="fl">0.15</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="incidence-trends_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
 <p>The combination of growth and normalised incidence allows us to
 compare the epidemic state at different time points, in this case
 Christmas day in 2020, 2021 and 2022. This shows the same data as the
@@ -149,7 +148,7 @@ previous graphs.</p>
 <span>    interval <span class="op">=</span> <span class="fl">7</span></span>
 <span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_d</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
-<p><img src="incidence-trends_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p><img src="incidence-trends_files/figure-html/unnamed-chunk-4-1.png" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="proportion-model">Proportion model<a class="anchor" aria-label="anchor" href="#proportion-model"></a>
@@ -183,7 +182,7 @@ incidence plot above:</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>expand<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>nrow<span class="op">=</span><span class="fl">1</span>,widths <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">20</span>,<span class="fl">1</span><span class="op">)</span>,guides <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="incidence-trends_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
+<p><img src="incidence-trends_files/figure-html/unnamed-chunk-5-1.png" width="576"></p>
 <p>The age distribution of test positives can be normalised by the age
 distribution of the population. This give us a relative proportion of
 age groups in people testing positive versus expected in the population.
@@ -209,10 +208,8 @@ acting to preserve that separation.</p>
 <span>    duration <span class="op">=</span> <span class="fl">70</span>, </span>
 <span>    interval <span class="op">=</span> <span class="fl">7</span></span>
 <span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_d</a></span><span class="op">(</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Coordinate system already present. Adding new coordinate system, which will</span></span>
-<span><span class="co">#&gt; replace the existing one.</span></span></code></pre></div>
-<p><img src="incidence-trends_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_d</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="incidence-trends_files/figure-html/unnamed-chunk-6-1.png" width="576"></p>
 <div class="section level3">
 <h3 id="pre-test-probability">Pre test probability<a class="anchor" aria-label="anchor" href="#pre-test-probability"></a>
 </h3>

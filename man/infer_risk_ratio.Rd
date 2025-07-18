@@ -48,6 +48,8 @@ A dataframe containing the following columns:
 Any grouping allowed.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 This assumes that for example, case distribution proportions are stratified
 by a population grouping, e.g. geography or age, and we have estimates of the
 size of that population during that time period. Normalising by population
@@ -59,15 +61,14 @@ any uncertainty.
 }
 \examples{
 
-
-
-tmp = ggoutbreak::england_covid \%>\%
-  ggoutbreak::proportion_locfit_model(window=21) \%>\%
+tmp = ggoutbreak::england_covid_proportion_age_stratified  \%>\%
   ggoutbreak::infer_risk_ratio(ggoutbreak::england_demographics) \%>\%
   dplyr::glimpse()
 
 if(interactive()) {
-  plot_growth_phase(tmp)
+  plot_growth_phase(tmp,duration = 14*4)+
+  ggplot2::scale_colour_viridis_d()+
+  ggplot2::coord_cartesian(xlim=c(-0.25,0.25),ylim=c(0.02,20))
 }
 
 }

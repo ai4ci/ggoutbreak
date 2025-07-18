@@ -1,6 +1,6 @@
 ---
 title: "Population comparisons and incidence"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Population comparisons and incidence}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,7 +10,12 @@ vignette: >
 ```{r setup, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6,
+  fig.height = 4
 )
 
 

@@ -56,11 +56,25 @@ varying rate as a natural cubic spline with approx one degree of freedom per
 }
 \examples{
 
-ggoutbreak::england_covid_proportion \%>\%
-  dplyr::filter(date < "2021-01-01") \%>\%
-  time_aggregate() \%>\%
-  ggoutbreak::proportion_glm_model(window=5) \%>\%
-  dplyr::glimpse()
+data = test_poisson_rt_2class
+
+tmp2 = data \%>\% ggoutbreak::proportion_glm_model(window=7,deg=2)
+tmp3 = data \%>\% ggoutbreak::proportion_glm_model(window=14,deg=1)
+
+comp = dplyr::bind_rows(
+  tmp2 \%>\% dplyr::mutate(model="7:2"),
+  tmp3 \%>\% dplyr::mutate(model="14:1"),
+) \%>\% dplyr::group_by(model,class)
+
+if (interactive()) {
+  plot_proportion(
+      comp,
+      date_labels="\%b \%y",
+      mapping=ggplot2::aes(colour=model),
+      raw=data
+   )+
+   ggplot2::facet_wrap(~class)
+}
 
 # TODO: deal with error conditions
 # "observations with zero weight not used for calculating dispersion

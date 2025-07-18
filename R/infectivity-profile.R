@@ -22,12 +22,12 @@
 #' `rt_from_renewal`, or `rt_from_growth_rate`). The alternative follows
 #' `EpiEstim`s algorithm.
 #'
-#' @param median_of_mean,lower_ci_of_mean,upper_ci_of_mean Parameters of the
+#' @param median_of_mean,lower_ci_of_mean,upper_ci_of_mean Quantiles of the
 #'   infectivity profile mean.
-#' @param median_of_sd,lower_ci_of_sd,upper_ci_of_sd Parameters of the
+#' @param median_of_sd,lower_ci_of_sd,upper_ci_of_sd Quantiles of the
 #'   infectivity profile SD.
 #' @param correlation the correlation between mean and sd. this is optional
-#'   and will be inferred if not changed form the default `NA` value.
+#'   and will be inferred if not provided.
 #' @param n_boots The number of samples to generate.
 #' @param epiestim_sampler Use `EpiEstim` to generate the random samples using
 #'   independent truncated normal distributions for mean and SD based on
@@ -35,7 +35,8 @@
 #'   with correlation.
 #' @param epiestim_compat Use `EpiEstim` to generate the infectivity profiles.
 #'   A true value here results in an infectivity profile with probability of 0
-#'   for day 0.
+#'   for day 0. If false the infectivity profile may include density at zero or
+#'   even negative values.
 #' @param z_crit the width of the confidence intervals (defaults to 95%).
 #'
 #' @return a long format infectivity profile data frame, or a list of dataframes
@@ -79,111 +80,138 @@
 #' }
 #'
 make_gamma_ip = function(
-    median_of_mean, lower_ci_of_mean = median_of_mean, upper_ci_of_mean = median_of_mean,
-    median_of_sd = sqrt(median_of_mean), lower_ci_of_sd = median_of_sd, upper_ci_of_sd = median_of_sd, correlation = NA,
-    n_boots=100, epiestim_compat = FALSE, epiestim_sampler = epiestim_compat, z_crit = 0.95
+  median_of_mean,
+  lower_ci_of_mean = median_of_mean,
+  upper_ci_of_mean = median_of_mean,
+  median_of_sd = sqrt(median_of_mean),
+  lower_ci_of_sd = median_of_sd,
+  upper_ci_of_sd = median_of_sd,
+  correlation = NA,
+  n_boots = 100,
+  epiestim_compat = FALSE,
+  epiestim_sampler = epiestim_compat,
+  z_crit = 0.95
 ) {
-
   interfacer::recycle(
-    median_of_mean, lower_ci_of_mean, upper_ci_of_mean,
-    median_of_sd, lower_ci_of_sd, upper_ci_of_sd
+    median_of_mean,
+    lower_ci_of_mean,
+    upper_ci_of_mean,
+    median_of_sd,
+    lower_ci_of_sd,
+    upper_ci_of_sd
   )
 
   if (length(median_of_mean) > 1) {
     return(lapply(
       seq_along(median_of_mean),
-      function(i) make_gamma_ip(
-        median_of_mean[i], lower_ci_of_mean[i], upper_ci_of_mean[i],
-        median_of_sd[i], lower_ci_of_sd[i], upper_ci_of_sd[i],
-        correlation, n_boots, epiestim_compat, epiestim_sampler,
-        z_crit
-      )
+      function(i) {
+        make_gamma_ip(
+          median_of_mean[i],
+          lower_ci_of_mean[i],
+          upper_ci_of_mean[i],
+          median_of_sd[i],
+          lower_ci_of_sd[i],
+          upper_ci_of_sd[i],
+          correlation,
+          n_boots,
+          epiestim_compat,
+          epiestim_sampler,
+          z_crit
+        )
+      }
     ))
   }
 
-  if(lower_ci_of_mean != median_of_mean && upper_ci_of_mean == median_of_mean &&
-     median_of_sd == sqrt(median_of_mean) && lower_ci_of_sd == median_of_sd && upper_ci_of_sd == median_of_sd) {
-    .warn_once("Two unnamed parameters supplied to `make_gamma_ip()`. Interpreting input as one mean and sd.")
+  if (
+    lower_ci_of_mean != median_of_mean &&
+      upper_ci_of_mean == median_of_mean &&
+      median_of_sd == sqrt(median_of_mean) &&
+      lower_ci_of_sd == median_of_sd &&
+      upper_ci_of_sd == median_of_sd
+  ) {
+    .warn_once(
+      "Two unnamed parameters supplied to `make_gamma_ip()`. Interpreting input as one mean and sd."
+    )
     median_of_sd = lower_ci_of_mean
     n_boots = 1
   }
 
-
-    if (n_boots < 1) {
-      stop("`n_boots` must 1 or greater")
-    } else if (n_boots == 1 || (
-      lower_ci_of_mean == median_of_mean && upper_ci_of_mean == median_of_mean &&
-      lower_ci_of_sd == median_of_sd && upper_ci_of_sd == median_of_sd
-    )) {
-
-      tmp = tibble::tibble(
-        mean = median_of_mean,
-        sd = median_of_sd
-      ) %>% dplyr::mutate(
-        shape = (mean^2)/(sd^2),
-        rate = mean/(sd^2)
+  if (n_boots < 1) {
+    stop("`n_boots` must 1 or greater")
+  } else if (
+    n_boots == 1 ||
+      (lower_ci_of_mean == median_of_mean &&
+        upper_ci_of_mean == median_of_mean &&
+        lower_ci_of_sd == median_of_sd &&
+        upper_ci_of_sd == median_of_sd)
+  ) {
+    tmp = tibble::tibble(
+      mean = median_of_mean,
+      sd = median_of_sd
+    ) %>%
+      dplyr::mutate(
+        shape = (mean^2) / (sd^2),
+        rate = mean / (sd^2)
       )
+  } else {
+    quantiles = tibble::tibble(
+      lmean = log(c(median_of_mean, lower_ci_of_mean, upper_ci_of_mean)),
+      lsd = log(c(median_of_sd, lower_ci_of_sd, upper_ci_of_sd)),
+      z = stats::qnorm(c(0.5, 0.5 - z_crit / 2, 0.5 + z_crit / 2))
+    )
 
+    # this linear model fits a (log)normal distribution to provided quantiles.
+    # lm coefficients - intercept is mean and z gradient is sd.
+    lmMean = stats::lm(formula = lmean ~ z, quantiles)$coeff
+    lmSd = stats::lm(formula = lsd ~ z, quantiles)$coeff
+
+    mean_of_mu = lmMean[1]
+    sd_of_mu = lmMean[2]
+    mean_of_sigma = lmSd[1]
+    sd_of_sigma = lmSd[2]
+
+    # Convert lognormal mean parameters to real scale
+    mean_of_mean = exp(mean_of_mu + sd_of_mu^2 / 2)
+    sd_of_mean = sqrt((exp(sd_of_mu^2) - 1) * exp(2 * mean_of_mu + sd_of_mu^2))
+
+    # Convert lognormal sd parameters to real scale
+    mean_of_sd = exp(mean_of_sigma + sd_of_sigma^2 / 2)
+    sd_of_sd = sqrt(
+      (exp(sd_of_sigma^2) - 1) * exp(2 * mean_of_sigma + sd_of_sigma^2)
+    )
+
+    if (epiestim_sampler) {
+      tmp = .epiestim_sampler(
+        n_boots,
+        mean_si = mean_of_mean,
+        std_mean_si = sd_of_mean,
+        std_si = mean_of_sd,
+        std_std_si = sd_of_sd
+      )
     } else {
-
-      quantiles = tibble::tibble(
-        lmean = log(c(median_of_mean, lower_ci_of_mean, upper_ci_of_mean)),
-        lsd = log(c(median_of_sd, lower_ci_of_sd, upper_ci_of_sd)),
-        z = stats::qnorm(c(0.5, 0.5-z_crit/2, 0.5+z_crit/2)))
-
-      # this linear model fits a (log)normal distribution to provided quantiles.
-      # lm coefficients - intercept is mean and z gradient is sd.
-      lmMean = stats::lm(formula = lmean~z, quantiles)$coeff
-      lmSd = stats::lm(formula = lsd~z, quantiles)$coeff
-
-      mean_of_mu = lmMean[1]
-      sd_of_mu = lmMean[2]
-      mean_of_sigma = lmSd[1]
-      sd_of_sigma = lmSd[2]
-
-      # Convert lognormal mean parameters to real scale
-      mean_of_mean = exp(mean_of_mu + sd_of_mu^2/2)
-      sd_of_mean = sqrt((exp(sd_of_mu^2)-1)*exp(2*mean_of_mu + sd_of_mu^2))
-
-      # Convert lognormal sd parameters to real scale
-      mean_of_sd = exp(mean_of_sigma + sd_of_sigma^2/2)
-      sd_of_sd = sqrt((exp(sd_of_sigma^2)-1)*exp(2*mean_of_sigma + sd_of_sigma^2))
-
-      if (epiestim_sampler) {
-        tmp = .epiestim_sampler(
-          n_boots,
-          mean_si = mean_of_mean,
-          std_mean_si = sd_of_mean,
-          std_si = mean_of_sd,
-          std_std_si = sd_of_sd
-        )
-      } else {
-        tmp = .ggoutbreak_sampler(
-          n_boots,
-          mean_of_mu = mean_of_mu,
-          mean_of_sigma = mean_of_sigma,
-          sd_of_mu = sd_of_mu,
-          sd_of_sigma = sd_of_sigma,
-          correlation = correlation
-        )
-      }
-
+      tmp = .ggoutbreak_sampler(
+        n_boots,
+        mean_of_mu = mean_of_mu,
+        mean_of_sigma = mean_of_sigma,
+        sd_of_mu = sd_of_mu,
+        sd_of_sigma = sd_of_sigma,
+        correlation = correlation
+      )
     }
+  }
 
-    if (epiestim_compat) {
-      tmp2 = tmp %>% .epiestim_discretise()
-    } else {
-      tmp2 = tmp %>% .ggoutbreak_discretise()
-    }
+  if (epiestim_compat) {
+    tmp2 = tmp %>% .epiestim_discretise()
+  } else {
+    tmp2 = tmp %>% .ggoutbreak_discretise()
+  }
 
-
-  return(tmp2 %>% dplyr::select(tau,a0,a1,probability,boot) %>% dplyr::group_by(boot))
+  return(
+    tmp2 %>%
+      dplyr::select(tau, a0, a1, probability, boot) %>%
+      dplyr::group_by(boot)
+  )
 }
-
-
-
-
-
 
 
 #' Recover a long format infectivity profile from an `EpiEstim` style matrix
@@ -203,28 +231,28 @@ make_gamma_ip = function(
 #'
 #' @examples
 #' format_ip(make_empirical_ip(c(0,0,1,1,1,2,2,2,1,1)))
-make_empirical_ip = function(omega, normalise=TRUE) {
+make_empirical_ip = function(omega, normalise = TRUE) {
   r = if (is.matrix(omega)) nrow(omega) else length(omega)
   c = if (is.matrix(omega)) ncol(omega) else 1
-  tau = rep(0:(r-1), c)
-  boot = as.vector(sapply(1:c, rep, times=r))
+  tau = rep(0:(r - 1), c)
+  boot = as.vector(sapply(1:c, rep, times = r))
   probability = as.vector(omega)
   ip = tibble::tibble(
     tau = tau,
     probability = probability,
-    a0 = rep(c(0,seq(0.5,length.out = r-1)),c),
-    a1 = rep(seq(0.5,length.out = r),c),
+    a0 = rep(c(0, seq(0.5, length.out = r - 1)), c),
+    a1 = rep(seq(0.5, length.out = r), c),
     boot = boot
   )
   if (isFALSE(normalise)) {
     ip = ip %>%
       dplyr::group_by(boot) %>%
-      dplyr::mutate(probability = ifelse(probability>1,1,probability))
+      dplyr::mutate(probability = ifelse(probability > 1, 1, probability))
   } else {
     normalise = as.numeric(normalise)
     ip = ip %>%
       dplyr::group_by(boot) %>%
-      dplyr::mutate(probability = probability/sum(probability)*normalise)
+      dplyr::mutate(probability = probability / sum(probability) * normalise)
   }
   return(ip)
 }
@@ -253,43 +281,57 @@ make_empirical_ip = function(omega, normalise=TRUE) {
 #' if(interactive()) {
 #'   plot_ip(ip,alpha=0.1)
 #' }
-make_resampled_ip = function(tau, min_tau=pmax(tau-0.5,truncate), max_tau=tau+0.5, add_noise = TRUE, truncate = 0, n_boots=100, seed = Sys.time()) {
-  withr::with_seed(seed,{
+make_resampled_ip = function(
+  tau,
+  min_tau = pmax(tau - 0.5, truncate),
+  max_tau = tau + 0.5,
+  add_noise = TRUE,
+  truncate = 0,
+  n_boots = 100,
+  seed = Sys.time()
+) {
+  withr::with_seed(seed, {
     dplyr::bind_rows(lapply(1:n_boots, \(i) {
-
       tmp = tibble::tibble(
         min = min_tau,
         max = max_tau
       ) %>%
-      dplyr::slice_sample(prop=1, replace=TRUE) %>%
-      dplyr::filter(max>min)
+        dplyr::slice_sample(prop = 1, replace = TRUE) %>%
+        dplyr::filter(max > min)
 
       if (add_noise) {
-        tmp = tmp %>% dplyr::mutate(
-          min = min-1,
-          max = max+1
-        )
+        tmp = tmp %>%
+          dplyr::mutate(
+            min = min - 1,
+            max = max + 1
+          )
       }
 
       tmp %>%
         dplyr::transmute(
-          tau = floor(0.5+stats::runif(dplyr::n(), min = min, max = max))
+          tau = floor(0.5 + stats::runif(dplyr::n(), min = min, max = max))
         ) %>%
-        dplyr::filter(tau>=truncate) %>%
+        dplyr::filter(tau >= truncate) %>%
         dplyr::summarise(count = dplyr::n(), .by = c(tau)) %>%
-        dplyr::mutate(count = count+ifelse(add_noise, stats::runif(dplyr::n(),min=-1,max=1))) %>%
-        dplyr::mutate(count = ifelse(count<0,0,count)) %>%
-        tidyr::complete(tau = tidyr::full_seq(tau,1), fill=list(count=0)) %>%
         dplyr::mutate(
-          a0 = pmax(tau - 0.5,truncate),
+          count = count +
+            ifelse(add_noise, stats::runif(dplyr::n(), min = -1, max = 1))
+        ) %>%
+        dplyr::mutate(count = ifelse(count < 0, 0, count)) %>%
+        tidyr::complete(
+          tau = tidyr::full_seq(tau, 1),
+          fill = list(count = 0)
+        ) %>%
+        dplyr::mutate(
+          a0 = pmax(tau - 0.5, truncate),
           a1 = tau + 0.5
         ) %>%
-        dplyr::mutate(probability = count/sum(count), boot=i) %>%
+        dplyr::mutate(probability = count / sum(count), boot = i) %>%
         dplyr::select(-count)
-    })) %>% dplyr::group_by(boot)
+    })) %>%
+      dplyr::group_by(boot)
   })
 }
-
 
 
 #' Make an infectivity profile from posterior samples
@@ -335,24 +377,37 @@ make_resampled_ip = function(tau, min_tau=pmax(tau-0.5,truncate), max_tau=tau+0.
 #' tmp %>% dplyr::glimpse()
 #' if (interactive()) plot_ip(tmp)
 #'
-make_posterior_ip = function(..., mean, sd, shape, rate, scale, epiestim_compat = FALSE, n_boots=100) {
-
+make_posterior_ip = function(
+  ...,
+  mean,
+  sd,
+  shape,
+  rate,
+  scale,
+  epiestim_compat = FALSE,
+  n_boots = 100
+) {
   rlang::check_dots_empty()
 
   interfacer::resolve_missing(
-    shape = mean^2/sd^2,
-    scale = sd^2/mean,
-    rate = 1/scale,
-    scale = 1/rate,
-    mean = shape*scale,
-    sd = sqrt(shape)*scale,
+    shape = mean^2 / sd^2,
+    scale = sd^2 / mean,
+    rate = 1 / scale,
+    scale = 1 / rate,
+    mean = shape * scale,
+    sd = sqrt(shape) * scale,
   )
 
   tmp = tibble::tibble(
-    shape = shape, rate=rate, mean=mean, sd=sd
+    shape = shape,
+    rate = rate,
+    mean = mean,
+    sd = sd
   )
 
-  if (nrow(tmp) > n_boots) tmp = dplyr::slice_sample(tmp, n = n_boots)
+  if (nrow(tmp) > n_boots) {
+    tmp = dplyr::slice_sample(tmp, n = n_boots)
+  }
 
   if (epiestim_compat) {
     tmp2 = tmp %>% .epiestim_discretise()
@@ -361,7 +416,6 @@ make_posterior_ip = function(..., mean, sd, shape, rate, scale, epiestim_compat 
   }
 
   return(tmp2 %>% dplyr::group_by(boot))
-
 }
 
 
@@ -376,21 +430,26 @@ make_posterior_ip = function(..., mean, sd, shape, rate, scale, epiestim_compat 
 #' @export
 #' @concept delay_distribution
 summarise_ip = function(ip = i_empirical_ip) {
-
-  ip = interfacer::ivalidate(ip, .imap = interfacer::imapper(
-    a0 = pmax(tau-0.5,0), a1=tau+0.5))
+  ip = interfacer::ivalidate(
+    ip,
+    .imap = interfacer::imapper(
+      a0 = pmax(tau - 0.5, 0),
+      a1 = tau + 0.5
+    )
+  )
 
   ip_summ = .summary_ip_no_chk(ip)
 
   return(ip_summ)
-
 }
 
 # without the ivalidate check
 .summary_ip_no_chk = function(ip) {
-  if (dplyr::n_groups(ip) == 1) return(ip %>% dplyr::mutate(boot = 1))
+  if (dplyr::n_groups(ip) == 1) {
+    return(ip %>% dplyr::mutate(boot = 1))
+  }
   ip %>%
-    dplyr::group_by(tau,a0,a1) %>%
+    dplyr::group_by(tau, a0, a1) %>%
     dplyr::summarise(probability = mean(probability)) %>%
     dplyr::mutate(boot = 1) %>%
     dplyr::group_by(boot)
@@ -408,8 +467,13 @@ summarise_ip = function(ip = i_empirical_ip) {
 #' format_ip(ganyani_ip)
 #'
 format_ip = function(ip = i_empirical_ip) {
-  ip = interfacer::ivalidate(ip, .imap = interfacer::imapper(
-    a0 = pmax(tau-0.5,0), a1=tau+0.5))
+  ip = interfacer::ivalidate(
+    ip,
+    .imap = interfacer::imapper(
+      a0 = pmax(tau - 0.5, 0),
+      a1 = tau + 0.5
+    )
+  )
 
   boots = dplyr::n_distinct(ip$boot)
   times = dplyr::n_distinct(ip$tau)
@@ -417,16 +481,19 @@ format_ip = function(ip = i_empirical_ip) {
   ip_summ = ip %>%
     dplyr::group_by(boot) %>%
     dplyr::summarise(
-      mean = sum(probability*(a1+a0)/2),
+      mean = sum(probability * (a1 + a0) / 2),
       sum = sum(probability),
       #TODO: recheck this
-      sd = suppressWarnings(sqrt(sum(probability*(a1^3-a0^3)/3)-(sum(probability*(a1+a0)/2)^2)))
+      sd = suppressWarnings(sqrt(
+        sum(probability * (a1^3 - a0^3) / 3) -
+          (sum(probability * (a1 + a0) / 2)^2)
+      ))
     )
 
-  is_pdf = all(abs(ip_summ$sum-1) < sqrt(.Machine$double.eps))
+  is_pdf = all(abs(ip_summ$sum - 1) < sqrt(.Machine$double.eps))
 
   if (is_pdf) {
-    if (boots>1) {
+    if (boots > 1) {
       ip_summ = ip_summ %>%
         dplyr::summarise(
           median_of_sum = stats::quantile(sum, 0.5),
@@ -439,21 +506,21 @@ format_ip = function(ip = i_empirical_ip) {
           lower_ci_of_sd = stats::quantile(sd, 0.025),
           upper_ci_of_sd = stats::quantile(sd, 0.975)
         )
-        return(sprintf("PDF: mean: %1.3g [%1.3g \u2014 %1.3g]; sd: %1.3g [%1.3g \u2014 %1.3g]; %d bootstraps",
-                ip_summ$median_of_mean,ip_summ$lower_ci_of_mean,ip_summ$upper_ci_of_mean,
-                ip_summ$median_of_sd,ip_summ$lower_ci_of_sd,ip_summ$upper_ci_of_sd,
-                boots
-        ))
-
+      return(sprintf(
+        "PDF: mean: %1.3g [%1.3g \u2014 %1.3g]; sd: %1.3g [%1.3g \u2014 %1.3g]; %d bootstraps",
+        ip_summ$median_of_mean,
+        ip_summ$lower_ci_of_mean,
+        ip_summ$upper_ci_of_mean,
+        ip_summ$median_of_sd,
+        ip_summ$lower_ci_of_sd,
+        ip_summ$upper_ci_of_sd,
+        boots
+      ))
     } else {
-        return(sprintf("mean: %1.3g; sd: %1.3g",
-                       ip_summ$mean,
-                       ip_summ$sd
-        ))
+      return(sprintf("mean: %1.3g; sd: %1.3g", ip_summ$mean, ip_summ$sd))
     }
-
   } else {
-    if (boots>1) {
+    if (boots > 1) {
       ip_summ = ip_summ %>%
         dplyr::summarise(
           median_of_sum = stats::quantile(sum, 0.5),
@@ -463,31 +530,37 @@ format_ip = function(ip = i_empirical_ip) {
           lower_ci_of_mean = stats::quantile(mean, 0.025),
           upper_ci_of_mean = stats::quantile(mean, 0.975)
         )
-      return(sprintf("total: %1.3g [%1.3g \u2014 %1.3g]; mean: %1.3g [%1.3g \u2014 %1.3g]; %d bootstraps",
-                     ip_summ$median_of_sum,ip_summ$lower_ci_of_sum,ip_summ$upper_ci_of_sum,
-                     ip_summ$median_of_mean/times,ip_summ$lower_ci_of_mean/times,ip_summ$upper_ci_of_mean/times,
-                     boots
+      return(sprintf(
+        "total: %1.3g [%1.3g \u2014 %1.3g]; mean: %1.3g [%1.3g \u2014 %1.3g]; %d bootstraps",
+        ip_summ$median_of_sum,
+        ip_summ$lower_ci_of_sum,
+        ip_summ$upper_ci_of_sum,
+        ip_summ$median_of_mean / times,
+        ip_summ$lower_ci_of_mean / times,
+        ip_summ$upper_ci_of_mean / times,
+        boots
       ))
     } else {
-      return(sprintf("total: %1.3g; mean: %1.3g;",
-                     ip_summ$sum,
-                     ip_summ$mean/times
+      return(sprintf(
+        "total: %1.3g; mean: %1.3g;",
+        ip_summ$sum,
+        ip_summ$mean / times
       ))
     }
   }
-
 }
 
 
 # .groupdata is a single row tibble of the grouping we are trying to match
 # the IP for.
-# selects the subset of th eIP distribution that is relevant to this group.
+# selects the subset of the IP distribution that is relevant to this group.
 .select_ip = function(ip, .groupdata) {
-  joincols = intersect(colnames(.groupdata),colnames(ip))
-  if (length(joincols)>0) {
-    ip = ip %>% dplyr::semi_join(.groupdata, by=joincols)
+  joincols = intersect(colnames(.groupdata), colnames(ip))
+  if (length(joincols) > 0) {
+    ip = ip %>% dplyr::semi_join(.groupdata, by = joincols)
   }
-  ip %>% dplyr::ungroup() %>%
+  ip %>%
+    dplyr::ungroup() %>%
     dplyr::select(probability, tau, boot) %>%
     dplyr::group_by(boot)
 }
@@ -507,18 +580,20 @@ format_ip = function(ip = i_empirical_ip) {
 #' @examples
 #' .omega_matrix(ggoutbreak::covid_ip)
 .omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
-
   ip = interfacer::ivalidate(ip, .prune = TRUE)
 
-  if (epiestim_compat) ip = ip %>% dplyr::filter(tau >= 1)
+  if (epiestim_compat) {
+    ip = ip %>% dplyr::filter(tau >= 1)
+  }
 
   # Make sure matrix includes one entry for tau=0: The pivot_wider will do the rest
   if (min(ip$tau) > 0) {
-    ip = ip %>% dplyr::bind_rows(tibble::tibble(
-      tau = 0:(min(ip$tau)-1),
-      probability = 0,
-      boot = ip$boot[1]
-    ))
+    ip = ip %>%
+      dplyr::bind_rows(tibble::tibble(
+        tau = 0:(min(ip$tau) - 1),
+        probability = 0,
+        boot = ip$boot[1]
+      ))
   }
 
   omega = ip %>%
@@ -526,7 +601,7 @@ format_ip = function(ip = i_empirical_ip) {
       names_from = boot,
       names_prefix = "boot.",
       values_from = probability,
-      values_fill = 0  # missing values have a probability of zero.
+      values_fill = 0 # missing values have a probability of zero.
     ) %>%
     dplyr::arrange(tau) %>%
     dplyr::select(-tau) %>%
@@ -552,33 +627,45 @@ format_ip = function(ip = i_empirical_ip) {
 #'   std_std_si = 0.5
 #' )
 #' tmp %>% dplyr::glimpse()
-.epiestim_sampler = function(n1,
-                             mean_si, std_mean_si, min_mean_si = 1, max_mean_si = mean_si+3*std_mean_si,
-                             std_si, std_std_si, min_std_si = 0, max_std_si = std_si+3*std_std_si
+.epiestim_sampler = function(
+  n1,
+  mean_si,
+  std_mean_si,
+  min_mean_si = 1,
+  max_mean_si = mean_si + 3 * std_mean_si,
+  std_si,
+  std_std_si,
+  min_std_si = 0,
+  max_std_si = std_si + 3 * std_std_si
 ) {
   mean_si_sample <- rep(-1, n1)
   std_si_sample <- rep(-1, n1)
 
   for (k in seq_len(n1)) {
-    while (mean_si_sample[k] < min_mean_si ||
-           mean_si_sample[k] > max_mean_si) {
-      mean_si_sample[k] <- stats::rnorm(1, mean = mean_si,
-                                        sd = std_mean_si)
+    while (
+      mean_si_sample[k] < min_mean_si ||
+        mean_si_sample[k] > max_mean_si
+    ) {
+      mean_si_sample[k] <- stats::rnorm(1, mean = mean_si, sd = std_mean_si)
     }
-    while (std_si_sample[k] < min_std_si ||
-           std_si_sample[k] > max_std_si) {
-      std_si_sample[k] <- stats::rnorm(1, mean = std_si,
-                                       sd = std_std_si)
+    while (
+      std_si_sample[k] < min_std_si ||
+        std_si_sample[k] > max_std_si
+    ) {
+      std_si_sample[k] <- stats::rnorm(1, mean = std_si, sd = std_std_si)
     }
   }
 
-  return(tibble::tibble(
-    mean = mean_si_sample,
-    sd = std_si_sample
-  ) %>% dplyr::mutate(
-    shape = (mean^2)/(sd^2),
-    rate = mean/(sd^2)
-  ))
+  return(
+    tibble::tibble(
+      mean = mean_si_sample,
+      sd = std_si_sample
+    ) %>%
+      dplyr::mutate(
+        shape = (mean^2) / (sd^2),
+        rate = mean / (sd^2)
+      )
+  )
 }
 
 
@@ -601,33 +688,45 @@ format_ip = function(ip = i_empirical_ip) {
 #'   std_std_si = 0.5
 #' )
 #' tmp %>% dplyr::glimpse()
-.ggoutbreak_sampler = function(n1, mean_of_mu, sd_of_mu, mean_of_sigma, sd_of_sigma, correlation = NA) {
-
+.ggoutbreak_sampler = function(
+  n1,
+  mean_of_mu,
+  sd_of_mu,
+  mean_of_sigma,
+  sd_of_sigma,
+  correlation = NA
+) {
   if (is.na(correlation)) {
     # This heuristic is the result of a linear model on a test data set.
-    correlation = 0.64 - 0.15*(mean_of_mu) + 0.18*(mean_of_sigma) - 0.02*(mean_of_mu*mean_of_sigma)
+    correlation = 0.64 -
+      0.15 * (mean_of_mu) +
+      0.18 * (mean_of_sigma) -
+      0.02 * (mean_of_mu * mean_of_sigma)
   }
-  correlation = min(c(1,max(c(0,correlation))))
+  correlation = min(c(1, max(c(0, correlation))))
 
   # means here is mean of mu=log(mean) and mean of sigma=log(sd)
-  means = c(mean_of_mu,mean_of_sigma)
-  names(means) = c("lmean","lsd")
+  means = c(mean_of_mu, mean_of_sigma)
+  names(means) = c("lmean", "lsd")
 
   # sds here is sd of mu=log(mean) and sd of sigma=log(sd)
-  sds = c(sd_of_mu,sd_of_sigma)
-  names(sds) = c("lmean","lsd")
+  sds = c(sd_of_mu, sd_of_sigma)
+  names(sds) = c("lmean", "lsd")
 
-  corMatrix = matrix(c(1,correlation,correlation,1),nrow = 2)
+  corMatrix = matrix(c(1, correlation, correlation, 1), nrow = 2)
   covMatrix = diag(sds) %*% corMatrix %*% diag(sds)
   colnames(covMatrix) = names(sds)
   rownames(covMatrix) = names(sds)
 
-  simulated = MASS::mvrnorm(n=n1, mu=means, Sigma = covMatrix) %>% as.data.frame()
-  simulated = simulated %>% dplyr::mutate(
-    mean = exp(lmean),
-    sd = exp(lsd),
-    shape = (mean^2)/(sd^2),
-    rate = mean/(sd^2))
+  simulated = MASS::mvrnorm(n = n1, mu = means, Sigma = covMatrix) %>%
+    as.data.frame()
+  simulated = simulated %>%
+    dplyr::mutate(
+      mean = exp(lmean),
+      sd = exp(lsd),
+      shape = (mean^2) / (sd^2),
+      rate = mean / (sd^2)
+    )
   return(simulated)
 }
 
@@ -648,24 +747,31 @@ format_ip = function(ip = i_empirical_ip) {
 #' )
 #' tmp2 = tmp %>% .epiestim_discretise()
 .epiestim_discretise = function(params_df) {
-
-  max_tau = params_df %>% dplyr::mutate(
-    tau = purrr::map2_dbl(shape, rate, ~stats::qgamma(0.999,.x,.y))
-  ) %>% dplyr::summarise(max_tau = ceiling(max(tau))) %>% dplyr::pull(max_tau)
+  max_tau = params_df %>%
+    dplyr::mutate(
+      tau = purrr::map2_dbl(shape, rate, ~ stats::qgamma(0.999, .x, .y))
+    ) %>%
+    dplyr::summarise(max_tau = ceiling(max(tau))) %>%
+    dplyr::pull(max_tau)
 
   out = params_df %>%
-    dplyr::filter(mean>1) %>%
+    dplyr::filter(mean > 1) %>%
     dplyr::mutate(
       discr_si = purrr::map2(
-        mean, sd, ~ tibble::tibble(
+        mean,
+        sd,
+        ~ tibble::tibble(
           tau = 0:max_tau,
-          a0 = c(0,seq(0.5,length.out = max_tau)),
-          a1 = seq(0.5,length.out = max_tau+1),
-          probability = EpiEstim::discr_si(k=0:max_tau, mu = .x,sigma = .y)
-        ) %>% dplyr::mutate(probability = probability/sum(probability))
+          a0 = c(0, seq(0.5, length.out = max_tau)),
+          a1 = seq(0.5, length.out = max_tau + 1),
+          probability = EpiEstim::discr_si(k = 0:max_tau, mu = .x, sigma = .y)
+        ) %>%
+          dplyr::mutate(probability = probability / sum(probability))
       ),
       boot = dplyr::row_number()
-    ) %>% dplyr::select(-mean,-sd) %>% tidyr::unnest(discr_si)
+    ) %>%
+    dplyr::select(-mean, -sd) %>%
+    tidyr::unnest(discr_si)
 
   return(out)
 }
@@ -693,24 +799,30 @@ format_ip = function(ip = i_empirical_ip) {
 #'   dplyr::summarise(mean = sum(tau*probability)) %>%
 #'   dplyr::summarise(mean_of_mean = mean(mean), sd_of_mean=stats::sd(mean))
 .ggoutbreak_discretise = function(params_df) {
-
-  max_tau = params_df %>% dplyr::mutate(
-    tau = purrr::map2_dbl(shape, rate, ~stats::qgamma(0.999,.x,.y))
-  ) %>% dplyr::summarise(max_tau = ceiling(max(tau))) %>% dplyr::pull(max_tau)
+  max_tau = params_df %>%
+    dplyr::mutate(
+      tau = purrr::map2_dbl(shape, rate, ~ stats::qgamma(0.999, .x, .y))
+    ) %>%
+    dplyr::summarise(max_tau = ceiling(max(tau))) %>%
+    dplyr::pull(max_tau)
 
   out = params_df %>%
     dplyr::mutate(
       discr_si = purrr::map2(
-        shape, rate, ~ tibble::tibble(
+        shape,
+        rate,
+        ~ tibble::tibble(
           tau = 0:max_tau,
-          a0 = c(0,seq(0.5,length.out = max_tau)),
-          a1 = seq(0.5,length.out = max_tau+1),
-          probability = dplyr::lead(stats::pgamma(a0, .x ,.y),default = 1) - stats::pgamma(a0, .x ,.y)
+          a0 = c(0, seq(0.5, length.out = max_tau)),
+          a1 = seq(0.5, length.out = max_tau + 1),
+          probability = dplyr::lead(stats::pgamma(a0, .x, .y), default = 1) -
+            stats::pgamma(a0, .x, .y)
         )
       ),
       boot = dplyr::row_number()
-    ) %>% dplyr::select(-mean,-sd,-shape,-rate) %>% tidyr::unnest(discr_si)
+    ) %>%
+    dplyr::select(-mean, -sd, -shape, -rate) %>%
+    tidyr::unnest(discr_si)
 
   return(out)
 }
-

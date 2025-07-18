@@ -63,21 +63,23 @@ Any grouping allowed.
 \description{
 Calculate a reproduction number estimate from modelled incidence estimates,
 by statistical sampling from a log-normally distributed incidence estimate,
-combined with uncertain infectivity profile specified as multiple
-discrete empirical distributions.
+such as you get from a \verb{I_t ~ Poisson(I_0 e^\{rt\})}  model using a log link
+function. This is combined with uncertain infectivity profile specified as
+multiple discrete empirical distributions, to calculate the range of possible
+values for $R_t$.
+}
+\details{
+This method is moderately slow and non deterministic by default.
 }
 \examples{
-df = ggoutbreak::england_covid \%>\%
-  time_aggregate(count=sum(count)) \%>\%
-    poisson_locfit_model()
+data = test_poisson_rt_smooth
+
+tmp2 = data \%>\%
+   ggoutbreak::poisson_locfit_model() \%>\%
+   ggoutbreak::rt_from_renewal(test_ip)
 
 if (interactive()) {
-  # not run
-  withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-   tmp2 = df \%>\%
-      rt_from_renewal(ganyani_ip)
-  })
-
+  plot_rt(tmp2, date_labels="\%b \%y")+sim_geom_function(data,colour="red")
 }
 
 }

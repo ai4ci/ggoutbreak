@@ -52,17 +52,6 @@
   return(out)
 }
 
-.keep_cdf = function(new_data, type, ..., trans_fn = function(x) x) {
-  keep = getOption("ggoutbreak.keep_cdf",default = FALSE)
-  if (keep) {
-    new_data = new_data %>%
-      dplyr::mutate(
-        !!paste0(type,".cdf") := .cdf_generator(..., trans_fn = trans_fn)
-      )
-  }
-  return(new_data)
-}
-
 
 .has_time = function(df) {
   return(.has_cols(df, "time") && is.time_period(df$time))
@@ -140,8 +129,6 @@
   lobstr::obj_addr(sys.frame(which=1))
 }
 
-
-
 .message_once = function(...) {
   msg=paste0(...)
   if (!.messaged(msg)) message(msg)
@@ -152,7 +139,6 @@
   if (!.messaged(msg)) warning(msg)
 }
 
-#TODO: recreate minimal warn once rlang style implementation using a package cache.
 cache_env <- new.env(parent = emptyenv())
 cache_env$map = list()
 

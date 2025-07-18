@@ -14,14 +14,23 @@ multinomial_nnet_model(
 )
 }
 \arguments{
-\item{d}{multi-class count input}
+\item{d}{A multi-class count input dataframe - a dataframe with columns:
+\itemize{
+\item class (factor) - A factor specifying the type of observation. This will be things like
+variant, or serotype, for a multinomial model. Any missing data points are ignored.
+\item count (positive_integer) - Positive case counts associated with the specified time frame
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+}
 
-\item{...}{not used and present to allow proportion model to be used in a group_modify}
+Must be grouped by: class (exactly).
+}
+
+\item{...}{not used}
 
 \item{window}{a number of data points between knots, smaller values result in
 less smoothing, large value in more.}
 
-\item{frequency}{the density of the output estimates.}
+\item{frequency}{the temporal density of the output estimates.}
 
 \item{predict}{result a prediction. If false we return the model.}
 
@@ -35,15 +44,19 @@ Takes a list of times, classes and counts, e.g. a COGUK variant like data set
 with time, (multinomial) class (e.g. variant) and count being the count in
 that time period. Fits a quadratic B-spline on time to the proportion of the
 data using \code{nnet::multinom}, with approx one degree of freedom per class and per
-\code{window} units of the time series
+\code{window} units of the time series.
+}
+\details{
+Additional groupings are treated as distinct proportions models.
 }
 \examples{
+
+data = test_poisson_rt_2class
+tmp = data \%>\% ggoutbreak::multinomial_nnet_model(window=14)
+
 if (interactive()) {
-  # not run due to long running
-  tmp = ggoutbreak::england_covid \%>\%
-    dplyr::filter(date > "2022-01-01") \%>\%
-    ggoutbreak::multinomial_nnet_model(window=21) \%>\%
-    dplyr::glimpse()
+  plot_multinomial(tmp, date_labels="\%b \%y")
 }
+
 }
 \concept{models}

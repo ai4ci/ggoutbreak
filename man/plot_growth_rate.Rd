@@ -164,28 +164,12 @@ a ggplot
 Growth rate timeseries diagram
 }
 \examples{
-# example code
-tmp = ggoutbreak::england_covid \%>\%
-  time_aggregate(count=sum(count))
 
-tmp_pop = ggoutbreak::england_demographics \%>\%
-  dplyr::ungroup() \%>\%
-  dplyr::summarise(population = sum(population))
-
-# If the incidence is normalised by population
-tmp2 = tmp \%>\%
-  poisson_locfit_model() \%>\%
-  normalise_incidence(tmp_pop)
+data = ggoutbreak::test_poisson_rt_2class
+tmp2 = data \%>\% poisson_locfit_model()
 
 if(interactive()) {
-  plot_growth_rate(tmp2,colour="blue")
-}
-
-tmp3 = ggoutbreak::england_covid \%>\%
-  proportion_locfit_model()
-
-if(interactive()) {
-  plot_growth_rate(tmp3)
+  plot_growth_rate(tmp2)
 }
 
 }

@@ -11,7 +11,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,8 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -154,16 +155,16 @@
 <span class="r-out co"><span class="r-pr">#&gt;</span> 27    2017-01-01   0   0    0    1   0  117    0    0     0  GMT      0</span>
 <span class="r-in"><span><span class="fu">dt2df</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span> <span class="fl">0</span><span class="op">:</span><span class="fl">9</span><span class="op">)</span> <span class="co"># date</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>    Sys.Date() + 0:9 sec min hour mday mon year wday yday isdst zone gmtoff</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1        2025-06-24   0   0    0   24   5  125    2  174     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2025-06-25   0   0    0   25   5  125    3  175     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 3        2025-06-26   0   0    0   26   5  125    4  176     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4        2025-06-27   0   0    0   27   5  125    5  177     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 5        2025-06-28   0   0    0   28   5  125    6  178     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6        2025-06-29   0   0    0   29   5  125    0  179     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7        2025-06-30   0   0    0   30   5  125    1  180     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 8        2025-07-01   0   0    0    1   6  125    2  181     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9        2025-07-02   0   0    0    2   6  125    3  182     0  UTC      0</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 10       2025-07-03   0   0    0    3   6  125    4  183     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1        2025-07-19   0   0    0   19   6  125    6  199     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2        2025-07-20   0   0    0   20   6  125    0  200     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3        2025-07-21   0   0    0   21   6  125    1  201     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4        2025-07-22   0   0    0   22   6  125    2  202     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5        2025-07-23   0   0    0   23   6  125    3  203     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6        2025-07-24   0   0    0   24   6  125    4  204     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7        2025-07-25   0   0    0   25   6  125    5  205     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8        2025-07-26   0   0    0   26   6  125    6  206     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9        2025-07-27   0   0    0   27   6  125    0  207     0  UTC      0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10       2025-07-28   0   0    0   28   6  125    1  208     0  UTC      0</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co">##' Even simpler:  Date -&gt; Matrix - dropping time info {sec,min,hour, isdst}</span></span></span>
 <span class="r-in"><span><span class="va">d2mat</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">simplify2array</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/class.html" class="external-link">unclass</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.POSIXlt.html" class="external-link">as.POSIXlt</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span><span class="op">[</span><span class="fl">4</span><span class="op">:</span><span class="fl">7</span><span class="op">]</span><span class="op">)</span></span></span>
@@ -208,11 +209,11 @@
 <span class="r-in"><span><span class="co">## 'Terrestrial Time' which differs from UTC by a few seconds</span></span></span>
 <span class="r-in"><span><span class="co">## See https://en.wikipedia.org/wiki/Terrestrial_Time</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/weekday.POSIXt.html" class="external-link">julian</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span>, <span class="op">-</span><span class="fl">2440588</span><span class="op">)</span> <span class="co"># from a day</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2460851</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2460876</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> attr(,"origin")</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] -2440588</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/Round.html" class="external-link">floor</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/weekday.POSIXt.html" class="external-link">julian</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fl">2440587.5</span><span class="op">)</span> <span class="co"># from a date-time</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2460851</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 2460875</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

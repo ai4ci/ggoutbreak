@@ -1,6 +1,6 @@
 ---
 title: "Simulation tests for growth rate estimators"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Simulation tests for growth rate estimators}
   %\VignetteEngine{knitr::rmarkdown}
@@ -10,7 +10,12 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6,
+  fig.height = 4
 )
 
 library(ggoutbreak)

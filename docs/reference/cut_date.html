@@ -19,7 +19,7 @@ relies on a numeric representation of the date or duration from the anchor."><me
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,7 +27,8 @@ relies on a numeric representation of the date or duration from the anchor."><me
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -142,39 +143,39 @@ and the anchor</p>
 <span class="r-in"><span><span class="co"># in this specific situation the final date is not truncated because the</span></span></span>
 <span class="r-in"><span><span class="co"># input data is seen as an exact match for the whole output period.</span></span></span>
 <span class="r-in"><span><span class="fu">cut_date</span><span class="op">(</span><span class="va">dates2</span>, <span class="st">"1 week"</span>, <span class="st">"sun"</span>, output<span class="op">=</span><span class="st">"factor"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 24/Aug/25 — 30/Aug/25 10/Aug/25 — 16/Aug/25 29/Jun/25 — 05/Jul/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] 06/Jul/25 — 12/Jul/25 20/Jul/25 — 26/Jul/25 24/Aug/25 — 30/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] 13/Jul/25 — 19/Jul/25 20/Jul/25 — 26/Jul/25 29/Jun/25 — 05/Jul/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [10] 03/Aug/25 — 09/Aug/25 17/Aug/25 — 23/Aug/25 17/Aug/25 — 23/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] 20/Jul/25 — 26/Jul/25 03/Aug/25 — 09/Aug/25 10/Aug/25 — 16/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [16] 27/Jul/25 — 02/Aug/25 17/Aug/25 — 23/Aug/25 24/Aug/25 — 30/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [19] 29/Jun/25 — 05/Jul/25 13/Jul/25 — 19/Jul/25 29/Jun/25 — 05/Jul/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [22] 13/Jul/25 — 19/Jul/25 03/Aug/25 — 09/Aug/25 03/Aug/25 — 09/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [25] 17/Aug/25 — 23/Aug/25 13/Jul/25 — 19/Jul/25 10/Aug/25 — 16/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [28] 22/Jun/25 — 28/Jun/25 17/Aug/25 — 23/Aug/25 06/Jul/25 — 12/Jul/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [31] 10/Aug/25 — 16/Aug/25 13/Jul/25 — 19/Jul/25 03/Aug/25 — 09/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [34] 29/Jun/25 — 05/Jul/25 10/Aug/25 — 16/Aug/25 27/Jul/25 — 02/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [37] 27/Jul/25 — 02/Aug/25 10/Aug/25 — 16/Aug/25 13/Jul/25 — 19/Jul/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [40] 17/Aug/25 — 23/Aug/25 22/Jun/25 — 28/Jun/25 29/Jun/25 — 05/Jul/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [43] 22/Jun/25 — 28/Jun/25 13/Jul/25 — 19/Jul/25 24/Aug/25 — 30/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [46] 24/Aug/25 — 30/Aug/25 29/Jun/25 — 05/Jul/25 27/Jul/25 — 02/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [49] 29/Jun/25 — 05/Jul/25 27/Jul/25 — 02/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11 Levels: 22/Jun/25 — 28/Jun/25 &lt; ... &lt; 31/Aug/25 — 06/Sep/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 14/Sep/25 — 20/Sep/25 31/Aug/25 — 06/Sep/25 20/Jul/25 — 26/Jul/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] 27/Jul/25 — 02/Aug/25 10/Aug/25 — 16/Aug/25 14/Sep/25 — 20/Sep/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] 03/Aug/25 — 09/Aug/25 10/Aug/25 — 16/Aug/25 20/Jul/25 — 26/Jul/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] 24/Aug/25 — 30/Aug/25 07/Sep/25 — 13/Sep/25 07/Sep/25 — 13/Sep/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] 10/Aug/25 — 16/Aug/25 24/Aug/25 — 30/Aug/25 31/Aug/25 — 06/Sep/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [16] 17/Aug/25 — 23/Aug/25 07/Sep/25 — 13/Sep/25 14/Sep/25 — 20/Sep/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [19] 20/Jul/25 — 26/Jul/25 03/Aug/25 — 09/Aug/25 20/Jul/25 — 26/Jul/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [22] 03/Aug/25 — 09/Aug/25 24/Aug/25 — 30/Aug/25 24/Aug/25 — 30/Aug/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] 07/Sep/25 — 13/Sep/25 03/Aug/25 — 09/Aug/25 31/Aug/25 — 06/Sep/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [28] &lt;NA&gt;                  07/Sep/25 — 13/Sep/25 27/Jul/25 — 02/Aug/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [31] 31/Aug/25 — 06/Sep/25 03/Aug/25 — 09/Aug/25 24/Aug/25 — 30/Aug/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [34] 20/Jul/25 — 26/Jul/25 31/Aug/25 — 06/Sep/25 17/Aug/25 — 23/Aug/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] 17/Aug/25 — 23/Aug/25 31/Aug/25 — 06/Sep/25 03/Aug/25 — 09/Aug/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [40] 07/Sep/25 — 13/Sep/25 &lt;NA&gt;                  20/Jul/25 — 26/Jul/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [43] &lt;NA&gt;                  03/Aug/25 — 09/Aug/25 14/Sep/25 — 20/Sep/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [46] 14/Sep/25 — 20/Sep/25 20/Jul/25 — 26/Jul/25 17/Aug/25 — 23/Aug/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] 20/Jul/25 — 26/Jul/25 17/Aug/25 — 23/Aug/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 Levels: 20/Jul/25 — 26/Jul/25 &lt; ... &lt; 21/Sep/25 — 27/Sep/25</span>
 <span class="r-in"><span><span class="fu">cut_date</span><span class="op">(</span><span class="va">dates2</span>, dfmt <span class="op">=</span> <span class="st">"%d/%b"</span>, output<span class="op">=</span><span class="st">"factor"</span>, unit <span class="op">=</span> <span class="st">"2 weeks"</span>, anchor<span class="op">=</span><span class="st">"sun"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 17/Aug — 30/Aug 03/Aug — 16/Aug 22/Jun — 05/Jul 06/Jul — 19/Jul</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] 20/Jul — 02/Aug 17/Aug — 30/Aug 06/Jul — 19/Jul 20/Jul — 02/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 22/Jun — 05/Jul 03/Aug — 16/Aug 17/Aug — 30/Aug 17/Aug — 30/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [13] 20/Jul — 02/Aug 03/Aug — 16/Aug 03/Aug — 16/Aug 20/Jul — 02/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [17] 17/Aug — 30/Aug 17/Aug — 30/Aug 22/Jun — 05/Jul 06/Jul — 19/Jul</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [21] 22/Jun — 05/Jul 06/Jul — 19/Jul 03/Aug — 16/Aug 03/Aug — 16/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [25] 17/Aug — 30/Aug 06/Jul — 19/Jul 03/Aug — 16/Aug 22/Jun — 05/Jul</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [29] 17/Aug — 30/Aug 06/Jul — 19/Jul 03/Aug — 16/Aug 06/Jul — 19/Jul</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [33] 03/Aug — 16/Aug 22/Jun — 05/Jul 03/Aug — 16/Aug 20/Jul — 02/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [37] 20/Jul — 02/Aug 03/Aug — 16/Aug 06/Jul — 19/Jul 17/Aug — 30/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [41] 22/Jun — 05/Jul 22/Jun — 05/Jul 22/Jun — 05/Jul 06/Jul — 19/Jul</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [45] 17/Aug — 30/Aug 17/Aug — 30/Aug 22/Jun — 05/Jul 20/Jul — 02/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [49] 22/Jun — 05/Jul 20/Jul — 02/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6 Levels: 22/Jun — 05/Jul &lt; 06/Jul — 19/Jul &lt; ... &lt; 31/Aug — 13/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] 07/Sep — 20/Sep 24/Aug — 06/Sep 13/Jul — 26/Jul 27/Jul — 09/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] 10/Aug — 23/Aug 07/Sep — 20/Sep 27/Jul — 09/Aug 10/Aug — 23/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] 13/Jul — 26/Jul 24/Aug — 06/Sep 07/Sep — 20/Sep 07/Sep — 20/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [13] 10/Aug — 23/Aug 24/Aug — 06/Sep 24/Aug — 06/Sep 10/Aug — 23/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [17] 07/Sep — 20/Sep 07/Sep — 20/Sep 13/Jul — 26/Jul 27/Jul — 09/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [21] 13/Jul — 26/Jul 27/Jul — 09/Aug 24/Aug — 06/Sep 24/Aug — 06/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [25] 07/Sep — 20/Sep 27/Jul — 09/Aug 24/Aug — 06/Sep 13/Jul — 26/Jul</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [29] 07/Sep — 20/Sep 27/Jul — 09/Aug 24/Aug — 06/Sep 27/Jul — 09/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [33] 24/Aug — 06/Sep 13/Jul — 26/Jul 24/Aug — 06/Sep 10/Aug — 23/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [37] 10/Aug — 23/Aug 24/Aug — 06/Sep 27/Jul — 09/Aug 07/Sep — 20/Sep</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [41] 13/Jul — 26/Jul 13/Jul — 26/Jul 13/Jul — 26/Jul 27/Jul — 09/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [45] 07/Sep — 20/Sep 07/Sep — 20/Sep 13/Jul — 26/Jul 10/Aug — 23/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [49] 13/Jul — 26/Jul 10/Aug — 23/Aug</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6 Levels: 13/Jul — 26/Jul &lt; 27/Jul — 09/Aug &lt; ... &lt; 21/Sep — 04/Oct</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

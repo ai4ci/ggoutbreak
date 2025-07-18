@@ -54,10 +54,23 @@ varying rate as a natural cubic spline with approx one degree of freedom per
 \code{window} units of the time series.
 }
 \examples{
-ggoutbreak::england_covid \%>\%
- dplyr::filter(date < "2021-01-01") \%>\%
- time_aggregate(count=sum(count)) \%>\%
- ggoutbreak::poisson_glm_model(window=21) \%>\%
- dplyr::glimpse()
+data = test_poisson_growth_rate
+
+tmp2 = data \%>\% ggoutbreak::poisson_glm_model(window=7,deg=2)
+tmp3 = data \%>\% ggoutbreak::poisson_glm_model(window=14,deg=1)
+
+comp = dplyr::bind_rows(
+  tmp2 \%>\% dplyr::mutate(class="7:2"),
+  tmp3 \%>\% dplyr::mutate(class="14:1"),
+) \%>\% dplyr::group_by(class)
+
+if (interactive()) {
+  plot_incidence(comp, date_labels="\%b \%y", raw=data)+
+    ggplot2::geom_line(
+      data=data,
+      mapping=ggplot2::aes(x=as.Date(time),y=rate),
+      colour="grey40"
+    )
+}
 }
 \concept{models}

@@ -1,6 +1,7 @@
-
-
 #' Calculate a normalised risk ratio from proportions
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
 #'
 #' This assumes that for example, case distribution proportions are stratified
 #' by a population grouping, e.g. geography or age, and we have estimates of the
@@ -23,23 +24,21 @@
 #'
 #' @examples
 #'
-#'
-#'
-#' tmp = ggoutbreak::england_covid %>%
-#'   ggoutbreak::proportion_locfit_model(window=21) %>%
+#' tmp = ggoutbreak::england_covid_proportion_age_stratified  %>%
 #'   ggoutbreak::infer_risk_ratio(ggoutbreak::england_demographics) %>%
 #'   dplyr::glimpse()
 #'
 #' if(interactive()) {
-#'   plot_growth_phase(tmp)
+#'   plot_growth_phase(tmp,duration = 14*4)+
+#'   ggplot2::scale_colour_viridis_d()+
+#'   ggplot2::coord_cartesian(xlim=c(-0.25,0.25),ylim=c(0.02,20))
 #' }
 #'
 infer_risk_ratio = function(
-    modelled = i_proportion_model,
-    base = i_baseline_proportion_data,
-    ...
+  modelled = i_proportion_model,
+  base = i_baseline_proportion_data,
+  ...
 ) {
-
   base = interfacer::ivalidate(base, ...)
   modelled = interfacer::ivalidate(modelled, ...)
 
@@ -59,10 +58,10 @@ infer_risk_ratio = function(
 }
 
 
-
-
-
-#' Calculate a risk ratio from incidence (experimental)
+#' Calculate a risk ratio from incidence
+#'
+#' @description
+#' `r lifecycle::badge("experimental")`
 #'
 #' This enables incidence rates are able to be compared to a baseline figure for
 #' incidence. The baseline could come for example from a population average or
@@ -85,25 +84,20 @@ infer_risk_ratio = function(
 #'
 #' @examples
 #'
-#' baseline = ggoutbreak::england_covid %>%
-#'   ggoutbreak::time_aggregate() %>%
-#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#' baseline = ggoutbreak::england_covid_poisson %>%
 #'   dplyr::mutate(baseline_incidence = incidence.0.5)
 #'
 #'
-#' tmp = ggoutbreak::england_covid %>%
-#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#' tmp = ggoutbreak::england_covid_poisson_age_stratified %>%
 #'   ggoutbreak::infer_rate_ratio(baseline) %>%
 #'   dplyr::glimpse()
 #'
 #'
-#'
 infer_rate_ratio = function(
-    modelled = i_incidence_model,
-    base = i_baseline_incidence_data,
-    ...
+  modelled = i_incidence_model,
+  base = i_baseline_incidence_data,
+  ...
 ) {
-
   #TODO: no plotting method defined for these rate ratios.
   #TODO: the growth rate returned here is absolute not relative
   #TODO: We could have done this with proper confidence as the ratio of

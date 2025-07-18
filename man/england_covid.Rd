@@ -10,7 +10,7 @@ A dataframe containing the following columns:
 \item date (as.Date) - the date column
 \item class (enum(\verb{00_04},\verb{05_09},\verb{10_14},\verb{15_19},\verb{20_24},\verb{25_29},\verb{30_34},\verb{35_39},\verb{40_44},\verb{45_49},\verb{50_54},\verb{55_59},\verb{60_64},\verb{65_69},\verb{70_74},\verb{75_79},\verb{80_84},\verb{85_89},\verb{90+})) - the class column
 \item count (numeric) - the test positives for each age group
-\item denom (numeric) - the test positives for all age groups
+\item denom (numeric) - the test positives across all age groups
 \item time (time_period) - the time column
 }
 
@@ -32,9 +32,10 @@ group-wise incidence and absolute growth rates and group wise proportions and
 relative growth rates by age group.
 }
 \details{
-You may want \code{england_covid_proportion} instead which includes the population
-denominator. The denominator here is the total number of positive tests in all
-age groups and not the tests taken or denominators.
+You may want \code{england_covid_test_positives} instead which includes the
+population denominator. The denominator here is the total number of positive
+tests across all age groups and not the number of tests taken or population
+size.
 }
 \concept{datasets}
 \keyword{datasets}

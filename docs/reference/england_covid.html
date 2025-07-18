@@ -17,7 +17,7 @@ relative growth rates by age group."><meta property="og:image" content="https://
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -25,7 +25,8 @@ relative growth rates by age group."><meta property="og:image" content="https://
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -73,7 +74,7 @@ relative growth rates by age group.</p>
     <p>A dataframe containing the following columns:</p><ul><li><p>date (as.Date) - the date column</p></li>
 <li><p>class (enum(<code>00_04</code>,<code>05_09</code>,<code>10_14</code>,<code>15_19</code>,<code>20_24</code>,<code>25_29</code>,<code>30_34</code>,<code>35_39</code>,<code>40_44</code>,<code>45_49</code>,<code>50_54</code>,<code>55_59</code>,<code>60_64</code>,<code>65_69</code>,<code>70_74</code>,<code>75_79</code>,<code>80_84</code>,<code>85_89</code>,<code>90+</code>)) - the class column</p></li>
 <li><p>count (numeric) - the test positives for each age group</p></li>
-<li><p>denom (numeric) - the test positives for all age groups</p></li>
+<li><p>denom (numeric) - the test positives across all age groups</p></li>
 <li><p>time (time_period) - the time column</p></li>
 </ul><p>Must be grouped by: class (and other groupings allowed).</p>
 <p>No default value.</p>
@@ -81,9 +82,10 @@ relative growth rates by age group.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>You may want <code>england_covid_proportion</code> instead which includes the population
-denominator. The denominator here is the total number of positive tests in all
-age groups and not the tests taken or denominators.</p>
+    <p>You may want <code>england_covid_test_positives</code> instead which includes the
+population denominator. The denominator here is the total number of positive
+tests across all age groups and not the number of tests taken or population
+size.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

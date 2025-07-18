@@ -3,7 +3,7 @@
 \docType{data}
 \name{test_ts}
 \alias{test_ts}
-\title{A test time series dataset}
+\title{A test time series dataset, containing no statistical noise.}
 \format{
 A dataframe containing the following columns:
 \itemize{
@@ -25,6 +25,7 @@ Any grouping allowed.
 data(test_ts)
 }
 \description{
-A test time series dataset
+A test time series dataset, containing no statistical noise.
 }
 \concept{datasets}
+\keyword{datasets}

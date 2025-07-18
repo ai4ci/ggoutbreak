@@ -11,10 +11,19 @@
 #' corresponding value in `<col_name>` (or the first one)
 #' @export
 #' @concept test
-cfg_step_fn = function(changes, ..., col_name = setdiff(colnames(changes),"t")) {
+cfg_step_fn = function(
+  changes,
+  ...,
+  col_name = setdiff(colnames(changes), "t")
+) {
   #TODO: interfacer
-  fn = stats::approxfun(changes$t,changes[[col_name]], rule=2:2, method = "constant")
-  return(function(...,t=..1) fn(t))
+  fn = stats::approxfun(
+    changes$t,
+    changes[[col_name]],
+    rule = 2:2,
+    method = "constant"
+  )
+  return(function(..., t = ..1) fn(t))
 }
 
 
@@ -29,9 +38,18 @@ cfg_step_fn = function(changes, ..., col_name = setdiff(colnames(changes),"t")) 
 #'   interpolated value from `<col_name>`
 #' @export
 #' @concept test
-cfg_linear_fn = function(changes, ..., col_name = setdiff(colnames(changes),"t")) {
-  fn = stats::approxfun(changes$t,changes[[col_name]], rule=2:2, method = "linear")
-  return(function(...,t=..1) fn(t))
+cfg_linear_fn = function(
+  changes,
+  ...,
+  col_name = setdiff(colnames(changes), "t")
+) {
+  fn = stats::approxfun(
+    changes$t,
+    changes[[col_name]],
+    rule = 2:2,
+    method = "linear"
+  )
+  return(function(..., t = ..1) fn(t))
 }
 
 #' Random probability function with day of week effect
@@ -54,18 +72,33 @@ cfg_linear_fn = function(changes, ..., col_name = setdiff(colnames(changes),"t")
 #' @examples
 #' fn = cfg_weekly_proportion_rng(c(0.9,0.9,0.9,0.9,0.9,0.1,0.1))
 #' matrix(fn(1:42),ncol=7,byrow=TRUE)
-cfg_weekly_proportion_rng = function(prob = c(0.8,0.8,0.8,0.8,0.8,0.5,0.5), kappa = 0.1, week_starts = weekdays(as.Date("2024-10-14")) ) {
-  idx = which(weekdays(as.time_period(0:6,"1 days"))==week_starts)
-  if (length(idx) != 1) stop("`week_starts` cannot be matched to one of: ",paste0(weekdays(as.time_period(0:6,"1 days")),collapse=", "))
-  if (length(prob) != 7) stop("ascertainment must be length 7")
-  kappa = rep(kappa,length.out=length(prob))
-  return(function(..., t=..1) {
-    if (is.time_period(t) && .get_meta(t)$unit != lubridate::days()) stop("`cfg_weekly_proportion_rng()` only works with daily interval time periods")
-    dow = (floor(t+8-idx) %% 7)+1
+cfg_weekly_proportion_rng = function(
+  prob = c(0.8, 0.8, 0.8, 0.8, 0.8, 0.5, 0.5),
+  kappa = 0.1,
+  week_starts = weekdays(as.Date("2024-10-14"))
+) {
+  idx = which(weekdays(as.time_period(0:6, "1 days")) == week_starts)
+  if (length(idx) != 1) {
+    stop(
+      "`week_starts` cannot be matched to one of: ",
+      paste0(weekdays(as.time_period(0:6, "1 days")), collapse = ", ")
+    )
+  }
+  if (length(prob) != 7) {
+    stop("ascertainment must be length 7")
+  }
+  kappa = rep(kappa, length.out = length(prob))
+  return(function(..., t = ..1) {
+    if (is.time_period(t) && .get_meta(t)$unit != lubridate::days()) {
+      stop(
+        "`cfg_weekly_proportion_rng()` only works with daily interval time periods"
+      )
+    }
+    dow = (floor(t + 8 - idx) %% 7) + 1
     dow_prob = prob[dow]
     dow_kappa = kappa[dow]
     # warnings can be produced if value of t is NA.
-    suppressWarnings(rbeta2(t, prob = dow_prob, kappa=dow_kappa))
+    suppressWarnings(rbeta2(t, prob = dow_prob, kappa = dow_kappa))
   })
 }
 
@@ -88,22 +121,36 @@ cfg_weekly_proportion_rng = function(prob = c(0.8,0.8,0.8,0.8,0.8,0.5,0.5), kapp
 #' @examples
 #' fn = cfg_weekly_gamma_rng(c(1,1,1,1,4,3,2))
 #' matrix(fn(1:42),ncol=7,byrow=TRUE)
-cfg_weekly_gamma_rng = function(mean=c(1,1,1,1,4,3,2), sd=sqrt(mean), week_starts = weekdays(as.Date("2024-10-14")) ) {
-  idx = which(weekdays(as.time_period(0:6,"1 days"))==week_starts)
-  if (length(idx) != 1) stop("`week_starts` cannot be matched to one of: ",paste0(weekdays(as.time_period(0:6,"1 days")),collapse=", "))
+cfg_weekly_gamma_rng = function(
+  mean = c(1, 1, 1, 1, 4, 3, 2),
+  sd = sqrt(mean),
+  week_starts = weekdays(as.Date("2024-10-14"))
+) {
+  idx = which(weekdays(as.time_period(0:6, "1 days")) == week_starts)
+  if (length(idx) != 1) {
+    stop(
+      "`week_starts` cannot be matched to one of: ",
+      paste0(weekdays(as.time_period(0:6, "1 days")), collapse = ", ")
+    )
+  }
 
-  if (length(mean) != 7) stop("delay must be length 7")
-  sd = rep(sd,length.out=length(mean))
-  return(function(..., t=..1) {
-    if (is.time_period(t) && .get_meta(t)$unit != lubridate::days()) stop("`cfg_weekly_gamma_rng()` only works with daily interval time periods")
-    dow = (floor(t+8-idx) %% 7)+1
+  if (length(mean) != 7) {
+    stop("delay must be length 7")
+  }
+  sd = rep(sd, length.out = length(mean))
+  return(function(..., t = ..1) {
+    if (is.time_period(t) && .get_meta(t)$unit != lubridate::days()) {
+      stop(
+        "`cfg_weekly_gamma_rng()` only works with daily interval time periods"
+      )
+    }
+    dow = (floor(t + 8 - idx) %% 7) + 1
     dow_mean = mean[dow]
     dow_sd = sd[dow]
     # warnings can be produced if value of t is NA.
-    suppressWarnings(rgamma2(t, mean = dow_mean, sd=dow_sd))
+    suppressWarnings(rgamma2(t, mean = dow_mean, sd = dow_sd))
   })
 }
-
 
 
 #' Weekly convolution distribution function
@@ -119,18 +166,35 @@ cfg_weekly_gamma_rng = function(mean=c(1,1,1,1,4,3,2), sd=sqrt(mean), week_start
 #'
 #' @examples
 #' cat(sapply(cfg_weekly_ip_fn()(1:7),format_ip),sep = "\n")
-cfg_weekly_ip_fn = function(mean=c(1,1,1,1,4,3,2), sd=sqrt(mean), week_starts = weekdays(as.Date("2024-10-14")) ) {
-  idx = which(weekdays(as.time_period(0:6,"1 days"))==week_starts)
-  if (length(idx) != 1) stop("`week_starts` cannot be matched to one of: ",paste0(weekdays(as.time_period(0:6,"1 days")),collapse=", "))
-  if (length(mean) != 7) stop("delay must be length 7")
-  sd = rep(sd,length.out=length(mean))
-  return(function(..., t=..1) {
-    if (is.time_period(t) && .get_meta(t)$unit != lubridate::days()) stop("`cfg_weekly_ip_fn()` only works with daily interval time periods")
-    dow = (floor(t+8-idx) %% 7)+1
+cfg_weekly_ip_fn = function(
+  mean = c(1, 1, 1, 1, 4, 3, 2),
+  sd = sqrt(mean),
+  week_starts = weekdays(as.Date("2024-10-14"))
+) {
+  idx = which(weekdays(as.time_period(0:6, "1 days")) == week_starts)
+  if (length(idx) != 1) {
+    stop(
+      "`week_starts` cannot be matched to one of: ",
+      paste0(weekdays(as.time_period(0:6, "1 days")), collapse = ", ")
+    )
+  }
+  if (length(mean) != 7) {
+    stop("delay must be length 7")
+  }
+  sd = rep(sd, length.out = length(mean))
+  return(function(..., t = ..1) {
+    if (is.time_period(t) && .get_meta(t)$unit != lubridate::days()) {
+      stop("`cfg_weekly_ip_fn()` only works with daily interval time periods")
+    }
+    dow = (floor(t + 8 - idx) %% 7) + 1
     dow_mean = mean[dow]
     dow_sd = sd[dow]
     # warnings can be produced if value of t is NA.
-    purrr::map2(dow_mean,dow_sd, ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y))
+    purrr::map2(
+      dow_mean,
+      dow_sd,
+      ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y)
+    )
   })
 }
 
@@ -154,19 +218,26 @@ cfg_weekly_ip_fn = function(mean=c(1,1,1,1,4,3,2), sd=sqrt(mean), week_starts = 
 #' # a gamma function that changes mean at time 5
 #' fn(4)
 #' fn(7)
-cfg_gamma_ip_fn = function(mean_fn = ~ 2, sd_fn = \(mean) sqrt(mean)) {
+cfg_gamma_ip_fn = function(mean_fn = ~2, sd_fn = \(mean) sqrt(mean)) {
   mean_fn = .fn_check(mean_fn)
   sd_fn = .fn_check(sd_fn)
 
-  return(function(..., t=..1) {
+  return(function(..., t = ..1) {
+    mean = mean_fn(t = t, ...)
+    sd = sd_fn(t = t, mean = mean, ...)
 
-    mean = mean_fn(t=t,...)
-    sd = sd_fn(t=t,mean=mean,...)
+    if (length(mean) == 1) {
+      mean = rep(mean, length.out = length(t))
+    }
+    if (length(sd) == 1) {
+      sd = rep(sd, length.out = length(t))
+    }
 
-    if (length(mean) == 1) mean = rep(mean,length.out=length(t))
-    if (length(sd) == 1) sd = rep(sd,length.out=length(t))
-
-    purrr::map2(mean,sd, ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y))
+    purrr::map2(
+      mean,
+      sd,
+      ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y)
+    )
   })
 }
 
@@ -189,19 +260,17 @@ cfg_gamma_ip_fn = function(mean_fn = ~ 2, sd_fn = \(mean) sqrt(mean)) {
 #' @examples
 #' fn = cfg_beta_prob_rng(~ ifelse(.x<=5,0.1,0.9))
 #' fn(1:10)
-cfg_beta_prob_rng = function(probability_fn = ~ 0.8, kappa_fn = ~ 0.1) {
-
+cfg_beta_prob_rng = function(probability_fn = ~0.8, kappa_fn = ~0.1) {
   probability_fn = .fn_check(probability_fn)
   kappa_fn = .fn_check(kappa_fn)
 
-  return(function(..., t=..1) {
-    probability = probability_fn(t,...)
-    kappa = kappa_fn(t,...)
-    probability = rep(probability,length.out=length(t))
-    kappa = rep(kappa,length.out=length(t))
-    rbeta2(length(t),prob = probability, kappa = kappa)
+  return(function(..., t = ..1) {
+    probability = probability_fn(t, ...)
+    kappa = kappa_fn(t, ...)
+    probability = rep(probability, length.out = length(t))
+    kappa = rep(kappa, length.out = length(t))
+    rbeta2(length(t), prob = probability, kappa = kappa)
   })
-
 }
 
 #' Randomly sample from an empirical distribution
@@ -266,10 +335,12 @@ cfg_ip_sampler_rng = function(ip = i_empirical_ip) {
 #'
 #' table(fn(age),age)
 cfg_transition_fn = function(transition) {
-  if (is.matrix(transition)) transition = .matrix_to_long(transition)
+  if (is.matrix(transition)) {
+    transition = .matrix_to_long(transition)
+  }
   return(
-    function(...,.x=..1) {
-      .sample_from_long(.x,transition)
+    function(..., .x = ..1) {
+      .sample_from_long(.x, transition)
     }
   )
 }
@@ -297,44 +368,42 @@ cfg_transition_fn = function(transition) {
 #'
 #' @examples
 #' sim_test_data() %>% dplyr::glimpse()
-#'
-sim_test_data = function(ip = test_ip, duration=500, period=50) {
-
+sim_test_data = function(ip = test_ip, duration = 500, period = 50) {
   ip = summarise_ip(ip)
 
   changes = tibble::tibble(
-    t = seq(0,duration-period,period),
-    growth = rep(c(0.05,-0.05), length.out=duration%/%period)
+    t = seq(0, duration - period, period),
+    growth = rep(c(0.05, -0.05), length.out = duration %/% period)
   )
   test = tibble::tibble(
-    time = as.time_period(0:duration,"1 day")
+    time = as.time_period(0:duration, "1 day")
   ) %>%
     dplyr::mutate(
       growth = cfg_step_fn(changes)(time),
-      incidence = 100*exp(dplyr::lag(cumsum(growth),default=0))
+      incidence = 100 * exp(dplyr::lag(cumsum(growth), default = 0))
     )
 
-  foi = test %>% dplyr::cross_join(ip) %>%
-    dplyr::group_by(time = time+tau) %>%
+  foi = test %>%
+    dplyr::cross_join(ip) %>%
+    dplyr::group_by(time = time + tau) %>%
     dplyr::summarise(
-      force = sum(incidence*probability),
+      force = sum(incidence * probability),
       n = dplyr::n()
     ) %>%
     dplyr::filter(n == max(n))
 
   data = test %>%
-    dplyr::left_join(foi,by="time") %>%
-    dplyr::mutate(rt = incidence/force) %>%
-    dplyr::select(-force,-n) %>%
+    dplyr::left_join(foi, by = "time") %>%
+    dplyr::mutate(rt = incidence / force) %>%
+    dplyr::select(-force, -n) %>%
     dplyr::mutate(
-      denom = round(max(incidence)*10),
-      proportion = incidence/(max(incidence)*10),
+      denom = round(max(incidence) * 10),
+      proportion = incidence / (max(incidence) * 10),
       relative.growth = growth,
-      count=round(incidence)
+      count = round(incidence)
     )
 
   return(data)
-
 }
 
 #' Generate an outbreak case count series defined by growth rates using a poisson model.
@@ -359,33 +428,35 @@ sim_test_data = function(ip = test_ip, duration=500, period=50) {
 #' if (interactive()) {
 #'   ggplot2::ggplot(tmp2)+ggplot2::geom_point(ggplot2::aes(x=time,y=count))
 #' }
+#'
 sim_poisson_model = function(
-    changes = tibble::tibble(t = c(0,20,40,60,80), growth = c(0.1,0,-0.1,0,0.1)),
-    kappa = 1,
-    max_time = 104,
-    seed = Sys.time(),
-    fn_growth = cfg_step_fn(changes),
-    fn_imports = ~ ifelse(.x == 0, 100, 0),
-    time_unit = "1 day"
+  changes = tibble::tibble(
+    t = c(0, 20, 40, 60, 80),
+    growth = c(0.1, 0, -0.1, 0, 0.1)
+  ),
+  kappa = 1,
+  max_time = 104,
+  seed = Sys.time(),
+  fn_growth = cfg_step_fn(changes),
+  fn_imports = ~ ifelse(.x == 0, 100, 0),
+  time_unit = "1 day"
 ) {
-
   fn_growth = .fn_check(fn_growth)
   fn_imports = .fn_check(fn_imports)
 
-  withr::with_seed(seed,{
-
+  withr::with_seed(seed, {
     imports = fn_imports(0:max_time)
     r = fn_growth(0:max_time)
-    rate = rep(-1,length(imports))
+    rate = rep(-1, length(imports))
     rate[1] = imports[1]
     for (i in 2:length(rate)) {
-      rate[i] = rate[i-1]*exp(r[i-1])+imports[i]
+      rate[i] = rate[i - 1] * exp(r[i - 1]) + imports[i]
     }
 
     tmp = tibble::tibble(
       time = 0:max_time,
-      growth=r,
-      imports=imports,
+      growth = r,
+      imports = imports,
       rate = rate
     ) %>%
       dplyr::mutate(
@@ -393,21 +464,22 @@ sim_poisson_model = function(
         time = ggoutbreak::as.time_period(time, unit = time_unit)
       )
 
-    tmp = tmp %>% dplyr::mutate(
-      statistic="infections"
-    ) %>% dplyr::group_by(statistic)
-
+    tmp = tmp %>%
+      dplyr::mutate(
+        statistic = "infections"
+      ) %>%
+      dplyr::group_by(statistic)
   })
 
-  interfacer::ireturn(structure(
-    tmp,
-    events = .extract_events(tmp, growth, time, "growth=%1.2f"),
-    fn = fn_growth
-  ),i_sim_count_data)
-
+  interfacer::ireturn(
+    structure(
+      tmp,
+      events = .extract_events(tmp, growth, time, "growth=%1.2f"),
+      fn = fn_growth
+    ),
+    i_sim_count_data
+  )
 }
-
-
 
 
 #' Generate an outbreak case count series defined by Reproduction number using a poisson model.
@@ -438,64 +510,61 @@ sim_poisson_model = function(
 #' }
 #'
 sim_poisson_Rt_model = function(
-    changes = tibble::tibble(
-      t = c(0,40),
-      rt = c(2.5,0.8)
-    ),
-    kappa = 1,
-    max_time = 80,
-    seed = Sys.time(),
-    fn_Rt = cfg_step_fn(changes),
-    fn_imports = ~ ifelse(.x == 0, 30, 0),
-    fn_ip = ~ test_ip,
-    time_unit = "1 day"
+  changes = tibble::tibble(
+    t = c(0, 40),
+    rt = c(2.5, 0.8)
+  ),
+  kappa = 1,
+  max_time = 80,
+  seed = Sys.time(),
+  fn_Rt = cfg_step_fn(changes),
+  fn_imports = ~ ifelse(.x == 0, 30, 0),
+  fn_ip = ~test_ip,
+  time_unit = "1 day"
 ) {
-
   fn_Rt = .fn_check(fn_Rt)
   fn_imports = .fn_check(fn_imports)
   fn_ip = .fn_check(fn_ip)
 
-  withr::with_seed(seed,{
-
+  withr::with_seed(seed, {
     imports = fn_imports(0:max_time)
     R = fn_Rt(0:max_time)
-    rate = rep(-1,length(imports))
+    rate = rep(-1, length(imports))
     rate[1] = imports[1]
     for (i in 2:length(rate)) {
-
       ip = .summary_ip_no_chk(fn_ip(i))
       # reverse counts
-      if (i<nrow(ip)) {
-        tmp = c( rev(rate[1:(i-1)]), rep(0,nrow(ip)-i) )
+      if (i < nrow(ip)) {
+        tmp = c(rev(rate[1:(i - 1)]), rep(0, nrow(ip) - i))
       } else {
-        tmp = rev(rate[(i-nrow(ip)+1):(i-1)])
+        tmp = rev(rate[(i - nrow(ip) + 1):(i - 1)])
       }
 
       rate[i] = sum(ip$probability[-1] * tmp) * R[i] + imports[i]
-
     }
 
     tmp = tibble::tibble(
       time = 0:max_time,
-      rt=R,
-      imports=imports,
+      rt = R,
+      imports = imports,
       rate = rate
     ) %>%
       dplyr::mutate(
         count = .sample_contacts(rate, kappa),
         time = ggoutbreak::as.time_period(time, unit = time_unit),
-        statistic="infections"
+        statistic = "infections"
       ) %>%
       dplyr::group_by(statistic)
-
   })
 
-  interfacer::ireturn(structure(
-    tmp,
-    events = .extract_events(tmp, rt, time, "Rt=%1.2f"),
-    fn = fn_Rt
-  ),i_sim_count_data)
-
+  interfacer::ireturn(
+    structure(
+      tmp,
+      events = .extract_events(tmp, rt, time, "Rt=%1.2f"),
+      fn = fn_Rt
+    ),
+    i_sim_count_data
+  )
 }
 
 #' Generate a multinomial outbreak defined by per class growth rates and a
@@ -519,32 +588,37 @@ sim_poisson_Rt_model = function(
 #'   )
 #' }
 sim_multinomial = function(
-    changes = tibble::tibble(
-      t = c(0,20,40,60,80),
-      variant1 = c(0.1,0,-0.1,0,0.1),
-      variant2 = c(0.15,0.05,-0.05,-0.01,0.05),
-      variant3 = c(0,0.05,-0.05,+0.05,-0.05),
-    ),
-    initial=c(100,100,100),
-    time_unit = "1 day",
-    ...
-    ) {
-  cols = setdiff(colnames(changes),"t")
-  if (length(cols) != length(initial)) stop("Must be one initial value for each column (class) specified in `changes`")
+  changes = tibble::tibble(
+    t = c(0, 20, 40, 60, 80),
+    variant1 = c(0.1, 0, -0.1, 0, 0.1),
+    variant2 = c(0.15, 0.05, -0.05, -0.01, 0.05),
+    variant3 = c(0, 0.05, -0.05, +0.05, -0.05),
+  ),
+  initial = c(100, 100, 100),
+  time_unit = "1 day",
+  ...
+) {
+  cols = setdiff(colnames(changes), "t")
+  if (length(cols) != length(initial)) {
+    stop(
+      "Must be one initial value for each column (class) specified in `changes`"
+    )
+  }
   out = tibble::tibble()
   i = 1
   for (col in cols) {
     out = dplyr::bind_rows(
       out,
       sim_poisson_model(
-        changes = changes %>% dplyr::select(t, r=!!col),
-        fn_imports = ~ ifelse(.x==0,initial[[i]],0),
+        changes = changes %>% dplyr::select(t, r = !!col),
+        fn_imports = ~ ifelse(.x == 0, initial[[i]], 0),
         time_unit = time_unit,
         ...
       ) %>%
-      dplyr::mutate(class = col, time=as.numeric(time)) %>% tibble::as_tibble()
+        dplyr::mutate(class = col, time = as.numeric(time)) %>%
+        tibble::as_tibble()
     )
-    i = i+1
+    i = i + 1
   }
 
   out = out %>%
@@ -553,9 +627,10 @@ sim_multinomial = function(
     # The relative growth rate of one variant is compared to the weighted average
     # growth rate of the other variants (excluding current one)
     dplyr::mutate(
-      proportion = rate/sum(rate),
-      proportion.obs = count/sum(count),
-      relative.growth = growth - (sum(growth*rate)-growth*rate)/(sum(rate)-rate)
+      proportion = rate / sum(rate),
+      proportion.obs = count / sum(count),
+      relative.growth = growth -
+        (sum(growth * rate) - growth * rate) / (sum(rate) - rate)
     ) %>%
     dplyr::ungroup() %>%
     dplyr::group_by(class)
@@ -568,15 +643,14 @@ sim_multinomial = function(
       values_to = "r"
     ) %>%
     dplyr::transmute(
-    start = as.Date(as.time_period(t, unit=time_unit)),
-    end = NA,
-    label = sprintf("r=%1.2f",r)
-  )
+      start = as.Date(as.time_period(t, unit = time_unit)),
+      end = NA,
+      label = sprintf("r=%1.2f", r)
+    )
 
   return(
-    structure(out,
-      events = .extract_events(out, growth, time, "r=%1.2f" )
-    ))
+    structure(out, events = .extract_events(out, growth, time, "r=%1.2f"))
+  )
 }
 
 
@@ -622,9 +696,6 @@ sim_multinomial = function(
 #   return(model)
 #
 # }
-
-
-
 
 #' Generate a line list from a branching process model parametrised by
 #'    reproduction number
@@ -681,44 +752,41 @@ sim_multinomial = function(
 #'   10:14, "alpha", 5,
 #' )
 sim_branching_process = function(
-    changes = tibble::tibble(
-      t = c(0,40),
-      rt = c(2.5,0.8)
-    ),
-    max_time = 80,
-    seed = Sys.time(),
-    fn_Rt = cfg_step_fn(changes),
-    fn_ip = ~ test_ip,
-    fn_kappa = ~ 1,
-    imports_df = NULL,
-    fn_imports = ~ ifelse(.x == 0, 30, 0),
-    fn_list_next_gen = list(),
-    ...
+  changes = tibble::tibble(
+    t = c(0, 40),
+    rt = c(2.5, 0.8)
+  ),
+  max_time = 80,
+  seed = Sys.time(),
+  fn_Rt = cfg_step_fn(changes),
+  fn_ip = ~test_ip,
+  fn_kappa = ~1,
+  imports_df = NULL,
+  fn_imports = ~ ifelse(.x == 0, 30, 0),
+  fn_list_next_gen = list(),
+  ...
 ) {
-
   fn_Rt = .fn_check(fn_Rt)
   fn_ip = .fn_check(fn_ip)
   fn_kappa = .fn_check(fn_kappa)
   fn_mutate_next_gen = .fn_transition(fn_list_next_gen)
 
   if (is.null(imports_df)) {
-    imports_df = .fn_to_imports_df(fn_imports,max_time,seed)
+    imports_df = .fn_to_imports_df(fn_imports, max_time, seed)
   }
 
   imports_df = imports_df %>%
     tidyr::unnest(time) %>%
     dplyr::mutate(time = as.numeric(time)) %>%
-    dplyr::group_by(dplyr::across(c(-time,-count)))
+    dplyr::group_by(dplyr::across(c(-time, -count)))
 
   # empty cache w/ correct grouping
-  ip_cache = imports_df %>% dplyr::select(-count) %>%
-    dplyr::filter(FALSE)
+  ip_cache = imports_df %>% dplyr::select(-count) %>% dplyr::filter(FALSE)
 
   # grps is the metadata columns
   grps = imports_df %>% dplyr::groups()
 
-  withr::with_seed(seed,{
-
+  withr::with_seed(seed, {
     out = imports_df %>%
       dplyr::slice(rep(1:dplyr::n(), times = count)) %>%
       dplyr::select(-count) %>%
@@ -732,19 +800,19 @@ sim_branching_process = function(
       dplyr::group_by(!!!grps)
 
     # join by should be the metadata columns and time
-    join_by=intersect(colnames(out),colnames(ip_cache))
+    join_by = intersect(colnames(out), colnames(ip_cache))
 
     last_gen = out
 
-    while(nrow(last_gen) > 0) {
-      message(".",appendLF = FALSE)
+    while (nrow(last_gen) > 0) {
+      message(".", appendLF = FALSE)
 
       # for every infected individual the probability of infecting someone
 
       new_ip_cache = last_gen %>%
         dplyr::ungroup() %>%
-        dplyr::select(!!!grps,time) %>%
-        dplyr::anti_join(ip_cache, by=join_by) %>%
+        dplyr::select(!!!grps, time) %>%
+        dplyr::anti_join(ip_cache, by = join_by) %>%
         dplyr::distinct()
 
       if (nrow(new_ip_cache) > 0) {
@@ -752,18 +820,20 @@ sim_branching_process = function(
 
           dplyr::mutate(t = time) %>%
           dplyr::mutate(
-            ip = .ts_evaluate(fn_ip,.) %>%
+            ip = .ts_evaluate(fn_ip, .) %>%
               purrr::map(.summary_ip_no_chk) %>%
-              purrr::map(~ .x %>%
-                           dplyr::ungroup() %>%
-                           dplyr::select(tau, probability))
+              purrr::map(
+                ~ .x %>%
+                  dplyr::ungroup() %>%
+                  dplyr::select(tau, probability)
+              )
           ) %>%
           .unnest_dt("ip") %>%
-          dplyr::mutate(t = time+tau) %>%
+          dplyr::mutate(t = time + tau) %>%
           dplyr::mutate(
-            Rt_tau = .ts_evaluate(fn_Rt,. ),
-            kappa_t_tau = .ts_evaluate(fn_kappa,.),
-            E_infections_t_tau = Rt_tau*probability,
+            Rt_tau = .ts_evaluate(fn_Rt, .),
+            kappa_t_tau = .ts_evaluate(fn_kappa, .),
+            E_infections_t_tau = Rt_tau * probability,
             t_tau = t
           ) %>%
           dplyr::select(-t)
@@ -772,7 +842,7 @@ sim_branching_process = function(
       }
 
       next_gen = last_gen %>%
-        dplyr::inner_join(ip_cache, by=join_by) %>%
+        dplyr::inner_join(ip_cache, by = join_by) %>%
         dplyr::mutate(
           infector = id,
           infected_time = t_tau,
@@ -786,8 +856,15 @@ sim_branching_process = function(
           # all items combined (which it should usually be here...) ....
           infected = .sample_contacts(E_infections_t_tau, kappa_t_tau)
         ) %>%
-        dplyr::select(-kappa_t_tau,-E_infections_t_tau,-Rt_tau,-t_tau,-tau,-probability) %>%
-        dplyr::filter(infected>0) %>%
+        dplyr::select(
+          -kappa_t_tau,
+          -E_infections_t_tau,
+          -Rt_tau,
+          -t_tau,
+          -tau,
+          -probability
+        ) %>%
+        dplyr::filter(infected > 0) %>%
         dplyr::group_by(!!!grps)
       # we never need to summarise this as we are instead expanding it to
       # individual counts of infected:
@@ -812,36 +889,89 @@ sim_branching_process = function(
 
       out = dplyr::bind_rows(out, infected)
       last_gen = infected
-
     }
 
     message("complete")
 
-
     events = ip_cache %>%
-      dplyr::filter(tau==0)%>%
+      dplyr::filter(tau == 0) %>%
       dplyr::select(!!!grps, Rt = Rt_tau, time) %>%
       dplyr::arrange(time) %>%
       dplyr::distinct() %>%
       .extract_events(Rt, time, "Rt=%1.2f")
 
     out = out %>%
-      dplyr::mutate(time = as.time_period(time, unit="1 day"))
+      dplyr::mutate(time = as.time_period(time, unit = "1 day"))
 
-
-    interfacer::ireturn(structure(
-      out,
-      ip_cache= ip_cache %>% dplyr::mutate(
-        time = as.time_period(time, unit="1 day"),
-        t_tau = as.time_period(t_tau, unit="1 day")
+    interfacer::ireturn(
+      structure(
+        out,
+        ip_cache = ip_cache %>%
+          dplyr::mutate(
+            time = as.time_period(time, unit = "1 day"),
+            t_tau = as.time_period(t_tau, unit = "1 day")
+          ),
+        events = events
       ),
-      events = events
-    ),i_sim_linelist)
-
+      i_sim_linelist
+    )
   })
 }
 
+# Plot helpers ----
 
+#' Extract the events dataframe from a simulation output
+#'
+#' All the simulations should include details of major changes in the simulation
+#' input parameters, particularly for step functions. This set of events can be
+#' directly represented on a `ggoutbreak` plot using the `events` parameter
+#'
+#' @param df the output of a `ggoutbreak` simulation
+#'
+#' @returns an events dataframe
+#' @export
+#' @concept test
+#'
+#' @examples
+#' sim_events(test_poisson_rt)
+sim_events = function(df) {
+  tmp = attr(df, "events")
+  if (is.null(tmp)) {
+    tmp = interfacer::iproto(i_events)
+  }
+  return(tmp)
+}
+
+#' The principal input function to a `ggoutbreak` simulation as a `ggplot2` layer.
+#'
+#' simulations are typically parameterised by time varying $R_t$ or by growth
+#' rate, and this relationship is embedded in the simulation outputs. Plotting
+#' the value of these on the default `ggoutbreak` plots requires extracting this
+#' function and rescaling it to align with the dates, which is what this function
+#' does.
+#'
+#' @param df the output of a `ggoutbreak` simulation, typically this is going to
+#' be the input of an estimator.
+#' @inheritDotParams ggplot2::geom_function
+#'
+#' @returns a `geom_function` of the parameter
+#' @export
+#' @concept test
+#'
+#' @examples
+#' ggplot2::ggplot()+
+#'   sim_geom_function(test_poisson_rt, xlim=as.Date("2019-12-29")+c(0,80))+
+#'   ggplot2::scale_x_date()
+sim_geom_function = function(df, ...) {
+  tmp_fn = attr(df, "fn")
+  if (is.null(tmp_fn)) {
+    return(NULL)
+  }
+  return(ggplot2::geom_function(
+    fun = \(x) tmp_fn(date_to_time(x, df$time)),
+    ...
+  ))
+}
 
 ## Count model functions ----
 
@@ -879,34 +1009,62 @@ sim_branching_process = function(
 #'   plot_counts(tmp, mapping=ggplot2::aes(colour=statistic))+
 #'     ggplot2::geom_line()
 #' }
-sim_apply_delay.count_data = function(df,
-    ...,
-    fn_p_symptomatic = ~ 0.5,
-    fn_symptom_profile = cfg_gamma_ip_fn( ~ 5),
-    fn_p_admitted = ~ 0.1,
-    fn_admission_profile = cfg_weekly_ip_fn(c(8,8,8,8,8,9.5,9)),
-    fn_p_died = ~ 0.05,
-    fn_death_profile = cfg_gamma_ip_fn( ~ 14),
-    fn_p_tested = ~ 0.8,
-    fn_sample_profile = cfg_weekly_ip_fn(c(1,1,1,1,1,1.5,1.4)),
-    fn_result_profile = cfg_weekly_ip_fn(c(1,1,1,1,1,1.6,1.5)),
-    seed = Sys.time()
-  ) {
-
-  events = attr(df,"events")
+sim_apply_delay.count_data = function(
+  df,
+  ...,
+  fn_p_symptomatic = ~0.5,
+  fn_symptom_profile = cfg_gamma_ip_fn(~5),
+  fn_p_admitted = ~0.1,
+  fn_admission_profile = cfg_weekly_ip_fn(c(8, 8, 8, 8, 8, 9.5, 9)),
+  fn_p_died = ~0.05,
+  fn_death_profile = cfg_gamma_ip_fn(~14),
+  fn_p_tested = ~0.8,
+  fn_sample_profile = cfg_weekly_ip_fn(c(1, 1, 1, 1, 1, 1.5, 1.4)),
+  fn_result_profile = cfg_weekly_ip_fn(c(1, 1, 1, 1, 1, 1.6, 1.5)),
+  seed = Sys.time()
+) {
+  events = attr(df, "events")
 
   df = df %>%
-    sim_convolution(fn_p_symptomatic, fn_symptom_profile,input="infections",  output="symptom") %>%
-    sim_convolution(fn_p_admitted, fn_admission_profile,input="infections",  output="admitted") %>%
-    sim_convolution(fn_p_died, fn_death_profile,input="infections",  output="death") %>%
-    sim_convolution(fn_p_tested, fn_sample_profile, input="symptom", output="sample") %>%
-    sim_convolution(rlang::as_function(~ 1), fn_result_profile, input="sample", output="result") %>%
-    sim_delayed_observation(fn_result_profile, input="sample", output="sample") %>%
+    sim_convolution(
+      fn_p_symptomatic,
+      fn_symptom_profile,
+      input = "infections",
+      output = "symptom"
+    ) %>%
+    sim_convolution(
+      fn_p_admitted,
+      fn_admission_profile,
+      input = "infections",
+      output = "admitted"
+    ) %>%
+    sim_convolution(
+      fn_p_died,
+      fn_death_profile,
+      input = "infections",
+      output = "death"
+    ) %>%
+    sim_convolution(
+      fn_p_tested,
+      fn_sample_profile,
+      input = "symptom",
+      output = "sample"
+    ) %>%
+    sim_convolution(
+      rlang::as_function(~1),
+      fn_result_profile,
+      input = "sample",
+      output = "result"
+    ) %>%
+    sim_delayed_observation(
+      fn_result_profile,
+      input = "sample",
+      output = "sample"
+    ) %>%
     dplyr::group_by(statistic)
 
-  attr(df,"events") = events
+  attr(df, "events") = events
   return(df)
-
 }
 
 #' Apply a ascertainment bias to the observed case counts.
@@ -931,21 +1089,21 @@ sim_apply_delay.count_data = function(df,
 #'   count=rep(100,10)
 #' ) %>% dplyr::group_by(statistic) %>% sim_apply_ascertainment(~ ifelse(.x<=5,0.1,0.9))
 sim_apply_ascertainment = function(
-    df = i_sim_count_data,
-    fn_asc = ~ 1,
-    seed = Sys.time()
+  df = i_sim_count_data,
+  fn_asc = ~1,
+  seed = Sys.time()
 ) {
-
   df = interfacer::ivalidate(df)
 
   fn_asc = .fn_check(fn_asc)
 
-  withr::with_seed(seed,{
-    df = df %>% dplyr::mutate(
-      original = count,
-      ascertainment = .ts_evaluate(fn_asc, .),
-      count = stats::rbinom(count, size = count, prob=ascertainment)
-    )
+  withr::with_seed(seed, {
+    df = df %>%
+      dplyr::mutate(
+        original = count,
+        ascertainment = .ts_evaluate(fn_asc, .),
+        count = stats::rbinom(count, size = count, prob = ascertainment)
+      )
   })
 
   return(df)
@@ -1012,10 +1170,18 @@ sim_apply_ascertainment = function(
 #' delay_fn = cfg_gamma_ip_fn( ~ ifelse(.x<5, 8, 4))
 #  delay_fn = cfg_weekly_ip_fn()
 #'
-sim_convolution = function(df = i_sim_count_data, p_fn, delay_fn, ..., input="infections", output, kappa = 1, from = c("count","rate")) {
-
-  events = attr(df,"events")
-  fn = attr(df,"fn")
+sim_convolution = function(
+  df = i_sim_count_data,
+  p_fn,
+  delay_fn,
+  ...,
+  input = "infections",
+  output,
+  kappa = 1,
+  from = c("count", "rate")
+) {
+  events = attr(df, "events")
+  fn = attr(df, "fn")
 
   df = interfacer::ivalidate(df)
 
@@ -1027,13 +1193,15 @@ sim_convolution = function(df = i_sim_count_data, p_fn, delay_fn, ..., input="in
   delay_fn = .fn_check(delay_fn)
 
   tmp = df %>%
-    dplyr::select(time,tidyselect::everything()) %>%
-    dplyr::filter(statistic==input) %>%
+    dplyr::select(time, tidyselect::everything()) %>%
+    dplyr::filter(statistic == input) %>%
     dplyr::mutate(
       .p = .ts_evaluate(p_fn, .),
       .prof = .ts_evaluate(delay_fn, .) %>%
         purrr::map(.summary_ip_no_chk) %>%
-        purrr::map(~ .x %>% dplyr::ungroup() %>% dplyr::select(tau,probability))
+        purrr::map(
+          ~ .x %>% dplyr::ungroup() %>% dplyr::select(tau, probability)
+        )
     ) %>%
     # .prof will have a `boot` column and it will have a `time` column.
     .unnest_dt(col = ".prof")
@@ -1043,36 +1211,38 @@ sim_convolution = function(df = i_sim_count_data, p_fn, delay_fn, ..., input="in
       # x_t_tau is the proportion of input from time t attributable to the
       # future timepoint t+tau after delay. This assumes ip is in regular
       # interval date periods.
-      t_tau = time+tau,
+      t_tau = time + tau,
       count_t_tau = .p * count * probability,
       rate_t_tau = .p * rate * probability,
     ) %>%
-    dplyr::group_by(!!!grps,time = t_tau) %>%
+    dplyr::group_by(!!!grps, time = t_tau) %>%
     dplyr::summarise(
       count = sum(count_t_tau),
       rate = sum(rate_t_tau)
     )
 
-  if (from == "count")
-    tmp = tmp %>% dplyr::mutate(
-      count = .sample_contacts(count,kappa)
-    )
-  else
-    tmp = tmp %>% dplyr::mutate(
-      count = .sample_contacts(rate,kappa)
-    )
+  if (from == "count") {
+    tmp = tmp %>%
+      dplyr::mutate(
+        count = .sample_contacts(count, kappa)
+      )
+  } else {
+    tmp = tmp %>%
+      dplyr::mutate(
+        count = .sample_contacts(rate, kappa)
+      )
+  }
 
   tmp = tmp %>%
-    dplyr::mutate(statistic=output) %>%
-    dplyr::filter(time<max(df$time))
+    dplyr::mutate(statistic = output) %>%
+    dplyr::filter(time < max(df$time))
 
   df = df %>% dplyr::filter(statistic != output)
-  out = dplyr::bind_rows(df,tmp)
-  attr(out,"events") = events
-  attr(out,"fn") = fn
+  out = dplyr::bind_rows(df, tmp)
+  attr(out, "events") = events
+  attr(out, "fn") = fn
 
-  return(out %>% dplyr::group_by(!!!unique(c(grps,rlang::sym("statistic")))))
-
+  return(out %>% dplyr::group_by(!!!unique(c(grps, rlang::sym("statistic")))))
 }
 
 #' Apply a right censoring to count data.
@@ -1119,10 +1289,16 @@ sim_convolution = function(df = i_sim_count_data, p_fn, delay_fn, ..., input="in
 #'
 #' if (interactive()) ggplot2::ggplot(data,ggplot2::aes(x=time,colour=statistic))+
 #'   ggplot2::geom_line(ggplot2::aes(y=count))
-sim_delayed_observation = function(df = i_sim_count_data, delay_fn, ..., input="infections", output=input, max_time = max(df$time)) {
-
-  events = attr(df,"events")
-  fn = attr(df,"fn")
+sim_delayed_observation = function(
+  df = i_sim_count_data,
+  delay_fn,
+  ...,
+  input = "infections",
+  output = input,
+  max_time = max(df$time)
+) {
+  events = attr(df, "events")
+  fn = attr(df, "fn")
 
   df = interfacer::ivalidate(df)
 
@@ -1133,37 +1309,39 @@ sim_delayed_observation = function(df = i_sim_count_data, delay_fn, ..., input="
 
   tmp = df %>%
     dplyr::filter(statistic == input) %>%
-    dplyr::select(time,tidyselect::everything()) %>%
+    dplyr::select(time, tidyselect::everything()) %>%
     dplyr::mutate(
       .prof = .ts_evaluate(delay_fn, .) %>%
         purrr::map(.summary_ip_no_chk) %>%
-        purrr::map(~ .x %>% dplyr::ungroup() %>% dplyr::select(tau,probability))
+        purrr::map(
+          ~ .x %>% dplyr::ungroup() %>% dplyr::select(tau, probability)
+        )
     ) %>%
     .unnest_dt(col = ".prof") %>%
     dplyr::mutate(
       # x_t_tau is the proportion of input from time t attributable to the
       # future timepoint t+tau after delay. If this is after max_time it will
       # not be observed.
-      t_tau = time+tau,
+      t_tau = time + tau,
       count_t_tau = count * probability # probability is from the .prof
     ) %>%
-    dplyr::filter( t_tau <= max_time ) %>%
+    dplyr::filter(t_tau <= max_time) %>%
     # time here is the original time point (not t_tau)
     # the following line works because there is no actual convolution in time
     # so other columns are not duplicated.
-    dplyr::group_by(dplyr::pick(-c(t_tau,tau,count_t_tau,probability))) %>%
+    dplyr::group_by(dplyr::pick(-c(t_tau, tau, count_t_tau, probability))) %>%
     dplyr::summarise(
-      count = as.integer(floor(sum(count_t_tau)+0.5))
+      count = as.integer(floor(sum(count_t_tau) + 0.5))
     ) %>%
     dplyr::mutate(statistic = output) %>%
     dplyr::group_by(!!!grps)
 
   df = df %>% dplyr::filter(statistic != output)
-  out = dplyr::bind_rows(df,tmp)
-  attr(out,"events") = events
-  attr(out,"fn") = fn
+  out = dplyr::bind_rows(df, tmp)
+  attr(out, "events") = events
+  attr(out, "fn") = fn
 
-  return(out %>% dplyr::group_by(!!!unique(c(grps,rlang::sym("statistic")))))
+  return(out %>% dplyr::group_by(!!!unique(c(grps, rlang::sym("statistic")))))
 }
 
 
@@ -1209,34 +1387,38 @@ sim_delayed_observation = function(df = i_sim_count_data, delay_fn, ..., input="
 #' )
 #' tmp2 %>% dplyr::glimpse()
 #'
-sim_delay = function(df = i_sim_linelist, p_fn, delay_fn, input = "time", output = "event", seed = Sys.time()) {
-
-  events = attr(df,"events")
+sim_delay = function(
+  df = i_sim_linelist,
+  p_fn,
+  delay_fn,
+  input = "time",
+  output = "event",
+  seed = Sys.time()
+) {
+  events = attr(df, "events")
   df = interfacer::ivalidate(df)
 
   input = rlang::ensym(input)
   cols = colnames(df)
 
-  withr::with_seed(seed,{
-
+  withr::with_seed(seed, {
     df = df %>%
       dplyr::relocate(!!input) %>%
       dplyr::mutate(
         .t = !!input,
         .p = rbern(dplyr::n(), .ts_evaluate(p_fn, .)),
-        .delay = ifelse(!.p, NA, .ts_evaluate(delay_fn,.))
+        .delay = ifelse(!.p, NA, .ts_evaluate(delay_fn, .))
       ) %>%
       dplyr::mutate(
         !!(output) := .p,
-        !!(sprintf("%s_delay",output)) := .delay,
-        !!(sprintf("%s_time",output)) := .t+.delay
+        !!(sprintf("%s_delay", output)) := .delay,
+        !!(sprintf("%s_time", output)) := .t + .delay
       ) %>%
-      dplyr::select(-.p,-.t,-.delay) %>%
+      dplyr::select(-.p, -.t, -.delay) %>%
       dplyr::relocate(!!!cols)
-
   })
 
-  attr(df,"events") = events
+  attr(df, "events") = events
   return(df)
 }
 
@@ -1274,16 +1456,16 @@ sim_delay = function(df = i_sim_linelist, p_fn, delay_fn, input = "time", output
 #' tmp2 = tmp %>% sim_apply_delay()
 #' tmp2 %>% dplyr::glimpse()
 #'
-sim_apply_delay = function(df,
-                           ...,
-                           fn_p_symptomatic = ~ 0.5,
-                           fn_p_admitted = ~ 0.1,
-                           fn_p_died = ~ 0.05,
-                           fn_p_tested = ~ 0.8,
-                           seed = Sys.time()
+sim_apply_delay = function(
+  df,
+  ...,
+  fn_p_symptomatic = ~0.5,
+  fn_p_admitted = ~0.1,
+  fn_p_died = ~0.05,
+  fn_p_tested = ~0.8,
+  seed = Sys.time()
 ) {
-
-  events = attr(df,"events")
+  events = attr(df, "events")
 
   out = interfacer::idispatch(
     df,
@@ -1291,7 +1473,7 @@ sim_apply_delay = function(df,
     sim_apply_delay.count_data = i_sim_count_data
   )
 
-  attr(out,"events") = events
+  attr(out, "events") = events
 
   return(out)
 }
@@ -1336,44 +1518,65 @@ sim_apply_delay = function(df,
 #' tmp2 = tmp %>% sim_apply_delay()
 #' tmp2 %>% dplyr::glimpse()
 #'
-sim_apply_delay.linelist = function(df = i_sim_linelist,
-    ...,
-    fn_p_symptomatic = ~ 0.5,
-    fn_symptom_delay = ~ rgamma2(.x, mean = 5),
-    fn_p_admitted = ~ 0.1,
-    fn_admission_delay = cfg_weekly_gamma_rng(c(8,8,8,8,8,9.5,9)),
-    fn_p_died = ~ 0.05,
-    fn_death_delay = ~ rgamma2(.x, mean = 14),
-    fn_p_tested = ~ 0.8,
-    fn_sample_delay = cfg_weekly_gamma_rng(c(1,1,1,1,1,1.5,1.4)),
-    fn_result_delay = cfg_weekly_gamma_rng(c(1,1,1,1,1,1.6,1.5)),
-    seed = Sys.time()
-  ) {
-
+sim_apply_delay.linelist = function(
+  df = i_sim_linelist,
+  ...,
+  fn_p_symptomatic = ~0.5,
+  fn_symptom_delay = ~ rgamma2(.x, mean = 5),
+  fn_p_admitted = ~0.1,
+  fn_admission_delay = cfg_weekly_gamma_rng(c(8, 8, 8, 8, 8, 9.5, 9)),
+  fn_p_died = ~0.05,
+  fn_death_delay = ~ rgamma2(.x, mean = 14),
+  fn_p_tested = ~0.8,
+  fn_sample_delay = cfg_weekly_gamma_rng(c(1, 1, 1, 1, 1, 1.5, 1.4)),
+  fn_result_delay = cfg_weekly_gamma_rng(c(1, 1, 1, 1, 1, 1.6, 1.5)),
+  seed = Sys.time()
+) {
   # rlang::check_dots_empty()
 
   df = interfacer::ivalidate(df)
 
-  events = attr(df,"events")
+  events = attr(df, "events")
 
-  withr::with_seed(seed,{
-
+  withr::with_seed(seed, {
     df = df %>%
-      sim_delay(p_fn = fn_p_symptomatic, delay_fn = fn_symptom_delay,input = "time","symptom") %>%
-      sim_delay(p_fn = fn_p_admitted, delay_fn = fn_admission_delay,input = "time","admitted") %>%
-      sim_delay(p_fn = fn_p_died, delay_fn = fn_death_delay,input = "time","death") %>%
-      sim_delay(p_fn = fn_p_tested, delay_fn = fn_sample_delay,input = "time","sample") %>%
-      dplyr::rename(tested=sample) %>%
-      sim_delay(p_fn = ~ 1, delay_fn = fn_result_delay,input = "sample_time","result")
-
+      sim_delay(
+        p_fn = fn_p_symptomatic,
+        delay_fn = fn_symptom_delay,
+        input = "time",
+        "symptom"
+      ) %>%
+      sim_delay(
+        p_fn = fn_p_admitted,
+        delay_fn = fn_admission_delay,
+        input = "time",
+        "admitted"
+      ) %>%
+      sim_delay(
+        p_fn = fn_p_died,
+        delay_fn = fn_death_delay,
+        input = "time",
+        "death"
+      ) %>%
+      sim_delay(
+        p_fn = fn_p_tested,
+        delay_fn = fn_sample_delay,
+        input = "time",
+        "sample"
+      ) %>%
+      dplyr::rename(tested = sample) %>%
+      sim_delay(
+        p_fn = ~1,
+        delay_fn = fn_result_delay,
+        input = "sample_time",
+        "result"
+      )
   })
 
-  attr(df,"events") = events
+  attr(df, "events") = events
 
   return(df)
-
 }
-
 
 
 #' Summarise a line list
@@ -1419,14 +1622,21 @@ sim_apply_delay.linelist = function(df = i_sim_linelist,
 #'
 #' patchwork::wrap_plots(p1,p2,ncol=1,axes="collect")
 #'
-sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), max_time=max(df$time)) {
-
+sim_summarise_linelist = function(
+  df = i_sim_linelist,
+  ...,
+  censoring = list(),
+  max_time = max(df$time)
+) {
   oldGroups = df %>% dplyr::groups()
   grps = rlang::ensyms(...)
-  events = attr(df,"events")
-  ip_cache = attr(df,"ip_cache")
-  ip_cache_join = intersect(unlist(c(dplyr::group_vars(df),"time")),colnames(ip_cache))
-  join_cols = unlist(c(sapply(grps,rlang::as_label),"time"))
+  events = attr(df, "events")
+  ip_cache = attr(df, "ip_cache")
+  ip_cache_join = intersect(
+    unlist(c(dplyr::group_vars(df), "time")),
+    colnames(ip_cache)
+  )
+  join_cols = unlist(c(sapply(grps, rlang::as_label), "time"))
 
   df = interfacer::ivalidate(df)
 
@@ -1437,47 +1647,50 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
   # The actual number of infectees for this infector
   # a forward looking reproduction number.
   # If we truncate time this needs to be changed
-  supercount = df %>% dplyr::left_join(
-      df %>% dplyr::group_by(infector) %>% dplyr::summarise(infectee_n = dplyr::n()),
-      by=c("id"="infector")
+  supercount = df %>%
+    dplyr::left_join(
+      df %>%
+        dplyr::group_by(infector) %>%
+        dplyr::summarise(infectee_n = dplyr::n()),
+      by = c("id" = "infector")
     ) %>%
     dplyr::mutate(
-      infectee_n = ifelse(is.na(infectee_n),0,infectee_n),
+      infectee_n = ifelse(is.na(infectee_n), 0, infectee_n),
       time = floor(time)
     ) %>%
-    dplyr::group_by(!!!grps,time) %>%
+    dplyr::group_by(!!!grps, time) %>%
     dplyr::summarise(
       infections = dplyr::n(),
       rt.case = mean(infectee_n),
-      dispersion = stats::sd(infectee_n)/mean(infectee_n)
+      dispersion = stats::sd(infectee_n) / mean(infectee_n)
     )
 
   # Force of infection is calculated at an individual level.
   subcount = df %>%
     dplyr::group_by(!!!oldGroups, time) %>%
     dplyr::summarise(infections = dplyr::n()) %>%
-    dplyr::left_join(ip_cache, by=ip_cache_join)
+    dplyr::left_join(ip_cache, by = ip_cache_join)
 
   foi = subcount %>%
     dplyr::group_by(!!!oldGroups, time = t_tau) %>%
-    dplyr::summarise(force = sum(probability*infections)) %>%
+    dplyr::summarise(force = sum(probability * infections)) %>%
     dplyr::group_by(!!!grps, time) %>%
     dplyr::summarise(force = sum(force))
 
   rt_df = subcount %>%
-    dplyr::filter(tau==0) %>%
-    dplyr::group_by(!!!grps,time) %>%
+    dplyr::filter(tau == 0) %>%
+    dplyr::group_by(!!!grps, time) %>%
     # weighted sum of Rt, weighted by daily infections in the case where
     # there are more than one Rt values per group (e.g. when we are combining
     # Rt across 2 variants for example)
-    dplyr::summarise(rt.weighted = sum(Rt_tau*infections/sum(infections)))
+    dplyr::summarise(rt.weighted = sum(Rt_tau * infections / sum(infections)))
 
   out = supercount %>%
-    dplyr::left_join(foi, by=join_cols) %>%
-    dplyr::left_join(rt_df, by=join_cols) %>%
+    dplyr::left_join(foi, by = join_cols) %>%
+    dplyr::left_join(rt_df, by = join_cols) %>%
     dplyr::group_by(!!!grps) %>%
     dplyr::mutate(
-      rt.inst = infections/force
+      rt.inst = infections / force
     )
 
   # Deal with various time columns and perform count
@@ -1485,15 +1698,15 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
   tmp2 = df %>%
     dplyr::ungroup() %>%
     dplyr::select(!!!grps, tidyselect::ends_with("_time")) %>%
-    dplyr::select(-tidyselect::where(~all(is.na(.x))))
+    dplyr::select(-tidyselect::where(~ all(is.na(.x))))
 
-  for (col in setdiff(colnames(tmp2),join_cols)) {
-    tgts = stringr::str_remove(col,"_time")
+  for (col in setdiff(colnames(tmp2), join_cols)) {
+    tgts = stringr::str_remove(col, "_time")
     col = as.symbol(col)
     tgt = as.symbol(tgts)
 
     # Censoring function?
-    fn_delay = ~ 0
+    fn_delay = ~0
     if (!is.null(censoring[[tgts]])) {
       fn_delay = censoring[[tgts]]
     }
@@ -1503,28 +1716,39 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
       dplyr::mutate(t = !!col) %>%
       dplyr::relocate(t) %>%
       # Censoring filter
-      dplyr::mutate(.delay = .ts_evaluate(fn_delay,.)) %>%
+      dplyr::mutate(.delay = .ts_evaluate(fn_delay, .)) %>%
 
       #TODO: insert a loop here to vectorise max_time and insert censoring column
-      dplyr::filter(t+.delay < max_time) %>%
+      dplyr::filter(t + .delay < max_time) %>%
       dplyr::transmute(!!!grps, time = floor(!!col)) %>%
       dplyr::group_by(!!!grps, time) %>%
       dplyr::summarise(
         !!tgt := dplyr::n()
       )
 
-    out = out %>% dplyr::left_join(out2, by=join_cols)
+    out = out %>% dplyr::left_join(out2, by = join_cols)
   }
 
   out = out %>%
-    tidyr::pivot_longer(cols = -c(!!!grps,time,rt.case,dispersion,rt.weighted,force,rt.inst),names_to = "statistic", values_to = "count") %>%
+    tidyr::pivot_longer(
+      cols = -c(
+        !!!grps,
+        time,
+        rt.case,
+        dispersion,
+        rt.weighted,
+        force,
+        rt.inst
+      ),
+      names_to = "statistic",
+      values_to = "count"
+    ) %>%
     dplyr::filter(!is.na(count)) %>%
     dplyr::mutate(time = ggoutbreak::as.time_period(time, "1 day")) %>%
-    dplyr::group_by(statistic,!!!grps)
+    dplyr::group_by(statistic, !!!grps)
 
-
-  attr(out,"events") = events
-  interfacer::ireturn(out,i_sim_count_data)
+  attr(out, "events") = events
+  interfacer::ireturn(out, i_sim_count_data)
 }
 
 
@@ -1550,33 +1774,33 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 #'     ggplot2::geom_density(data = tibble::tibble(x=tmp), mapping = ggplot2::aes(x=x), bounds = c(0.5,13.5))
 #' }
 .ip_quantile_function = function(ip = i_empirical_ip) {
-
   # Add in defaults for a0 and a1 if they are not defined:
   ip = interfacer::ivalidate(
     ip,
-    .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5)
+    .imap = interfacer::imapper(a0 = pmax(tau - 0.5, 0), a1 = tau + 0.5)
   )
 
-  tmp = ip %>% dplyr::group_by(a1) %>%
+  tmp = ip %>%
+    dplyr::group_by(a1) %>%
     dplyr::summarise(probability = mean(probability)) %>%
     dplyr::mutate(cum = cumsum(probability))
 
   # if (abs(max(tmp$cum)-1) > .Machine$double.eps^2) stop("input does not seem to be a valid probability distribution")
 
-  left = min(which(tmp$cum>0))
-  right = max(which(tmp$cum<1))
+  left = min(which(tmp$cum > 0))
+  right = max(which(tmp$cum < 1))
 
-  x = c(0,tmp$cum[left:right],1)
+  x = c(0, tmp$cum[left:right], 1)
   y = c(
-        if (left==1) ip$a0[1] else ip$a1[left-1],
-        # we know that at least 1 value of tmp$cum will be 1 as input is a probability
-        # distribution
-        ip$a1[left:(right+1)]
-      )
+    if (left == 1) ip$a0[1] else ip$a1[left - 1],
+    # we know that at least 1 value of tmp$cum will be 1 as input is a probability
+    # distribution
+    ip$a1[left:(right + 1)]
+  )
 
   # sf = stats::splinefun(x=c(0,tmp$cum), y=c(min(ip$a0),tmp$a1), method = "monoH.FC", ties=max)
-  sf = stats::approxfun(x=x, y=y)
-  return(function(x,...) sf(x))
+  sf = stats::approxfun(x = x, y = y)
+  return(function(x, ...) sf(x))
 }
 
 
@@ -1596,26 +1820,30 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 #' .sample_contacts(rep(2.5,1000),0.5) %>% mean()
 #' .sample_contacts(rep(0.3,1000),stats::runif(1000)+1) %>% {stats::sd(.)/mean(.)}
 .sample_contacts = function(mu, kappa) {
-  interfacer::recycle(mu,kappa)
-  if (all(kappa == 0)) return(floor(mu+0.5))
+  interfacer::recycle(mu, kappa)
+  if (all(kappa == 0)) {
+    return(floor(mu + 0.5))
+  }
   # if (any(kappa > 0 & kappa < 1)) stop("underdispesion is not supported (except for zero)")
-  if (all(kappa == 1)) return(stats::rpois(length(mu),lambda = mu))
+  if (all(kappa == 1)) {
+    return(stats::rpois(length(mu), lambda = mu))
+  }
   # scale kappa such that 1 is poisson
-  kappa = kappa * sqrt(1/mu)
-  size = mu / (mu*kappa^2 - 1)
-  prob = 1 / (mu*kappa^2)
+  kappa = kappa * sqrt(1 / mu)
+  size = mu / (mu * kappa^2 - 1)
+  prob = 1 / (mu * kappa^2)
   tmp = dplyr::case_when(
-    kappa == 0 ~ floor(mu+0.5), # Avoid IEC rounding craziness.
-    kappa == sqrt(1/mu) ~ stats::rpois(length(mu),lambda = mu),
-    kappa > sqrt(1/mu) ~ suppressWarnings(stats::rnbinom(length(mu), size = size,  prob = prob)),
-    TRUE ~ rdiscgamma(length(mu),mean = mu, kappa = kappa)
+    kappa == 0 ~ floor(mu + 0.5), # Avoid IEC rounding craziness.
+    kappa == sqrt(1 / mu) ~ stats::rpois(length(mu), lambda = mu),
+    kappa > sqrt(1 / mu) ~
+      suppressWarnings(stats::rnbinom(length(mu), size = size, prob = prob)),
+    TRUE ~ rdiscgamma(length(mu), mean = mu, kappa = kappa)
   )
-  if (any(is.na(tmp))) browser()
+  if (any(is.na(tmp))) {
+    browser()
+  }
   return(tmp)
 }
-
-
-
 
 
 #' Evaluate a function in a timeseries dataframe
@@ -1640,16 +1868,24 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
   fn = .fn_check(fn)
 
   if (!"t" %in% colnames(df)) {
-    if (!"time" %in% colnames(df)) stop("input must have a `t` or `time` column")
-    df = df %>% dplyr::rename(t=time)
+    if (!"time" %in% colnames(df)) {
+      stop("input must have a `t` or `time` column")
+    }
+    df = df %>% dplyr::rename(t = time)
     cols = colnames(df)
   }
 
   df = df %>% dplyr::relocate(t)
 
   tmp = do.call(fn, df)
-  if (rlang::is_closure(tmp)) stop("A function has evaluated to another function instead of a value. Did you put a tilde before a function generator?")
-  if (is.data.frame(tmp)) tmp = list(tmp)
+  if (rlang::is_closure(tmp)) {
+    stop(
+      "A function has evaluated to another function instead of a value. Did you put a tilde before a function generator?"
+    )
+  }
+  if (is.data.frame(tmp)) {
+    tmp = list(tmp)
+  }
 
   return(tmp)
 }
@@ -1665,30 +1901,62 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 # try(.fn_check(fn)(a=1,y=2,z=3))
 .fn_check = function(fn) {
   fn = rlang::as_function(fn)
-  if ("..." %in% names(formals(fn))) return(fn)
+  if ("..." %in% names(formals(fn))) {
+    return(fn)
+  }
   return(function(...) {
-    args = rlang::dots_list(..., .named=NULL)
+    args = rlang::dots_list(..., .named = NULL)
     fmls = names(formals(fn))
-    if (length(fmls)==0) stop("Function must define at least one parameter, available values are: ",paste0(names(args),collapse=", "),call. = FALSE)
-    # unnamed
-    missing = dplyr::setdiff(fmls,names(args))
-    j=1
-    for (m in missing) {
-
-      while( j<=length(args) && !is.null(names(args)[[j]]) )
-        j=j+1
-      if (j<=length(args)) names(args)[[j]] = m
-      else break;
-
+    if (length(fmls) == 0) {
+      stop(
+        "Function must define at least one parameter, available values are: ",
+        paste0(names(args), collapse = ", "),
+        call. = FALSE
+      )
     }
-    missing = dplyr::setdiff(fmls,names(args))
-    if (length(missing) > 0) stop("Function expects the wrong parameters (",paste0(fmls, collapse = ", "),"), available values are: ",paste0(names(args),collapse=", "),call. = FALSE)
+    # unnamed
+    missing = dplyr::setdiff(fmls, names(args))
+    j = 1
+    for (m in missing) {
+      while (j <= length(args) && !is.null(names(args)[[j]])) {
+        j = j + 1
+      }
+      if (j <= length(args)) {
+        names(args)[[j]] = m
+      } else {
+        break
+      }
+    }
+    missing = dplyr::setdiff(fmls, names(args))
+    if (length(missing) > 0) {
+      stop(
+        "Function expects the wrong parameters (",
+        paste0(fmls, collapse = ", "),
+        "), available values are: ",
+        paste0(names(args), collapse = ", "),
+        call. = FALSE
+      )
+    }
     args = args[names(args) %in% fmls]
     tmp = do.call(fn, args)
     len = length(args[[1]])
-    if (is.data.frame(tmp)) tmp = list(tmp)
-    if (length(tmp) == 1) tmp = rep(tmp,length.out=len)
-    if (length(tmp) != len) stop("Incompatible length of function output. ",length(tmp)," should have been ",len,". Function must be vectorised over inputs.")
+    if (is.data.frame(tmp)) {
+      if (len > 1) tmp = rep(list(tmp), len)
+      # if output is a dataframe and expected length is 1 then return unwrapped dataframe
+    } else {
+      if (length(tmp) == 1) {
+        tmp = rep(tmp, length.out = len)
+      }
+      if (length(tmp) != len) {
+        stop(
+          "Incompatible length of function output. ",
+          length(tmp),
+          " should have been ",
+          len,
+          ". Function must be vectorised over inputs."
+        )
+      }
+    }
     return(tmp)
   })
 }
@@ -1708,17 +1976,29 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
     df2 = df
     for (i in seq_along(fn_list2)) {
       col = names(fn_list2)[i]
-      if (!col %in% colnames(df)) stop("Incorrect column name: ",col,". Valid columns are: ",paste0(colnames(df),collapse=", "),call. = FALSE)
+      if (!col %in% colnames(df)) {
+        stop(
+          "Incorrect column name: ",
+          col,
+          ". Valid columns are: ",
+          paste0(colnames(df), collapse = ", "),
+          call. = FALSE
+        )
+      }
       fn = fn_list2[[i]]
       fn = .fn_check(fn)
 
       if (!"t" %in% colnames(df)) {
-        if (!"time" %in% colnames(df)) stop("input must have a `t` or `time` column")
-        df2 = df2 %>% dplyr::rename(t=time)
+        if (!"time" %in% colnames(df)) {
+          stop("input must have a `t` or `time` column")
+        }
+        df2 = df2 %>% dplyr::rename(t = time)
       }
 
-      tmp = do.call(fn, df2 %>% dplyr::relocate(!!col,t))
-      if (is.data.frame(tmp)) tmp = list(tmp)
+      tmp = do.call(fn, df2 %>% dplyr::relocate(!!col, t))
+      if (is.data.frame(tmp)) {
+        tmp = list(tmp)
+      }
 
       df[[col]] = tmp
     }
@@ -1729,33 +2009,34 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 # .make_gamma_ip = memoise::memoise(make_gamma_ip)
 
 # deal with potentially empty times parameter]
-.rep2 = function(x,times) {
-  if (length(times)==0) return(x[FALSE])
-  return(rep(x,times))
+.rep2 = function(x, times) {
+  if (length(times) == 0) {
+    return(x[FALSE])
+  }
+  return(rep(x, times))
 }
 
 
 # default imports dataframe when imports given as a function of time
-.fn_to_imports_df = function(fn_imports, max_time, seed=Sys.time()) {
-  withr::with_seed(seed,{
-
+.fn_to_imports_df = function(fn_imports, max_time, seed = Sys.time()) {
+  withr::with_seed(seed, {
     fn_imports = .fn_check(fn_imports)
     imports = fn_imports(0:max_time)
     # Set up the imported infections
     tmp = tibble::tibble(
       time = 0:max_time,
       count = imports,
-    ) %>% dplyr::filter(!is.na(count) & count > 0)
+    ) %>%
+      dplyr::filter(!is.na(count) & count > 0)
 
     return(tmp)
   })
 }
 
 .extract_events = function(df, col, time_col, label_fmt) {
-
   if ("statistic" %in% colnames(df)) {
     df = df %>%
-      dplyr::filter(statistic=="infections")
+      dplyr::filter(statistic == "infections")
   }
 
   grps = df %>% dplyr::groups()
@@ -1764,28 +2045,27 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 
   events = df %>%
     dplyr::group_by(!!!grps) %>%
-    dplyr::mutate(.diff = !!col - dplyr::lag(!!col,default = -Inf)) %>%
-    dplyr::mutate(.diff2 = .diff - dplyr::lag(.diff,default = -Inf)) %>%
+    dplyr::mutate(.diff = !!col - dplyr::lag(!!col, default = -Inf)) %>%
+    dplyr::mutate(.diff2 = .diff - dplyr::lag(.diff, default = -Inf)) %>%
     dplyr::filter(.diff2 != 0 & .diff != 0) %>%
     dplyr::transmute(
-      label = sprintf(label_fmt,!!col),
+      label = sprintf(label_fmt, !!col),
       start = !!time_col,
       end = NA
     ) %>%
     dplyr::mutate(
-      start = as.Date(as.time_period(start,"1 day"))
+      start = as.Date(as.time_period(start, "1 day"))
     )
 
   return(events)
 }
 
 
-
 .unnest_dt <- function(tbl, col) {
   copies = rep(1:nrow(tbl), sapply(tbl[[col]], nrow))
   out = tbl
   out[[col]] = NULL
-  out = dplyr::slice(out,copies)
+  out = dplyr::slice(out, copies)
   dplyr::bind_cols(
     out,
     dplyr::bind_rows(tbl[[col]])
@@ -1793,5 +2073,3 @@ sim_summarise_linelist = function(df = i_sim_linelist, ..., censoring = list(), 
 }
 # tbl = iris %>% tidyr::nest(-Species)
 #iris %>% tidyr::nest(-Species) %>% .unnest_dt("data") %>% dplyr::glimpse()
-
-

@@ -78,11 +78,11 @@ This results is a one versus others comparison binomial proportion estimate plus
 relative growth rate estimate specifying how much quicker this is growing
 compared to the growth of the denominator.
 
-The denominator maybe the sum of all subgroups \code{denom = sum(count)}, e.g. in the situation where
-there are multiple variants of a disease circulating. In which case the
-relative growth is that of the subgroup compared to the overall. You can
-make this a one-versus-others comparison by making the denominator exclude the
-current item (e.g. \code{denom = sum(count)-count}).
+The denominator maybe the sum of all subgroups \code{denom = sum(count)}, e.g. in
+the situation where there are multiple variants of a disease circulating. In
+which case the relative growth is that of the subgroup compared to the
+overall. You can make this a one-versus-others comparison by making the
+denominator exclude the current item (e.g. \code{denom = sum(count)-count}).
 
 The denominator can also be used to express the size of the population tested.
 This gives us a relative growth rate that is different in essence to the previous
@@ -90,9 +90,25 @@ and may be a better estimate of the true growth rate in the situation where
 testing effort is variable, or capacity saturated.
 }
 \examples{
-ggoutbreak::england_covid_proportion \%>\%
-  time_aggregate() \%>\%
-  proportion_locfit_model(window=5, degree=2) \%>\%
-  dplyr::glimpse()
+
+data = test_poisson_rt_2class
+
+tmp2 = data \%>\% ggoutbreak::proportion_locfit_model(window=7,deg=2)
+tmp3 = data \%>\% ggoutbreak::proportion_locfit_model(window=14,deg=1)
+
+comp = dplyr::bind_rows(
+  tmp2 \%>\% dplyr::mutate(model="7:2"),
+  tmp3 \%>\% dplyr::mutate(model="14:1"),
+) \%>\% dplyr::group_by(model,class)
+
+if (interactive()) {
+  plot_proportion(
+    comp,
+    date_labels="\%b \%y",
+    mapping=ggplot2::aes(colour=model),
+    raw=data
+  )+ggplot2::facet_wrap(~class)
+}
+
 }
 \concept{models}

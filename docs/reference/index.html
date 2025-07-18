@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -15,7 +15,8 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -74,13 +75,13 @@
       </dl><dl><dt>
 
           <code><a href="infer_rate_ratio.html">infer_rate_ratio()</a></code>
-
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
-        <dd>Calculate a risk ratio from incidence (experimental)</dd>
+        <dd>Calculate a risk ratio from incidence</dd>
       </dl><dl><dt>
 
           <code><a href="infer_risk_ratio.html">infer_risk_ratio()</a></code>
-
+          <span class="badge lifecycle lifecycle-experimental">experimental</span>
         </dt>
         <dd>Calculate a normalised risk ratio from proportions</dd>
       </dl><dl><dt>
@@ -88,7 +89,7 @@
           <code><a href="inv_wallinga_lipsitch.html">inv_wallinga_lipsitch()</a></code>
 
         </dt>
-        <dd>Calculate a growth rate from a reproduction number and an infectivity profile</dd>
+        <dd>Calculate a growth rate from a reproduction number and an infectivity profile,</dd>
       </dl><dl><dt>
 
           <code><a href="multinomial_nnet_model.html">multinomial_nnet_model()</a></code>
@@ -148,7 +149,7 @@
           <code><a href="rt_epiestim.html">rt_epiestim()</a></code>
 
         </dt>
-        <dd><code>EpiEstim</code> reproduction number</dd>
+        <dd><code>EpiEstim</code> reproduction number wrapper function</dd>
       </dl><dl><dt>
 
           <code><a href="rt_from_growth_rate.html">rt_from_growth_rate()</a></code>
@@ -302,7 +303,7 @@
           <code><a href="plot_multinomial.html">plot_multinomial()</a></code>
 
         </dt>
-        <dd>Plot a multinomial proportions mode</dd>
+        <dd>Plot a multinomial proportions model</dd>
       </dl><dl><dt>
 
           <code><a href="plot_prevalence.html">plot_prevalence()</a></code>
@@ -317,7 +318,7 @@
         <dd>Plot a proportions timeseries</dd>
       </dl><dl><dt>
 
-          <code><a href="plot_proportions.html">plot_proportions()</a></code>
+          <code><a href="plot_proportions_data.html">plot_proportions_data()</a></code>
 
         </dt>
         <dd>Plot a raw case count proportion timeseries</dd>
@@ -546,7 +547,7 @@
           <code><a href="score_estimate.html">score_estimate()</a></code>
 
         </dt>
-        <dd>Calculate scoring statistics from predictions using <code>scoringutils</code>.</dd>
+        <dd>Calculate scoring statistics from predictions.</dd>
       </dl><dl><dt>
 
           <code><a href="sim_apply_ascertainment.html">sim_apply_ascertainment()</a></code>
@@ -583,6 +584,18 @@
 
         </dt>
         <dd>Apply a right censoring to count data.</dd>
+      </dl><dl><dt>
+
+          <code><a href="sim_events.html">sim_events()</a></code>
+
+        </dt>
+        <dd>Extract the events dataframe from a simulation output</dd>
+      </dl><dl><dt>
+
+          <code><a href="sim_geom_function.html">sim_geom_function()</a></code>
+
+        </dt>
+        <dd>The principal input function to a <code>ggoutbreak</code> simulation as a <code>ggplot2</code> layer.</dd>
       </dl><dl><dt>
 
           <code><a href="sim_multinomial.html">sim_multinomial()</a></code>
@@ -650,6 +663,12 @@
         <dd>The Negative Binomial Distribution</dd>
       </dl><dl><dt>
 
+          <code><a href="dwedge.html">dwedge()</a></code>
+
+        </dt>
+        <dd>Wedge distribution</dd>
+      </dl><dl><dt>
+
           <code><a href="pbeta2.html">pbeta2()</a></code>
 
         </dt>
@@ -674,6 +693,12 @@
         <dd>The Negative Binomial Distribution</dd>
       </dl><dl><dt>
 
+          <code><a href="pwedge.html">pwedge()</a></code>
+
+        </dt>
+        <dd>Wedge distribution</dd>
+      </dl><dl><dt>
+
           <code><a href="qbeta2.html">qbeta2()</a></code>
 
         </dt>
@@ -696,6 +721,12 @@
 
         </dt>
         <dd>The Negative Binomial Distribution</dd>
+      </dl><dl><dt>
+
+          <code><a href="qwedge.html">qwedge()</a></code>
+
+        </dt>
+        <dd>Wedge distribution</dd>
       </dl><dl><dt>
 
           <code><a href="rbern.html">rbern()</a></code>
@@ -744,6 +775,12 @@
 
         </dt>
         <dd>The Negative Binomial Distribution</dd>
+      </dl><dl><dt>
+
+          <code><a href="rwedge.html">rwedge()</a></code>
+
+        </dt>
+        <dd>Wedge distribution</dd>
       </dl><dl><dt>
 
           <code><a href="wedge.html">wedge</a></code>
@@ -811,10 +848,28 @@
         <dd>England COVID-19 PCR test positivity</dd>
       </dl><dl><dt>
 
-          <code><a href="england_covid_proportion.html">england_covid_proportion</a></code>
+          <code><a href="england_covid_poisson.html">england_covid_poisson</a></code>
 
         </dt>
-        <dd>England COVID by age group for ascertainment</dd>
+        <dd>The England COVID-19 poisson model dataset</dd>
+      </dl><dl><dt>
+
+          <code><a href="england_covid_poisson_age_stratified.html">england_covid_poisson_age_stratified</a></code>
+
+        </dt>
+        <dd>The England COVID-19 age stratified poisson model dataset</dd>
+      </dl><dl><dt>
+
+          <code><a href="england_covid_proportion_age_stratified.html">england_covid_proportion_age_stratified</a></code>
+
+        </dt>
+        <dd>The England COVID-19 age stratified proportion model dataset</dd>
+      </dl><dl><dt>
+
+          <code><a href="england_covid_test_positives.html">england_covid_test_positives</a></code>
+
+        </dt>
+        <dd>Weekly England COVID test positives by age group including testing effort</dd>
       </dl><dl><dt>
 
           <code><a href="england_demographics.html">england_demographics</a></code>
@@ -871,16 +926,40 @@
         <dd>Germany demographics</dd>
       </dl><dl><dt>
 
+          <code><a href="test_bpm.html">test_bpm</a></code>
+
+        </dt>
+        <dd>An example of the linelist output of the branching process model simulation</dd>
+      </dl><dl><dt>
+
           <code><a href="test_ip.html">test_ip</a></code>
 
         </dt>
         <dd>A test infectivity profile generated from a set of discretised gamma distributions with parameters mean 5 (95% CI 4-6) and sd 2 (95% CI 1.5-2.5).</dd>
       </dl><dl><dt>
 
+          <code><a href="test_poisson_growth_rate.html">test_poisson_growth_rate</a></code>
+
+        </dt>
+        <dd>A simulation dataset determined by a step function of growth rates. This is useful for demonstrating growth rate estimators.</dd>
+      </dl><dl><dt>
+
           <code><a href="test_poisson_rt.html">test_poisson_rt</a></code>
 
         </dt>
         <dd>An example of the linelist output of the poisson model simulation with defined $R_t$</dd>
+      </dl><dl><dt>
+
+          <code><a href="test_poisson_rt_2class.html">test_poisson_rt_2class</a></code>
+
+        </dt>
+        <dd>The test_poisson_rt_2class dataset</dd>
+      </dl><dl><dt>
+
+          <code><a href="test_poisson_rt_smooth.html">test_poisson_rt_smooth</a></code>
+
+        </dt>
+        <dd>Output of a poisson model simulation with a smooth function for $R_t$ defined as <code>R(t) = e^(sin(t/80*pi)^4-0.25))</code>. This is a relatively unchallenging test data set that should not pose a problem for smooth estimators.</dd>
       </dl><dl><dt>
 
           <code><a href="test_serial.html">test_serial</a></code>
@@ -892,7 +971,7 @@
           <code><a href="test_ts.html">test_ts</a></code>
 
         </dt>
-        <dd>A test time series dataset</dd>
+        <dd>A test time series dataset, containing no statistical noise.</dd>
       </dl></div><div class="section level2">
       <h2 id="others">Others<a class="anchor" aria-label="anchor" href="#others"></a></h2>
 
@@ -906,40 +985,10 @@
 
       <dl><dt>
 
-          <code><a href="dwedge.html">dwedge()</a></code>
-
-        </dt>
-        <dd>Wedge distribution</dd>
-      </dl><dl><dt>
-
-          <code><a href="pwedge.html">pwedge()</a></code>
-
-        </dt>
-        <dd>Wedge distribution</dd>
-      </dl><dl><dt>
-
-          <code><a href="qwedge.html">qwedge()</a></code>
-
-        </dt>
-        <dd>Wedge distribution</dd>
-      </dl><dl><dt>
-
           <code><a href="reband_discrete.html">reband_discrete()</a></code>
 
         </dt>
         <dd>Reband any discrete distribution</dd>
-      </dl><dl><dt>
-
-          <code><a href="rwedge.html">rwedge()</a></code>
-
-        </dt>
-        <dd>Wedge distribution</dd>
-      </dl><dl><dt>
-
-          <code><a href="test_bpm.html">test_bpm</a></code>
-
-        </dt>
-        <dd>An example of the linelist output of the branching process model simulation</dd>
       </dl></div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>

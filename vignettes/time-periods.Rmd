@@ -1,6 +1,6 @@
 ---
 title: "Data wrangling and working with `ggoutbreak`"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Data wrangling and working with `ggoutbreak`}
   %\VignetteEngine{knitr::rmarkdown}
@@ -8,9 +8,15 @@ vignette: >
 ---
 
 ```{r, include = FALSE}
+
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6,
+  fig.height = 4
 )
 
 library(ggoutbreak)

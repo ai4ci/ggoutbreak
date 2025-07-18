@@ -1,6 +1,6 @@
 ---
 title: "England COVID-19 cases"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{England COVID-19 cases}
   %\VignetteEngine{knitr::rmarkdown}
@@ -8,7 +8,17 @@ vignette: >
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6,
+  fig.height = 4
+)
+
 here::i_am("vignettes/covid-timeseries.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 
@@ -31,7 +41,7 @@ tmp = ggoutbreak::england_covid %>%
   time_aggregate(count=sum(count))
 ```
 
-The raw covid case count on a `log1p` scale is the total detected cases per day.
+The raw COVID-19 case count on a `log1p` scale is the total detected cases per day.
 
 
 ```{r}

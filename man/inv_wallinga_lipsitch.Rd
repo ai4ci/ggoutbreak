@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimator-rt-wallinga.R
 \name{inv_wallinga_lipsitch}
 \alias{inv_wallinga_lipsitch}
-\title{Calculate a growth rate from a reproduction number and an infectivity profile}
+\title{Calculate a growth rate from a reproduction number and an infectivity profile,}
 \usage{
 inv_wallinga_lipsitch(
   Rt,
@@ -35,10 +35,17 @@ A default value is defined.}
 an vector of growth rates
 }
 \description{
-Calculate a growth rate from a reproduction number and an infectivity profile
+This solves the relationship between $R_t$ and growth rates as described by
+Wallinga and Lipsitch, to get a growth rate from $R_t$ and infectivity
+profile.
+}
+\details{
+This function uses a single empirical distribution for the infectivity
+profile / generation time. If multiple are provided then the average central
+value is chosen (i.e. this does not propagate uncertainty in infectivity profile)
 }
 \examples{
-y=stats::pgamma(seq(0.5,length.out=50), 5,2)-stats::pgamma(c(0,seq(0.5,length.out=49)), 5,2)
-inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=y)
+inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=test_ip)
+
 }
 \concept{models}

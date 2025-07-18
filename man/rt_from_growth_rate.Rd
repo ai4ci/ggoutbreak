@@ -62,25 +62,27 @@ Any grouping allowed.
 }
 \description{
 Calculate a reproduction number estimate from growth rate using the Wallinga
-2007 estimation using empirical generation time distribution. This uses
-resampling to transmit uncertainty in growth rate estimates. This also handles
-time-series that are not on a daily cadence (although this is experimental).
-The reproduction number estimate is neither a instantaneous (backward looking)
-nor case (forward looking) reproduction number but somewhere between the two.
+and Lipsitch 2007 estimation using empirical generation time distribution.
+This uses resampling to transmit uncertainty in growth rate estimates. This
+also handles time-series that are not on a daily cadence (although this is
+experimental). The reproduction number estimate is neither a instantaneous
+(backward looking) nor case (forward looking) reproduction number but
+somewhere between the two, as the method looks at a flux of infection at a
+single point in time.
+}
+\details{
+This method is quite slow compared to some others and the default is non
+deterministic.
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
-  dplyr::filter(date < "2021-01-01")\%>\%
-  time_aggregate(count=sum(count)) \%>\%
+data = ggoutbreak::test_poisson_rt_smooth
+
+tmp = data \%>\%
   poisson_locfit_model() \%>\%
-  rt_from_growth_rate()
+  rt_from_growth_rate(ip=ggoutbreak::test_ip)
 
 if (interactive()) {
-  plot_rt(tmp, date_labels="\%b \%y") \%above\%
-   ggplot2::geom_errorbar(
-     data=england_consensus_rt \%>\% dplyr::filter(date < "2021-01-01"),
-     mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
-   ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
+  plot_rt(tmp, date_labels="\%b \%y")+sim_geom_function(data,colour="red")
 }
 
 }

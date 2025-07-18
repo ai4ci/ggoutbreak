@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -80,13 +81,6 @@
 <div class="section level2">
 <h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
 </h2>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ai4ci.github.io/ggoutbreak/">ggoutbreak</a></span><span class="op">)</span></span>
-<span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/i_am.html" class="external-link">i_am</a></span><span class="op">(</span><span class="st">"vignettes/time-units.Rmd"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## here() starts at /home/vp22681/Dropbox/Git/ggoutbreak</span></span></code></pre>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/vignette-utils.R"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Its common for epidemic data to be aggregated into weekly, monthly or
 even yearly case counts, for example the result of batching in reporting
 processes. <code>ggoutbreak</code> has a set of infrastructure to allow
@@ -106,8 +100,9 @@ stated.</p>
 <p>In this case the simulation generates an outbreak over the course of
 one year with a maximum number of weekly cases around 250, resulting
 from an initial import of 30 infectious cases in week 0.</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">changes</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">changes</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">t</span>,    <span class="op">~</span><span class="va">r</span>,</span>
 <span>  <span class="fl">0</span>,      <span class="fl">0</span>,</span>
 <span>  <span class="fl">5</span>,     <span class="fl">0.2</span>,</span>
@@ -124,33 +119,29 @@ from an initial import of 30 infectious cases in week 0.</p>
 <span>  time_unit <span class="op">=</span> <span class="st">"1 week"</span>,</span>
 <span>  fn_imports <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">.x</span> <span class="op">==</span> <span class="fl">0</span>, <span class="fl">30</span>, <span class="fl">0</span><span class="op">)</span>,</span>
 <span>  seed<span class="op">=</span><span class="fl">100</span></span>
-<span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## interfacer: development mode active (local function).</span></span>
-<span><span class="co">## <span style="color: #555555;">This message is displayed once every 8 hours.</span></span></span></code></pre>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim</span>,<span class="st">"events"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">events</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/attr.html" class="external-link">attr</a></span><span class="op">(</span><span class="va">sim</span>,<span class="st">"events"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_cases.html">plot_cases</a></span><span class="op">(</span><span class="va">sim</span>, events <span class="op">=</span> <span class="va">events</span>, colour<span class="op">=</span><span class="st">"grey60"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="time-units_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
+<p><img src="time-units_files/figure-html/unnamed-chunk-1-1.png" width="576"></p>
 <p>We can go ahead and model the case rate and exponential growth rate
 using a poisson model and plot them, with the parametrised growth rate
 in red. In this case the time unit for both rates is per week. Although
 the time unit is per week, the model output is creating an estimate per
 day (controlled by the <code>frequency</code> parameter here), to allow
 the smooth plot.</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Estimate weekly incidence and weekly exponential growth rate</span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Estimate weekly incidence and weekly exponential growth rate</span></span>
 <span><span class="va">incidence</span> <span class="op">=</span> <span class="va">sim</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span>frequency <span class="op">=</span> <span class="st">"1 day"</span>,deg <span class="op">=</span> <span class="fl">2</span>, window<span class="op">=</span><span class="fl">5</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">incidence</span>, events<span class="op">=</span><span class="va">events</span>, raw <span class="op">=</span> <span class="va">sim</span><span class="op">)</span></span>
 <span><span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="../reference/plot_growth_rate.html">plot_growth_rate</a></span><span class="op">(</span><span class="va">incidence</span>,events <span class="op">=</span> <span class="va">events</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.05</span><span class="op">*</span><span class="fl">7</span>,<span class="op">+</span><span class="fl">0.05</span><span class="op">*</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="co"># The simulation data includes the parametrised growth rate:</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sim</span>, mapping <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>, y<span class="op">=</span><span class="va">growth</span><span class="op">)</span>, colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Coordinate system already present. Adding new coordinate system, which will</span></span>
-<span><span class="co">## replace the existing one.</span></span></code></pre>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>ncol<span class="op">=</span><span class="fl">1</span>,axes<span class="op">=</span><span class="st">"collect"</span><span class="op">)</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>tag_levels <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="time-units_files/figure-html/unnamed-chunk-2-1.png" width="700"></p>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">sim</span>, mapping <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>, y<span class="op">=</span><span class="va">growth</span><span class="op">)</span>, colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span>
+<span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>ncol<span class="op">=</span><span class="fl">1</span>,axes<span class="op">=</span><span class="st">"collect"</span><span class="op">)</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>tag_levels <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="time-units_files/figure-html/unnamed-chunk-2-1.png" width="576"></p>
 <p>We want to estimate the reproduction number, and for this our methods
 need estimates of the daily incidence of cases, as input to the renewal
 equation. To do this we rescale the temporal dimension of the model
@@ -159,17 +150,16 @@ daily case rate is estimated to peak at just over 30 (= 250/7 approx).
 The growth rate is also rescaled to account for the fact that the
 exponential growth rate per day is compounded up in the per week figures
 above.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Rescale weekly to daily incidence estimates</span></span>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Rescale weekly to daily incidence estimates</span></span>
 <span><span class="va">incidence2</span> <span class="op">=</span> <span class="va">incidence</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/rescale_model.html">rescale_model</a></span><span class="op">(</span>time_unit <span class="op">=</span> <span class="st">"1 day"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">p1</span> <span class="op">=</span> <span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">incidence2</span>, events<span class="op">=</span><span class="va">events</span>, raw <span class="op">=</span> <span class="va">sim</span><span class="op">)</span></span>
-<span><span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="../reference/plot_growth_rate.html">plot_growth_rate</a></span><span class="op">(</span><span class="va">incidence2</span>,events <span class="op">=</span> <span class="va">events</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.05</span>,<span class="op">+</span><span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## Coordinate system already present. Adding new coordinate system, which will</span></span>
-<span><span class="co">## replace the existing one.</span></span></code></pre>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>ncol<span class="op">=</span><span class="fl">1</span>,axes <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>tag_level<span class="op">=</span><span class="st">"A"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="time-units_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<span><span class="va">p2</span> <span class="op">=</span> <span class="fu"><a href="../reference/plot_growth_rate.html">plot_growth_rate</a></span><span class="op">(</span><span class="va">incidence2</span>,events <span class="op">=</span> <span class="va">events</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="op">-</span><span class="fl">0.05</span>,<span class="op">+</span><span class="fl">0.05</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>ncol<span class="op">=</span><span class="fl">1</span>,axes <span class="op">=</span> <span class="st">"collect"</span><span class="op">)</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>tag_level<span class="op">=</span><span class="st">"A"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="time-units_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
 <p>From this we can easily use our incidence estimates and an generation
 time distribution to estimate the reproduction number for this
 time-series. To compare it we use a different method (Wallinga-Lipsitch
@@ -179,8 +169,9 @@ associated with
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
 estimates derived from weekly count data is appropriately large, and
 include uncertainty in the generation time.</p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="co"># Convert weekly growth rate input to simulation to a reproduction number</span></span>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Convert weekly growth rate input to simulation to a reproduction number</span></span>
 <span><span class="co"># and ensure time scales align.</span></span>
 <span><span class="va">changes2</span> <span class="op">=</span> <span class="va">changes</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/transmute.html" class="external-link">transmute</a></span><span class="op">(</span></span>
 <span>  t <span class="op">=</span> <span class="va">t</span><span class="op">*</span><span class="fl">7</span>,</span>
@@ -193,8 +184,7 @@ include uncertainty in the generation time.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">rt_estim</span>,events <span class="op">=</span> <span class="va">events</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_function.html" class="external-link">geom_function</a></span><span class="op">(</span>fun<span class="op">=</span><span class="va">rt_for_date</span>,colour<span class="op">=</span><span class="st">"red"</span>,n<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">rt_estim</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<pre><code><span><span class="co">## No `start_date` (or `anchor`) specified. Using default (N.b. set `options('day_zero'=XXX)` to change): 2019-12-29</span></span></code></pre>
-<p><img src="time-units_files/figure-html/unnamed-chunk-4-1.png" width="700"></p>
+<p><img src="time-units_files/figure-html/unnamed-chunk-4-1.png" width="576"></p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

@@ -13,12 +13,12 @@
 #' ggplot2::ggplot(ggplot2::diamonds, ggplot2::aes(x=price))+
 #'   ggplot2::geom_density()+
 #'   ggplot2::scale_x_continuous(trans="log1p", breaks=breaks_log1p())
-breaks_log1p = function(n=5,base=10) {
+breaks_log1p = function(n = 5, base = 10) {
   #scales::force_all(n, base)
   n_default = n
   function(x, n = n_default) {
-    tmp = scales::breaks_log(n_default,base)(x+1,n)
-    return(c(0,tmp[-1]))
+    tmp = scales::breaks_log(n_default, base)(x + 1, n)
+    return(c(0, tmp[-1]))
   }
 }
 
@@ -44,23 +44,22 @@ breaks_log1p = function(n=5,base=10) {
 #'
 #' @export
 logit_trans = function(n = 5, ...) {
-
   trans = stats::qlogis
   inv = stats::plogis
   n_default = n
-  tmp_fn = scales::extended_breaks(n=n)
-  breaks_fn = function(x, n=n_default) {
-    x %>% trans() %>% tmp_fn(n=n) %>% inv()
+  tmp_fn = scales::extended_breaks(n = n)
+  breaks_fn = function(x, n = n_default) {
+    x %>% trans() %>% tmp_fn(n = n) %>% inv()
   }
 
-  scales::trans_new("logit",
-                    transform = trans,
-                    inverse = inv,
-                    breaks = breaks_fn,
-                    format = scales::label_scientific(digits = 2)
+  scales::trans_new(
+    "logit",
+    transform = trans,
+    inverse = inv,
+    breaks = breaks_fn,
+    format = scales::label_scientific(digits = 2)
   )
 }
-
 
 
 #' A log1p y scale
@@ -73,8 +72,13 @@ logit_trans = function(n = 5, ...) {
 #'
 #' @return a ggplot scale
 #' @export
-scale_y_log1p = function(..., n=5, base=10, dp=0) {
-  return(ggplot2::scale_y_continuous(trans="log1p", breaks = breaks_log1p(n,base), labels = ~ sprintf("%.*f",dp,.x), ...))
+scale_y_log1p = function(..., n = 5, base = 10, dp = 0) {
+  return(ggplot2::scale_y_continuous(
+    trans = "log1p",
+    breaks = breaks_log1p(n, base),
+    labels = ~ sprintf("%.*f", dp, .x),
+    ...
+  ))
 }
 
 #' A logit y scale
@@ -85,7 +89,7 @@ scale_y_log1p = function(..., n=5, base=10, dp=0) {
 #' @concept vis
 #' @export
 scale_y_logit = function(...) {
-  return(ggplot2::scale_y_continuous(trans="logit", ...))
+  return(ggplot2::scale_y_continuous(trans = "logit", ...))
 }
 
 
@@ -100,7 +104,6 @@ scale_y_logit = function(...) {
 #   plot
 # }
 
-
 #' Insert a layer at the bottom of a `ggplot`
 #'
 #' @param plot the plot to add the layer to
@@ -111,7 +114,9 @@ scale_y_logit = function(...) {
 #' @export
 `%above%` = function(plot, layer) {
   if (missing(layer)) {
-    stop("Cannot use `-.gg()` with a single argument. Did you accidentally put - on a new line?")
+    stop(
+      "Cannot use `-.gg()` with a single argument. Did you accidentally put - on a new line?"
+    )
   }
   if (!ggplot2::is.ggplot(plot)) {
     stop('Need a plot on the left side')
@@ -141,7 +146,7 @@ integer_breaks = function(n = 5, ...) {
 .fill_col = function(mapping) {
   if (is.null(mapping$fill)) {
     mapping$fill = mapping$colour
-    mapping$colour=NULL
+    mapping$colour = NULL
   }
   return(mapping)
 }
@@ -154,7 +159,14 @@ integer_breaks = function(n = 5, ...) {
 }
 
 # internal function: allow a ggplot to be constructed more dynamically
-.layer = function(geom, data = NULL, mapping, ..., .default = list(), .switch_fill = inherits(geom,"GeomRibbon")) {
+.layer = function(
+  geom,
+  data = NULL,
+  mapping,
+  ...,
+  .default = list(),
+  .switch_fill = inherits(geom, "GeomRibbon")
+) {
   dots = rlang::list2(...)
   if (.switch_fill) {
     mapping = .fill_col(mapping)
@@ -166,7 +178,7 @@ integer_breaks = function(n = 5, ...) {
       geom = geom,
       stat = ggplot2::StatIdentity,
       data = data,
-      mapping = mapping,
+      mapping = .check_in_data(data, mapping),
       position = dots$position %||% "identity",
       show.legend = dots$show.legend %||% TRUE,
       inherit.aes = dots$inherit.aes %||% FALSE,
@@ -177,29 +189,48 @@ integer_breaks = function(n = 5, ...) {
   )
 }
 
+.check_in_data = function(df, mapping) {
+  if (is.null(df)) {
+    return(mapping)
+  }
+  for (k in names(mapping)) {
+    tmp = try(rlang::eval_tidy(mapping[[k]], df), silent = TRUE)
+    if (inherits(tmp, "try-error") || is.language(tmp) || is.function(tmp)) {
+      mapping[[k]] = NULL
+    }
+  }
+  return(mapping)
+}
+
 # for use as a default parameter in a function.
 # checks a ggplot::aes is not given in the dots, before
-.check_for_aes = function(df, ..., class_aes=c("colour","fill")) {
+.check_for_aes = function(df, ..., class_aes = c("colour", "fill")) {
   class_aes = match.arg(class_aes)
   dots = rlang::list2(...)
-  if (length(dots)>0 && any(sapply(dots,class)=="uneval")) stop("Unnamed `ggplot2::aes` mapping provided. Ggplot aesthetic parameters must be named `mapping=aes(...)`",call. = FALSE)
+  if (length(dots) > 0 && any(sapply(dots, class) == "uneval")) {
+    stop(
+      "Unnamed `ggplot2::aes` mapping provided. Ggplot aesthetic parameters must be named `mapping=aes(...)`",
+      call. = FALSE
+    )
+  }
   if (interfacer::is_col_present(df, class)) {
-    if (class_aes=="fill") return(ggplot2::aes(fill=class))
-    return(ggplot2::aes(colour=class))
+    if (class_aes == "fill") {
+      return(ggplot2::aes(fill = class))
+    }
+    return(ggplot2::aes(colour = class))
   } else {
     return(ggplot2::aes())
   }
-
 }
 
 # defaults
 
 .growth_scale_limits = function() {
-  return(getOption("ggoutbreak.growth_scale_limit",default = c(-0.15,0.15)))
+  return(getOption("ggoutbreak.growth_scale_limit", default = c(-0.15, 0.15)))
 }
 
 .r_number_limits = function() {
-  return(getOption("ggoutbreak.growth_scale_limit",default = c(0.5,3.0)))
+  return(getOption("ggoutbreak.growth_scale_limit", default = c(0.5, 3.0)))
 }
 
 #' Switch UTF-8 into plain text when using the pdf device
@@ -224,11 +255,10 @@ integer_breaks = function(n = 5, ...) {
 #' .pdf_safe("test")
 #' .pdf_safe("\u00B1\u221E")
 #' ggplot2::ggplot()+ggplot2::xlab(.pdf_safe("\u00B1\u221E"))
-.pdf_safe = function(label, alt=label) {
+.pdf_safe = function(label, alt = label) {
   alt = iconv(alt, from = 'UTF-8', to = 'ASCII//TRANSLIT')
-  if (names(grDevices::dev.cur())=="pdf") {
+  if (names(grDevices::dev.cur()) == "pdf") {
     return(alt)
   }
   return(label)
 }
-

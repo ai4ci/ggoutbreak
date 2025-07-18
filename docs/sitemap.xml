@@ -4,6 +4,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/LICENSE.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/covid-timeseries.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/estimators-example.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/articles/ggoutbreak.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/incidence-trends.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/index.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/infectivity-profile-discretisation.html</loc></url>
@@ -40,6 +41,14 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dgamma2.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dlnorm2.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dnbinom2.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-pmixbeta.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-pmixgamma.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-pmixlnorm.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-pmixnorm.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-qmixbeta.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-qmixgamma.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-qmixlnorm.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-qmixnorm.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-ts_evaluate.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/doubling_time.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/du_serial_interval_ip.html</loc></url>
@@ -48,7 +57,11 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_consensus_rt.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_pcr_positivity.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_poisson.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_poisson_age_stratified.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_proportion.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_proportion_age_stratified.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_test_positives.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_demographics.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_events.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_nhs_app.html</loc></url>
@@ -61,6 +74,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/geom_events.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/germany_covid.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/germany_demographics.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/ggoutbreak-package.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/grapes-above-grapes.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/index.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/infer_population.html</loc></url>
@@ -97,6 +111,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/plot_prevalence.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/plot_proportion.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/plot_proportions.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/plot_proportions_data.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/plot_rt.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/pnbinom2.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/poisson_glm_model.html</loc></url>
@@ -138,6 +153,8 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_convolution.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_delay.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_delayed_observation.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_events.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_geom_function.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_multinomial.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_poisson_Rt_model.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_poisson_model.html</loc></url>
@@ -146,7 +163,10 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/summarise_ip.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_bpm.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_ip.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_growth_rate.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_rt.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_rt_2class.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_rt_smooth.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_serial.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_ts.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/time_aggregate.html</loc></url>

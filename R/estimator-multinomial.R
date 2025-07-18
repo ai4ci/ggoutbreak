@@ -4,13 +4,15 @@
 #' with time, (multinomial) class (e.g. variant) and count being the count in
 #' that time period. Fits a quadratic B-spline on time to the proportion of the
 #' data using `nnet::multinom`, with approx one degree of freedom per class and per
-#' `window` units of the time series
+#' `window` units of the time series.
 #'
-#' @param d multi-class count input
-#' @param ... not used and present to allow proportion model to be used in a group_modify
+#' Additional groupings are treated as distinct proportions models.
+#'
+#' @iparam d A multi-class count input dataframe
+#' @param ... not used
 #' @param window a number of data points between knots, smaller values result in
 #'   less smoothing, large value in more.
-#' @param frequency the density of the output estimates.
+#' @param frequency the temporal density of the output estimates.
 #' @param predict result a prediction. If false we return the model.
 #' @param .progress show a CLI progress bar
 #'
@@ -18,13 +20,14 @@
 #' @export
 #' @concept models
 #' @examples
+#'
+#' data = test_poisson_rt_2class
+#' tmp = data %>% ggoutbreak::multinomial_nnet_model(window=14)
+#'
 #' if (interactive()) {
-#'   # not run due to long running
-#'   tmp = ggoutbreak::england_covid %>%
-#'     dplyr::filter(date > "2022-01-01") %>%
-#'     ggoutbreak::multinomial_nnet_model(window=21) %>%
-#'     dplyr::glimpse()
+#'   plot_multinomial(tmp, date_labels="%b %y")
 #' }
+#'
 multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, frequency = "1 day", predict = TRUE, .progress=interactive()) { #, output_unit="1 day") {
 
   env = rlang::current_env()

@@ -1,6 +1,3 @@
-
-
-
 #' Identify estimate lags in a model
 #'
 #' A specific parameter or set of parameters can be estimated by a `pipeline`.
@@ -9,9 +6,11 @@
 #' synthetic input and estimate is assessed by minimising the root mean square
 #' error of input and estimated based on different lag offsets.
 #'
-#' @param pipeline a function taking an input dataset and an infectivity profile as
-#'  inputs and producing an estimate as output. This is the whole parametrised
-#'  pipeline including any other inputs. This can be a `purrr` style function.
+#' @param pipeline a function taking an input dataset and an infectivity profile
+#'   as inputs and producing an estimate as output. This is the whole
+#'   parametrised pipeline including any other inputs. This can be a `purrr`
+#'   style function, in which case the `.x` variable is the input dataset and
+#'   `.y` is the infectivity profile.
 #' @iparam ip the infectivity profile.
 #' @param lags a vector with the delays to test. Defaults to -10 to +30 days
 #'
@@ -21,45 +20,65 @@
 #' @concept test
 #'
 #' @examples
+#' # lags from a locfit incidence model with Rt estimation.
+#' # This model has no estimator lag:
 #' pipeline = ~ .x %>% poisson_locfit_model() %>% rt_from_incidence(ip = .y)
-#' lag_analysis = quantify_lag(pipeline)
+#' quantify_lag(pipeline, ip = test_ip)
 #'
-#' quantify_lag(~ rt_epiestim(.x,ip = .y))
+#' # lags from an epiestim Rt estimation
+#' # this model's lags depend on the infectivity profile.
+#' # In this case it is 8 days
+#' pipeline2 =  ~ .x %>% rt_epiestim(ip = .y)
+#' quantify_lag(pipeline2, ip=test_ip )
 #'
 quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
-
   ip = summarise_ip(ip)
   # deterministic sawtooth function based on IP
   data = sim_test_data(ip = ip)
 
   pipeline = rlang::as_function(pipeline)
 
-  est = pipeline(data,ip)
+  est = pipeline(data, ip)
 
   tmp = .long_quantiles(est) %>% dplyr::filter(.p == 0.5) %>% dplyr::select(-.p)
   tmp2 = data %>%
-    dplyr::select(-count,-denom) %>%
-    tidyr::pivot_longer(cols = c(growth,incidence,rt,proportion,relative.growth),names_to = ".type",values_to = ".ref") %>%
+    dplyr::select(-count, -denom) %>%
+    tidyr::pivot_longer(
+      cols = c(growth, incidence, rt, proportion, relative.growth),
+      names_to = ".type",
+      values_to = ".ref"
+    ) %>%
     dplyr::filter(!is.na(.ref))
 
-
-  test = tmp %>% dplyr::inner_join(tmp2,by=c("time",".type")) %>% dplyr::group_by(.type)
+  test = tmp %>%
+    dplyr::inner_join(tmp2, by = c("time", ".type")) %>%
+    dplyr::group_by(.type)
 
   lag_data = dplyr::bind_rows(lapply(lags, function(lag) {
-    test %>% dplyr::summarise(
-        lagged_rmse = sqrt(mean((
-          .lag(.ref,n = lag,default = NA)-.value)^2,na.rm = TRUE)),
-        lag= lag
+    test %>%
+      dplyr::summarise(
+        lagged_rmse = sqrt(mean(
+          (.lag(.ref, n = lag, default = NA) - .value)^2,
+          na.rm = TRUE
+        )),
+        lag = lag
       )
-  })) %>% dplyr::group_by(estimate = .type) %>%
-    dplyr::mutate(lagged_rmse = lagged_rmse/min(lagged_rmse))
+  })) %>%
+    dplyr::group_by(estimate = .type) %>%
+    dplyr::mutate(lagged_rmse = lagged_rmse / min(lagged_rmse))
 
-  lag_summ = lag_data %>% dplyr::arrange(lagged_rmse) %>%
-    dplyr::filter(dplyr::row_number()==1) %>% dplyr::select(estimate,lag)
+  lag_summ = lag_data %>%
+    dplyr::arrange(lagged_rmse) %>%
+    dplyr::filter(dplyr::row_number() == 1) %>%
+    dplyr::select(estimate, lag)
 
-  p = ggplot2::ggplot(lag_data, ggplot2::aes(x=lag,y=lagged_rmse,colour=estimate)) +
-    ggplot2::geom_point()  +
-    ggplot2::geom_line() + ggplot2::xlab("estimate lag (days)") +
+  p = ggplot2::ggplot(
+    lag_data,
+    ggplot2::aes(x = lag, y = lagged_rmse, colour = estimate)
+  ) +
+    ggplot2::geom_point() +
+    ggplot2::geom_line() +
+    ggplot2::xlab("estimate lag (days)") +
     ggplot2::ylab("relative RMSE")
 
   return(structure(
@@ -67,14 +86,21 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
     plot = p,
     data = lag_data
   ))
-
 }
 
-.lag = function(x,n,...) {
-  if (n<0) return(dplyr::lead(x,n=-n,...))
-  else return(dplyr::lag(x,n=n,...))
+# bidirectional lag function.
+.lag = function(x, n, ...) {
+  if (n < 0) {
+    return(dplyr::lead(x, n = -n, ...))
+  } else {
+    return(dplyr::lag(x, n = n, ...))
+  }
 }
 
+# matches column names like incidence.0.25 = c(0.1)
+# maps column names to 2 cols .type=incidence and
+# .p = 0.25 and .value = 0.1.
+# works across groups and different column names.
 .long_quantiles = function(est) {
   grps = est %>% dplyr::groups()
   est %>%
@@ -86,146 +112,375 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
     tidyr::pivot_longer(
       cols = tidyselect::matches("\\.0\\.[0-9]+$"),
       names_pattern = "^(.*)\\.(0\\.[0-9]+$)",
-      names_to = c(".type",".p"),
+      names_to = c(".type", ".p"),
       values_to = ".value"
-    ) %>% dplyr::mutate(
+    ) %>%
+    dplyr::mutate(
       .p = as.numeric(.p)
     )
 }
 
-#' Calculate scoring statistics from predictions using `scoringutils`.
+#' Calculate scoring statistics from predictions.
 #'
-#' This performs a range of quantile based, and if cumulative distribution
-#' functions are available, continuous scoring metrics for each estimate time-point.
+#' This performs a range of continuous scoring metrics for each estimate
+#' time-point using cumulative distribution functions for each estimate. Point
+#' quality metrics are calculated for each estimate provided and summarised.
+#' Summarisation is performed using bootstrap resampling to generate confidence
+#' intervals for summary statistics, which are presented as median +/1 95% CI.
 #'
 #' @param est a dataframe of estimates of incidence, growth rate of reproduction
-#'   number based off a simulation or data with known parameters.
-#' @param obs a dataframe of the ground truth, sharing the same grouping as
-#'   `est` with at least one column(s) named `XXX.obs` with `XXX` being one of
-#'   `rt`,`growth` or `incidence` or any other column group predicted in `est`.
-#' @param lags a data frame of estimate types and lags as output by [quantify_lag()]
-#'   if multiple models are included then the columns must match those in `obs`.
+#'   number based off a simulation or data with known parameters. Each group in
+#'   `est` is expected to contain multiple estimates and each group is scored
+#'   separately. Estimates in `est` must be in the form of a column named
+#'   `XXX.cdf` containing a cumulative distribution function for the estimate
+#'   and `XXX.link` containing a link function specification (one if
+#'   `identity`,`log` or `logit`). These are not generated by default by the
+#'   `ggoutbreak` estimators but are triggered by setting the option:
+#'   `options("ggoutbreak.keep_cdf"=TRUE)` before running the estimator. The
+#'   CDFs generated will be analytical, if the estimator generates a
+#'   parametrised output (or a mixture thereof), empirical if the estimator uses
+#'   resampling, or inferred if the estimator produces quantiles only.
+#' @param obs a dataframe of the ground truth, sharing the same grouping and
+#'   columns as `est` with at least one column(s) named `XXX.obs` with `XXX`
+#'   being e.g. `rt`,`growth` or `incidence` or any other column group
+#'   predicted in `est` (i.e. if `obs` has a column `XXX.obs`, `est` must have
+#'   one called `XXX.cdf`).
+#' @param lags a data frame of estimate types and lags as output by
+#'   [quantify_lag()] if multiple models are included then the columns must
+#'   match those in `obs`.
+#' @param summarise_by by default every group is treated separately. This can be
+#'   overridden with a `tidyselect` specification of the groupings we want to
+#'   see in the final summarised output (e.g. if we want to differentiate
+#'   performance on a particular type of scenario or timeframe). If this is
+#'   exactly `FALSE` the function will return all the raw point estimates.
+#' @param raw_bootstraps (defaults to FALSE) return the summary metrics for
+#'   each bootstrap rather than the quantiles of the summary metrics.
 #'
+#' @return a dataframe of scoring metrics, with one row per group. This includes
+#'   the following columns:
 #'
-#' @return a dataframe of scoring metrics
+#' * mean_quantile_bias - the average of the universal residuals. Lower values
+#'   are better.
+#' * mean_trans_bias - the bias on the link function scale.
+#' * link - the link function
+#' * mean_bias - the bias on the natural scale (which may be interpreted as
+#'   additive or multiplicative depending on the link)
+#' * pit_was - an unadjusted probability integral transform histogram
+#'   Wasserstein distance from the uniform (lower values are better).
+#' * unbiased_pit_was - an PIT Wasserstein distance from the uniform, adjusted
+#'   for estimator bias (lower values are better).
+#' * directed_pit_was - a PIT Wasserstein distance from the uniform, directed
+#'   away from the centre, adjusted for estimator bias (values closer to zero
+#'   are better, positive values indicate overconfidence, and negative values
+#'   excessively conservative estimates).
+#' * percent_iqr_coverage - the percentage of estimators that include the true
+#'   value in their IQR. For a perfectly calibrated estimate this should be 0.5.
+#'   Lower values reflect overconfidence, higher values reflect excessively
+#'   conservative estimates.
+#' * unbiased_percent_iqr_coverage - the percentage of estimators that include
+#'   the true value in their IQR once adjusted for bias
+#' * mean_crps - the mean value of the continuous rank probability score for
+#'   each point estimate (lower values are better)
+#' * mean_unbiased_crps - the mean value of the continuous rank probability
+#'   score for each point estimate assessed after adjustment for bias (lower
+#'   values are better)
+#'
+#' other outputs are possible if `summarise_by` is false.
+#'
 #' @export
 #' @concept test
 #'
 #' @examples
-#' tmp2 = test_bpm %>% sim_summarise_linelist()
+#' data = test_poisson_rt_smooth
+#'
+#' pipeline = ~ .x %>% poisson_locfit_model() %>% rt_from_incidence(ip = .y)
+#' lags = quantify_lag(pipeline, ip = test_ip)
 #'
 #' withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#'    est = tmp2 %>% poisson_locfit_model() %>% rt_from_incidence()
+#'    est = data %>% poisson_locfit_model() %>% rt_from_incidence()
 #' })
 #'
-#' obs = tmp2 %>% dplyr::mutate(rt.obs = rt.weighted)
-#' score_estimate(est,obs) %>% dplyr::glimpse()
+#' if (interactive()) plot_rt(est)+sim_geom_function(data, colour="red")
 #'
-score_estimate = function(est, obs, lags = NULL) {
-
-  if (is.null(lags)) lags = tibble::tibble(
-    estimate = c("incidence","rt","growth","proportion","relative.growth"),
-    lag = 0
-  )
-
-  join_cols = intersect(colnames(est),colnames(obs))
-  join_cols_2 = intersect(colnames(obs),colnames(lags))
-
-  obs_cols = setdiff(colnames(obs),colnames(est))
-  obs_type = stringr::str_extract(obs_cols,"(.*)\\.obs",1)
-  obs_type = obs_type[!is.na(obs_type)]
-
-  long_est = .long_quantiles(est)
-
-
-  long_obs = obs %>%
-    dplyr::select(tidyselect::all_of(join_cols), tidyselect::ends_with(".obs")) %>%
-    tidyr::pivot_longer(cols=tidyselect::ends_with(".obs"),names_to = ".type",values_to = ".ref",names_pattern = "([^\\.]+)\\.obs") %>%
-    dplyr::left_join(lags, by=c(join_cols_2,".type"="estimate")) %>%
-    # shift the observed to meet the estimate.
-    dplyr::mutate(time=time+lag)
-
-  if (any(stringr::str_detect(colnames(est),"\\.cdf$"))) {
-
-    long_cdf = est %>%
-      dplyr::select(tidyselect::all_of(join_cols), tidyselect::ends_with(".cdf")) %>%
-      tidyr::pivot_longer(cols=tidyselect::ends_with(".cdf"),names_to = ".type",values_to = ".cdf",names_pattern = "([^\\.]+)\\.cdf")
-
-
-    crps_data = long_cdf %>%
-      dplyr::inner_join(long_obs, by=c(join_cols,".type"))
-
-    crps_data = crps_data %>%
-      dplyr::group_modify(function(d,g,...) {
-        d %>% dplyr::mutate(
-          crps = .crps(.$.ref, .$.cdf),
-          bias = .bias(.$.ref, .$.cdf)
-        ) %>% dplyr::select(
-          -.cdf
-        )
-      })
-  } else {
-    crps_data = long_obs
+#' obs = data %>% dplyr::mutate(rt.obs = rt, incidence.obs = rate)
+#' score_estimate(est,obs,lags) %>% dplyr::glimpse()
+#'
+score_estimate = function(
+  est,
+  obs,
+  lags = NULL,
+  summarise_by = est %>% dplyr::groups(),
+  raw_bootstraps = FALSE
+) {
+  if (is.null(lags)) {
+    lags = tibble::tibble(
+      estimate = c(
+        "incidence",
+        "rt",
+        "growth",
+        "proportion",
+        "relative.growth"
+      ),
+      lag = 0
+    )
   }
 
+  join_cols = intersect(colnames(est), colnames(obs))
 
-  scores = long_est %>%
-    dplyr::inner_join(long_obs, by=c(join_cols,".type")) %>%
-    dplyr::rename(true_value = .ref, prediction = .value, quantile = .p)
+  message(
+    "estimates match true observations using columns: ",
+    paste0(join_cols, collapse = ",")
+  )
 
-  if(!"model" %in% colnames(scores)) scores = scores %>% dplyr::mutate(model="undefined")
+  join_cols_2 = intersect(colnames(obs), colnames(lags))
 
-  scores = scores %>%
-    # dplyr::group_by(model, .add = TRUE) %>%
-    dplyr::group_modify(function(d,g,...) {
+  obs_cols = setdiff(colnames(obs), colnames(est))
+  obs_type = stringr::str_extract(obs_cols, "(.*)\\.obs", 1)
+  obs_type = obs_type[!is.na(obs_type)]
 
-      tmp = scoringutils::as_forecast_quantile(
-        d %>% dplyr::rename(predicted = prediction, observed=true_value, quantile_level = quantile))
+  message(
+    "matching ground truth observations for: ",
+    paste0(obs_type, collapse = ",")
+  )
 
-      metrics = scoringutils::get_metrics(tmp)
-      metrics = metrics[!names(metrics) %in% c("crps","bias")]
+  long_obs = obs %>%
+    dplyr::select(
+      tidyselect::all_of(join_cols),
+      tidyselect::ends_with(".obs")
+    ) %>%
+    tidyr::pivot_longer(
+      cols = tidyselect::ends_with(".obs"),
+      names_to = ".type",
+      values_to = ".ref",
+      names_pattern = "([^\\.]+)\\.obs"
+    ) %>%
+    dplyr::left_join(lags, by = c(join_cols_2, ".type" = "estimate")) %>%
+    # shift the observed to meet the estimate.
+    dplyr::mutate(time = time + lag)
 
-      return(
-        tmp %>%
-          scoringutils::score(metrics = metrics) %>%
-          scoringutils::summarise_scores(by = c("model", ".type", "time"))
+  if (!any(stringr::str_detect(colnames(est), "\\.cdf$"))) {
+    stop(
+      "No CDFs found for estimates. Re-run the esimator after setting `options(\"ggoutbreak.keep_cdf\"=TRUE)`"
+    )
+  }
+
+  long_cdf = est %>%
+    dplyr::select(
+      tidyselect::all_of(join_cols),
+      tidyselect::ends_with(".cdf")
+    ) %>%
+    tidyr::pivot_longer(
+      cols = tidyselect::ends_with(".cdf"),
+      names_to = ".type",
+      values_to = ".cdf",
+      names_pattern = "([^\\.]+)\\.cdf"
+    )
+
+  long_dom = est %>%
+    dplyr::select(
+      tidyselect::all_of(join_cols),
+      tidyselect::ends_with(".link")
+    ) %>%
+    tidyr::pivot_longer(
+      cols = tidyselect::ends_with(".link"),
+      names_to = ".type",
+      values_to = ".link",
+      names_pattern = "([^\\.]+)\\.link"
+    )
+
+  long_median = est %>%
+    dplyr::select(
+      tidyselect::all_of(join_cols),
+      tidyselect::ends_with(".0.5")
+    ) %>%
+    tidyr::pivot_longer(
+      cols = tidyselect::ends_with(".0.5"),
+      names_to = ".type",
+      values_to = ".median",
+      names_pattern = "([^\\.]+)\\.0\\.5"
+    )
+
+  crps_data = long_cdf %>%
+    dplyr::inner_join(long_obs, by = c(join_cols, ".type")) %>%
+    dplyr::inner_join(long_median, by = c(join_cols, ".type")) %>%
+    dplyr::inner_join(long_dom, by = c(join_cols, ".type"))
+
+  crps_data = crps_data %>%
+    dplyr::group_by(!!!summarise_by, .type) %>%
+    dplyr::group_modify(function(d, g, ...) {
+      # d=crps_data
+      link = unique(d$.link)
+      trans = .trans_fn(link)
+      inv = .inv_fn(link)
+      low = .min_domain(link)
+      high = .max_domain(link)
+
+      mean_trans_bias = mean(trans(d$.median) - trans(d$.ref), na.rm = TRUE)
+
+      d = d %>%
+        dplyr::mutate(
+          unbiased_ref = inv(trans(.ref) + mean_trans_bias),
+          crps = .crps(.ref, .cdf, low, high),
+          quantile_bias = .quantile_bias(.ref, .cdf),
+          unbiased_crps = .crps(unbiased_ref, .cdf, low, high),
+          pit = .pit(.ref, .cdf),
+          unbiased_pit = .pit(unbiased_ref, .cdf),
+          iqr_coverage = pit > 0.25 & pit < 0.75,
+          unbiased_iqr_coverage = unbiased_pit > 0.25 & unbiased_pit < 0.75
+        ) %>%
+        dplyr::select(
+          -.cdf
+        )
+
+      return(d)
+    })
+
+  if (isFALSE(summarise_by)) {
+    return(crps_data)
+  }
+
+  crps_summary = crps_data %>%
+    dplyr::group_by(!!!summarise_by, .type) %>%
+    dplyr::group_modify(function(d, g, ...) {
+      link = unique(d$.link)
+      trans = .trans_fn(link)
+      inv = .inv_fn(link)
+      low = .min_domain(link)
+      high = .max_domain(link)
+
+      mean_trans_bias = mean(trans(d$.median) - trans(d$.ref), na.rm = TRUE)
+      mean_bias = inv(mean_trans_bias)
+
+      n = nrow(d)
+      unif = seq(1 / (2 * n), 1 - 1 / (2 * n), length.out = n)
+
+      # d = d %>% filter(statistic=="infections") %>% ungroup() %>% select(-statistic)
+
+      # bootstrap resampling:
+      boots = dplyr::bind_rows(
+        lapply(1:1000, \(i) {
+          d %>%
+            dplyr::slice_sample(prop = 1, replace = TRUE) %>%
+            dplyr::summarise(
+              mean_trans_bias = mean(
+                trans(.median) - trans(.ref),
+                na.rm = TRUE
+              ),
+              mean_bias = inv(mean_trans_bias),
+              pit_was = mean(abs(unif - sort(pit))),
+              unbiased_pit_was = mean(abs(unif - sort(unbiased_pit))),
+              directed_pit_was = mean(
+                (unif - sort(unbiased_pit)) * ifelse(unif < 0.5, 1, -1)
+              ),
+              percent_iqr_coverage = mean(iqr_coverage),
+              unbiased_percent_iqr_coverage = mean(unbiased_iqr_coverage),
+              mean_crps = mean(crps),
+              mean_unbiased_crps = mean(unbiased_crps),
+              mean_quantile_bias = mean(quantile_bias)
+            ) %>%
+            dplyr::mutate(boot = i)
+        })
       )
-    }) %>%
-    dplyr::left_join(crps_data %>% dplyr::select(-lag), by=c(join_cols,".type")) %>%
-    dplyr::rename(true_value = .ref, estimate=.type) %>%
-    dplyr::group_by(model,!!!(est %>% dplyr::groups()),estimate)
 
-  return(scores)
+      if (!raw_bootstraps) {
+        boots = boots %>%
+          dplyr::summarise(
+            dplyr::across(
+              c(-boot),
+              .fns = list(
+                `0.025` = ~ stats::quantile(.x, 0.025),
+                `0.5` = ~ stats::quantile(.x, 0.5),
+                `0.975` = ~ stats::quantile(.x, 0.975)
+              ),
+              .names = "{.col}.{.fn}"
+            )
+          )
+      }
 
+      boots = boots %>% dplyr::mutate(link = link)
 
+      return(boots)
+    })
+
+  return(crps_summary)
+
+  # ScoringUtils integration:
+  # long_est = .long_quantiles(est)
+  # scores = long_est %>%
+  #   dplyr::inner_join(long_obs, by=c(join_cols,".type")) %>%
+  #   dplyr::rename(true_value = .ref, prediction = .value, quantile = .p)
+  #
+  # if(!"model" %in% colnames(scores)) scores = scores %>% dplyr::mutate(model="undefined")
+  #
+  # scores = scores %>%
+  #   # dplyr::group_by(model, .add = TRUE) %>%
+  #   dplyr::group_modify(function(d,g,...) {
+  #
+  #     tmp = scoringutils::as_forecast_quantile(
+  #       d %>% dplyr::rename(predicted = prediction, observed=true_value, quantile_level = quantile))
+  #
+  #     metrics = scoringutils::get_metrics(tmp)
+  #     metrics = metrics[!names(metrics) %in% c("crps","bias")]
+  #
+  #     return(
+  #       tmp %>%
+  #         scoringutils::score(metrics = metrics) %>%
+  #         scoringutils::summarise_scores(by = c("model", ".type", "time"))
+  #     )
+  #   }) %>%
+  #   dplyr::left_join(crps_data %>% dplyr::select(-lag), by=c(join_cols,".type")) %>%
+  #   dplyr::rename(true_value = .ref, estimate=.type) %>%
+  #   dplyr::group_by(model,!!!(est %>% dplyr::groups()),estimate)
+  # return(scores)
 }
-
 
 
 # vectorised CRPS calculation given list of CDFs and true values
 # tmp2 = .cdf_generator(mean=list(c(1,2,3),c(3,4,5)),sd=list(c(1,1,1),c(2,2,2)))
 # .crps(c(2,2), tmp2, min=-100,max=100)
-.crps = function(true, cdf, min=-Inf, max=Inf) {
-  if (is.function(cdf)) cdf=list(cdf)
-  if (rlang::is_missing(min) || rlang::is_missing(max)) stop("must define a min/max range for crps.",call. = FALSE)
-  interfacer::check_numeric(min,max)
-  interfacer::recycle(true,cdf,min,max)
+.crps = function(true, cdf, min = -Inf, max = Inf) {
+  if (is.function(cdf)) {
+    cdf = list(cdf)
+  }
+  interfacer::check_numeric(min, max)
+  interfacer::recycle(true, cdf, min, max)
   purrr::map_dbl(seq_along(true), \(i) {
-    x=true[[i]]
-    fn=cdf[[i]]
+    x = true[[i]]
+    fn = cdf[[i]]
     tryCatch(
-      stats::integrate(f=\(y) fn(y)^2, lower=min[i], upper=x, stop.on.error=FALSE)$value +
-        + stats::integrate(f=\(y) (fn(y)-1)^2, lower=x, upper=max[i],stop.on.error=FALSE)$value ,
-      error = function(e) { NA}
+      stats::integrate(
+        f = \(y) fn(y)^2,
+        lower = min[i],
+        upper = x,
+        stop.on.error = FALSE
+      )$value +
+        +stats::integrate(
+          f = \(y) (fn(y) - 1)^2,
+          lower = x,
+          upper = max[i],
+          stop.on.error = FALSE
+        )$value,
+      error = function(e) {
+        NA
+      }
     )
   })
 }
 
-.bias = function(true, cdf) {
-  interfacer::recycle(true,cdf,min,max)
+.quantile_bias = function(true, cdf) {
+  interfacer::recycle(true, cdf)
   purrr::map_dbl(seq_along(true), \(i) {
-    x=true[[i]]
-    fn=cdf[[i]]
-    return(1-2*fn(x))
+    x = true[[i]]
+    fn = cdf[[i]]
+    return(1 - 2 * fn(x))
+  })
+}
+
+.pit = function(true, cdf) {
+  interfacer::recycle(true, cdf)
+  purrr::map_dbl(seq_along(true), \(i) {
+    x = true[[i]]
+    fn = cdf[[i]]
+    return(fn(x))
   })
 }

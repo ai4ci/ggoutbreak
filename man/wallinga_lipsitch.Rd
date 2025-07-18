@@ -35,9 +35,16 @@ a reproduction number estimate based on \code{r}
 }
 \description{
 This function uses a single empirical distribution for the infectivity
-profile aka generation time
+profile / generation time. If multiple are provided then the average central
+value is chosen (i.e. this does not propagate uncertainty in infectivity profile)
 }
 \examples{
+
+# using a probability vector.
 wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
+
+# using an infectivity profile
+wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=test_ip)
+
 }
 \concept{models}

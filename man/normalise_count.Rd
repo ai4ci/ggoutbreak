@@ -32,12 +32,14 @@ Any grouping allowed.
 
 \item{...}{not used}
 
-\item{population_unit}{What population unit do you want the count data normalised to e.g. per 100K}
+\item{population_unit}{What population unit do you want the count data
+normalised to e.g. per 100K}
 
 \item{normalise_time}{The default behaviour for normalising is to keep it in
-the same time units as the input data. If this parameter is set to \code{TRUE} the
-incidence rates are calculated per year. If given as a lubridate period string
-e.g. "1 week" then the incidence is calculated over that time period.}
+the same time units as the input data. If this parameter is set to \code{TRUE}
+the incidence rates are calculated per year. If given as a lubridate period
+string e.g. "1 week" then the incidence is calculated over that time
+period.}
 }
 \value{
 a dataframe with incidence rates per unit capita.
@@ -51,9 +53,10 @@ A dataframe containing the following columns:
 Any grouping allowed.
 }
 \description{
-This assumes positive disease counts are stratified by a population grouping, e.g.
-geography or age, and we have estimates of the size of that population during
-that time period. Normalising by population size allows us to compare groups.
+This assumes positive disease counts are stratified by a population grouping,
+e.g. geography or age, and we have estimates of the size of that population
+during that time period. Normalising by population size allows us to compare
+groups.
 }
 \examples{
 tmp = ggoutbreak::england_covid \%>\%

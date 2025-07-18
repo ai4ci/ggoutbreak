@@ -26,7 +26,7 @@ plot_proportion(
 Any grouping allowed.
 }
 
-\item{raw}{Raw count data - a dataframe with columns:
+\item{raw}{Raw count data with denominator - a dataframe with columns:
 \itemize{
 \item denom (positive_integer) - Total test counts associated with the specified time frame
 \item count (positive_integer) - Positive case counts associated with the specified time frame
@@ -177,7 +177,7 @@ a ggplot object
 Plot a proportions timeseries
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
+tmp = ggoutbreak::test_poisson_rt_2class \%>\%
   ggoutbreak::proportion_locfit_model(window=21) \%>\%
   dplyr::glimpse()
 

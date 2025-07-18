@@ -142,20 +142,18 @@ Reproduction number timeseries diagram
 }
 \examples{
 # example code
-tmp = ggoutbreak::england_covid \%>\%
-  time_aggregate(count=sum(count))
-
 if (interactive()) {
 
-  tmp2 = tmp \%>\%
-    poisson_locfit_model() \%>\%
-    rt_from_growth_rate()
+  tmp2 = england_covid_poisson \%>\%
+    rt_from_incidence()
 
-  # comparing RT from growth rates with England consensus Rt:
+  # comparing RT from growth rates with England consensus Rt
+  # (N.B. offset by 17 days to align with estimates):
+
   plot_rt(tmp2,colour="blue")+
     ggplot2::geom_errorbar(
       data=england_consensus_rt,
-      mapping=ggplot2::aes(x=date-21,ymin=low,ymax=high),
+      mapping=ggplot2::aes(x=date-17,ymin=low,ymax=high),
       colour="red")
 
 }

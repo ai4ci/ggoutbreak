@@ -22,5 +22,20 @@ test_serial = test_bpm %>%
   make_resampled_ip(truncate = -10,seed = 100)
 interfacer::use_dataframe(test_serial)
 
-test_poisson_rt = sim_poisson_Rt_model(seed = 100)
+test_poisson_rt = sim_poisson_Rt_model(seed = 100, fn_ip = \(t) test_ip)
 interfacer::use_dataframe(test_poisson_rt)
+
+test_poisson_growth_rate = sim_poisson_model(seed = 100)
+interfacer::use_dataframe(test_poisson_growth_rate)
+
+test_poisson_rt_smooth = sim_poisson_Rt_model(fn_Rt = \(t) exp(sin(t/80*pi)^4-0.25), max_time = 160)
+interfacer::use_dataframe(test_poisson_rt_smooth)
+
+
+test_poisson_rt_2class = dplyr::bind_rows(
+  sim_poisson_Rt_model(fn_Rt = \(t) exp(sin(t/80*pi)^4-0.25), max_time = 160) %>% dplyr::mutate(class = "one"),
+  sim_poisson_Rt_model(fn_Rt = \(t) exp(sin((t-10)/80*pi)^4-0.25), max_time = 160) %>% dplyr::mutate(class = "two")
+) %>% dplyr::mutate(class = as.factor(class)) %>% dplyr::group_by(time) %>% dplyr::mutate(denom=sum(count)) %>%
+  dplyr::group_by(class)
+
+interfacer::use_dataframe(test_poisson_rt_2class)

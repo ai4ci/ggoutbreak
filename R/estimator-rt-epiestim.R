@@ -1,7 +1,6 @@
 ## `EpiEstim` wrapper ----
 
-
-#' `EpiEstim` reproduction number
+#' `EpiEstim` reproduction number wrapper function
 #'
 #' Calculate a reproduction number estimate from incidence data using the
 #' `EpiEstim` library and an empirical generation time distribution. This uses
@@ -10,7 +9,6 @@
 #' samples in the infectivity profile.
 #'
 #' This will calculate a reproduction number for each group in the input dataframe.
-#'
 #'
 #' @iparam df Count data. Extra groups are allowed.
 #' @iparam ip infectivity profile
@@ -30,68 +28,106 @@
 #' @export
 #' @concept models
 #' @examples
-#' tmp = ggoutbreak::england_covid %>%
-#'   time_aggregate(count=sum(count))
+#'
+#' data = test_poisson_rt_smooth
+#'
+#' tmp2 = data %>%
+#'    ggoutbreak::rt_epiestim(test_ip)
 #'
 #' if (interactive()) {
-#'   # not run due to long running
-#'   tmp2 = tmp %>% rt_epiestim()
+#'   plot_rt(tmp2, date_labels="%b %y")+sim_geom_function(data,colour="red")
 #' }
 #'
-#'
-rt_epiestim = function(df = i_incidence_input, ip = i_discrete_ip, bootstraps = 2000, window = 14, mean_prior = 1, std_prior = 2, ..., .progress=interactive()) {
-
+rt_epiestim = function(
+  df = i_incidence_input,
+  ip = i_discrete_ip,
+  bootstraps = 2000,
+  window = 14,
+  mean_prior = 1,
+  std_prior = 2,
+  ...,
+  .progress = interactive()
+) {
   ip = interfacer::ivalidate(ip)
   ip_boots = dplyr::n_distinct(ip$boot)
 
-  siConfig = EpiEstim::make_config(method = "si_from_sample", mean_prior = mean_prior, std_prior = std_prior)
-  yMatrix = ip %>% .omega_matrix(epiestim_compat = TRUE)
+  siConfig = EpiEstim::make_config(
+    method = "si_from_sample",
+    mean_prior = mean_prior,
+    std_prior = std_prior
+  )
 
-  siConfig$n2 = max(bootstraps %/% ip_boots,10)
+  siConfig$n2 = max(bootstraps %/% ip_boots, 10)
 
   env = rlang::current_env()
-  if (.progress) cli::cli_progress_bar("Rt (EpiEstim)", total = dplyr::n_groups(df), .envir = env)
-
-  modelled = interfacer::igroup_process(df, function(df,siConfig,window,...) {
-    .stop_if_not_daily(df$time)
-
-    meta = .get_meta(df$time)
-    tmp = df %>% dplyr::transmute(I=count)
-    siConfig$t_start = c(2:(nrow(tmp)-window))
-    siConfig$t_end = siConfig$t_start+window
-
-    rt.warn = NA
-
-    tmp4 =
-      withCallingHandlers(
-        tryCatch(EpiEstim::estimate_R(tmp, method = "si_from_sample",config=siConfig,si_sample = yMatrix), error = stop), warning= function(w) {
-          rt.warn <<- w$message
-          invokeRestart("muffleWarning")
-        })
-
-    new_data = tmp4$R %>% dplyr::transmute(
-      time = as.time_period(t_end, meta$unit, meta$start_date),
-      rt.fit = `Mean(R)`,
-      rt.se.fit = `Std(R)`,
-      rt.0.025 = `Quantile.0.025(R)`,
-      rt.0.05 = `Quantile.0.05(R)`,
-      rt.0.25 = `Quantile.0.25(R)`,
-      rt.0.5 = `Median(R)`,
-      rt.0.75 = `Quantile.0.75(R)`,
-      rt.0.95 = `Quantile.0.95(R)`,
-      rt.0.975 = `Quantile.0.975(R)`,
-      rt.warn = rt.warn
+  if (.progress) {
+    cli::cli_progress_bar(
+      "Rt (EpiEstim)",
+      total = dplyr::n_groups(df),
+      .envir = env
     )
+  }
 
-    if (.progress) cli::cli_progress_update(.envir = env)
+  modelled = interfacer::igroup_process(
+    df,
+    function(df, siConfig, ip, window, .groupdata, ...) {
+      .stop_if_not_daily(df$time)
 
-    return(new_data)
+      meta = .get_meta(df$time)
+      tmp = df %>% dplyr::transmute(I = count)
+      siConfig$t_start = c(2:(nrow(tmp) - window))
+      siConfig$t_end = siConfig$t_start + window
 
-  })
+      # find the right ip for this group.
+      yMatrix = .select_ip(ip, .groupdata) %>%
+        .omega_matrix(epiestim_compat = TRUE)
 
-  if (.progress) cli::cli_progress_done()
+      rt.warn = NA
+
+      tmp4 =
+        withCallingHandlers(
+          tryCatch(
+            EpiEstim::estimate_R(
+              tmp,
+              method = "si_from_sample",
+              config = siConfig,
+              si_sample = yMatrix
+            ),
+            error = stop
+          ),
+          warning = function(w) {
+            rt.warn <<- w$message
+            invokeRestart("muffleWarning")
+          }
+        )
+
+      new_data = tmp4$R %>%
+        dplyr::transmute(
+          time = as.time_period(t_end, meta$unit, meta$start_date),
+          rt.fit = `Mean(R)`,
+          rt.se.fit = `Std(R)`,
+          rt.0.025 = `Quantile.0.025(R)`,
+          rt.0.05 = `Quantile.0.05(R)`,
+          rt.0.25 = `Quantile.0.25(R)`,
+          rt.0.5 = `Median(R)`,
+          rt.0.75 = `Quantile.0.75(R)`,
+          rt.0.95 = `Quantile.0.95(R)`,
+          rt.0.975 = `Quantile.0.975(R)`,
+          rt.warn = rt.warn
+        ) %>%
+        .keep_cdf(type = "rt", link = "log") # infers from quantiles.
+
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
+
+      return(new_data)
+    }
+  )
+
+  if (.progress) {
+    cli::cli_progress_done()
+  }
 
   return(modelled)
-
 }
-

@@ -36,3 +36,4 @@ stats::cor(
   stats::qnorm(rwedge(1000, a=-2))
 )
 }
+\concept{distributions}

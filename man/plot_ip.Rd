@@ -4,7 +4,7 @@
 \alias{plot_ip}
 \title{Plot an infectivity profile}
 \usage{
-plot_ip(ip = i_empirical_ip, alpha = 0.1, ...)
+plot_ip(ip = i_empirical_ip, alpha = NULL, ...)
 }
 \arguments{
 \item{ip}{A long format infectivity profile - a dataframe with columns:
@@ -32,7 +32,7 @@ Plot an infectivity profile
 }
 \examples{
 if(interactive()) {
-  plot_ip(ganyani_ip,alpha=0.1)
+  plot_ip(ganyani_ip)
 }
 }
 \concept{vis}

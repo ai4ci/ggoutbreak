@@ -25,8 +25,8 @@ data(england_covid_pcr_positivity)
 \description{
 The \code{coronavirus.gov.uk} dashboard published tests conducted and positive
 results as separate data sets for a range of geographies. In this case the
-data is combined with testing rate as denominator, and positives as count for
-England.
+data is combined with testing rate as denominator, and test positives as
+count for the whole of England.
 }
 \concept{datasets}
 \keyword{datasets}

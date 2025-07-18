@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -94,7 +95,17 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>σ</mi><annotation encoding="application/x-tex">\sigma</annotation></semantics></math>.
 Such a fitted model is shown below on a log1p scale, for the COVID-19
 epidemic in England:</p>
-<p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-1-1.png" width="700"></p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">raw</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="../reference/england_covid.html">england_covid</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/time_aggregate.html">time_aggregate</a></span><span class="op">(</span>count<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">fit</span> <span class="op">=</span> <span class="va">raw</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">fit</span>,<span class="va">raw</span>, colour<span class="op">=</span><span class="st">"blue"</span>,size<span class="op">=</span><span class="fl">0.025</span>,events <span class="op">=</span> <span class="va">england_events</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/scale_y_log1p.html">scale_y_log1p</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>,<span class="st">"2023-01-01"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-1-1.png" width="576"></p>
 <p>It is appealing to use this modelled incidence estimate to calculate
 an estimate of the reproduction number,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>.
@@ -290,6 +301,25 @@ following equations:</p>
 \frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(q_{0.975}) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg) - 0.975 &amp;= 0
 \end{align}
 </annotation></semantics></math></p>
+<p>Numerical solutions to this are moderately expensive to perform. A
+reasonable approximation can be expected by matching moments of a log
+normal distribution to the mean
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">E[R_t^*]</annotation></semantics></math>
+and variance
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">V[R_t^*]</annotation></semantics></math>
+of the mixture. This gives us a final very lightweight closed form
+estimator for the reproduction number given a set of infectivity
+profiles,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>R</mi><mrow><mi>t</mi><mo>,</mo><mi>Ω</mi></mrow></msub><mo accent="true">¯</mo></mover><annotation encoding="application/x-tex">\overline{R_{t,\Omega}}</annotation></semantics></math>,
+as:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>l</mi><mi>o</mi><mi>g</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow><msqrt><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msqrt></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>σ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msqrt><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mrow><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mover><msub><mi>R</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo accent="true">¯</mo></mover></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo>,</mo><msub><mi>σ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{align}
+\mu_{t|\Omega} &amp;= log\bigg(\frac{E[R_t^*]^2}{\sqrt{E[R_t^*]^2 + V[R_t^*]}}\bigg)
+        \\
+\sigma_{t|\Omega} &amp;= \sqrt{log\bigg(1 + \frac{V[R_t^*]}{E[R_t^*]^2}\bigg)}\\
+\overline{R_{t|\Omega}} &amp;\sim Lognormal(\mu_{t|\Omega},\sigma_{t|\Omega})
+\end{align}
+</annotation></semantics></math></p>
 </div>
 <div class="section level2">
 <h2 id="implementation">Implementation<a class="anchor" aria-label="anchor" href="#implementation"></a>
@@ -299,7 +329,9 @@ designed for numerical stability and speed. Generating
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
 estimates given modelled incidence typically occurring in a matter of
 seconds:</p>
-<pre><code><span><span class="co">#&gt; function (mu, sigma, omega, mu_t, sigma_t, cor = FALSE, approx = TRUE) </span></span>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">:::</span><span class="va">.internal_r_t_estim</span><span class="op">)</span></span>
+<span><span class="co">#&gt; function (mu, sigma, omega, mu_t, sigma_t, cor = FALSE, approx = TRUE) </span></span>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     omega_m = as.matrix(omega)</span></span>
 <span><span class="co">#&gt;     omega_m = apply(omega_m, MARGIN = 2, rev)</span></span>
@@ -332,22 +364,24 @@ seconds:</p>
 <span><span class="co">#&gt;     vars = (exp(var_Rt) - 1) * exp(2 * mu_Rt + var_Rt)</span></span>
 <span><span class="co">#&gt;     mean_star = mean(means)</span></span>
 <span><span class="co">#&gt;     var_star = mean(vars + means^2) - mean_star^2</span></span>
-<span><span class="co">#&gt;     out = tibble::tibble(rt.fit = log(mean_star^2/sqrt(mean_star^2 + </span></span>
-<span><span class="co">#&gt;         var_star)), rt.se.fit = sqrt(log(1 + var_star/mean_star^2)))</span></span>
+<span><span class="co">#&gt;     out = tibble::tibble(rt.fit = log(mean_star) - log(var_star/mean_star^2 + </span></span>
+<span><span class="co">#&gt;         1)/2, rt.se.fit = sqrt(log(1 + var_star/mean_star^2)))</span></span>
 <span><span class="co">#&gt;     if (approx) {</span></span>
 <span><span class="co">#&gt;         out = out %&gt;% .result_from_fit(type = "rt", qfn = function(p) stats::qlnorm(p, </span></span>
 <span><span class="co">#&gt;             .$rt.fit, .$rt.se.fit)) %&gt;% .keep_cdf(type = "rt", </span></span>
-<span><span class="co">#&gt;             meanlog = .$rt.fit, sdlog = .$rt.se.fit)</span></span>
+<span><span class="co">#&gt;             meanlog = .$rt.fit, sdlog = .$rt.se.fit, link = "log")</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     else {</span></span>
-<span><span class="co">#&gt;         out = out %&gt;% .result_from_fit(type = "rt", qfn = function(p) .qmixlnorm(p, </span></span>
-<span><span class="co">#&gt;             mu_Rt, sigma_Rt)) %&gt;% .keep_cdf(type = "rt", meanlog = list(mu_Rt), </span></span>
-<span><span class="co">#&gt;             sdlog = list(sigma_Rt))</span></span>
+<span><span class="co">#&gt;         out = out %&gt;% .result_from_fit(type = "rt", qfn = function(p) {</span></span>
+<span><span class="co">#&gt;             .qmixlnorm(p, meanlogs = mu_Rt, sdlogs = sigma_Rt, </span></span>
+<span><span class="co">#&gt;                 method = "exact")</span></span>
+<span><span class="co">#&gt;         }) %&gt;% .keep_cdf(type = "rt", meanlog = list(mu_Rt), </span></span>
+<span><span class="co">#&gt;             sdlog = list(sigma_Rt), link = "log")</span></span>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     return(out)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x5d4606792e38&gt;</span></span>
-<span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre>
+<span><span class="co">#&gt; &lt;bytecode: 0x5f8c5f151da8&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
@@ -362,9 +396,18 @@ series with 1410 time points , which opens up the possibility of
 performing
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
 estimates in fine grained geographical or demographic subgroups.</p>
-<pre><code><span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   7.473   0.007   7.482</span></span></code></pre>
-<p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-3-1.png" width="700"></p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
+<span>  <span class="va">rt_fit</span> <span class="op">=</span> <span class="va">fit</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">covid_ip</span>, approx <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt;    user  system elapsed </span></span>
+<span><span class="co">#&gt;   4.937   0.000   4.937</span></span>
+<span></span>
+<span><span class="fu"><a href="../reference/plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">rt_fit</span>, events <span class="op">=</span> <span class="va">england_events</span>, colour<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>,<span class="st">"2023-01-01"</span><span class="op">)</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>,<span class="fl">1.6</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">england_consensus_rt</span>,<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">date</span><span class="op">-</span><span class="fl">14</span>,ymin<span class="op">=</span><span class="va">low</span>,ymax<span class="op">=</span><span class="va">high</span><span class="op">)</span>,colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
+<p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="conclusion">Conclusion<a class="anchor" aria-label="anchor" href="#conclusion"></a>

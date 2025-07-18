@@ -34,3 +34,4 @@ data(covid_ip)
 An infectivity profile derived from a meta-analysis of serial intervals.
 }
 \concept{datasets}
+\keyword{datasets}

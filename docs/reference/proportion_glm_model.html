@@ -11,7 +11,7 @@ window units of the time series."><meta property="og:image" content="https://ai4
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -19,7 +19,8 @@ window units of the time series."><meta property="og:image" content="https://ai4
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -111,23 +112,25 @@ weekly data a lower value may be preferred. - default <code>14</code></p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="england_covid_proportion.html">england_covid_proportion</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">date</span> <span class="op">&lt;</span> <span class="st">"2021-01-01"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="time_aggregate.html">time_aggregate</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">proportion_glm_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">5</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Rows: 209</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: 10</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ time              <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 22.57143<span style="color: #949494;">, </span>22.71429<span style="color: #949494;">, </span>22.85714<span style="color: #949494;">, </span>23.00000<span style="color: #949494;">, </span>23.1428…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.fit    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -4.145353<span style="color: #949494;">, </span>-4.168497<span style="color: #949494;">, </span>-4.191602<span style="color: #949494;">, </span>-4.214647<span style="color: #949494;">, </span>-4.23761…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.se.fit <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.4084512<span style="color: #949494;">, </span>0.3869179<span style="color: #949494;">, </span>0.3665636<span style="color: #949494;">, </span>0.3475906<span style="color: #949494;">, </span>0.330209…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.0.025  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.007062264<span style="color: #949494;">, </span>0.007197185<span style="color: #949494;">, </span>0.007318146<span style="color: #949494;">, </span>0.007421591<span style="color: #949494;">, </span>…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.0.05   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.008024531<span style="color: #949494;">, </span>0.008122834<span style="color: #949494;">, </span>0.008206851<span style="color: #949494;">, </span>0.008273554<span style="color: #949494;">, </span>…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.0.25   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.011881163<span style="color: #949494;">, </span>0.011780385<span style="color: #949494;">, </span>0.011671731<span style="color: #949494;">, </span>0.011554098<span style="color: #949494;">, </span>…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.0.5    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.015590924<span style="color: #949494;">, </span>0.015239662<span style="color: #949494;">, </span>0.014896774<span style="color: #949494;">, </span>0.014562335<span style="color: #949494;">, </span>…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.0.75   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.02043506<span style="color: #949494;">, </span>0.01969450<span style="color: #949494;">, </span>0.01899581<span style="color: #949494;">, </span>0.01833927<span style="color: #949494;">, </span>0.01…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.0.95   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.03007542<span style="color: #949494;">, </span>0.02841329<span style="color: #949494;">, </span>0.02689221<span style="color: #949494;">, </span>0.02550831<span style="color: #949494;">, </span>0.02…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ proportion.0.975  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.03406576<span style="color: #949494;">, </span>0.03197970<span style="color: #949494;">, </span>0.03008592<span style="color: #949494;">, </span>0.02837718<span style="color: #949494;">, </span>0.02…</span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="va">test_poisson_rt_2class</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tmp2</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">proportion_glm_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">7</span>,deg<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tmp3</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">proportion_glm_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">14</span>,deg<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">comp</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  <span class="va">tmp2</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model<span class="op">=</span><span class="st">"7:2"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  <span class="va">tmp3</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>model<span class="op">=</span><span class="st">"14:1"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">model</span>,<span class="va">class</span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="plot_proportion.html">plot_proportion</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>      <span class="va">comp</span>,</span></span>
+<span class="r-in"><span>      date_labels<span class="op">=</span><span class="st">"%b %y"</span>,</span></span>
+<span class="r-in"><span>      mapping<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour<span class="op">=</span><span class="va">model</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>      raw<span class="op">=</span><span class="va">data</span></span></span>
+<span class="r-in"><span>   <span class="op">)</span><span class="op">+</span></span></span>
+<span class="r-in"><span>   <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">class</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># TODO: deal with error conditions</span></span></span>
 <span class="r-in"><span><span class="co"># "observations with zero weight not used for calculating dispersion</span></span></span>

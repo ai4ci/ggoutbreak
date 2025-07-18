@@ -2,7 +2,7 @@
 % Please edit documentation in R/estimator-rt-epiestim.R
 \name{rt_epiestim}
 \alias{rt_epiestim}
-\title{\code{EpiEstim} reproduction number}
+\title{\code{EpiEstim} reproduction number wrapper function}
 \usage{
 rt_epiestim(
   df = i_incidence_input,
@@ -82,14 +82,15 @@ samples in the infectivity profile.
 This will calculate a reproduction number for each group in the input dataframe.
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
-  time_aggregate(count=sum(count))
+
+data = test_poisson_rt_smooth
+
+tmp2 = data \%>\%
+   ggoutbreak::rt_epiestim(test_ip)
 
 if (interactive()) {
-  # not run due to long running
-  tmp2 = tmp \%>\% rt_epiestim()
+  plot_rt(tmp2, date_labels="\%b \%y")+sim_geom_function(data,colour="red")
 }
-
 
 }
 \concept{models}

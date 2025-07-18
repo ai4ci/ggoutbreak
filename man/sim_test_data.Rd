@@ -27,6 +27,5 @@ and a relative growth rate that is the same as the growth rate.
 }
 \examples{
 sim_test_data() \%>\% dplyr::glimpse()
-
 }
 \concept{test}

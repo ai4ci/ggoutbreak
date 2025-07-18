@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-multinomial-ts.R
 \name{plot_multinomial}
 \alias{plot_multinomial}
-\title{Plot a multinomial proportions mode}
+\title{Plot a multinomial proportions model}
 \usage{
 plot_multinomial(
   modelled = i_multinomial_proportion_model,
@@ -118,8 +118,8 @@ bounds values with \code{NA}.
 }}
 }}
 
-\item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
-to something if there are multiple incidence timeseries in the plot}
+\item{mapping}{a \code{ggplot2::aes} mapping. Usually this will be left as the
+default}
 
 \item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
@@ -134,17 +134,19 @@ A default value is defined.
 }
 
 \item{normalise}{make sure the probabilities add up to one - this can be a
-bad idea if you know you may have missing values.}
+bad idea if you know you may have missing values, on the other hand not all
+proportions models are guaranteed to add up to one.}
 }
 \value{
 a ggplot
 }
 \description{
-Plot a multinomial proportions mode
+A multinomial proportions model will tell you what proportion each class has
+versus others in the data set. In this case the denominator is the total
+count across across all classes.
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
-  ggoutbreak::proportion_locfit_model(window=21) \%>\%
+tmp = ggoutbreak::england_covid_proportion_age_stratified \%>\%
   dplyr::glimpse()
 
 if(interactive()) {

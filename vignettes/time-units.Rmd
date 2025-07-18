@@ -1,6 +1,6 @@
 ---
 title: "Estimating the reproduction number from weekly data"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Estimating the reproduction number from weekly data}
   %\VignetteEngine{knitr::rmarkdown}
@@ -9,7 +9,18 @@ vignette: >
 
 # Background
 
-```{r setup}
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6,
+  fig.height = 4
+)
+
 library(patchwork)
 library(ggoutbreak)
 here::i_am("vignettes/time-units.Rmd")

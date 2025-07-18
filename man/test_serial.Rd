@@ -26,8 +26,10 @@ This serial interval is resampled from the first 1000 patients in the
 \code{test_bpm} dataset for whom both infector and infectee has symptoms. These
 patients are generated with a symptom delay of mean 6 days and SD 2 from
 infection (discrete under-dispersed gamma) and an infectivity profile with
-mean 5 days and SD 2 as defined in \code{test_ip} dataset. This serial interval
-if relevant to the estimation of $R_t$ from symptomatic case counts but
-includes negative times, and cannot be used with \code{EpiEstim}.
+mean 5 days and SD 2 as defined in \code{test_ip} dataset. This serial interval is
+relevant to the estimation of $R_t$ from symptomatic case counts in the
+\code{test_bpm} dataset but includes negative times, and cannot be used with
+\code{EpiEstim}.
 }
 \concept{datasets}
+\keyword{datasets}

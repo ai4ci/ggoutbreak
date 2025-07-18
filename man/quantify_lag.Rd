@@ -7,9 +7,11 @@
 quantify_lag(pipeline, ip = i_empirical_ip, lags = -10:30)
 }
 \arguments{
-\item{pipeline}{a function taking an input dataset and an infectivity profile as
-inputs and producing an estimate as output. This is the whole parametrised
-pipeline including any other inputs. This can be a \code{purrr} style function.}
+\item{pipeline}{a function taking an input dataset and an infectivity profile
+as inputs and producing an estimate as output. This is the whole
+parametrised pipeline including any other inputs. This can be a \code{purrr}
+style function, in which case the \code{.x} variable is the input dataset and
+\code{.y} is the infectivity profile.}
 
 \item{ip}{the infectivity profile. - a dataframe with columns:
 \itemize{
@@ -38,10 +40,16 @@ synthetic input and estimate is assessed by minimising the root mean square
 error of input and estimated based on different lag offsets.
 }
 \examples{
+# lags from a locfit incidence model with Rt estimation.
+# This model has no estimator lag:
 pipeline = ~ .x \%>\% poisson_locfit_model() \%>\% rt_from_incidence(ip = .y)
-lag_analysis = quantify_lag(pipeline)
+quantify_lag(pipeline, ip = test_ip)
 
-quantify_lag(~ rt_epiestim(.x,ip = .y))
+# lags from an epiestim Rt estimation
+# this model's lags depend on the infectivity profile.
+# In this case it is 8 days
+pipeline2 =  ~ .x \%>\% rt_epiestim(ip = .y)
+quantify_lag(pipeline2, ip=test_ip )
 
 }
 \concept{test}

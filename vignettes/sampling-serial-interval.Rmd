@@ -1,6 +1,6 @@
 ---
 title: "Sampling the infectivity profile from published serial interval estimates"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Sampling the infectivity profile from published serial interval estimates}
   %\VignetteEngine{knitr::rmarkdown}
@@ -22,7 +22,7 @@ reconstructed. There is the potential for bias to be introduced in this process
 which is investigated here.
 
 
-```{r setup}
+```{r setup, include=FALSE}
 library(patchwork)
 library(ggoutbreak)
 utils::data("MockRotavirus",package="EpiEstim")

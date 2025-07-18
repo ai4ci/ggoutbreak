@@ -15,7 +15,7 @@ error of input and estimated based on different lag offsets."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,8 @@ error of input and estimated based on different lag offsets."><meta property="og
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -70,9 +71,11 @@ error of input and estimated based on different lag offsets.</p>
 
 
 <dl><dt id="arg-pipeline">pipeline<a class="anchor" aria-label="anchor" href="#arg-pipeline"></a></dt>
-<dd><p>a function taking an input dataset and an infectivity profile as
-inputs and producing an estimate as output. This is the whole parametrised
-pipeline including any other inputs. This can be a <code>purrr</code> style function.</p></dd>
+<dd><p>a function taking an input dataset and an infectivity profile
+as inputs and producing an estimate as output. This is the whole
+parametrised pipeline including any other inputs. This can be a <code>purrr</code>
+style function, in which case the <code>.x</code> variable is the input dataset and
+<code>.y</code> is the infectivity profile.</p></dd>
 
 
 <dt id="arg-ip">ip<a class="anchor" aria-label="anchor" href="#arg-ip"></a></dt>
@@ -96,10 +99,23 @@ in days that the estimate is behind the actual observation</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">pipeline</span> <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">lag_analysis</span> <span class="op">=</span> <span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># lags from a locfit incidence model with Rt estimation.</span></span></span>
+<span class="r-in"><span><span class="co"># This model has no estimator lag:</span></span></span>
+<span class="r-in"><span><span class="va">pipeline</span> <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline</span>, ip <span class="op">=</span> <span class="va">test_ip</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 2</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   estimate [3]</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   estimate    lag</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">*</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;int&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> growth        0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> incidence     0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> rt            0</span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="op">~</span> <span class="fu"><a href="rt_epiestim.html">rt_epiestim</a></span><span class="op">(</span><span class="va">.x</span>,ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># lags from an epiestim Rt estimation</span></span></span>
+<span class="r-in"><span><span class="co"># this model's lags depend on the infectivity profile.</span></span></span>
+<span class="r-in"><span><span class="co"># In this case it is 8 days</span></span></span>
+<span class="r-in"><span><span class="va">pipeline2</span> <span class="op">=</span>  <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_epiestim.html">rt_epiestim</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline2</span>, ip<span class="op">=</span><span class="va">test_ip</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   estimate [1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate   lag</span>

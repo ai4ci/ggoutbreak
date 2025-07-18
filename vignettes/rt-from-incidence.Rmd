@@ -1,6 +1,6 @@
 ---
 title: "Estimating the reproduction number from modelled incidence"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Estimating the reproduction number from modelled incidence}
   %\VignetteEngine{knitr::rmarkdown}
@@ -16,9 +16,11 @@ Robert Challen ^1,2^; Leon Danon ^1,2^;
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  echo = FALSE,
+  echo = TRUE,
   warning = FALSE,
-  message = FALSE
+  message = FALSE,
+  fig.width = 6,
+  fig.height = 4
 )
 
 library(patchwork)
@@ -221,6 +223,21 @@ $$
 \end{align}
 $$
 
+Numerical solutions to this are moderately expensive to perform. A reasonable 
+approximation can be expected by matching moments of a log normal distribution
+to the mean $E[R_t^*]$ and variance $V[R_t^*]$ of the mixture. This gives us 
+a final very lightweight closed form estimator for the reproduction number given
+a set of infectivity profiles, $\overline{R_{t,\Omega}}$, as:
+
+$$
+\begin{align}
+\mu_{t|\Omega} &= log\bigg(\frac{E[R_t^*]^2}{\sqrt{E[R_t^*]^2 + V[R_t^*]}}\bigg)
+        \\
+\sigma_{t|\Omega} &= \sqrt{log\bigg(1 + \frac{V[R_t^*]}{E[R_t^*]^2}\bigg)}\\
+\overline{R_{t|\Omega}} &\sim Lognormal(\mu_{t|\Omega},\sigma_{t|\Omega})
+\end{align}
+$$
+
 # Implementation
 
 This method is implemented using the following R function, which is designed
@@ -243,7 +260,7 @@ $R_t$ estimates in fine grained geographical or demographic subgroups.
 ```{r}
 
 system.time({
-  rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_ip)
+  rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_ip, approx = TRUE)
 })
 
 plot_rt(rt_fit, events = england_events, colour="blue")+

@@ -1,15 +1,13 @@
 # LOCFIT polynomial models ----
 
 .nn_from_window = function(window, d) {
-  nn = 2*window/nrow(d)
-  if (nn < 8/nrow(d)) {
-    nn = 8/nrow(d)
-    warning("window is too small for data. using: ", nn/2*nrow(d))
+  nn = 2 * window / nrow(d)
+  if (nn < 8 / nrow(d)) {
+    nn = 8 / nrow(d)
+    warning("window is too small for data. using: ", nn / 2 * nrow(d))
   }
   return(nn)
 }
-
-
 
 
 #' A binomial proportion estimate and associated exponential growth rate
@@ -25,11 +23,11 @@
 #' relative growth rate estimate specifying how much quicker this is growing
 #' compared to the growth of the denominator.
 #'
-#' The denominator maybe the sum of all subgroups `denom = sum(count)`, e.g. in the situation where
-#' there are multiple variants of a disease circulating. In which case the
-#' relative growth is that of the subgroup compared to the overall. You can
-#' make this a one-versus-others comparison by making the denominator exclude the
-#' current item (e.g. `denom = sum(count)-count`).
+#' The denominator maybe the sum of all subgroups `denom = sum(count)`, e.g. in
+#' the situation where there are multiple variants of a disease circulating. In
+#' which case the relative growth is that of the subgroup compared to the
+#' overall. You can make this a one-versus-others comparison by making the
+#' denominator exclude the current item (e.g. `denom = sum(count)-count`).
 #'
 #' The denominator can also be used to express the size of the population tested.
 #' This gives us a relative growth rate that is different in essence to the previous
@@ -45,75 +43,164 @@
 #' @concept models
 #'
 #' @examples
-#' ggoutbreak::england_covid_proportion %>%
-#'   time_aggregate() %>%
-#'   proportion_locfit_model(window=5, degree=2) %>%
-#'   dplyr::glimpse()
-proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE, .progress = interactive()) {
-
+#'
+#' data = test_poisson_rt_2class
+#'
+#' tmp2 = data %>% ggoutbreak::proportion_locfit_model(window=7,deg=2)
+#' tmp3 = data %>% ggoutbreak::proportion_locfit_model(window=14,deg=1)
+#'
+#' comp = dplyr::bind_rows(
+#'   tmp2 %>% dplyr::mutate(model="7:2"),
+#'   tmp3 %>% dplyr::mutate(model="14:1"),
+#' ) %>% dplyr::group_by(model,class)
+#'
+#' if (interactive()) {
+#'   plot_proportion(
+#'     comp,
+#'     date_labels="%b %y",
+#'     mapping=ggplot2::aes(colour=model),
+#'     raw=data
+#'   )+ggplot2::facet_wrap(~class)
+#' }
+#'
+proportion_locfit_model = function(
+  d = i_proportion_input,
+  ...,
+  window = 14,
+  deg = 1,
+  frequency = "1 day",
+  predict = TRUE,
+  .progress = interactive()
+) {
   env = rlang::current_env()
-  if (.progress) cli::cli_progress_bar("proportion & growth rate (locfit)", total = dplyr::n_groups(d), .envir = env)
+  if (.progress) {
+    cli::cli_progress_bar(
+      "proportion & growth rate (locfit)",
+      total = dplyr::n_groups(d),
+      .envir = env
+    )
+  }
 
-  modelled = interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
+  modelled = interfacer::igroup_process(
+    d,
+    function(d, ..., window, deg, frequency, predict) {
+      output_times = date_seq.time_period(d$time, period = frequency)
+      nn = .nn_from_window(window, d)
 
-    output_times = date_seq.time_period(d$time, period = frequency)
-    nn = .nn_from_window(window, d)
+      # Not enough non zero results
+      if (sum(stats::na.omit(d$count) != 0) < deg) {
+        # tmp = binom::binom.wilson(sum(d$count,na.rm = TRUE),sum(d$denom,na.rm = TRUE))
+        # return(.null_result(output_times, proportion=c(tmp$lower,tmp$mean,tmp$upper), relative.growth=c(NA,0,NA)))
+        # rolling binomial
+        return(.null_result(
+          output_times,
+          proportion = c(0, 0, 0),
+          relative.growth = c(NA, 0, NA)
+        ))
+      }
 
-    # Not enough non zero results
-    if(sum(stats::na.omit(d$count) != 0) < deg) {
-      # tmp = binom::binom.wilson(sum(d$count,na.rm = TRUE),sum(d$denom,na.rm = TRUE))
-      # return(.null_result(output_times, proportion=c(tmp$lower,tmp$mean,tmp$upper), relative.growth=c(NA,0,NA)))
-      # rolling binomial
-      return(.null_result(output_times, proportion=c(0,0,0), relative.growth=c(NA,0,NA)))
-    }
+      # Not enough non one results
+      #TODO: calculate CIs based on binomial.
+      if (sum(stats::na.omit(d$count != d$denom)) < deg) {
+        return(.null_result(
+          output_times,
+          proportion = c(1, 1, 1),
+          relative.growth = c(NA, 0, NA)
+        ))
+      }
 
-    # Not enough non one results
-    #TODO: calculate CIs based on binomial.
-    if(sum(stats::na.omit(d$count != d$denom)) < deg) {
-      return(.null_result(output_times, proportion=c(1,1,1), relative.growth=c(NA,0,NA)))
-    }
+      # y = cbind(d$count, d$denom - d$count)
+      # fit = suppressWarnings(locfit::locfit(y~locfit::lp(time,nn=nn,deg=deg),data = d,family="qbinomial", link="logit", maxit = 5000, maxk=5000))
+      # deriv = suppressWarnings(locfit::locfit(y~locfit::lp(time,nn=nn,deg=deg),deriv=1,data = d,family="qbinomial", link="logit", maxit = 5000, maxk=5000))
 
-    # y = cbind(d$count, d$denom - d$count)
-    # fit = suppressWarnings(locfit::locfit(y~locfit::lp(time,nn=nn,deg=deg),data = d,family="qbinomial", link="logit", maxit = 5000, maxk=5000))
-    # deriv = suppressWarnings(locfit::locfit(y~locfit::lp(time,nn=nn,deg=deg),deriv=1,data = d,family="qbinomial", link="logit", maxit = 5000, maxk=5000))
+      fit = withCallingHandlers(
+        {
+          locfit::locfit(
+            count ~ locfit::lp(time, nn = nn, deg = deg),
+            weights = denom,
+            data = d,
+            family = "qbinomial",
+            link = "logit",
+            maxit = 5000,
+            maxk = 5000
+          )
+        },
+        warning = .rewrite_lfproc
+      )
 
-    fit = withCallingHandlers({
-      locfit::locfit(count~locfit::lp(time,nn=nn,deg=deg), weights = denom, data = d,family="qbinomial", link="logit", maxit = 5000, maxk=5000)
-    }, warning = .rewrite_lfproc)
+      deriv = withCallingHandlers(
+        {
+          locfit::locfit(
+            count ~ locfit::lp(time, nn = nn, deg = deg),
+            weights = denom,
+            deriv = 1,
+            data = d,
+            family = "qbinomial",
+            link = "logit",
+            maxit = 5000,
+            maxk = 5000
+          )
+        },
+        warning = .rewrite_lfproc
+      )
 
-    deriv = withCallingHandlers({
-      locfit::locfit(count~locfit::lp(time,nn=nn,deg=deg), weights = denom, deriv=1,data = d,family="qbinomial", link="logit", maxit = 5000, maxk=5000)
-    }, warning = .rewrite_lfproc)
+      if (!predict) {
+        return(tibble::tibble(
+          proportion = list(fit),
+          relative.growth = list(deriv)
+        ))
+      }
 
-    if (!predict) return(tibble::tibble(proportion = list(fit), relative.growth = list(deriv)))
+      # proportion
+      tmp = stats::preplot(
+        fit,
+        newdata = output_times,
+        se.fit = TRUE,
+        band = "global"
+      )
+      # logit transformer function:
+      t = tmp$tr
 
-    # proportion
-    tmp = stats::preplot(fit,newdata=output_times, se.fit = TRUE, band="global")
-    # logit transformer function:
-    t = tmp$tr
+      # growth rate
+      tmp2 = stats::preplot(
+        deriv,
+        newdata = output_times,
+        se.fit = TRUE,
+        band = "global"
+      )
+      t2 = function(x) x
 
-    # growth rate
-    tmp2 = stats::preplot(deriv,newdata=output_times, se.fit = TRUE, band="global")
-    t2 = function(x) x
-
-    new_data = tibble::tibble(
-      time = output_times
+      new_data = tibble::tibble(
+        time = output_times
       ) %>%
-      .result_from_fit(type = "proportion", tmp$fit, tmp$se.fit, t) %>%
-      .keep_cdf(type = "proportion", mean=tmp$fit, sd=tmp$se.fit, trans_fn = .logit) %>%
-      .result_from_fit(type = "relative.growth", tmp2$fit, tmp2$se.fit, t2) %>%
-      .keep_cdf(type = "relative.growth", mean=tmp2$fit, sd=tmp2$se.fit)
+        .result_from_fit(type = "proportion", tmp$fit, tmp$se.fit, t) %>%
+        .keep_cdf(
+          type = "proportion",
+          mean = tmp$fit,
+          sd = tmp$se.fit,
+          link = "logit"
+        ) %>%
+        .result_from_fit(
+          type = "relative.growth",
+          tmp2$fit,
+          tmp2$se.fit,
+          t2
+        ) %>%
+        .keep_cdf(type = "relative.growth", mean = tmp2$fit, sd = tmp2$se.fit)
 
-    if (.progress) cli::cli_progress_update(.envir = env)
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
 
-    return(new_data)
+      return(new_data)
+    }
+  )
 
-  })
-
-  if (.progress) cli::cli_progress_done()
+  if (.progress) {
+    cli::cli_progress_done()
+  }
 
   return(modelled)
-
 }
 
 
@@ -149,89 +236,162 @@ proportion_locfit_model = function(d = i_proportion_input, ..., window = 14, deg
 #' @concept models
 #'
 #' @examples
+#' data = test_poisson_growth_rate
 #'
-#' withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#'   ggoutbreak::england_covid %>%
-#'     ggoutbreak::poisson_locfit_model(window=21) %>%
-#'     dplyr::glimpse()
-#' })
+#' tmp2 = data %>% ggoutbreak::poisson_locfit_model(window=7,deg=2)
+#' tmp3 = data %>% ggoutbreak::poisson_locfit_model(window=14,deg=1)
 #'
-poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1, frequency = "1 day", predict = TRUE, .progress = interactive()) {
-
+#' comp = dplyr::bind_rows(
+#'   tmp2 %>% dplyr::mutate(class="7:2"),
+#'   tmp3 %>% dplyr::mutate(class="14:1"),
+#' ) %>% dplyr::group_by(class)
+#'
+#' if (interactive()) {
+#'   plot_incidence(
+#'     comp,
+#'     date_labels="%b %y",
+#'     raw=data
+#'   )+
+#'   ggplot2::geom_line(
+#'     data=data,
+#'     mapping=ggplot2::aes(x=as.Date(time),y=rate),
+#'     colour="grey40"
+#'   )
+#'
+#'   plot_growth_rate(
+#'     comp,
+#'     date_labels="%b %y"
+#'   )+
+#'   sim_geom_function(data,colour="black")
+#' }
+#'
+poisson_locfit_model = function(
+  d = i_incidence_input,
+  ...,
+  window = 14,
+  deg = 1,
+  frequency = "1 day",
+  predict = TRUE,
+  .progress = interactive()
+) {
   env = rlang::current_env()
-  if (.progress) cli::cli_progress_bar("incidence & growth rate (locfit)", total = dplyr::n_groups(d), .envir = env)
+  if (.progress) {
+    cli::cli_progress_bar(
+      "incidence & growth rate (locfit)",
+      total = dplyr::n_groups(d),
+      .envir = env
+    )
+  }
 
-  modelled = interfacer::igroup_process(d, function(d, ..., window, deg, frequency, predict) {
+  modelled = interfacer::igroup_process(
+    d,
+    function(d, ..., window, deg, frequency, predict) {
+      # d = interfacer::ivalidate(d, .prune = TRUE, ...)
 
-    # d = interfacer::ivalidate(d, .prune = TRUE, ...)
+      nn = .nn_from_window(window, d)
+      output_times = date_seq.time_period(d$time, period = frequency)
 
-    nn = .nn_from_window(window, d)
-    output_times = date_seq.time_period(d$time, period = frequency)
+      # Not enough non zero results
+      if (sum(stats::na.omit(d$count) != 0) < deg) {
+        return(.null_result(
+          output_times,
+          incidence = c(0, 0, 0),
+          growth = c(NA, 0, NA)
+        ))
+      }
 
-    # Not enough non zero results
-    if(sum(stats::na.omit(d$count) != 0) < deg) {
-      return(.null_result(output_times, incidence=c(0,0,0), growth=c(NA,0,NA)))
+      fit = withCallingHandlers(
+        {
+          locfit::locfit(
+            count ~ locfit::lp(time, nn = nn, deg = deg),
+            data = d,
+            family = "qpoisson",
+            link = "log"
+          )
+        },
+        warning = .rewrite_lfproc
+      )
+
+      deriv = withCallingHandlers(
+        {
+          locfit::locfit(
+            count ~ locfit::lp(time, nn = nn, deg = deg),
+            deriv = 1,
+            data = d,
+            family = "qpoisson",
+            link = "log"
+          )
+        },
+        warning = .rewrite_lfproc
+      )
+
+      if (!predict) {
+        return(tibble::tibble(incidence = list(fit), growth = list(deriv)))
+      }
+
+      tmp = stats::preplot(
+        fit,
+        newdata = output_times,
+        se.fit = TRUE,
+        band = "local",
+        maxit = 5000,
+        maxk = 5000
+      )
+      # transformer function:
+      t = tmp$tr
+
+      tmp2 = stats::preplot(
+        deriv,
+        newdata = output_times,
+        se.fit = TRUE,
+        band = "local",
+        maxit = 5000,
+        maxk = 5000
+      )
+      t2 = function(x) x
+
+      new_data = tibble::tibble(
+        time = output_times
+      ) %>%
+        .result_from_fit(type = "incidence", tmp$fit, tmp$se.fit, t) %>%
+        .keep_cdf(
+          type = "incidence",
+          meanlog = tmp$fit,
+          sdlog = tmp$se.fit,
+          link = "log"
+        ) %>%
+        .result_from_fit(type = "growth", tmp2$fit, tmp2$se.fit, t2) %>%
+        .keep_cdf(type = "growth", mean = tmp2$fit, sd = tmp2$se.fit) %>%
+        .tidy_fit("incidence", incidence.se.fit > 4) %>%
+        .tidy_fit("growth", growth.se.fit > 0.25)
+
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
+
+      return(new_data)
     }
+  )
 
-    fit = withCallingHandlers({
-      locfit::locfit(count~locfit::lp(time,nn=nn,deg=deg),data = d,family="qpoisson", link="log")
-    }, warning = .rewrite_lfproc)
-
-    deriv = withCallingHandlers({
-      locfit::locfit(count~locfit::lp(time,nn=nn,deg=deg),deriv=1,data = d,family="qpoisson", link="log")
-    }, warning = .rewrite_lfproc)
-
-    if (!predict) return(tibble::tibble(incidence = list(fit), growth = list(deriv)))
-
-    tmp = stats::preplot(fit,newdata=output_times, se.fit = TRUE, band="local", maxit = 5000, maxk=5000)
-    # transformer function:
-    t = tmp$tr
-
-    tmp2 = stats::preplot(deriv, newdata=output_times, se.fit = TRUE, band="local", maxit = 5000, maxk=5000)
-    t2 = function(x) x
-
-    new_data = tibble::tibble(
-      time = output_times
-    ) %>%
-      .result_from_fit(type = "incidence", tmp$fit, tmp$se.fit, t) %>%
-      .keep_cdf(type = "incidence", meanlog=tmp$fit, sdlog=tmp$se.fit) %>%
-      .result_from_fit(type = "growth", tmp2$fit, tmp2$se.fit, t2) %>%
-      .keep_cdf(type = "growth", mean=tmp2$fit, sd=tmp2$se.fit) %>%
-      .tidy_fit("incidence", incidence.se.fit > 4) %>%
-      .tidy_fit("growth", growth.se.fit > 0.25)
-
-    if (.progress) cli::cli_progress_update(.envir = env)
-
-    return(new_data)
-
-  })
-
-  if (.progress) cli::cli_progress_done()
+  if (.progress) {
+    cli::cli_progress_done()
+  }
 
   return(modelled %>% .normalise_from_raw(d))
-
 }
-
-# TODO: integrate normalise_incidence into this in a scaleable way, so that if
-# the count data has been normalised by population then the result data is too:
-# if (interfacer::is_col_present(d,population,population_unit,time_unit)) {
-#   population_unit = unique(d$population_unit)
-#   time_unit = d$time_unit[[1]]
-#   # could extract a pop dataframe with time and population from d.
-#   # potentially could do this outside of group_modify.
-#   unit = .get_meta(modelled$time)$unit
-
-# }
-
 
 # Catch locfit warnings and display a more relevant warning
 
 .rewrite_lfproc = function(w) {
-  if (stringr::str_ends(w$message,"parameters out of bounds")) {
-    .message_once("not enough info to fit locfit model - try decreasing `deg` or increasing `window`.")
+  if (stringr::str_ends(w$message, "parameters out of bounds")) {
+    .message_once(
+      "not enough info to fit locfit model - try decreasing `deg` or increasing `window`."
+    )
     rlang::cnd_muffle(w)
-  } else if (stringr::str_ends(w$message,"perfect fit")) {
-    .message_once("an exact fit was detected, this may mean a denominator error has been made, or synthetic data is being used.")
+  } else if (stringr::str_ends(w$message, "perfect fit")) {
+    .message_once(
+      "an exact fit was detected, this may mean a denominator error has been made, or synthetic data is being used."
+    )
     rlang::cnd_muffle(w)
   }
 }
@@ -241,8 +401,9 @@ poisson_locfit_model = function(d = i_incidence_input, ..., window = 14, deg = 1
 # rule - the trigger to change the columns
 .tidy_fit = function(df, value, rule) {
   rule = dplyr::enexpr(rule)
-  df %>% dplyr::mutate(dplyr::across(dplyr::starts_with(value), ~ ifelse(!!rule, NA_real_,.x)))
+  df %>%
+    dplyr::mutate(dplyr::across(
+      dplyr::starts_with(value),
+      ~ ifelse(!!rule, NA_real_, .x)
+    ))
 }
-
-
-

@@ -25,6 +25,7 @@ data(test_bpm)
 \description{
 This is generated using the \code{test_ip} infectivity profile and
 also includes a delay to symptom onset which is a random gamma distributed
-quantity with mean of 6 and sd of 2
+quantity with mean of 6 and standard deviation of 2
 }
+\concept{datasets}
 \keyword{datasets}

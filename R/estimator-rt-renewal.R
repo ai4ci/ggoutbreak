@@ -1,8 +1,9 @@
-
-.finite =function(f) {
+.finite = function(f) {
   return(function(x, ...) {
-    if (is.null(x) || !all(is.finite(x))) return(NA)
-    suppressWarnings(f(x,...))
+    if (is.null(x) || !all(is.finite(x))) {
+      return(NA)
+    }
+    suppressWarnings(f(x, ...))
   })
 }
 
@@ -11,8 +12,12 @@
 #'
 #' Calculate a reproduction number estimate from modelled incidence estimates,
 #' by statistical sampling from a log-normally distributed incidence estimate,
-#' combined with uncertain infectivity profile specified as multiple
-#' discrete empirical distributions.
+#' such as you get from a `I_t ~ Poisson(I_0 e^{rt})`  model using a log link
+#' function. This is combined with uncertain infectivity profile specified as
+#' multiple discrete empirical distributions, to calculate the range of possible
+#' values for $R_t$.
+#'
+#' This method is moderately slow and non deterministic by default.
 #'
 #' @iparam df modelled incidence estimate
 #' @iparam ip infectivity profile
@@ -26,20 +31,24 @@
 #' @export
 #' @concept models
 #' @examples
-#' df = ggoutbreak::england_covid %>%
-#'   time_aggregate(count=sum(count)) %>%
-#'     poisson_locfit_model()
+#' data = test_poisson_rt_smooth
+#'
+#' tmp2 = data %>%
+#'    ggoutbreak::poisson_locfit_model() %>%
+#'    ggoutbreak::rt_from_renewal(test_ip)
 #'
 #' if (interactive()) {
-#'   # not run
-#'   withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#'    tmp2 = df %>%
-#'       rt_from_renewal(ganyani_ip)
-#'   })
-#'
+#'   plot_rt(tmp2, date_labels="%b %y")+sim_geom_function(data,colour="red")
 #' }
 #'
-rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstraps = 1000, seed = Sys.time(), .progress = interactive()) { #, assume_start = TRUE) {
+rt_from_renewal = function(
+  df = i_incidence_model,
+  ip = i_discrete_ip,
+  bootstraps = 1000,
+  seed = Sys.time(),
+  .progress = interactive()
+) {
+  #, assume_start = TRUE) {
 
   ip = interfacer::ivalidate(ip)
 
@@ -52,8 +61,8 @@ rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstrap
 
   window = nrow(omega)
   # at a minimum we sample 10 times per infectivity profile.
-  reps = min(ceiling(bootstraps/ncol(omega)),10)
-  boots = reps*ncol(omega)
+  reps = min(ceiling(bootstraps / ncol(omega)), 10)
+  boots = reps * ncol(omega)
 
   # This reverses order so that the convolution can happen correctly without
   # reordering the timeseries.
@@ -61,62 +70,93 @@ rt_from_renewal = function(df = i_incidence_model, ip = i_discrete_ip, bootstrap
   #TODO: nest into igroup_rprocess ^^^
 
   env = rlang::current_env()
-  if (.progress) cli::cli_progress_bar("Rt (renewal)", total = dplyr::n_groups(df), .envir = env)
+  if (.progress) {
+    cli::cli_progress_bar(
+      "Rt (renewal)",
+      total = dplyr::n_groups(df),
+      .envir = env
+    )
+  }
 
-  modelled = interfacer::igroup_process(df, function(df, logomega, window,...) {
+  modelled = interfacer::igroup_process(
+    df,
+    function(df, logomega, window, ...) {
+      .stop_if_not_daily(df$time)
+      pad = .ln_pad(
+        window,
+        df$incidence.fit[1],
+        df$incidence.se.fit[1],
+        spread = 1.1
+      )
 
-    .stop_if_not_daily(df$time)
-    pad = .ln_pad(window, df$incidence.fit[1], df$incidence.se.fit[1], spread = 1.1 )
+      tmp = withr::with_seed(seed, {
+        dplyr::bind_rows(
+          tibble::tibble(
+            time = min(df$time) - window:1,
+            incidence.fit = pad$mu,
+            incidence.se.fit = pad$sigma,
+            imputed = TRUE
+          ),
+          df %>% dplyr::mutate(imputed = FALSE)
+        ) %>%
+          dplyr::mutate(
+            incidence.logsamples = purrr::map2(
+              incidence.fit,
+              incidence.se.fit,
+              ~ stats::rnorm(boots, .x, .y)
+            )
+          )
+      })
 
-    tmp = withr::with_seed(seed, {
-      dplyr::bind_rows(
-        tibble::tibble(
-          time = min(df$time) - window:1,
-          incidence.fit = pad$mu,
-          incidence.se.fit = pad$sigma,
-          imputed = TRUE
-        ),
-        df %>% dplyr::mutate(imputed=FALSE)
-      ) %>%
-        dplyr::mutate(incidence.logsamples = purrr::map2(incidence.fit, incidence.se.fit, ~ stats::rnorm(boots,.x,.y)))
-    })
+      end = nrow(tmp) + min(c(start, 0))
 
-    end = nrow(tmp)+min(c(start,0))
-
-    tmp$rt.samples = vector("list", nrow(tmp))
-    for (i in seq_along(tmp$rt.samples)) {
-      if (i>=window+start && i<=end) {
-        # incidence window is 13x1000. start is typically 1, zero or potentially negative.
-        window_subset = tmp$incidence.logsamples[(i-window-start+1):(i-start)]
-        samples_window = matrix(unlist(window_subset),nrow = window,byrow = TRUE)
-        samples_window_ip = samples_window + as.vector(logomega)
-        samples_force = apply(samples_window_ip,2,.logsumexp)
-        tmp$rt.samples[[i]] = exp(tmp$incidence.logsamples[[i]] - as.vector(samples_force))
+      tmp$rt.samples = vector("list", nrow(tmp))
+      for (i in seq_along(tmp$rt.samples)) {
+        if (i >= window + start && i <= end) {
+          # incidence window is 13x1000. start is typically 1, zero or potentially negative.
+          window_subset = tmp$incidence.logsamples[
+            (i - window - start + 1):(i - start)
+          ]
+          samples_window = matrix(
+            unlist(window_subset),
+            nrow = window,
+            byrow = TRUE
+          )
+          samples_window_ip = samples_window + as.vector(logomega)
+          samples_force = apply(samples_window_ip, 2, .logsumexp)
+          tmp$rt.samples[[i]] = exp(
+            tmp$incidence.logsamples[[i]] - as.vector(samples_force)
+          )
+        }
       }
+
+      new_data = tmp %>%
+        dplyr::filter(!imputed) %>%
+        dplyr::mutate(
+          rt.fit = purrr::map_dbl(rt.samples, .finite(mean)),
+          rt.se.fit = purrr::map_dbl(rt.samples, .finite(stats::sd))
+        ) %>%
+        .result_from_fit(
+          "rt",
+          # This format is needed because quantile is not vectorised on data:
+          qfn = \(p) {
+            purrr::map_dbl(.$rt.samples, \(data) stats::quantile(data, p))
+          }
+        ) %>%
+        .keep_cdf(type = "rt", .$rt.samples, link = "log") %>%
+        dplyr::select(-rt.samples, -incidence.logsamples, -imputed)
+
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
+
+      return(new_data)
     }
+  )
 
-    new_data = tmp %>%
-      dplyr::filter(!imputed) %>%
-      dplyr::mutate(
-        rt.fit = purrr::map_dbl(rt.samples, .finite(mean)),
-        rt.se.fit = purrr::map_dbl(rt.samples, .finite(stats::sd))
-      ) %>%
-      .result_from_fit(
-        "rt",
-        # This format is needed because quantile is not vectorised on data:
-        qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) stats::quantile(data, p))
-      )  %>%
-      .keep_cdf(type = "rt", .$rt.samples) %>%
-      dplyr::select(-rt.samples, -incidence.logsamples, -imputed)
-
-    if (.progress) cli::cli_progress_update(.envir = env)
-
-    return(new_data)
-
-  })
-
-  if (.progress) cli::cli_progress_done()
+  if (.progress) {
+    cli::cli_progress_done()
+  }
 
   return(modelled)
-
 }

@@ -69,14 +69,11 @@ and the result is evaluated as a fraction of population. The result is
 fitted to a logit-normal (using moments) and quantiles produced from samples.
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
-  dplyr::filter(date < "2021-01-01") \%>\%
-  time_aggregate(count=sum(count)) \%>\%
-  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+tmp = ggoutbreak::test_poisson_rt_smooth \%>\%
+  ggoutbreak::poisson_locfit_model(window=14) \%>\%
   ggoutbreak::infer_prevalence(
-     pop = 56489700,
-     # N.B. timing is difficult in this example, as we are using cases.
-     ip = ggoutbreak::covid_test_sensitivity
+     pop = 10000,
+     ip = ggoutbreak::test_ip
   )
 
 if(interactive()) {

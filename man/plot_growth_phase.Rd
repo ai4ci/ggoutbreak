@@ -9,8 +9,12 @@ plot_growth_phase(
   timepoints = NULL,
   duration = max(dplyr::count(modelled)$n),
   interval = 7,
-  mapping = if (interfacer::is_col_present(modelled, class)) ggplot2::aes(colour = class)
-    else ggplot2::aes(),
+  mapping = if (interfacer::is_col_present(modelled, class)) {
+     ggplot2::aes(colour =
+    class)
+ } else {
+     ggplot2::aes()
+ },
   cis = TRUE,
   ...
 )
@@ -273,19 +277,10 @@ Plot an incidence or proportion versus growth phase diagram
 }
 \examples{
 
-tmp = ggoutbreak::england_covid \%>\%
-  time_aggregate(count=sum(count))
+data = ggoutbreak::test_poisson_rt_2class
+tmp2 = data \%>\% poisson_locfit_model()
 
-tmp_pop = ggoutbreak::england_demographics \%>\%
-  dplyr::ungroup() \%>\%
-  dplyr::summarise(population = sum(population))
-
-# If the incidence is normalised by population
-tmp2 = tmp \%>\%
-  poisson_locfit_model() \%>\%
-  normalise_incidence(tmp_pop)
-
-timepoints = as.Date(c("Lockdown 1" = "2020-03-30", "Lockdown 2" = "2020-12-31"))
+timepoints = as.Date(tmp2$time[c(40,80,120,160)])
 
 if(interactive()) {
   plot_growth_phase(tmp2, timepoints, duration=108)

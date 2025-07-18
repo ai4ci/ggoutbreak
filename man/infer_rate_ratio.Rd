@@ -2,7 +2,7 @@
 % Please edit documentation in R/normalise-proportion.R
 \name{infer_rate_ratio}
 \alias{infer_rate_ratio}
-\title{Calculate a risk ratio from incidence (experimental)}
+\title{Calculate a risk ratio from incidence}
 \usage{
 infer_rate_ratio(
   modelled = i_incidence_model,
@@ -50,6 +50,8 @@ A dataframe containing the following columns:
 Any grouping allowed.
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 This enables incidence rates are able to be compared to a baseline figure for
 incidence. The baseline could come for example from a population average or
 average incidence over time. The output is an incidence rate ratio. The
@@ -59,17 +61,13 @@ checked.
 }
 \examples{
 
-baseline = ggoutbreak::england_covid \%>\%
-  ggoutbreak::time_aggregate() \%>\%
-  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+baseline = ggoutbreak::england_covid_poisson \%>\%
   dplyr::mutate(baseline_incidence = incidence.0.5)
 
 
-tmp = ggoutbreak::england_covid \%>\%
-  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+tmp = ggoutbreak::england_covid_poisson_age_stratified \%>\%
   ggoutbreak::infer_rate_ratio(baseline) \%>\%
   dplyr::glimpse()
-
 
 
 }

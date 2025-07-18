@@ -15,7 +15,7 @@ day after the infector was infected (given that the infectee was infected)."><me
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,8 @@ day after the infector was infected (given that the infectee was infected)."><me
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -82,18 +83,18 @@ day after the infector was infected (given that the infectee was infected).</p>
 
 
 <dl><dt id="arg-median-of-mean-lower-ci-of-mean-upper-ci-of-mean">median_of_mean, lower_ci_of_mean, upper_ci_of_mean<a class="anchor" aria-label="anchor" href="#arg-median-of-mean-lower-ci-of-mean-upper-ci-of-mean"></a></dt>
-<dd><p>Parameters of the
+<dd><p>Quantiles of the
 infectivity profile mean.</p></dd>
 
 
 <dt id="arg-median-of-sd-lower-ci-of-sd-upper-ci-of-sd">median_of_sd, lower_ci_of_sd, upper_ci_of_sd<a class="anchor" aria-label="anchor" href="#arg-median-of-sd-lower-ci-of-sd-upper-ci-of-sd"></a></dt>
-<dd><p>Parameters of the
+<dd><p>Quantiles of the
 infectivity profile SD.</p></dd>
 
 
 <dt id="arg-correlation">correlation<a class="anchor" aria-label="anchor" href="#arg-correlation"></a></dt>
 <dd><p>the correlation between mean and sd. this is optional
-and will be inferred if not changed form the default <code>NA</code> value.</p></dd>
+and will be inferred if not provided.</p></dd>
 
 
 <dt id="arg-n-boots">n_boots<a class="anchor" aria-label="anchor" href="#arg-n-boots"></a></dt>
@@ -103,7 +104,8 @@ and will be inferred if not changed form the default <code>NA</code> value.</p><
 <dt id="arg-epiestim-compat">epiestim_compat<a class="anchor" aria-label="anchor" href="#arg-epiestim-compat"></a></dt>
 <dd><p>Use <code>EpiEstim</code> to generate the infectivity profiles.
 A true value here results in an infectivity profile with probability of 0
-for day 0.</p></dd>
+for day 0. If false the infectivity profile may include density at zero or
+even negative values.</p></dd>
 
 
 <dt id="arg-epiestim-sampler">epiestim_sampler<a class="anchor" aria-label="anchor" href="#arg-epiestim-sampler"></a></dt>
@@ -165,7 +167,7 @@ can handle zero/negative serial intervals (e.g. <code>rt_from_incidence</code> o
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean             sd              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 5.09 [4.01-6.51] 1.85 [0.95-3.83]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 5.13 [4.01-6.51] 1.86 [0.95-3.83]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="plot_ip.html">plot_ip</a></span><span class="op">(</span><span class="va">tmp</span>, alpha<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span></span>

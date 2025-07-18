@@ -13,8 +13,8 @@ normalise_incidence(
 )
 }
 \arguments{
-\item{modelled}{Model output from processing the \code{raw} dataframe with something like
-\code{poission_locfit_model} - a dataframe with columns:
+\item{modelled}{Model output from processing the \code{raw} dataframe with
+something like \code{poission_locfit_model} - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item incidence.fit (double) - an estimate of the incidence rate on a log scale
@@ -37,12 +37,13 @@ Any grouping allowed.
 
 \item{...}{not used}
 
-\item{population_unit}{what population unit do you want the incidence in e.g. per 100K}
+\item{population_unit}{what population unit do you want the incidence in e.g.
+per 100K}
 
 \item{normalise_time}{The default behaviour for incidence is to keep it in
-the same time units as the input data. If this parameter is set to \code{TRUE} the
-incidence rates are calculated per year. If given as a lubridate period string
-e.g. "1 day" then the incidence is calculated over that time period.}
+the same time units as the input data. If this parameter is set to \code{TRUE}
+the incidence rates are calculated per year. If given as a lubridate period
+string e.g. "1 day" then the incidence is calculated over that time period.}
 }
 \value{
 a dataframe with incidence rates per unit capita.
@@ -61,13 +62,14 @@ A dataframe containing the following columns:
 Any grouping allowed.
 }
 \description{
-This assumes positive disease counts are stratified by a population grouping, e.g.
-geography or age, and we have estimates of the size of that population during
-that time period. Normalising by population size allows us to compare groups.
+This assumes positive disease counts are stratified by a population grouping,
+e.g. geography or age, and we have estimates of the size of that population
+during that time period. Normalising by population size allows us to compare
+groups.
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
-  ggoutbreak::poisson_locfit_model(window=21) \%>\%
+
+ggoutbreak::england_covid_poisson_age_stratified \%>\%
   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) \%>\%
   dplyr::glimpse()
 

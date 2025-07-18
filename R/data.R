@@ -33,7 +33,6 @@ NULL
 
 ## germany_covid definition ends
 
-
 ## england_covid definition ----
 
 #' Daily COVID-19 case counts by age group in England
@@ -45,9 +44,10 @@ NULL
 #' group-wise incidence and absolute growth rates and group wise proportions and
 #' relative growth rates by age group.
 #'
-#' You may want `england_covid_proportion` instead which includes the population
-#' denominator. The denominator here is the total number of positive tests in all
-#' age groups and not the tests taken or denominators.
+#' You may want `england_covid_test_positives` instead which includes the
+#' population denominator. The denominator here is the total number of positive
+#' tests across all age groups and not the number of tests taken or population
+#' size.
 #'
 #' @usage data(england_covid)
 #'
@@ -56,7 +56,7 @@ NULL
 #' - date (as.Date) - the date column
 #' - class (enum(`00_04`,`05_09`,`10_14`,`15_19`,`20_24`,`25_29`,`30_34`,`35_39`,`40_44`,`45_49`,`50_54`,`55_59`,`60_64`,`65_69`,`70_74`,`75_79`,`80_84`,`85_89`,`90+`)) - the class column
 #' - count (numeric) - the test positives for each age group
-#' - denom (numeric) - the test positives for all age groups
+#' - denom (numeric) - the test positives across all age groups
 #' - time (time_period) - the time column
 #'
 #' Must be grouped by: class (and other groupings allowed).
@@ -72,7 +72,6 @@ NULL
 NULL
 
 ## england_covid definition ends
-
 
 ## germany_demographics definition ----
 
@@ -165,8 +164,8 @@ NULL
 #'
 #' The `coronavirus.gov.uk` dashboard published tests conducted and positive
 #' results as separate data sets for a range of geographies. In this case the
-#' data is combined with testing rate as denominator, and positives as count for
-#' England.
+#' data is combined with testing rate as denominator, and test positives as
+#' count for the whole of England.
 #'
 #' @usage data(england_covid_pcr_positivity)
 #'
@@ -308,46 +307,13 @@ NULL
 #' 137 rows and 4 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name england_nhs_app
 NULL
 
 ## england_nhs_app definition ends
 ## england_covid_proportion definition ----
-
-#' England COVID by age group for ascertainment
-#'
-#' An age group stratified dataset from
-#'
-#' * the coronavirus.gov.uk site for
-#' positive cases aggregated to 10 year age groups and by weekly time.
-#' * NHS test
-#' and trace date which reported regional by age group testing effort aggregated
-#' to country level.
-#' * ONS 2021 census population aggregated to 10 year age
-#' groups.
-#'
-#' @usage data(england_covid_proportion)
-#'
-#' @format
-#' A dataframe containing the following columns:
-#' - class (character) - the age group
-#' - date (date) - the start date of a week
-#' - count (numeric) - the count of COVID positives
-#' - denom (numeric) - the number of COVID tests performed
-#' - population (numeric) - the size of the population at this age group
-#' - time (time_period) - the time column (weekly)
-#'
-#' Must be grouped by: class (and other groupings allowed).
-#'
-#' No default value.
-#'
-#' 1050 rows and 6 columns
-#'
-#' @docType data
-#' @concept datasets
-#' @name england_covid_proportion
-NULL
 
 ## england_covid_proportion definition ends
 
@@ -386,14 +352,12 @@ NULL
 #' 9820 rows and 7 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name england_ons_infection_survey
 NULL
 
 ## england_ons_infection_survey definition ends
-
-
-
 
 ## infectivity profiles
 
@@ -479,12 +443,12 @@ NULL
 #' 5100 rows and 3 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name covid_test_sensitivity
 NULL
 
 ## covid_test_sensitivity definition ends
-
 
 ## covid_infectivity_profile definition ends
 
@@ -511,6 +475,7 @@ NULL
 #' 1400 rows and 5 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name covid_ip
 NULL
@@ -535,6 +500,7 @@ NULL
 #'
 #' 2400 rows and 5 columns
 #'
+#' @keywords datasets
 #' @concept datasets
 #' @name ganyani_ip
 NULL
@@ -560,6 +526,7 @@ NULL
 #' 2800 rows and 5 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name ganyani_ip_2
 NULL
@@ -588,6 +555,7 @@ NULL
 #' 2600 rows and 3 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name covid_viral_shedding
 NULL
@@ -615,6 +583,7 @@ NULL
 #' 2603 rows and 5 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name du_serial_interval_ip
 NULL
@@ -641,15 +610,15 @@ NULL
 #' 2000 rows and 5 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name test_ip
 NULL
 
 ## test_ip definition ends
 ## test_ts definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
 
-#' A test time series dataset
+#' A test time series dataset, containing no statistical noise.
 #'
 #' @usage data(test_ts)
 #'
@@ -670,13 +639,13 @@ NULL
 #' 501 rows and 8 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name test_ts
 NULL
 
 ## test_ts definition ends
 ## test_poisson_rt definition ----
-## Generated code. remove this line to prevent manual changes being overwritten
 
 #' An example of the linelist output of the poisson model simulation with defined
 #' $R_t$
@@ -698,6 +667,7 @@ NULL
 #' 81 rows and 6 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name test_poisson_rt
 NULL
@@ -709,7 +679,7 @@ NULL
 #'
 #' This is generated using the `test_ip` infectivity profile and
 #' also includes a delay to symptom onset which is a random gamma distributed
-#' quantity with mean of 6 and sd of 2
+#' quantity with mean of 6 and standard deviation of 2
 #'
 #' @usage data(test_bpm)
 #'
@@ -729,6 +699,7 @@ NULL
 #'
 #' @docType data
 #' @keywords datasets
+#' @concept datasets
 #' @name test_bpm
 NULL
 
@@ -741,9 +712,10 @@ NULL
 #' `test_bpm` dataset for whom both infector and infectee has symptoms. These
 #' patients are generated with a symptom delay of mean 6 days and SD 2 from
 #' infection (discrete under-dispersed gamma) and an infectivity profile with
-#' mean 5 days and SD 2 as defined in `test_ip` dataset. This serial interval
-#' if relevant to the estimation of $R_t$ from symptomatic case counts but
-#' includes negative times, and cannot be used with `EpiEstim`.
+#' mean 5 days and SD 2 as defined in `test_ip` dataset. This serial interval is
+#' relevant to the estimation of $R_t$ from symptomatic case counts in the
+#' `test_bpm` dataset but includes negative times, and cannot be used with
+#' `EpiEstim`.
 #'
 #' @usage data(test_serial)
 #'
@@ -761,8 +733,283 @@ NULL
 #' 2166 rows and 5 columns
 #'
 #' @docType data
+#' @keywords datasets
 #' @concept datasets
 #' @name test_serial
 NULL
 
 ## test_serial definition ends
+## test_poisson_growth_rate definition ----
+
+#' A simulation dataset determined by a step function of growth rates. This is
+#' useful for demonstrating growth rate estimators.
+#'
+#' @usage data(test_poisson_growth_rate)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * time (as.time_period) - the time column
+#' * growth (numeric) - the time varying growth rate column (input parameter)
+#' * imports (numeric) - the imports column
+#' * rate (numeric) - the poisson rate column
+#' * count (integer) - the sampled count column
+#' * statistic (character) - the statistic column (infections)
+#'
+#' Minimally grouped by: statistic (and other groupings allowed).
+#'
+#' 105 rows and 6 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @concept datasets
+#' @name test_poisson_growth_rate
+NULL
+
+## test_poisson_growth_rate definition ends
+## test_poisson_rt_smooth definition ----
+
+#' Output of a poisson model simulation with a
+#' smooth function for $R_t$ defined as `R(t) = e^(sin(t/80*pi)^4-0.25))`. This
+#' is a relatively unchallenging test data set that should not pose a problem
+#' for smooth estimators.
+#'
+#' This is generated using the central value of the `test_ip` infectivity profile
+#'
+#' @usage data(test_poisson_rt_smooth)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * time (as.time_period) - the time column
+#' * rt (numeric) - the time varying rt column (parameters)
+#' * imports (numeric) - the imports column
+#' * rate (numeric) - the poisson rate column (underlying infection rate)
+#' * count (integer) - the count column
+#' * statistic (character) - the statistic column
+#'
+#' Minimally grouped by: statistic (and other groupings allowed).
+#'
+#' 161 rows and 6 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @concept datasets
+#' @name test_poisson_rt_smooth
+NULL
+
+## test_poisson_rt_smooth definition ends
+## test_poisson_rt_2class definition ----
+## Generated code. remove this line to prevent manual changes being overwritten
+
+#' The test_poisson_rt_2class dataset
+#'
+#' @usage data(test_poisson_rt_2class)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * time (as.time_period) - the time column
+#' * rt (numeric) - the rt column
+#' * imports (numeric) - the imports column
+#' * rate (numeric) - the rate column
+#' * count (integer) - the count column
+#' * statistic (character) - the statistic column
+#' * class (enum(`one`,`two`)) - the class column
+#' * denom (integer) - the denom column
+#'
+#' Minimally grouped by: class (and other groupings allowed).
+#'
+#' 322 rows and 8 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @concept datasets
+#' @name test_poisson_rt_2class
+NULL
+
+## test_poisson_rt_2class definition ends
+
+## england_covid_poisson_age_stratified definition ----
+
+#' The England COVID-19 age stratified poisson model dataset
+#'
+#' This is the output of the following estimator, and is here to speed up some
+#' examples:
+#'
+#' ```R
+#' england_covid %>% ggoutbreak::poisson_locfit_model(window=14)
+#' ```
+#'
+#' @usage data(england_covid_poisson_age_stratified)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * class (enum(`00_04`,`05_09`,`10_14`,`15_19`,`20_24`,`25_29`,`30_34`,`35_39`,`40_44`,`45_49`,`50_54`,`55_59`,`60_64`,`65_69`,`70_74`,`75_79`,`80_84`,`85_89`,`90+`)) - the class column
+#' * time (as.time_period) - the time column
+#' * incidence.fit (numeric) - the incidence.fit column
+#' * incidence.se.fit (numeric) - the incidence.se.fit column
+#' * incidence.0.025 (numeric) - the incidence.0.025 column
+#' * incidence.0.05 (numeric) - the incidence.0.05 column
+#' * incidence.0.25 (numeric) - the incidence.0.25 column
+#' * incidence.0.5 (numeric) - the incidence.0.5 column
+#' * incidence.0.75 (numeric) - the incidence.0.75 column
+#' * incidence.0.95 (numeric) - the incidence.0.95 column
+#' * incidence.0.975 (numeric) - the incidence.0.975 column
+#' * growth.fit (numeric) - the growth.fit column
+#' * growth.se.fit (numeric) - the growth.se.fit column
+#' * growth.0.025 (numeric) - the growth.0.025 column
+#' * growth.0.05 (numeric) - the growth.0.05 column
+#' * growth.0.25 (numeric) - the growth.0.25 column
+#' * growth.0.5 (numeric) - the growth.0.5 column
+#' * growth.0.75 (numeric) - the growth.0.75 column
+#' * growth.0.95 (numeric) - the growth.0.95 column
+#' * growth.0.975 (numeric) - the growth.0.975 column
+#'
+#' Minimally grouped by: class (and other groupings allowed).
+#'
+#' 26790 rows and 20 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @concept datasets
+#' @name england_covid_poisson_age_stratified
+NULL
+
+## england_covid_poisson_age_stratified definition ends
+## england_covid_poisson definition ----
+
+#' The England COVID-19 poisson model dataset
+#'
+#' This is the output of the following estimator, and is here to speed up some
+#' examples:
+#'
+#' ```R
+#' england_covid %>% time_aggregate() %>% ggoutbreak::poisson_locfit_model(window=14)
+#' ```
+#'
+#' @usage data(england_covid_poisson)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * time (as.time_period) - the time column
+#' * incidence.fit (numeric) - the incidence.fit column
+#' * incidence.se.fit (numeric) - the incidence.se.fit column
+#' * incidence.0.025 (numeric) - the incidence.0.025 column
+#' * incidence.0.05 (numeric) - the incidence.0.05 column
+#' * incidence.0.25 (numeric) - the incidence.0.25 column
+#' * incidence.0.5 (numeric) - the incidence.0.5 column
+#' * incidence.0.75 (numeric) - the incidence.0.75 column
+#' * incidence.0.95 (numeric) - the incidence.0.95 column
+#' * incidence.0.975 (numeric) - the incidence.0.975 column
+#' * growth.fit (numeric) - the growth.fit column
+#' * growth.se.fit (numeric) - the growth.se.fit column
+#' * growth.0.025 (numeric) - the growth.0.025 column
+#' * growth.0.05 (numeric) - the growth.0.05 column
+#' * growth.0.25 (numeric) - the growth.0.25 column
+#' * growth.0.5 (numeric) - the growth.0.5 column
+#' * growth.0.75 (numeric) - the growth.0.75 column
+#' * growth.0.95 (numeric) - the growth.0.95 column
+#' * growth.0.975 (numeric) - the growth.0.975 column
+#'
+#' Any grouping allowed.
+#'
+#' 1410 rows and 19 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @concept datasets
+#' @name england_covid_poisson
+NULL
+
+## england_covid_poisson definition ends
+## england_covid_proportion_age_stratified definition ----
+
+#' The England COVID-19 age stratified proportion model dataset
+#'
+#' This is the output of the following estimator, and is here to speed up some
+#' examples. The proportion represented here is the positive tests in this
+#' age group, versus the positive tests in all age groups. It has to be
+#' considered with respect to the overall population.
+#'
+#' ```R
+#' england_covid %>% ggoutbreak::proportion_locfit_model(window=14)
+#' ```
+#'
+#' @usage data(england_covid_proportion_age_stratified)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#'
+#' * class (enum(`00_04`,`05_09`,`10_14`,`15_19`,`20_24`,`25_29`,`30_34`,`35_39`,`40_44`,`45_49`,`50_54`,`55_59`,`60_64`,`65_69`,`70_74`,`75_79`,`80_84`,`85_89`,`90+`)) - the class column
+#' * time (as.time_period) - the time column
+#' * proportion.fit (numeric) - the proportion.fit column
+#' * proportion.se.fit (numeric) - the proportion.se.fit column
+#' * proportion.0.025 (numeric) - the proportion.0.025 column
+#' * proportion.0.05 (numeric) - the proportion.0.05 column
+#' * proportion.0.25 (numeric) - the proportion.0.25 column
+#' * proportion.0.5 (numeric) - the proportion.0.5 column
+#' * proportion.0.75 (numeric) - the proportion.0.75 column
+#' * proportion.0.95 (numeric) - the proportion.0.95 column
+#' * proportion.0.975 (numeric) - the proportion.0.975 column
+#' * relative.growth.fit (numeric) - the relative.growth.fit column
+#' * relative.growth.se.fit (numeric) - the relative.growth.se.fit column
+#' * relative.growth.0.025 (numeric) - the relative.growth.0.025 column
+#' * relative.growth.0.05 (numeric) - the relative.growth.0.05 column
+#' * relative.growth.0.25 (numeric) - the relative.growth.0.25 column
+#' * relative.growth.0.5 (numeric) - the relative.growth.0.5 column
+#' * relative.growth.0.75 (numeric) - the relative.growth.0.75 column
+#' * relative.growth.0.95 (numeric) - the relative.growth.0.95 column
+#' * relative.growth.0.975 (numeric) - the relative.growth.0.975 column
+#'
+#' Minimally grouped by: class (and other groupings allowed).
+#'
+#' 26790 rows and 20 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @concept datasets
+#' @name england_covid_proportion_age_stratified
+NULL
+
+## england_covid_proportion_age_stratified definition ends
+
+## england_covid_test_positives definition ----
+
+#' Weekly England COVID test positives by age group including testing effort
+#'
+#' An age group stratified dataset from
+#'
+#' * the coronavirus.gov.uk site for positive cases aggregated to 10 year age
+#' groups and by weekly time.
+#' * NHS test and trace date which reported regional by age group testing
+#' effort aggregated to country level.
+#' * ONS 2021 census population aggregated to 10 year age groups.
+#'
+#' @usage data(england_covid_test_positives)
+#'
+#' @format
+#' A dataframe containing the following columns:
+#' - class (character) - the age group
+#' - date (date) - the start date of a week
+#' - count (numeric) - the count of COVID positives
+#' - denom (numeric) - the number of COVID tests performed for that age group
+#' that week
+#' - population (numeric) - the size of the population in this age group
+#' - time (time_period) - the time column (weekly)
+#'
+#' Must be grouped by: class (and other groupings allowed).
+#'
+#' No default value.
+#'
+#' 1050 rows and 6 columns
+#'
+#' @docType data
+#' @keywords datasets
+#' @concept datasets
+#' @name england_covid_test_positives
+NULL
+
+## england_covid_test_positives definition ends

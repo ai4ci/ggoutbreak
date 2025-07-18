@@ -1,6 +1,6 @@
 ---
 title: "Simulations and test harnesses"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Simulations and test harnesses}
   %\VignetteEngine{knitr::rmarkdown}
@@ -17,8 +17,18 @@ functions to generate synthetic datasets which exhibit some of the complexities
 we observed in the COVID-19 pandemic. There are two levels at which the
 simulations work, aggregate counts or case line list simulations.
 
-```{r setup}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE}
+
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  echo = TRUE,
+  warning = FALSE,
+  message = FALSE,
+  fig.width = 6,
+  fig.height = 4
+)
+
 here::i_am("vignettes/simulation-test-models.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 library(ggoutbreak)

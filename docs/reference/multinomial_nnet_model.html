@@ -3,11 +3,11 @@
 with time, (multinomial) class (e.g. variant) and count being the count in
 that time period. Fits a quadratic B-spline on time to the proportion of the
 data using nnet::multinom, with approx one degree of freedom per class and per
-window units of the time series"><meta property="og:description" content="Takes a list of times, classes and counts, e.g. a COGUK variant like data set
+window units of the time series."><meta property="og:description" content="Takes a list of times, classes and counts, e.g. a COGUK variant like data set
 with time, (multinomial) class (e.g. variant) and count being the count in
 that time period. Fits a quadratic B-spline on time to the proportion of the
 data using nnet::multinom, with approx one degree of freedom per class and per
-window units of the time series"><meta property="og:image" content="https://ai4ci.github.io/ggoutbreak/logo.png"></head><body>
+window units of the time series."><meta property="og:image" content="https://ai4ci.github.io/ggoutbreak/logo.png"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -15,7 +15,7 @@ window units of the time series"><meta property="og:image" content="https://ai4c
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,8 @@ window units of the time series"><meta property="og:image" content="https://ai4c
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -57,7 +58,7 @@ window units of the time series"><meta property="og:image" content="https://ai4c
 with time, (multinomial) class (e.g. variant) and count being the count in
 that time period. Fits a quadratic B-spline on time to the proportion of the
 data using <code><a href="https://rdrr.io/pkg/nnet/man/multinom.html" class="external-link">nnet::multinom</a></code>, with approx one degree of freedom per class and per
-<code>window</code> units of the time series</p>
+<code>window</code> units of the time series.</p>
     </div>
 
     <div class="section level2">
@@ -77,11 +78,15 @@ data using <code><a href="https://rdrr.io/pkg/nnet/man/multinom.html" class="ext
 
 
 <dl><dt id="arg-d">d<a class="anchor" aria-label="anchor" href="#arg-d"></a></dt>
-<dd><p>multi-class count input</p></dd>
+<dd><p>A multi-class count input dataframe - a dataframe with columns:</p><ul><li><p>class (factor) - A factor specifying the type of observation. This will be things like
+variant, or serotype, for a multinomial model. Any missing data points are ignored.</p></li>
+<li><p>count (positive_integer) - Positive case counts associated with the specified time frame</p></li>
+<li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
+</ul><p>Must be grouped by: class (exactly).</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>not used and present to allow proportion model to be used in a group_modify</p></dd>
+<dd><p>not used</p></dd>
 
 
 <dt id="arg-window">window<a class="anchor" aria-label="anchor" href="#arg-window"></a></dt>
@@ -90,7 +95,7 @@ less smoothing, large value in more.</p></dd>
 
 
 <dt id="arg-frequency">frequency<a class="anchor" aria-label="anchor" href="#arg-frequency"></a></dt>
-<dd><p>the density of the output estimates.</p></dd>
+<dd><p>the temporal density of the output estimates.</p></dd>
 
 
 <dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>
@@ -105,16 +110,27 @@ less smoothing, large value in more.</p></dd>
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>a new dataframe with <code>time</code> (as a time period), <code>class</code>, and <code>proportion.0.5</code>, or a model object</p>
     </div>
+    <div class="section level2">
+    <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
+    <p>Additional groupings are treated as distinct proportions models.</p>
+    </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
-<span class="r-in"><span>  <span class="co"># not run due to long running</span></span></span>
-<span class="r-in"><span>  <span class="va">tmp</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="england_covid.html">england_covid</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">date</span> <span class="op">&gt;</span> <span class="st">"2022-01-01"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>    <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">multinomial_nnet_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">21</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="va">test_poisson_rt_2class</span></span></span>
+<span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">multinomial_nnet_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">14</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> # weights:  28 (13 variable)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> initial  value 43356.356144 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iter  10 value 38674.268766</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iter  20 value 37400.259934</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> final  value 37399.822194 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> converged</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
+<span class="r-in"><span>  <span class="fu"><a href="plot_multinomial.html">plot_multinomial</a></span><span class="op">(</span><span class="va">tmp</span>, date_labels<span class="op">=</span><span class="st">"%b %y"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
+<span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

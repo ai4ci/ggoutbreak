@@ -18,7 +18,7 @@ time_summarise(
 If this is grouped then each group is treated independently. The remaining
 columns must contain a \code{date} column and may contain a \code{class} column. If a
 \code{count} column is present the counts will be summed, otherwise each
-individual row will be counted as a single event (as a linelist)}
+individual row will be counted as a single event (as a line list)}
 
 \item{unit}{a period e.g. "1 week"}
 
@@ -27,17 +27,17 @@ this will always be one of the start of the time periods we are cutting
 into}
 
 \item{rectangular}{should the resulting time series be the same length for
-all groups. This is only the case if you can be sure that your data is complete
+all groups? This is only the case if you can be sure that your data is complete
 for all subgroups, otherwise missing data will be treated as zero counts. This
 is important if leading and trailing missing data in one subgroup can be due
 to a reporting delay in that subgroup, in which case a rectangular time series
 will erroneously fill in zero counts for this missing data.}
 
-\item{...}{a spec for a dplyr::summary(...) - optional, and if not provided a
-\code{count = dplyr::n()} or a \code{count = sum(count)} is performed.}
+\item{...}{a specification for a dplyr::summary(...) - optional, and if not
+provided a \code{count = dplyr::n()} or a \code{count = sum(count)} is performed.}
 
-\item{.fill}{a list similar to tidyr::complete for values to fill
-variables with}
+\item{.fill}{a list similar to \code{tidyr::complete} for default values to fill
+variables with.}
 }
 \value{
 The output depends on whether or not the input was grouped and
@@ -81,12 +81,29 @@ count based (e.g. means of continuous variables) but in this case a the \code{sl
 package is usually going to be better, as time summarise will only look at non
 overlapping time periods with fixed lengths.
 
-There is another use case where an existing  timeseries on a particular
+There is another use case where an existing timeseries on a particular
 frequency is aggregated to another less frequent basis (e.g. moving from a
 daily timeseries to a weekly one). In this case the input will contain a
 \code{count} column. In this mode no checks are made that the more frequent events
 are all present before summarisation so the result may include different numbers
 of input periods (e.g. going from weeks to months may be 4 or 5 weeks in each
-month)
+month). If a \code{class} column is present the a classwise denominator is calculated
+}
+\examples{
+
+# a set of random dates with a class column:
+input = tibble::tibble(
+  class = rep(c("A","B"),1000),
+  date = as.Date("2020-01-01")+sample.int(100,2000,TRUE)
+)
+
+# summarise daily counts, including denominators:
+daily = time_summarise(input, unit="1 day") \%>\% dplyr::glimpse()
+
+# summarise weekly counts, for sample data:
+time_summarise(input, unit="1 week") \%>\% dplyr::glimpse()
+
+# summarise daily counts into weekly:
+time_summarise(daily, unit="1 week") \%>\% dplyr::glimpse()
 }
 \concept{time_period}

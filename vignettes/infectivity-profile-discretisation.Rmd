@@ -1,13 +1,13 @@
 ---
 title: "Infectivity profile discretisation"
-output: html_document
+output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Infectivity profile discretisation}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
 
-```{r setup}
+```{r setup, include=FALSE}
 library(ggoutbreak)
 library(patchwork)
 utils::data("MockRotavirus",package = "EpiEstim")

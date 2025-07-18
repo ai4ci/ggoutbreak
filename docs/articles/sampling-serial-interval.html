@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +34,7 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
@@ -91,20 +92,13 @@ drawn from the parameters published in the literature and the
 infectivity profile distributions reconstructed. There is the potential
 for bias to be introduced in this process which is investigated
 here.</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://patchwork.data-imaginist.com" class="external-link">patchwork</a></span><span class="op">)</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://ai4ci.github.io/ggoutbreak/">ggoutbreak</a></span><span class="op">)</span></span>
-<span><span class="fu">utils</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"MockRotavirus"</span>,package<span class="op">=</span><span class="st">"EpiEstim"</span><span class="op">)</span></span>
-<span><span class="va">si_data</span> <span class="op">=</span> <span class="va">MockRotavirus</span><span class="op">$</span><span class="va">si_data</span></span>
-<span><span class="va">si_distr</span> <span class="op">=</span> <span class="va">MockRotavirus</span><span class="op">$</span><span class="va">si_distr</span></span>
-<span><span class="kw"><a href="https://rdrr.io/r/base/source.html" class="external-link">source</a></span><span class="op">(</span><span class="fu">here</span><span class="fu">::</span><span class="fu"><a href="https://here.r-lib.org/reference/here.html" class="external-link">here</a></span><span class="op">(</span><span class="st">"vignettes/vignette-utils.R"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p>Estimation of the infectivity profile is usually done by fitting a
 doubly censored survival model with an underlying gamma probability
 distribution to data and can be done with MCMC using
 <code>EpiEstim</code>. In this case we demonstrate this with a mock
 Rotavirus dataset from <code>EpiEstim</code>:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">dic.fit.mcmc</span> <span class="op">=</span> <span class="fu">memoise</span><span class="fu">::</span><span class="fu"><a href="https://memoise.r-lib.org/reference/memoise.html" class="external-link">memoise</a></span><span class="op">(</span><span class="fu">coarseDataTools</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/coarseDataTools/man/dic.fit.mcmc.html" class="external-link">dic.fit.mcmc</a></span><span class="op">)</span></span>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dic.fit.mcmc</span> <span class="op">=</span> <span class="fu">memoise</span><span class="fu">::</span><span class="fu"><a href="https://memoise.r-lib.org/reference/memoise.html" class="external-link">memoise</a></span><span class="op">(</span><span class="fu">coarseDataTools</span><span class="fu">::</span><span class="va"><a href="http://nickreich.github.io/coarseDataTools/reference/dic.fit.mcmc.html" class="external-link">dic.fit.mcmc</a></span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">clever_init_param</span> <span class="op">&lt;-</span> <span class="fu">EpiEstim</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/EpiEstim/man/init_mcmc_params.html" class="external-link">init_mcmc_params</a></span><span class="op">(</span><span class="va">si_data</span>, <span class="st">"G"</span><span class="op">)</span></span>
 <span><span class="va">SI_fit_clever</span> <span class="op">&lt;-</span> <span class="fu">dic.fit.mcmc</span><span class="op">(</span>dat <span class="op">=</span> <span class="va">si_data</span>,</span>
@@ -115,32 +109,32 @@ Rotavirus dataset from <code>EpiEstim</code>:</p>
 <span>  verbose <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running 6000 MCMC iterations </span></span>
 <span><span class="co">## MCMCmetrop1R iteration 1 of 6000 </span></span>
-<span><span class="co">## function value =  -31.93385</span></span>
+<span><span class="co">## function value =  -32.07157</span></span>
 <span><span class="co">## theta = </span></span>
-<span><span class="co">##   -0.02505</span></span>
-<span><span class="co">##    0.56162</span></span>
+<span><span class="co">##   -0.24748</span></span>
+<span><span class="co">##    0.62715</span></span>
 <span><span class="co">## Metropolis acceptance rate = 1.00000</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span></span>
-<span><span class="co">## The Metropolis acceptance rate was 0.55133</span></span>
+<span><span class="co">## The Metropolis acceptance rate was 0.55500</span></span>
 <span><span class="co">## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span></span></code></pre>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SI_fit_clever</span></span></code></pre></div>
 <pre><code><span><span class="co">## Coarse Data Model Parameter and Quantile Estimates: </span></span>
 <span><span class="co">##         est CIlow CIhigh</span></span>
-<span><span class="co">## shape 1.068 0.458  2.517</span></span>
-<span><span class="co">## scale 1.354 0.597  3.579</span></span>
-<span><span class="co">## p5    0.089 0.003  0.378</span></span>
-<span><span class="co">## p50   1.060 0.434  1.723</span></span>
-<span><span class="co">## p95   4.290 2.724  7.763</span></span>
-<span><span class="co">## p99   6.505 4.003 12.773</span></span>
+<span><span class="co">## shape 1.105 0.464  2.318</span></span>
+<span><span class="co">## scale 1.316 0.621  3.530</span></span>
+<span><span class="co">## p5    0.096 0.004  0.359</span></span>
+<span><span class="co">## p50   1.061 0.517  1.746</span></span>
+<span><span class="co">## p95   4.252 2.826  7.763</span></span>
+<span><span class="co">## p99   6.447 4.126 12.624</span></span>
 <span><span class="co">## Note: please check that the MCMC converged on the target distribution by running multiple chains. MCMC samples are available in the mcmc slot (e.g. my.fit@mcmc)</span></span></code></pre>
 <p>The median estimate and confidence intervals are quantiles of the
 posterior samples each of which define a candidate gamma distribution.
 The density of a subset of these are plotted here.</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># The sample quantiles</span></span>
 <span><span class="co"># apply(SI_fit_clever@samples,MARGIN = 2,FUN = quantile, p=c(0.5,0.025,0.975))</span></span>
 <span></span>
@@ -170,7 +164,7 @@ The density of a subset of these are plotted here.</p>
 published literature. Typically a serial interval analysis will publish
 a summary of the parameters of these posteriors which might include
 statistics as follows:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">gammas</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mean</span>, <span class="va">sd</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols<span class="op">=</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
@@ -186,8 +180,8 @@ statistics as follows:</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
 <span><span class="co">##   parameter mean  sd    `median [95% CrI]`</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> mean      1.54  0.39  1.49 [0.87 — 2.44]</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> sd        1.52  0.54  1.41 [0.85 — 2.73]</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> mean      1.54  0.41  1.49 [0.97 — 2.46]</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> sd        1.51  0.63  1.39 [0.89 — 2.71]</span></span></code></pre>
 <p>In many cases it will only be the median and 95% credible intervals
 that are published, and in some cases not even that. In very rare cases
 posterior estimates of shape and scale parameters of the gamma
@@ -205,7 +199,7 @@ here and also as there is sometimes a lack of clarity about whether a
 serial interval study is publishing a mean of the mean, or a median of
 the mean, there is a risk of incorrectly interpreting published
 values.</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">summary</span> <span class="op">=</span> <span class="va">gammas</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">mean</span>, <span class="va">sd</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_longer.html" class="external-link">pivot_longer</a></span><span class="op">(</span>cols<span class="op">=</span><span class="fu">tidyselect</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/everything.html" class="external-link">everything</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
@@ -263,7 +257,7 @@ correlation between mean and standard deviation when the standard
 deviation approaches the mean. <code>EpiEstim</code>s re-sampled mean
 and SD do not represent the underlying data distribution very accurately
 in this instance.</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
 <span>    <span class="va">epiestim_si_samples</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source<span class="op">=</span><span class="st">"epiestim"</span><span class="op">)</span>,</span>
 <span>    <span class="va">gammas</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source <span class="op">=</span> <span class="st">"raw mcmc"</span><span class="op">)</span></span>
@@ -278,7 +272,7 @@ in this instance.</p>
 <span></span>
 <span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_annotation.html" class="external-link">plot_annotation</a></span><span class="op">(</span>tag_levels <span class="op">=</span> <span class="st">"A"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="sampling-serial-interval_files/figure-html/unnamed-chunk-5-1.png" width="700"></p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># ggplot2::ggplot()+</span></span>
 <span><span class="co">#   purrr::pmap(epiestim_si_samples %&gt;% utils::tail(200), </span></span>
 <span><span class="co">#     function(shape,rate,...) {</span></span>
@@ -300,19 +294,19 @@ profile gamma distributions are correlated log-normal distributed
 quantities. In this case we see that the results of MCMC fitting do seem
 to be correlated on a log scale and are feasible normally
 distributed.</p>
-<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># They are a correlated approximately lognormal distributed quantity</span></span>
 <span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">gammas</span>,<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">lmean</span>,y<span class="op">=</span><span class="va">lsd</span><span class="op">)</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_rug.html" class="external-link">geom_rug</a></span><span class="op">(</span>alpha<span class="op">=</span><span class="fl">0.02</span><span class="op">)</span></span></code></pre></div>
 <p><img src="sampling-serial-interval_files/figure-html/unnamed-chunk-6-1.png" width="700"></p>
-<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">correlation</span> <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">gammas</span><span class="op">$</span><span class="va">mean</span>, <span class="va">gammas</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span></span>
 <span><span class="va">correlation</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.7540581</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.7672649</span></span></code></pre>
 <p>Let us also assume that rather than knowledge of mean, sd, etc, we
 know only median and 95% credible intervals of the distribution of mean
 and SD, which are more commonly what is reported in the literature. For
 the time being we also assume we know the degree of correlation.</p>
-<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># However typically we will be provided with quantiles of mean and SD</span></span>
 <span><span class="co"># We can log transform quantiles and estimate a normal distribution</span></span>
 <span><span class="co"># on the log scale.</span></span>
@@ -322,10 +316,10 @@ the time being we also assume we know the degree of correlation.</p>
 <span><span class="va">quantiles</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Rows: 3</span></span>
 <span><span class="co">## Columns: 3</span></span>
-<span><span class="co">## $ mean <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.8717035<span style="color: #949494;">, </span>1.4919594<span style="color: #949494;">, </span>2.4361022</span></span>
-<span><span class="co">## $ sd   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.8531466<span style="color: #949494;">, </span>1.4056905<span style="color: #949494;">, </span>2.7264872</span></span>
+<span><span class="co">## $ mean <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.9687491<span style="color: #949494;">, </span>1.4880851<span style="color: #949494;">, </span>2.4572510</span></span>
+<span><span class="co">## $ sd   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.8851803<span style="color: #949494;">, </span>1.3929802<span style="color: #949494;">, </span>2.7145197</span></span>
 <span><span class="co">## $ p    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.025<span style="color: #949494;">, </span>0.500<span style="color: #949494;">, </span>0.975</span></span></code></pre>
-<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We can log transform quantiles and estimate a normal distribution</span></span>
 <span><span class="co"># on the log scale.</span></span>
 <span><span class="va">quantiles</span> <span class="op">=</span> <span class="va">quantiles</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>lmean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span>, lsd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Log.html" class="external-link">log</a></span><span class="op">(</span><span class="va">sd</span><span class="op">)</span>, z <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Normal.html" class="external-link">qnorm</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span></span>
@@ -358,7 +352,7 @@ the time being we also assume we know the degree of correlation.</p>
 <p>This re-sampling process produces a closer set of distributions than
 the <code>EpiEstim</code> approach, but does assume we can estimate the
 correlation between mean and SD.</p>
-<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison2</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
 <span>    <span class="va">simulated2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source<span class="op">=</span><span class="st">"corr log normal"</span><span class="op">)</span>,</span>
 <span>    <span class="va">gammas</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source <span class="op">=</span> <span class="st">"raw mcmc"</span><span class="op">)</span></span>
@@ -380,7 +374,7 @@ the discretisation strategy in <code>EpiEstim</code> as they have a mean
 &lt; 1. These samples would have to be excluded to allow them to be used
 with the Cori method.</p>
 <p>Does this make any difference?</p>
-<div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
 <span>    <span class="va">epiestim_si_samples</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source<span class="op">=</span><span class="st">"epiestim"</span><span class="op">)</span>,</span>
 <span>    <span class="va">simulated2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source<span class="op">=</span><span class="st">"corr log normal"</span><span class="op">)</span>,</span>
@@ -406,7 +400,7 @@ with the Cori method.</p>
 <span><span class="va">tmp_summ</span> <span class="op">=</span> <span class="va">tmp</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">source</span>,<span class="va">x</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>p <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">p</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## `summarise()` has grouped output by 'source'. You can override using the</span></span>
 <span><span class="co">## `.groups` argument.</span></span></code></pre>
-<div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp_mean</span> <span class="op">=</span> <span class="va">tmp</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">source</span>,<span class="va">coll</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">x</span><span class="op">*</span><span class="va">p</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span>sd <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/sd.html" class="external-link">sd</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span>,mean <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">mean</span><span class="op">)</span>, parameter<span class="op">=</span><span class="st">"mean"</span>, disc_type<span class="op">=</span><span class="st">"epiestim"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
@@ -415,7 +409,7 @@ with the Cori method.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## `summarise()` has grouped output by 'source'. You can override using the</span></span>
 <span><span class="co">## `.groups` argument.</span></span></code></pre>
-<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html" class="external-link">geom_segment</a></span><span class="op">(</span>mapping<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">source</span><span class="op">)</span><span class="op">/</span><span class="va">sources</span><span class="op">-</span><span class="fl">1</span><span class="op">/</span><span class="va">sources</span>,xend<span class="op">=</span><span class="va">x</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">source</span><span class="op">)</span><span class="op">/</span><span class="va">sources</span>,y<span class="op">=</span><span class="va">p</span>, colour<span class="op">=</span><span class="va">source</span><span class="op">)</span>, alpha<span class="op">=</span><span class="fl">0.01</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_segment.html" class="external-link">geom_segment</a></span><span class="op">(</span>data <span class="op">=</span> <span class="va">tmp_summ</span>, mapping<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">x</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">source</span><span class="op">)</span><span class="op">/</span><span class="va">sources</span><span class="op">-</span><span class="fl">1</span><span class="op">/</span><span class="va">sources</span>,xend<span class="op">=</span><span class="va">x</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">source</span><span class="op">)</span><span class="op">/</span><span class="va">sources</span>,y<span class="op">=</span><span class="va">p</span><span class="op">)</span>, colour<span class="op">=</span><span class="st">"black"</span><span class="op">)</span><span class="op">+</span></span>
@@ -423,15 +417,15 @@ with the Cori method.</p>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="va">max_x</span><span class="op">+</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides</a></span><span class="op">(</span>colour <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/guide_legend.html" class="external-link">guide_legend</a></span><span class="op">(</span>override.aes <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>alpha <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="sampling-serial-interval_files/figure-html/unnamed-chunk-10-1.png" width="700"></p>
-<div class="sourceCode" id="cb24"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">tmp_mean</span></span></code></pre></div>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 5</span></span></span>
 <span><span class="co">##   source             sd  mean parameter disc_type</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> raw mcmc        0.360  1.58 mean      epiestim </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> epiestim        0.337  1.60 mean      epiestim </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> corr log normal 0.382  1.56 mean      epiestim </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> raw             0.387  1.54 mean      none</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> raw mcmc        0.387  1.56 mean      epiestim </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> epiestim        0.343  1.60 mean      epiestim </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> corr log normal 0.363  1.58 mean      epiestim </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> raw             0.406  1.54 mean      none</span></span></code></pre>
 <p><code>EpiEstim</code>’s default resampling strategy in this example
 results in a slightly less skewed discretised infectivity profile
 distribution than either the original data derived
@@ -446,7 +440,7 @@ infectivity profiles (<code>raw mcmc</code>), <code>EpiEstim</code>
 resampled infectivity profiles (<code>epiestim</code>), and correlated
 log-normal resampled infectivity profiles
 (<code>corr log normal</code>):</p>
-<div class="sourceCode" id="cb26"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">r</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.4</span>,<span class="fl">0.2</span>,<span class="fl">0.1</span>,<span class="fl">0.05</span>,<span class="fl">0</span>,<span class="op">-</span><span class="fl">0.05</span>,<span class="op">-</span><span class="fl">0.1</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># select a shorter list of samples</span></span>
@@ -476,7 +470,7 @@ log-normal resampled infectivity profiles
 <span><span class="co">## Caused by warning:</span></span>
 <span><span class="co">## <span style="color: #BBBB00;">!</span> Unknown or uninitialised column: `dates`.</span></span>
 <span><span class="co">## <span style="color: #00BBBB;">ℹ</span> Run `dplyr::last_dplyr_warnings()` to see the 20 remaining warnings.</span></span></code></pre>
-<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">compare_R</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">R</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, colour<span class="op">=</span><span class="va">source</span>, y<span class="op">=</span><span class="va">`Median(R)`</span><span class="op">)</span>, position<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, colour<span class="op">=</span><span class="va">source</span>, ymin<span class="op">=</span><span class="va">`Quantile.0.025(R)`</span>, ymax<span class="op">=</span><span class="va">`Quantile.0.975(R)`</span><span class="op">)</span>, position<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span>, width<span class="op">=</span><span class="fl">0.2</span><span class="op">)</span><span class="op">+</span></span>
@@ -535,7 +529,7 @@ could possibly argue in this case that the <code>EpiEstim</code>
 re-sampling procedure has resulted in more uncertainty at higher growth
 rates, but in this analysis using correlated log-normal resampling does
 not make a huge improvement.</p>
-<div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">comparison2</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">make_posterior_ip</span>, <span class="va">gammas</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">shape</span>,<span class="va">rate</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source<span class="op">=</span><span class="st">"raw mcmc"</span><span class="op">)</span>,</span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/do.call.html" class="external-link">do.call</a></span><span class="op">(</span><span class="va">make_posterior_ip</span>, <span class="va">simulated2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">shape</span>,<span class="va">rate</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>source<span class="op">=</span><span class="st">"corr log normal"</span><span class="op">)</span>,</span>
@@ -567,7 +561,7 @@ not make a huge improvement.</p>
 <span>  <span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## `summarise()` has grouped output by 'source'. You can override using the</span></span>
 <span><span class="co">## `.groups` argument.</span></span></code></pre>
-<div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">tmp4</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, colour<span class="op">=</span><span class="va">source</span>, y<span class="op">=</span><span class="va">rt.0.5</span><span class="op">)</span>, position<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, colour<span class="op">=</span><span class="va">source</span>, ymin<span class="op">=</span><span class="va">rt.0.025</span>, ymax<span class="op">=</span><span class="va">rt.0.975</span><span class="op">)</span>, position<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width<span class="op">=</span><span class="fl">0.8</span><span class="op">)</span>, width<span class="op">=</span><span class="fl">0.2</span><span class="op">)</span><span class="op">+</span></span>

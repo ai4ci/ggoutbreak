@@ -2,11 +2,16 @@
 #' Wallinga-Lipsitch reproduction number from growth rates
 #'
 #' Calculate a reproduction number estimate from growth rate using the Wallinga
-#' 2007 estimation using empirical generation time distribution. This uses
-#' resampling to transmit uncertainty in growth rate estimates. This also handles
-#' time-series that are not on a daily cadence (although this is experimental).
-#' The reproduction number estimate is neither a instantaneous (backward looking)
-#' nor case (forward looking) reproduction number but somewhere between the two.
+#' and Lipsitch 2007 estimation using empirical generation time distribution.
+#' This uses resampling to transmit uncertainty in growth rate estimates. This
+#' also handles time-series that are not on a daily cadence (although this is
+#' experimental). The reproduction number estimate is neither a instantaneous
+#' (backward looking) nor case (forward looking) reproduction number but
+#' somewhere between the two, as the method looks at a flux of infection at a
+#' single point in time.
+#'
+#' This method is quite slow compared to some others and the default is non
+#' deterministic.
 #'
 #' @iparam df Growth rate estimates
 #' @iparam ip Infectivity profile
@@ -18,18 +23,14 @@
 #' @export
 #' @concept models
 #' @examples
-#' tmp = ggoutbreak::england_covid %>%
-#'   dplyr::filter(date < "2021-01-01")%>%
-#'   time_aggregate(count=sum(count)) %>%
+#' data = ggoutbreak::test_poisson_rt_smooth
+#'
+#' tmp = data %>%
 #'   poisson_locfit_model() %>%
-#'   rt_from_growth_rate()
+#'   rt_from_growth_rate(ip=ggoutbreak::test_ip)
 #'
 #' if (interactive()) {
-#'   plot_rt(tmp, date_labels="%b %y") %above%
-#'    ggplot2::geom_errorbar(
-#'      data=england_consensus_rt %>% dplyr::filter(date < "2021-01-01"),
-#'      mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
-#'    ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
+#'   plot_rt(tmp, date_labels="%b %y")+sim_geom_function(data,colour="red")
 #' }
 #'
 rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstraps = 1000, seed = Sys.time(), .progress=interactive()) {
@@ -93,7 +94,7 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
         # This format is needed because quantile is not vectorised on data:
         qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) stats::quantile(data, p))
       )  %>%
-      .keep_cdf(type = "rt", .$rt.samples) %>%
+      .keep_cdf(type = "rt", .$rt.samples, link="log") %>%
       dplyr::select(-rt.samples)
 
       return(R_summ)
@@ -112,7 +113,8 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
 #' Calculate the reproduction number from a growth rate estimate and an infectivity profile
 #'
 #' This function uses a single empirical distribution for the infectivity
-#' profile aka generation time
+#' profile / generation time. If multiple are provided then the average central
+#' value is chosen (i.e. this does not propagate uncertainty in infectivity profile)
 #'
 #' @param r a growth rate (may be a vector)
 #' @param y an empirical infectivity profile either as a probability vector or as a dataframe of format:
@@ -125,7 +127,13 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
 #' @concept models
 #'
 #' @examples
+#'
+#' # using a probability vector.
 #' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
+#'
+#' # using an infectivity profile
+#' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=test_ip)
+#'
 wallinga_lipsitch = function(r, y = i_empirical_ip, a1=seq(0.5, length.out=length(y)), a0=dplyr::lag(a1,default=0)) {
 
   if (is.data.frame(y)) {
@@ -153,7 +161,15 @@ wallinga_lipsitch = function(r, y = i_empirical_ip, a1=seq(0.5, length.out=lengt
 
 
 
-#' Calculate a growth rate from a reproduction number and an infectivity profile
+#' Calculate a growth rate from a reproduction number and an infectivity profile,
+#'
+#' This solves the relationship between $R_t$ and growth rates as described by
+#' Wallinga and Lipsitch, to get a growth rate from $R_t$ and infectivity
+#' profile.
+#'
+#' This function uses a single empirical distribution for the infectivity
+#' profile / generation time. If multiple are provided then the average central
+#' value is chosen (i.e. this does not propagate uncertainty in infectivity profile)
 #'
 #' @param Rt a vector of reproduction numbers
 #' @param y an empirical infectivity profile as a probability vector or as a
@@ -167,8 +183,8 @@ wallinga_lipsitch = function(r, y = i_empirical_ip, a1=seq(0.5, length.out=lengt
 #' @concept models
 #'
 #' @examples
-#' y=stats::pgamma(seq(0.5,length.out=50), 5,2)-stats::pgamma(c(0,seq(0.5,length.out=49)), 5,2)
-#' inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=y)
+#' inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=test_ip)
+#'
 inv_wallinga_lipsitch = function(Rt, y= i_empirical_ip, a1=seq(0.5, length.out=length(y)), a0=dplyr::lag(a1,default=0)) {
 
   if (is.data.frame(y)) {

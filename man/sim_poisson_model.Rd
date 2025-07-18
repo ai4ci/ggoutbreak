@@ -53,5 +53,6 @@ tmp2 = sim_poisson_model(seed=100, fn_imports = ~ ifelse(.x \%in\% c(0,50),100,0
 if (interactive()) {
   ggplot2::ggplot(tmp2)+ggplot2::geom_point(ggplot2::aes(x=time,y=count))
 }
+
 }
 \concept{test}

@@ -15,7 +15,7 @@ in incidence and growth rate estimates."><meta property="og:image" content="http
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,8 @@ in incidence and growth rate estimates."><meta property="og:image" content="http
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -81,7 +82,7 @@ in incidence and growth rate estimates.</p>
 If this is grouped then each group is treated independently. The remaining
 columns must contain a <code>date</code> column and may contain a <code>class</code> column. If a
 <code>count</code> column is present the counts will be summed, otherwise each
-individual row will be counted as a single event (as a linelist)</p></dd>
+individual row will be counted as a single event (as a line list)</p></dd>
 
 
 <dt id="arg-unit">unit<a class="anchor" aria-label="anchor" href="#arg-unit"></a></dt>
@@ -96,7 +97,7 @@ into</p></dd>
 
 <dt id="arg-rectangular">rectangular<a class="anchor" aria-label="anchor" href="#arg-rectangular"></a></dt>
 <dd><p>should the resulting time series be the same length for
-all groups. This is only the case if you can be sure that your data is complete
+all groups? This is only the case if you can be sure that your data is complete
 for all subgroups, otherwise missing data will be treated as zero counts. This
 is important if leading and trailing missing data in one subgroup can be due
 to a reporting delay in that subgroup, in which case a rectangular time series
@@ -104,13 +105,13 @@ will erroneously fill in zero counts for this missing data.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>a spec for a dplyr::summary(...) - optional, and if not provided a
-<code>count = dplyr::n()</code> or a <code>count = sum(count)</code> is performed.</p></dd>
+<dd><p>a specification for a dplyr::summary(...) - optional, and if not
+provided a <code>count = dplyr::n()</code> or a <code>count = sum(count)</code> is performed.</p></dd>
 
 
 <dt id="arg--fill">.fill<a class="anchor" aria-label="anchor" href="#arg--fill"></a></dt>
-<dd><p>a list similar to tidyr::complete for values to fill
-variables with</p></dd>
+<dd><p>a list similar to <code><a href="https://tidyr.tidyverse.org/reference/complete.html" class="external-link">tidyr::complete</a></code> for default values to fill
+variables with.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -137,15 +138,56 @@ denominators for the combination.</p>
 count based (e.g. means of continuous variables) but in this case a the <code>slider</code>
 package is usually going to be better, as time summarise will only look at non
 overlapping time periods with fixed lengths.</p>
-<p>There is another use case where an existing  timeseries on a particular
+<p>There is another use case where an existing timeseries on a particular
 frequency is aggregated to another less frequent basis (e.g. moving from a
 daily timeseries to a weekly one). In this case the input will contain a
 <code>count</code> column. In this mode no checks are made that the more frequent events
 are all present before summarisation so the result may include different numbers
 of input periods (e.g. going from weeks to months may be 4 or 5 weeks in each
-month)</p>
+month). If a <code>class</code> column is present the a classwise denominator is calculated</p>
     </div>
 
+    <div class="section level2">
+    <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># a set of random dates with a class column:</span></span></span>
+<span class="r-in"><span><span class="va">input</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A"</span>,<span class="st">"B"</span><span class="op">)</span>,<span class="fl">1000</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2020-01-01"</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">2000</span>,<span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span></span></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># summarise daily counts, including denominators:</span></span></span>
+<span class="r-in"><span><span class="va">daily</span> <span class="op">=</span> <span class="fu">time_summarise</span><span class="op">(</span><span class="va">input</span>, unit<span class="op">=</span><span class="st">"1 day"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Rows: 200</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Groups: class [2]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ class <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">,</span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ time  <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>15<span style="color: #949494;">, </span>16<span style="color: #949494;">, </span>1…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 14<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ denom <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 19<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>20<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>20<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>24<span style="color: #949494;">, </span>29<span style="color: #949494;">, </span>23<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>23<span style="color: #949494;">, </span>22<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>…</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># summarise weekly counts, for sample data:</span></span></span>
+<span class="r-in"><span><span class="fu">time_summarise</span><span class="op">(</span><span class="va">input</span>, unit<span class="op">=</span><span class="st">"1 week"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Rows: 30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Groups: class [2]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ class <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">,</span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ time  <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 70<span style="color: #949494;">, </span>73<span style="color: #949494;">, </span>73<span style="color: #949494;">, </span>60<span style="color: #949494;">, </span>62<span style="color: #949494;">, </span>72<span style="color: #949494;">, </span>74<span style="color: #949494;">, </span>69<span style="color: #949494;">, </span>65<span style="color: #949494;">, </span>74<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>76<span style="color: #949494;">, </span>63<span style="color: #949494;">, </span>59<span style="color: #949494;">, </span>30<span style="color: #949494;">, </span>65<span style="color: #949494;">, </span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ denom <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 135<span style="color: #949494;">, </span>155<span style="color: #949494;">, </span>143<span style="color: #949494;">, </span>130<span style="color: #949494;">, </span>148<span style="color: #949494;">, </span>144<span style="color: #949494;">, </span>137<span style="color: #949494;">, </span>137<span style="color: #949494;">, </span>125<span style="color: #949494;">, </span>143<span style="color: #949494;">, </span>133<span style="color: #949494;">, </span>163<span style="color: #949494;">, </span>135<span style="color: #949494;">,</span>…</span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># summarise daily counts into weekly:</span></span></span>
+<span class="r-in"><span><span class="fu">time_summarise</span><span class="op">(</span><span class="va">daily</span>, unit<span class="op">=</span><span class="st">"1 week"</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> N.B. time_summarise ignores existing time_period columns</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Rows: 30</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Columns: 4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Groups: class [2]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ class <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">, </span>"A"<span style="color: #949494;">,</span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ time  <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 70<span style="color: #949494;">, </span>73<span style="color: #949494;">, </span>73<span style="color: #949494;">, </span>60<span style="color: #949494;">, </span>62<span style="color: #949494;">, </span>72<span style="color: #949494;">, </span>74<span style="color: #949494;">, </span>69<span style="color: #949494;">, </span>65<span style="color: #949494;">, </span>74<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>76<span style="color: #949494;">, </span>63<span style="color: #949494;">, </span>59<span style="color: #949494;">, </span>30<span style="color: #949494;">, </span>65<span style="color: #949494;">, </span>…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ denom <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 135<span style="color: #949494;">, </span>155<span style="color: #949494;">, </span>143<span style="color: #949494;">, </span>130<span style="color: #949494;">, </span>148<span style="color: #949494;">, </span>144<span style="color: #949494;">, </span>137<span style="color: #949494;">, </span>137<span style="color: #949494;">, </span>125<span style="color: #949494;">, </span>143<span style="color: #949494;">, </span>133<span style="color: #949494;">, </span>163<span style="color: #949494;">, </span>135<span style="color: #949494;">,</span>…</span>
+</code></pre></div>
+    </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside></div>
 

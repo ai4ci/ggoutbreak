@@ -1,18 +1,20 @@
 #' Calculate a normalised incidence rate per capita
 #'
-#' This assumes positive disease counts are stratified by a population grouping, e.g.
-#' geography or age, and we have estimates of the size of that population during
-#' that time period. Normalising by population size allows us to compare groups.
+#' This assumes positive disease counts are stratified by a population grouping,
+#' e.g. geography or age, and we have estimates of the size of that population
+#' during that time period. Normalising by population size allows us to compare
+#' groups.
 #'
 #' @iparam pop The population data must be grouped in the same way as `modelled`.
-#' @iparam modelled Model output from processing the `raw` dataframe with something like
-#'   `poission_locfit_model`
+#' @iparam modelled Model output from processing the `raw` dataframe with
+#'   something like `poission_locfit_model`
 #' @param ... not used
-#' @param population_unit what population unit do you want the incidence in e.g. per 100K
+#' @param population_unit what population unit do you want the incidence in e.g.
+#'   per 100K
 #' @param normalise_time The default behaviour for incidence is to keep it in
-#'   the same time units as the input data. If this parameter is set to `TRUE` the
-#'   incidence rates are calculated per year. If given as a lubridate period string
-#'   e.g. "1 day" then the incidence is calculated over that time period.
+#'   the same time units as the input data. If this parameter is set to `TRUE`
+#'   the incidence rates are calculated per year. If given as a lubridate period
+#'   string e.g. "1 day" then the incidence is calculated over that time period.
 #'
 #' @return a dataframe with incidence rates per unit capita.
 #'   `r i_incidence_per_capita_model`
@@ -20,19 +22,18 @@
 #' @concept models
 #'
 #' @examples
-#' tmp = ggoutbreak::england_covid %>%
-#'   ggoutbreak::poisson_locfit_model(window=21) %>%
+#'
+#' ggoutbreak::england_covid_poisson_age_stratified %>%
 #'   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) %>%
 #'   dplyr::glimpse()
 #'
 normalise_incidence = function(
-    modelled = i_incidence_model,
-    pop = i_population_data,
-    ...,
-    population_unit = 100000,
-    normalise_time = FALSE
+  modelled = i_incidence_model,
+  pop = i_population_data,
+  ...,
+  population_unit = 100000,
+  normalise_time = FALSE
 ) {
-
   modelled = interfacer::ivalidate(modelled)
   modelled = infer_population(modelled, pop)
 
@@ -46,43 +47,54 @@ normalise_incidence = function(
     } else {
       out_unit = lubridate::as.period(normalise_time)
     }
-    timefrac = out_unit/unit
+    timefrac = out_unit / unit
   }
 
   # interfacer::ireturn(
-    modelled %>%
+  modelled %>%
     dplyr::mutate(
-      incidence.per_capita.0.025 = incidence.0.025 / population * population_unit * timefrac,
-      incidence.per_capita.0.5 = incidence.0.5 / population * population_unit * timefrac,
-      incidence.per_capita.0.975 = incidence.0.975 / population * population_unit * timefrac,
-      incidence.per_capita.fit = incidence.fit - log(population / population_unit) + log(timefrac),
-      incidence.per_capita.se.fit = incidence.se.fit, # no transformation under log normal assumption
+      incidence.per_capita.0.025 = incidence.0.025 /
+        population *
+        population_unit *
+        timefrac,
+      incidence.per_capita.0.5 = incidence.0.5 /
+        population *
+        population_unit *
+        timefrac,
+      incidence.per_capita.0.975 = incidence.0.975 /
+        population *
+        population_unit *
+        timefrac,
+      incidence.per_capita.fit = incidence.fit -
+        log(population / population_unit) +
+        log(timefrac),
+      incidence.per_capita.se.fit = incidence.se.fit,
+      # no transformation under log normal assumption
       population_unit = population_unit,
       time_unit = out_unit
     )
   #  i_incidence_per_capita_model
   #)
-
-
 }
-
-
 
 
 #' Calculate a normalised count per capita
 #'
-#' This assumes positive disease counts are stratified by a population grouping, e.g.
-#' geography or age, and we have estimates of the size of that population during
-#' that time period. Normalising by population size allows us to compare groups.
+#' This assumes positive disease counts are stratified by a population grouping,
+#' e.g. geography or age, and we have estimates of the size of that population
+#' during that time period. Normalising by population size allows us to compare
+#' groups.
 #'
 #' @iparam pop The population data must be grouped in the same way as `raw`.
 #' @iparam raw The count data
 #' @param ... not used
-#' @param population_unit What population unit do you want the count data normalised to e.g. per 100K
+#' @param population_unit What population unit do you want the count data
+#'   normalised to e.g. per 100K
 #' @param normalise_time The default behaviour for normalising is to keep it in
-#'   the same time units as the input data. If this parameter is set to `TRUE` the
-#'   incidence rates are calculated per year. If given as a lubridate period string
-#'   e.g. "1 week" then the incidence is calculated over that time period.
+#'   the same time units as the input data. If this parameter is set to `TRUE`
+#'   the incidence rates are calculated per year. If given as a lubridate period
+#'   string e.g. "1 week" then the incidence is calculated over that time
+#'   period.
 #'
 #' @return a dataframe with incidence rates per unit capita.
 #'   `r i_incidence_per_capita_data`
@@ -95,13 +107,12 @@ normalise_incidence = function(
 #'   dplyr::glimpse()
 #'
 normalise_count = function(
-    raw = i_incidence_data,
-    pop = i_population_data,
-    ...,
-    population_unit = 100000,
-    normalise_time = FALSE
+  raw = i_incidence_data,
+  pop = i_population_data,
+  ...,
+  population_unit = 100000,
+  normalise_time = FALSE
 ) {
-
   raw = interfacer::ivalidate(raw)
   raw = infer_population(raw, pop)
 
@@ -115,7 +126,7 @@ normalise_count = function(
     } else {
       out_unit = lubridate::as.period(normalise_time)
     }
-    timefrac = out_unit/unit
+    timefrac = out_unit / unit
   }
 
   # interfacer::ireturn(
@@ -127,32 +138,40 @@ normalise_count = function(
     )
   #  i_incidence_per_capita_data
   #)
-
-
 }
 
 # normalise the incidence extracting pop from input data.
 .normalise_from_raw = function(modelled, d) {
-  if (interfacer::is_col_present(d,population,population_unit,time_unit)) {
-
+  if (interfacer::is_col_present(d, population, population_unit, time_unit)) {
     population_unit = unique(d$population_unit)
     out_unit = d$time_unit[[1]]
     # recreate population (including grouping) from input data
-    pop = d %>% dplyr::select(time,population)
+    pop = d %>% dplyr::select(time, population)
 
     # could extract a pop dataframe with time and population from d.
     # potentially could do this outside of group_modify.
     unit = .get_meta(modelled$time)$unit
 
-    timefrac = out_unit/unit
+    timefrac = out_unit / unit
 
     modelled = modelled %>%
       infer_population(pop) %>%
       dplyr::mutate(
-        incidence.per_capita.0.025 = incidence.0.025 / population * population_unit * timefrac,
-        incidence.per_capita.0.5 = incidence.0.5 / population * population_unit * timefrac,
-        incidence.per_capita.0.975 = incidence.0.975 / population * population_unit * timefrac,
-        incidence.per_capita.fit = incidence.fit - log(population / population_unit) + log(timefrac),
+        incidence.per_capita.0.025 = incidence.0.025 /
+          population *
+          population_unit *
+          timefrac,
+        incidence.per_capita.0.5 = incidence.0.5 /
+          population *
+          population_unit *
+          timefrac,
+        incidence.per_capita.0.975 = incidence.0.975 /
+          population *
+          population_unit *
+          timefrac,
+        incidence.per_capita.fit = incidence.fit -
+          log(population / population_unit) +
+          log(timefrac),
         incidence.per_capita.se.fit = incidence.se.fit,
         population_unit = population_unit,
         time_unit = out_unit

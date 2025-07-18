@@ -73,12 +73,34 @@ growth rate estimate both based on the time unit of the input data (e.g. for
 daily data the rate will be cases per day and the growth rate will be daily).
 }
 \examples{
+data = test_poisson_growth_rate
 
-withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-  ggoutbreak::england_covid \%>\%
-    ggoutbreak::poisson_locfit_model(window=21) \%>\%
-    dplyr::glimpse()
-})
+tmp2 = data \%>\% ggoutbreak::poisson_locfit_model(window=7,deg=2)
+tmp3 = data \%>\% ggoutbreak::poisson_locfit_model(window=14,deg=1)
+
+comp = dplyr::bind_rows(
+  tmp2 \%>\% dplyr::mutate(class="7:2"),
+  tmp3 \%>\% dplyr::mutate(class="14:1"),
+) \%>\% dplyr::group_by(class)
+
+if (interactive()) {
+  plot_incidence(
+    comp,
+    date_labels="\%b \%y",
+    raw=data
+  )+
+  ggplot2::geom_line(
+    data=data,
+    mapping=ggplot2::aes(x=as.Date(time),y=rate),
+    colour="grey40"
+  )
+
+  plot_growth_rate(
+    comp,
+    date_labels="\%b \%y"
+  )+
+  sim_geom_function(data,colour="black")
+}
 
 }
 \concept{models}

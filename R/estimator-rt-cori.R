@@ -6,19 +6,26 @@
 #' Calculate a reproduction number estimate from incidence data using a reimplementation
 #' of the Cori method and an empirical generation time distribution. This uses
 #' a mixture distribution to transmit uncertainty in generation time estimates.
-#' A number of changes in the implementation are made. Firstly there is no technical
-#' limitation to the infectivity profile being strictly positive in time.
+#' A number of changes compared to the original `EpiEstim` implementation
+#' have been made. Firstly there is no technical
+#' limitation to the infectivity profile being strictly positive in time. This allows
+#' use of serial intervals and secondary potentially delayed observations.
 #' Secondly this implementation should tolerate missing count values (NA values
 #' must be filtered out though). Thirdly for a given time point `t` this applies
 #' all `Rt` estimates for which the window spans time point `t` rather than end
-#' on time point `t`, and fourthly this implementation allows multiple windows
+#' on time point `t`, which tends to address lag issues with the original,
+#' and fourthly this implementation allows multiple window
 #' widths to be calculated in parallel and aggregated. All of this tends to
 #' increase uncertainty in the result particularly in the time dimension, which
 #' addresses some of the issue seem with `EpiEstim` during the pandemic. Finally
 #' it is quite a bit quicker, especially if approximate quantiles are all that
 #' are needed.
 #'
+#' There are still issues with large $R_t$ estimates in the early part of a
+#' time series, which is a resul tof the renewal equaltion method.
+#'
 #' This will calculate a reproduction number for each group in the input dataframe.
+#'
 #'
 #'
 #' @iparam df The count data. Extra groups are allowed.
@@ -45,14 +52,10 @@
 #' @concept models
 #' @examples
 #'
-#' #TODO: speed up example
+#' data = ggoutbreak::test_poisson_rt_smooth
 #'
-#' tmp = ggoutbreak::england_covid  %>%
-#'   dplyr::filter(date < "2021-01-01") %>%
-#'   time_aggregate(count=sum(count))
-#'
-#' tmp2 = tmp %>% rt_cori(epiestim_compat = TRUE)
-#' tmp3 = tmp %>% rt_cori(window=c(5:14), approx=TRUE)
+#' tmp2 = data %>% rt_cori(ip=ggoutbreak::test_ip, epiestim_compat = TRUE)
+#' tmp3 = data %>% rt_cori(ip=ggoutbreak::test_ip, window=c(5:14), approx=TRUE)
 #'
 #' comp = dplyr::bind_rows(
 #'   tmp2 %>% dplyr::mutate(class = "EpiEstim"),
@@ -60,11 +63,8 @@
 #' ) %>% dplyr::group_by(class)
 #'
 #' if (interactive()) {
-#'   plot_rt(comp, date_labels="%b %y") %above%
-#'    ggplot2::geom_errorbar(
-#'      data=england_consensus_rt %>% dplyr::filter(date < "2021-01-01"),
-#'      mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
-#'    ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
+#'   plot_rt(comp, date_labels="%b %y")+sim_geom_function(data,colour="black")+
+#'     ggplot2::coord_cartesian(ylim=c(0.5,3.0))
 #' }
 #'
 rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean_prior = 1, std_prior = 2, ..., epiestim_compat = FALSE, approx = FALSE, .progress=interactive()) {
@@ -155,10 +155,10 @@ rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean
           # rt.true = if (interfacer::is_col_present(.,rt.true)) unique(rt.true) else NULL
         ) %>%
         .result_from_fit(
-          "rt",
-          qfn = \(p) .qmixgamma(p, .$rt.shapes, .$rt.rates)
+          type = "rt",
+          qfn = \(p) .qmixlist(dist="gamma", p=p, param1list = .$rt.shapes, param2list = .$rt.rates, method="exact")
         ) %>%
-        .keep_cdf(type = "rt", shape=.$rt.shapes, rate=.$rt.rates) %>%
+        .keep_cdf(type = "rt", shape=.$rt.shapes, rate=.$rt.rates, link="log") %>%
         dplyr::select(-c(rt.rates,rt.shapes))
 
 
@@ -166,6 +166,7 @@ rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean
 
         df6 = df5 %>%
           dplyr::summarise(
+            # calculate the mean & sd of the mixture.
             rt.fit = mean(mean_post),
             rt.se.fit = sqrt(mean(var_post+mean_post^2)-rt.fit^2)#,
             # rt.true = if (interfacer::is_col_present(.,rt.true)) unique(rt.true) else NULL
@@ -175,10 +176,10 @@ rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean
             rt.rate = rt.fit/rt.se.fit^2
           ) %>%
           .result_from_fit(
-            "rt",
+            type = "rt",
             qfn = \(p) qgamma2(p, .$rt.fit, .$rt.se.fit, convex = FALSE)
           ) %>%
-          .keep_cdf(type = "rt", shape=.$rt.shape, rate=.$rt.rate) %>%
+          .keep_cdf(type = "rt", shape=.$rt.shape, rate=.$rt.rate, link="log") %>%
           dplyr::select(-c(rt.rate,rt.shape))
 
 

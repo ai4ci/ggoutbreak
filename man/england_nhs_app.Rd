@@ -28,3 +28,4 @@ check-in (social activity) and alerts (self isolation instruction) data from
 the NHS COVID-19 app, aggregated to country level on a week by week basis.
 }
 \concept{datasets}
+\keyword{datasets}

@@ -15,7 +15,7 @@ infected), from posterior samples."><meta property="og:image" content="https://a
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.3</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,7 +23,8 @@ infected), from posterior samples."><meta property="og:image" content="https://a
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/ggoutbreak.html">Get started</a></li>
+<li class="active nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/covid-timeseries.html">England COVID-19 cases</a></li>
@@ -119,7 +120,7 @@ of <code>n_boots</code> ip distributions will be created (randomly sampled).</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>If using <code>EpiEstim</code> and <code><a href="https://rdrr.io/pkg/coarseDataTools/man/dic.fit.mcmc.html" class="external-link">coarseDataTools::dic.fit.mcmc</a></code> the output of the
+    <p>If using <code>EpiEstim</code> and <code><a href="http://nickreich.github.io/coarseDataTools/reference/dic.fit.mcmc.html" class="external-link">coarseDataTools::dic.fit.mcmc</a></code> the output of the
 MCMC will be a S4 object with a <code>samples</code> slot, containing a dataframe of
 <code>shape=var1</code> and <code>scale=var2</code> columns. to use this output with
 <code>make_posterior_ip</code> invoke it like this:</p>
@@ -142,7 +143,7 @@ are required.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ tau         <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ a0          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.0<span style="color: #949494;">, </span>0.5<span style="color: #949494;">, </span>1.5<span style="color: #949494;">, </span>2.5<span style="color: #949494;">, </span>3.5<span style="color: #949494;">, </span>4.5<span style="color: #949494;">, </span>5.5<span style="color: #949494;">, </span>6.5<span style="color: #949494;">, </span>7.5<span style="color: #949494;">, </span>8.5<span style="color: #949494;">, </span>9.5<span style="color: #949494;">, </span>10.…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ a1          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5<span style="color: #949494;">, </span>1.5<span style="color: #949494;">, </span>2.5<span style="color: #949494;">, </span>3.5<span style="color: #949494;">, </span>4.5<span style="color: #949494;">, </span>5.5<span style="color: #949494;">, </span>6.5<span style="color: #949494;">, </span>7.5<span style="color: #949494;">, </span>8.5<span style="color: #949494;">, </span>9.5<span style="color: #949494;">, </span>10.5<span style="color: #949494;">, </span>11…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ probability <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 5.996368e-08<span style="color: #949494;">, </span>9.328589e-04<span style="color: #949494;">, </span>3.005721e-02<span style="color: #949494;">, </span>1.427576e-01<span style="color: #949494;">, </span>2.…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ probability <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.092022e-08<span style="color: #949494;">, </span>4.302621e-04<span style="color: #949494;">, </span>2.007607e-02<span style="color: #949494;">, </span>1.187329e-01<span style="color: #949494;">, </span>2.…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ boot        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2…</span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="plot_ip.html">plot_ip</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>

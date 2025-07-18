@@ -19,20 +19,21 @@ make_gamma_ip(
 )
 }
 \arguments{
-\item{median_of_mean, lower_ci_of_mean, upper_ci_of_mean}{Parameters of the
+\item{median_of_mean, lower_ci_of_mean, upper_ci_of_mean}{Quantiles of the
 infectivity profile mean.}
 
-\item{median_of_sd, lower_ci_of_sd, upper_ci_of_sd}{Parameters of the
+\item{median_of_sd, lower_ci_of_sd, upper_ci_of_sd}{Quantiles of the
 infectivity profile SD.}
 
 \item{correlation}{the correlation between mean and sd. this is optional
-and will be inferred if not changed form the default \code{NA} value.}
+and will be inferred if not provided.}
 
 \item{n_boots}{The number of samples to generate.}
 
 \item{epiestim_compat}{Use \code{EpiEstim} to generate the infectivity profiles.
 A true value here results in an infectivity profile with probability of 0
-for day 0.}
+for day 0. If false the infectivity profile may include density at zero or
+even negative values.}
 
 \item{epiestim_sampler}{Use \code{EpiEstim} to generate the random samples using
 independent truncated normal distributions for mean and SD based on

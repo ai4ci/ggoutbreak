@@ -25,3 +25,4 @@ data(test_poisson_rt)
 This is generated using the \code{test_ip} infectivity profile
 }
 \concept{datasets}
+\keyword{datasets}

@@ -17,30 +17,30 @@
 #' package is usually going to be better, as time summarise will only look at non
 #' overlapping time periods with fixed lengths.
 #'
-#' There is another use case where an existing  timeseries on a particular
+#' There is another use case where an existing timeseries on a particular
 #' frequency is aggregated to another less frequent basis (e.g. moving from a
 #' daily timeseries to a weekly one). In this case the input will contain a
 #' `count` column. In this mode no checks are made that the more frequent events
 #' are all present before summarisation so the result may include different numbers
 #' of input periods (e.g. going from weeks to months may be 4 or 5 weeks in each
-#' month)
+#' month). If a `class` column is present the a classwise denominator is calculated
 #'
 #' @param df a line list of data you want to summarise, optionally grouped.
 #'   If this is grouped then each group is treated independently. The remaining
 #'   columns must contain a `date` column and may contain a `class` column. If a
 #'   `count` column is present the counts will be summed, otherwise each
-#'   individual row will be counted as a single event (as a linelist)
+#'   individual row will be counted as a single event (as a line list)
 #' @inheritParams cut_date
 #' @param rectangular should the resulting time series be the same length for
-#'   all groups. This is only the case if you can be sure that your data is complete
+#'   all groups? This is only the case if you can be sure that your data is complete
 #'   for all subgroups, otherwise missing data will be treated as zero counts. This
 #'   is important if leading and trailing missing data in one subgroup can be due
 #'   to a reporting delay in that subgroup, in which case a rectangular time series
 #'   will erroneously fill in zero counts for this missing data.
-#' @param ... a spec for a dplyr::summary(...) - optional, and if not provided a
-#'   `count = dplyr::n()` or a `count = sum(count)` is performed.
-#' @param .fill a list similar to tidyr::complete for values to fill
-#'   variables with
+#' @param ... a specification for a dplyr::summary(...) - optional, and if not
+#'   provided a `count = dplyr::n()` or a `count = sum(count)` is performed.
+#' @param .fill a list similar to `tidyr::complete` for default values to fill
+#'   variables with.
 #'
 #' @concept time_period
 #'
@@ -54,34 +54,77 @@
 #' `r i_incidence_data`
 #'
 #' @export
-time_summarise = function(df = i_dated, unit, anchor = "start", rectangular = FALSE, ..., .fill = list(count = 0)) {
-
-  df = interfacer::ivalidate(df)
+#'
+#' @examples
+#'
+#' # a set of random dates with a class column:
+#' input = tibble::tibble(
+#'   class = rep(c("A","B"),1000),
+#'   date = as.Date("2020-01-01")+sample.int(100,2000,TRUE)
+#' )
+#'
+#' # summarise daily counts, including denominators:
+#' daily = time_summarise(input, unit="1 day") %>% dplyr::glimpse()
+#'
+#' # summarise weekly counts, for sample data:
+#' time_summarise(input, unit="1 week") %>% dplyr::glimpse()
+#'
+#' # summarise daily counts into weekly:
+#' time_summarise(daily, unit="1 week") %>% dplyr::glimpse()
+time_summarise = function(
+  df = i_dated,
+  unit,
+  anchor = "start",
+  rectangular = FALSE,
+  ...,
+  .fill = list(count = 0)
+) {
+  df = interfacer::ivalidate(
+    df,
+    .imap = interfacer::imapper(date = as.Date(time))
+  )
 
   #TODO: a line list with no data at the end is either missing data or there were no observations.
   # A date at which the observations are complete up to may be needed for each
   # group.
 
-  if (.has_cols(df,"time")) warning("time_summarise ignores existing time_period columns")
+  if (.has_cols(df, "time")) {
+    .message_once("N.B. time_summarise ignores existing time_period columns")
+  }
 
-  has_class = .has_cols(df,"class")
+  has_class = .has_cols(df, "class")
   grps = df %>% dplyr::groups()
+  if (has_class) {
+    grps = union(grps, list(as.symbol("class")))
+  }
+  # exclude class form grouping if present
+  other_grps = setdiff(grps, list(as.symbol("class")))
 
   start_date = .start_from_anchor(df$date, anchor)
 
-  df = df %>% dplyr::mutate(time = cut_date(date, unit=unit, anchor = start_date, output="time_period"))
-  if (has_class) df = df %>% dplyr::group_by(class, .add = TRUE)
+  df = df %>%
+    dplyr::mutate(
+      time = cut_date(
+        date,
+        unit = unit,
+        anchor = start_date,
+        output = "time_period"
+      )
+    )
+  if (has_class) {
+    df = df %>% dplyr::group_by(class, .add = TRUE)
+  }
   df = df %>% dplyr::group_by(time, .add = TRUE)
 
   dots = dplyr::enexprs(...)
 
-  if (length(dots)==0) {
-    if (.has_cols(df,"count")) {
-      dots=list(count=rlang::expr(sum(count, na.rm=TRUE)))
+  if (length(dots) == 0) {
+    if (.has_cols(df, "count")) {
+      dots = list(count = rlang::expr(sum(count, na.rm = TRUE)))
     } else {
-      dots=list(count=rlang::expr(dplyr::n()))
+      dots = list(count = rlang::expr(dplyr::n()))
     }
-    .fill = list(count=0)
+    .fill = list(count = 0)
   }
 
   # when rectangular the full sequence is for all the obseverations
@@ -89,15 +132,21 @@ time_summarise = function(df = i_dated, unit, anchor = "start", rectangular = FA
 
   # df grouped by grps, class(?), and time at this point
   tmp = df %>%
-    dplyr::summarise(!!!dots, .groups="drop_last") %>%
-    dplyr::group_by(!!!grps) %>%
-    dplyr::group_modify(function(d,g,...) {
-      if (!rectangular) times = date_seq.time_period(d$time)
+    # grouped by class (if present) and (new) time
+    dplyr::group_by(!!!grps, time) %>%
+    dplyr::summarise(!!!dots) %>%
+    dplyr::group_by(!!!other_grps) %>%
+    # not grouped by class, or time
+    dplyr::group_modify(function(d, g, ...) {
+      if (!rectangular) {
+        times = date_seq.time_period(d$time)
+      }
       if (has_class) {
         dtmp = d %>% tidyr::complete(class, time = times, fill = .fill)
-        if (!.has_cols(d, "denom") & .has_cols(d,"count")) {
+        # calculate class-wise denominator.
+        if (!.has_cols(d, "denom") & .has_cols(d, "count")) {
           # calculate a classwise denominator if class and count are present and no denom column
-          # created by the summarise.
+          # created by the summarise (i.e. the default unless user supplied).
           dtmp = dtmp %>%
             dplyr::group_by(time) %>%
             dplyr::mutate(denom = sum(count, na.rm = TRUE)) %>%
@@ -106,18 +155,11 @@ time_summarise = function(df = i_dated, unit, anchor = "start", rectangular = FA
       } else {
         dtmp = d %>% tidyr::complete(time = times, fill = .fill)
       }
-
     })
 
-  if (has_class) {
-    tmp = tmp %>% dplyr::group_by(!!!grps, class)
-  } else {
-    tmp = tmp %>% dplyr::group_by(!!!grps)
-  }
-
+  tmp = tmp %>% dplyr::group_by(!!!grps)
   return(interfacer::ireturn(tmp, i_incidence_data))
 }
-
 
 
 #' Aggregate time series data preserving the time series
@@ -148,36 +190,57 @@ time_summarise = function(df = i_dated, unit, anchor = "start", rectangular = FA
 #' ggoutbreak::england_covid %>%
 #'   time_aggregate(.fns=mean) %>%
 #'   dplyr::glimpse()
-time_aggregate = function(df = i_timestamped, ..., .groups = NULL, .cols = NULL, .fns = NULL) {
+time_aggregate = function(
+  df = i_timestamped,
+  ...,
+  .groups = NULL,
+  .cols = NULL,
+  .fns = NULL
+) {
   .cols = rlang::enexpr(.cols)
   df = interfacer::ivalidate(df)
   grps = df %>% dplyr::group_vars()
   #TODO: automatically deal with class column?
-  agg_grps = grps[grps != "time"] %>% utils::head(-1) %>% c("time") %>% unique() %>% lapply(as.symbol)
+  agg_grps = grps[grps != "time"] %>%
+    utils::head(-1) %>%
+    c("time") %>%
+    unique() %>%
+    lapply(as.symbol)
   df = df %>% dplyr::group_by(!!!agg_grps)
-
 
   if (!is.null(.fns)) {
     if (is.null(.cols)) {
-      .cols = setdiff(colnames(df),c(grps,"time"))
+      .cols = setdiff(colnames(df), c(grps, "time"))
       is_date = sapply(.cols, function(x) is.Date(df[[x]]))
       .cols = .cols[!is_date]
-      out = df %>% dplyr::summarise(dplyr::across(.cols=dplyr::all_of(.cols), .fns = .fns, ..., ), .groups=.groups)
+      out = df %>%
+        dplyr::summarise(
+          dplyr::across(.cols = dplyr::all_of(.cols), .fns = .fns, ..., ),
+          .groups = .groups
+        )
     } else {
-      out = df %>% dplyr::summarise(dplyr::across(.cols=!!.cols, .fns = .fns, ...), .groups=.groups)
+      out = df %>%
+        dplyr::summarise(
+          dplyr::across(.cols = !!.cols, .fns = .fns, ...),
+          .groups = .groups
+        )
     }
   } else {
     dots = rlang::enexprs(...)
     if (length(dots) == 0) {
       dots = list(count = rlang::expr(sum(count)))
       if (.has_cols(df, "denom")) {
-        dots[["denom"]] = rlang::expr(ifelse(length(unique(denom))==1, unique(denom), sum(denom)))
+        dots[["denom"]] = rlang::expr(ifelse(
+          length(unique(denom)) == 1,
+          unique(denom),
+          sum(denom)
+        ))
       }
       if (.has_cols(df, "population")) {
         dots[["population"]] = rlang::expr(sum(population))
       }
     }
-    out = df %>% dplyr::summarise(!!!dots, .groups=.groups)
+    out = df %>% dplyr::summarise(!!!dots, .groups = .groups)
   }
 
   return(out)

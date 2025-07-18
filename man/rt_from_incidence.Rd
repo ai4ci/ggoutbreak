@@ -7,7 +7,7 @@
 rt_from_incidence(
   df = i_incidence_model,
   ip = i_discrete_ip,
-  approx = FALSE,
+  approx = TRUE,
   .progress = interactive()
 )
 }
@@ -63,19 +63,24 @@ the \code{ip} distribution, and that this is daily, if this is not the case then
 \code{\link[=rescale_model]{rescale_model()}} may be able to fix it.
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
-  dplyr::filter(date < "2021-01-01") \%>\%
-  time_aggregate(count=sum(count)) \%>\%
+tmp = ggoutbreak::test_poisson_rt_smooth \%>\%
   poisson_locfit_model() \%>\%
-  rt_from_incidence()
+  rt_from_incidence(approx=FALSE)
 
+tmp2 = ggoutbreak::test_poisson_rt_smooth \%>\%
+  poisson_locfit_model() \%>\%
+  rt_from_incidence(approx=TRUE)
+
+plot_data = dplyr::bind_rows(
+  tmp \%>\% dplyr::mutate(class = "exact"),
+  tmp2 \%>\% dplyr::mutate(class = "approx"),
+) \%>\% dplyr::group_by(class)
 
 if (interactive()) {
-  plot_rt(tmp, date_labels="\%b \%y") \%above\%
-   ggplot2::geom_errorbar(
-     data=england_consensus_rt \%>\% dplyr::filter(date < "2021-01-01"),
-     mapping=ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="grey60")+
-   ggplot2::coord_cartesian(ylim=c(0.5,1.75),xlim=as.Date(c("2020-05-01",NA)))
+  plot_rt(plot_data, date_labels="\%b \%y")+
+   sim_geom_function(ggoutbreak::test_poisson_rt_smooth)+
+   ggplot2::coord_cartesian(ylim=c(0.5,3))+
+   ggplot2::facet_wrap(~class)
 }
 
 }

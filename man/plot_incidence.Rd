@@ -196,14 +196,11 @@ Plot an incidence timeseries
 \examples{
 # example code
 
-tmp = ggoutbreak::england_covid \%>\%
-  time_aggregate(count=sum(count)) \%>\%
-  normalise_count(56489700, population_unit=1000, normalise_time="1 year")
-
+tmp = test_poisson_rt_2class
 tmp2 = tmp \%>\% poisson_locfit_model()
 
 if(interactive()) {
-  plot_incidence(tmp2,tmp,colour="blue",size=0.25)
+  plot_incidence(tmp2,tmp,size=0.25)
 }
 
 }
