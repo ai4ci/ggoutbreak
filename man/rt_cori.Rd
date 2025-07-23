@@ -23,7 +23,7 @@ rt_cori(
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Ungrouped.
+Any grouping allowed.
 }
 
 \item{ip}{A long format infectivity profile. - a dataframe with columns:

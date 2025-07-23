@@ -9,6 +9,7 @@ score_estimate(
   obs,
   lags = NULL,
   summarise_by = est \%>\% dplyr::groups(),
+  bootstraps = 1000,
   raw_bootstraps = FALSE
 )
 }
@@ -41,6 +42,10 @@ overridden with a \code{tidyselect} specification of the groupings we want to
 see in the final summarised output (e.g. if we want to differentiate
 performance on a particular type of scenario or timeframe). If this is
 exactly \code{FALSE} the function will return all the raw point estimates.}
+
+\item{bootstraps}{the number of bootstrap replicates to draw for assessing
+metric confidence. If FALSE then no bootstrapping will be done and the
+metrics returned will have no confidence intervals.}
 
 \item{raw_bootstraps}{(defaults to FALSE) return the summary metrics for
 each bootstrap rather than the quantiles of the summary metrics.}

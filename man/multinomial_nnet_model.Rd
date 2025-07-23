@@ -22,7 +22,7 @@ variant, or serotype, for a multinomial model. Any missing data points are ignor
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 }
 
-Must be grouped by: class (exactly).
+Minimally grouped by: class (and other groupings allowed).
 }
 
 \item{...}{not used}
