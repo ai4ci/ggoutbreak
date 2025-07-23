@@ -46,9 +46,9 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
     tidyr::pivot_longer(
       cols = c(growth, incidence, rt, proportion, relative.growth),
       names_to = ".type",
-      values_to = ".ref"
+      values_to = "ref"
     ) %>%
-    dplyr::filter(!is.na(.ref))
+    dplyr::filter(!is.na(ref))
 
   test = tmp %>%
     dplyr::inner_join(tmp2, by = c("time", ".type")) %>%
@@ -58,7 +58,7 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
     test %>%
       dplyr::summarise(
         lagged_rmse = sqrt(mean(
-          (.lag(.ref, n = lag, default = NA) - .value)^2,
+          (.lag(ref, n = lag, default = NA) - .value)^2,
           na.rm = TRUE
         )),
         lag = lag
@@ -101,9 +101,9 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 # maps column names to 2 cols .type=incidence and
 # .p = 0.25 and .value = 0.1.
 # works across groups and different column names.
-.long_quantiles = function(est) {
+.long_quantiles = function(est, nest = FALSE) {
   grps = est %>% dplyr::groups()
-  est %>%
+  tmp = est %>%
     dplyr::select(
       !!!grps,
       time,
@@ -118,6 +118,41 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
     dplyr::mutate(
       .p = as.numeric(.p)
     )
+  if (nest) {
+    tmp = tmp %>% tidyr::nest(quantiles = c(.p, .value))
+  }
+  return(tmp)
+}
+
+# Convert standard output format to a long format by estimate type with nested
+# quantiles
+.long_types = function(est) {
+  grps = est %>% dplyr::groups()
+  types = stringr::str_extract(colnames(est), "([^\\.]*)?\\..*", group = 1)
+  types = unique(na.omit(types))
+  dplyr::bind_rows(
+    lapply(types, \(t) {
+      est %>%
+        dplyr::select(!!!grps, time, dplyr::starts_with(t)) %>%
+        dplyr::mutate(
+          .type = t,
+          median = .data[[paste0(t, ".0.5")]],
+          lower_quartile = .data[[paste0(t, ".0.25")]],
+          upper_quartile = .data[[paste0(t, ".0.75")]]
+        ) %>%
+        tidyr::pivot_longer(
+          cols = tidyselect::matches("\\.0\\.[0-9]+$"),
+          names_pattern = "^.*\\.(0\\.[0-9]+$)",
+          names_to = c("p"),
+          values_to = "x"
+        ) %>%
+        dplyr::mutate(p = as.numeric(p)) %>%
+        tidyr::nest(quantiles = c(p, x)) %>%
+        dplyr::rename_with(.cols = dplyr::starts_with(t), .fn = \(n) {
+          stringr::str_remove(n, paste0(t, "\\."))
+        })
+    })
+  )
 }
 
 #' Calculate scoring statistics from predictions.
@@ -153,6 +188,9 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #'   see in the final summarised output (e.g. if we want to differentiate
 #'   performance on a particular type of scenario or timeframe). If this is
 #'   exactly `FALSE` the function will return all the raw point estimates.
+#' @param bootstraps the number of bootstrap replicates to draw for assessing
+#'   metric confidence. If FALSE then no bootstrapping will be done and the
+#'   metrics returned will have no confidence intervals.
 #' @param raw_bootstraps (defaults to FALSE) return the summary metrics for
 #'   each bootstrap rather than the quantiles of the summary metrics.
 #'
@@ -210,7 +248,9 @@ score_estimate = function(
   obs,
   lags = NULL,
   summarise_by = est %>% dplyr::groups(),
+  bootstraps = 1000,
   raw_bootstraps = FALSE
+  # cores = NULL
 ) {
   if (is.null(lags)) {
     lags = tibble::tibble(
@@ -225,9 +265,19 @@ score_estimate = function(
     )
   }
 
+  # if (is.null(cores) && requireNamespace("parallel", quietly = TRUE)) {
+  #   cores = parallel::detectCores()
+  # }
+  #
+  # if (!is.null(cores)) {
+  #   if (requireNamespace("mirai", quietly = TRUE)) {
+  #     if (!mirai::daemons_set()) mirai::daemons(cores)
+  #   }
+  # }
+
   join_cols = intersect(colnames(est), colnames(obs))
 
-  message(
+  .message_once(
     "estimates match true observations using columns: ",
     paste0(join_cols, collapse = ",")
   )
@@ -238,98 +288,55 @@ score_estimate = function(
   obs_type = stringr::str_extract(obs_cols, "(.*)\\.obs", 1)
   obs_type = obs_type[!is.na(obs_type)]
 
-  message(
+  .message_once(
     "matching ground truth observations for: ",
     paste0(obs_type, collapse = ",")
   )
 
-  long_obs = obs %>%
-    dplyr::select(
-      tidyselect::all_of(join_cols),
-      tidyselect::ends_with(".obs")
+  crps_data = est %>%
+    inner_join(
+      obs %>% dplyr::select(dplyr::all_of(join_cols), dplyr::ends_with(".obs")),
+      by = join_cols
     ) %>%
-    tidyr::pivot_longer(
-      cols = tidyselect::ends_with(".obs"),
-      names_to = ".type",
-      values_to = ".ref",
-      names_pattern = "([^\\.]+)\\.obs"
-    ) %>%
-    dplyr::left_join(lags, by = c(join_cols_2, ".type" = "estimate")) %>%
-    # shift the observed to meet the estimate.
-    dplyr::mutate(time = time + lag)
+    .long_types() %>%
+    dplyr::filter(.type %in% obs_type) %>%
+    dplyr::rename(ref = obs)
 
-  if (!any(stringr::str_detect(colnames(est), "\\.cdf$"))) {
+  if (!"cdf" %in% colnames(crps_data)) {
     stop(
       "No CDFs found for estimates. Re-run the esimator after setting `options(\"ggoutbreak.keep_cdf\"=TRUE)`"
     )
   }
 
-  long_cdf = est %>%
-    dplyr::select(
-      tidyselect::all_of(join_cols),
-      tidyselect::ends_with(".cdf")
-    ) %>%
-    tidyr::pivot_longer(
-      cols = tidyselect::ends_with(".cdf"),
-      names_to = ".type",
-      values_to = ".cdf",
-      names_pattern = "([^\\.]+)\\.cdf"
-    )
-
-  long_dom = est %>%
-    dplyr::select(
-      tidyselect::all_of(join_cols),
-      tidyselect::ends_with(".link")
-    ) %>%
-    tidyr::pivot_longer(
-      cols = tidyselect::ends_with(".link"),
-      names_to = ".type",
-      values_to = ".link",
-      names_pattern = "([^\\.]+)\\.link"
-    )
-
-  long_median = est %>%
-    dplyr::select(
-      tidyselect::all_of(join_cols),
-      tidyselect::ends_with(".0.5")
-    ) %>%
-    tidyr::pivot_longer(
-      cols = tidyselect::ends_with(".0.5"),
-      names_to = ".type",
-      values_to = ".median",
-      names_pattern = "([^\\.]+)\\.0\\.5"
-    )
-
-  crps_data = long_cdf %>%
-    dplyr::inner_join(long_obs, by = c(join_cols, ".type")) %>%
-    dplyr::inner_join(long_median, by = c(join_cols, ".type")) %>%
-    dplyr::inner_join(long_dom, by = c(join_cols, ".type"))
-
   crps_data = crps_data %>%
     dplyr::group_by(!!!summarise_by, .type) %>%
     dplyr::group_modify(function(d, g, ...) {
-      # d=crps_data
-      link = unique(d$.link)
+      # d=crps_data %>% filter(statistic=="infections" & .type=="rt") %>% ungroup() %>% select(-.type,-statistic)
+      link = unique(d$link)
       trans = .trans_fn(link)
       inv = .inv_fn(link)
       low = .min_domain(link)
       high = .max_domain(link)
 
-      mean_trans_bias = mean(trans(d$.median) - trans(d$.ref), na.rm = TRUE)
+      mean_trans_bias = mean(trans(d$median) - trans(d$ref), na.rm = TRUE)
 
       d = d %>%
         dplyr::mutate(
-          unbiased_ref = inv(trans(.ref) + mean_trans_bias),
-          crps = .crps(.ref, .cdf, low, high),
-          quantile_bias = .quantile_bias(.ref, .cdf),
-          unbiased_crps = .crps(unbiased_ref, .cdf, low, high),
-          pit = .pit(.ref, .cdf),
-          unbiased_pit = .pit(unbiased_ref, .cdf),
+          crps = .crps(ref, cdf, low, high, quantiles),
+          # bias:
+          unbiased_ref = inv(trans(ref) + mean_trans_bias),
+          quantile_bias = .quantile_bias(ref, cdf),
+          # sharpness:
+          # prediction_variance = .variance(cdf, quantiles),
+          prediction_interval_width_50 = upper_quartile - lower_quartile,
+          # calibration:
+          pit = .pit(ref, cdf),
+          unbiased_pit = .pit(unbiased_ref, cdf),
           iqr_coverage = pit > 0.25 & pit < 0.75,
           unbiased_iqr_coverage = unbiased_pit > 0.25 & unbiased_pit < 0.75
         ) %>%
         dplyr::select(
-          -.cdf
+          -cdf
         )
 
       return(d)
@@ -342,44 +349,63 @@ score_estimate = function(
   crps_summary = crps_data %>%
     dplyr::group_by(!!!summarise_by, .type) %>%
     dplyr::group_modify(function(d, g, ...) {
-      link = unique(d$.link)
+      link = unique(d$link)
       trans = .trans_fn(link)
       inv = .inv_fn(link)
       low = .min_domain(link)
       high = .max_domain(link)
-
-      mean_trans_bias = mean(trans(d$.median) - trans(d$.ref), na.rm = TRUE)
-      mean_bias = inv(mean_trans_bias)
 
       n = nrow(d)
       unif = seq(1 / (2 * n), 1 - 1 / (2 * n), length.out = n)
 
       # d = d %>% filter(statistic=="infections") %>% ungroup() %>% select(-statistic)
 
+      if (isFALSE(bootstraps)) {
+        raw_bootstraps = TRUE
+        bootstraps = 1
+      }
       # bootstrap resampling:
       boots = dplyr::bind_rows(
-        lapply(1:1000, \(i) {
-          d %>%
-            dplyr::slice_sample(prop = 1, replace = TRUE) %>%
-            dplyr::summarise(
-              mean_trans_bias = mean(
-                trans(.median) - trans(.ref),
-                na.rm = TRUE
-              ),
-              mean_bias = inv(mean_trans_bias),
-              pit_was = mean(abs(unif - sort(pit))),
-              unbiased_pit_was = mean(abs(unif - sort(unbiased_pit))),
-              directed_pit_was = mean(
-                (unif - sort(unbiased_pit)) * ifelse(unif < 0.5, 1, -1)
-              ),
-              percent_iqr_coverage = mean(iqr_coverage),
-              unbiased_percent_iqr_coverage = mean(unbiased_iqr_coverage),
-              mean_crps = mean(crps),
-              mean_unbiased_crps = mean(unbiased_crps),
-              mean_quantile_bias = mean(quantile_bias)
-            ) %>%
-            dplyr::mutate(boot = i)
-        })
+        purrr::map(
+          1:bootstraps,
+          purrr::in_parallel(
+            \(i) {
+              d |>
+                dplyr::slice_sample(prop = 1, replace = TRUE) |>
+                dplyr::summarise(
+                  mean_crps = mean(crps),
+                  # bias
+                  mean_trans_bias = mean(
+                    trans(median) - trans(ref),
+                    na.rm = TRUE
+                  ),
+                  mean_bias = mean(
+                    inv(trans(median) - trans(ref)),
+                    na.rm = TRUE
+                  ),
+                  mean_quantile_bias = mean(quantile_bias),
+                  # sharpness:
+                  # mean_prediction_variance = mean(prediction_variance),
+                  mean_prediction_interval_width_50 = mean(
+                    prediction_interval_width_50
+                  ),
+                  # calibration
+                  pit_was = mean(abs(unif - sort(pit))),
+                  unbiased_pit_was = mean(abs(unif - sort(unbiased_pit))),
+                  directed_pit_was = mean(
+                    (unif - sort(unbiased_pit)) * ifelse(unif < 0.5, 1, -1)
+                  ),
+                  percent_iqr_coverage = mean(iqr_coverage),
+                  unbiased_percent_iqr_coverage = mean(unbiased_iqr_coverage),
+                ) |>
+                dplyr::mutate(boot = i)
+            },
+            d = d,
+            unif = unif,
+            inv = inv,
+            trans = trans
+          )
+        )
       )
 
       if (!raw_bootstraps) {
@@ -389,7 +415,9 @@ score_estimate = function(
               c(-boot),
               .fns = list(
                 `0.025` = ~ stats::quantile(.x, 0.025),
+                `0.25` = ~ stats::quantile(.x, 0.25),
                 `0.5` = ~ stats::quantile(.x, 0.5),
+                `0.75` = ~ stats::quantile(.x, 0.75),
                 `0.975` = ~ stats::quantile(.x, 0.975)
               ),
               .names = "{.col}.{.fn}"
@@ -408,7 +436,7 @@ score_estimate = function(
   # long_est = .long_quantiles(est)
   # scores = long_est %>%
   #   dplyr::inner_join(long_obs, by=c(join_cols,".type")) %>%
-  #   dplyr::rename(true_value = .ref, prediction = .value, quantile = .p)
+  #   dplyr::rename(true_value = ref, prediction = .value, quantile = .p)
   #
   # if(!"model" %in% colnames(scores)) scores = scores %>% dplyr::mutate(model="undefined")
   #
@@ -429,36 +457,45 @@ score_estimate = function(
   #     )
   #   }) %>%
   #   dplyr::left_join(crps_data %>% dplyr::select(-lag), by=c(join_cols,".type")) %>%
-  #   dplyr::rename(true_value = .ref, estimate=.type) %>%
+  #   dplyr::rename(true_value = ref, estimate=.type) %>%
   #   dplyr::group_by(model,!!!(est %>% dplyr::groups()),estimate)
   # return(scores)
 }
 
 
-# vectorised CRPS calculation given list of CDFs and true values
+# vectorised CRPS calculation given list of CDFs list of quantile df and true values
 # tmp2 = .cdf_generator(mean=list(c(1,2,3),c(3,4,5)),sd=list(c(1,1,1),c(2,2,2)))
 # .crps(c(2,2), tmp2, min=-100,max=100)
-.crps = function(true, cdf, min = -Inf, max = Inf) {
+.crps = function(true, cdf, min = -Inf, max = Inf, quantiles) {
   if (is.function(cdf)) {
     cdf = list(cdf)
   }
   interfacer::check_numeric(min, max)
-  interfacer::recycle(true, cdf, min, max)
+  interfacer::recycle(true, cdf, min, max, quantiles)
   purrr::map_dbl(seq_along(true), \(i) {
     x = true[[i]]
     fn = cdf[[i]]
+    # ps = quantiles[[i]]$p
+    # xs = quantiles[[i]]$x
+    #
+    # y = fn(x)
+    # xs = c(xs,x)[order(c(ps,y))]
+    # ps = sort(c(ps,y))
+
     tryCatch(
       stats::integrate(
         f = \(y) fn(y)^2,
         lower = min[i],
         upper = x,
-        stop.on.error = FALSE
+        stop.on.error = FALSE,
+        subdivisions = 20
       )$value +
-        +stats::integrate(
+        stats::integrate(
           f = \(y) (fn(y) - 1)^2,
           lower = x,
           upper = max[i],
-          stop.on.error = FALSE
+          stop.on.error = FALSE,
+          subdivisions = 20
         )$value,
       error = function(e) {
         NA
@@ -484,3 +521,15 @@ score_estimate = function(
     return(fn(x))
   })
 }
+
+# .variance = function(cdf,quantiles, min = -Inf, max=Inf) {
+#   interfacer::recycle(cdf,quantiles,min,max)
+#   purrr::map_dbl(seq_along(cdf), \(i){
+#     fn=cdf[[i]]
+#     p = quantiles[[i]]$p
+#     x = quantiles[[i]]$x
+#     mu = integrate(\(x) x*fn(x), min, max, subdivisions = 30)
+#     v = 2 * integrate(\(x) x*(1-fn(x)+fn(-x)), 0, max, subdivisions = 30) - mu^2
+#
+#   })
+# }

@@ -6,6 +6,8 @@
 # https://m-clark.github.io/generalized-additive-models/technical.html#a-detailed-example
 # https://gavinsimpson.github.io/gratia/reference/derivatives.html
 
+# https://stackoverflow.com/questions/14207250/determining-derivatives-from-gam-smooth-object
+
 # # create a weekday and is.weekend column
 # weekdayFromDates = function(df) {
 #   checkValid(df,"date")

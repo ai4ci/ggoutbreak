@@ -1,0 +1,101 @@
+
+
+$$
+R_t = \frac{r_t}{\sum_{i=1}^n{\frac{y_i(e^{-r_ta_{i-1}}-e^{-r_ta_{i}})}{a_i-a_{i-1}}}} \\
+R_t = \frac{r_t}{\sum_{i=1}^n{y_i(e^{-r_t(i-1)}-e^{-r_ti})}} \\
+R_t = \frac{r_t}{
+  \sum_{i=1}^n{y_ie^{-r_t(i-1)}-\sum_{i=1}^n{y_ie^{-r_ti}}}
+} \\
+R_t = \frac{r_t}{
+  \sum_{j=0}^{n-1}{y_{j+1}e^{-r_tj}-\sum_{i=1}^n{y_ie^{-r_ti}}}
+} \\
+R_t = \frac{r_t}{
+  y_1 + \sum_{j=1}^{n-1}{y_{j+1}e^{-r_tj}-\sum_{i=1}^{n-1}{y_ie^{-r_ti}}} + y_ne^{-r_tn}
+} \\
+
+R_t = \frac{r_t}{
+  y_1 + \sum_{i=1}^{n-1}{(y_{i+1}-y_i)e^{-r_ti}} + y_ne^{-r_tn}
+} \\
+y_{n+1} = 0 \\
+\Delta{y_i} = y_{i+1} - y_i \\
+R_t = \frac{r_t}{
+  y_1+\sum_{i=1}^{n}{\Delta{y_i}e^{-r_ti}}
+} \\
+$$
+
+$M$ is moment generating function of the infectivity profile
+
+$$
+R = \frac{1}{M(-r)}\\
+
+M(x) = 1 + x \sum_i{iy_i}+\frac{x^2}{2!}\sum_i{i^2y_i}+\frac{x^3}{3!}\sum_i{i^3y_i}+\dots \\
+
+\sum_{i=1}^n{y_i} = 1 \\
+M(x) = \sum_{j=0}^nx^j\sum_{i=1}^n\frac{i^jy_i}{j!} \\
+
+b_j = \sum_{i=1}^n\frac{i^jy_i}{j!} \\
+b_0 = 1 \\
+d_0 = 1 \\
+d_{n} = -\sum_{k=0}^{n-1} d_kb_{n-k} \\
+
+M'(x) = \sum_{j=0}^nx^jd^j \\
+R = M'(-r)
+$$
+
+This is a power series. Combining multiple should be possible using relationships
+here: https://en.wikipedia.org/wiki/Power_series
+
+https://math.stackexchange.com/questions/2051583/mixture-distribution-moment-generating-function
+
+
+Transformation of reciprocal part can be done with this:
+https://mathoverflow.net/questions/53384/power-series-of-the-reciprocal-does-a-recursive-formula-exist-for-the-coeffic
+be can assume in this case that b_0=1
+
+To get a single MGF for the combination of infectivity profiles, which could
+be precalculated.
+
+```{r}
+# Infectivity profiles are 
+ip = .epiestim_si(5,1,3,1, seed=100)
+ip1 = ip %>% filter(cur_group_id()==1) %>% pull(probability)
+
+# F = splinefun(0:(length(ip1)), c(0,cumsum(ip1)),method="monoH.FC")
+# F(0:14)
+# moment = function(m) integrate(lower = 0,upper = length(ip1), f = function(x) x^m * F(x,deriv=1))
+
+moment(0)
+moment(1)
+moment(2)
+moment(3)
+
+moment = function(m) sum((1:length(ip1))^m*ip1)
+b = sapply(1:length(ip1), function(i) moment(i)/factorial(i))
+
+R_t = function(r_t) {
+  1/(1+sum(sapply(1:length(b), function(j) (-r_t)^j*b[j])))
+}
+
+R_t(0.1)
+R_t(0)
+R_t(-0.1)
+
+
+d = rep(0,length(b))
+for (n in seq_along(d)) {
+  d[n] = -sum(rev(b[1:n]) * c(1,d[1:(n-1)]))
+}
+
+R_t2 = function(r_t) {
+  1+sum(sapply(1:length(d), function(j) (-r_t)^j*d[j]))
+}
+
+R_t2(0.1)
+R_t2(-0.1)
+
+```
+
+
+
+
+
