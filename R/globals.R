@@ -179,9 +179,23 @@ utils::globalVariables(c(
   "unbiased_ref",
   "p",
   "name",
-  "value"
+  "value",
+  ".data",
+  "cdf",
+  "lower_quartile",
+  "median",
+  "prediction_interval_width_50",
+  "quantiles",
+  "ref",
+  "upper_quartile",
+  "cutoff",
+  "link",
+  "pit0",
+  "threshold_distance",
+  "threshold_error_probability"
 ))
 
-
 #' @importFrom ragg agg_png
+#' @importFrom mirai mirai
+#' @importFrom carrier crate
 NULL

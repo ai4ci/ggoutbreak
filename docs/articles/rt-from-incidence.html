@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.5</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -380,7 +380,7 @@ seconds:</p>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     return(out)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x5f8c5f151da8&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x6168637b5968&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -402,7 +402,7 @@ estimates in fine grained geographical or demographic subgroups.</p>
 <span>  <span class="va">rt_fit</span> <span class="op">=</span> <span class="va">fit</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">covid_ip</span>, approx <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   4.937   0.000   4.937</span></span>
+<span><span class="co">#&gt;   3.796   0.000   3.797</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">rt_fit</span>, events <span class="op">=</span> <span class="va">england_events</span>, colour<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>,<span class="st">"2023-01-01"</span><span class="op">)</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>,<span class="fl">1.6</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>

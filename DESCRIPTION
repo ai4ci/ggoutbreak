@@ -55,7 +55,9 @@ Imports:
     lobstr,
     cli,
     lifecycle,
-    PDQutils
+    PDQutils,
+    mirai,
+    carrier
 Remotes: github::ai4ci/interfacer
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,

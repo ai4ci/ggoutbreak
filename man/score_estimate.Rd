@@ -10,7 +10,8 @@ score_estimate(
   lags = NULL,
   summarise_by = est \%>\% dplyr::groups(),
   bootstraps = 1000,
-  raw_bootstraps = FALSE
+  raw_bootstraps = FALSE,
+  seed = 100
 )
 }
 \arguments{
@@ -35,7 +36,9 @@ one called \code{XXX.cdf}).}
 
 \item{lags}{a data frame of estimate types and lags as output by
 \code{\link[=quantify_lag]{quantify_lag()}} if multiple models are included then the columns must
-match those in \code{obs}.}
+match those in \code{obs}. It must have 2 columns, one called \code{estimate} with
+values matching \code{incidence},\code{rt},\code{growth},\code{proportion},\code{relative.growth},
+and a \code{lag} column, with (whole) number of days.}
 
 \item{summarise_by}{by default every group is treated separately. This can be
 overridden with a \code{tidyselect} specification of the groupings we want to
@@ -49,6 +52,8 @@ metrics returned will have no confidence intervals.}
 
 \item{raw_bootstraps}{(defaults to FALSE) return the summary metrics for
 each bootstrap rather than the quantiles of the summary metrics.}
+
+\item{seed}{a random seed for reproducibility}
 }
 \value{
 a dataframe of scoring metrics, with one row per group. This includes
@@ -63,7 +68,8 @@ additive or multiplicative depending on the link)
 \item pit_was - an unadjusted probability integral transform histogram
 Wasserstein distance from the uniform (lower values are better).
 \item unbiased_pit_was - an PIT Wasserstein distance from the uniform, adjusted
-for estimator bias (lower values are better).
+for estimator bias (lower values are better). This is a measure of
+calibration.
 \item directed_pit_was - a PIT Wasserstein distance from the uniform, directed
 away from the centre, adjusted for estimator bias (values closer to zero
 are better, positive values indicate overconfidence, and negative values
@@ -71,14 +77,24 @@ excessively conservative estimates).
 \item percent_iqr_coverage - the percentage of estimators that include the true
 value in their IQR. For a perfectly calibrated estimate this should be 0.5.
 Lower values reflect overconfidence, higher values reflect excessively
-conservative estimates.
+conservative estimates. This is a measure of calibration but is influenced
+by bias.
 \item unbiased_percent_iqr_coverage - the percentage of estimators that include
-the true value in their IQR once adjusted for bias
+the true value in their IQR once adjusted for bias. This should be 0.5. This
+is a measure of calibration, and tells you which direction (smaller numbers
+are over-confident, larger values excessively conservative).
+\item mean_prediction_interval_width_50 - the prediction interval width is a
+measure of sharpness (smaller values are sharper). Sharper estimators are
+superior if they are unbiased and well calibrated.
 \item mean_crps - the mean value of the continuous rank probability score for
 each point estimate (lower values are better)
 \item mean_unbiased_crps - the mean value of the continuous rank probability
 score for each point estimate assessed after adjustment for bias (lower
 values are better)
+\item threshold_misclassification_probability - if a metric has a natural threshold
+like 1 for Rt then this measures how probable it is that the estimate will
+propose the epidemic is shrinking when it is growing and vice versa. Lower is
+better
 }
 
 other outputs are possible if \code{summarise_by} is false.

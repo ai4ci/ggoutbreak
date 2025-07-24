@@ -129,7 +129,7 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 .long_types = function(est) {
   grps = est %>% dplyr::groups()
   types = stringr::str_extract(colnames(est), "([^\\.]*)?\\..*", group = 1)
-  types = unique(na.omit(types))
+  types = unique(stats::na.omit(types))
   dplyr::bind_rows(
     lapply(types, \(t) {
       est %>%
@@ -182,7 +182,9 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #'   one called `XXX.cdf`).
 #' @param lags a data frame of estimate types and lags as output by
 #'   [quantify_lag()] if multiple models are included then the columns must
-#'   match those in `obs`.
+#'   match those in `obs`. It must have 2 columns, one called `estimate` with
+#'   values matching `incidence`,`rt`,`growth`,`proportion`,`relative.growth`,
+#'   and a `lag` column, with (whole) number of days.
 #' @param summarise_by by default every group is treated separately. This can be
 #'   overridden with a `tidyselect` specification of the groupings we want to
 #'   see in the final summarised output (e.g. if we want to differentiate
@@ -193,6 +195,7 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #'   metrics returned will have no confidence intervals.
 #' @param raw_bootstraps (defaults to FALSE) return the summary metrics for
 #'   each bootstrap rather than the quantiles of the summary metrics.
+#' @param seed a random seed for reproducibility
 #'
 #' @return a dataframe of scoring metrics, with one row per group. This includes
 #'   the following columns:
@@ -206,7 +209,8 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #' * pit_was - an unadjusted probability integral transform histogram
 #'   Wasserstein distance from the uniform (lower values are better).
 #' * unbiased_pit_was - an PIT Wasserstein distance from the uniform, adjusted
-#'   for estimator bias (lower values are better).
+#'   for estimator bias (lower values are better). This is a measure of
+#'   calibration.
 #' * directed_pit_was - a PIT Wasserstein distance from the uniform, directed
 #'   away from the centre, adjusted for estimator bias (values closer to zero
 #'   are better, positive values indicate overconfidence, and negative values
@@ -214,14 +218,24 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #' * percent_iqr_coverage - the percentage of estimators that include the true
 #'   value in their IQR. For a perfectly calibrated estimate this should be 0.5.
 #'   Lower values reflect overconfidence, higher values reflect excessively
-#'   conservative estimates.
+#'   conservative estimates. This is a measure of calibration but is influenced
+#'   by bias.
 #' * unbiased_percent_iqr_coverage - the percentage of estimators that include
-#'   the true value in their IQR once adjusted for bias
+#'   the true value in their IQR once adjusted for bias. This should be 0.5. This
+#'   is a measure of calibration, and tells you which direction (smaller numbers
+#'   are over-confident, larger values excessively conservative).
+#' * mean_prediction_interval_width_50 - the prediction interval width is a
+#'   measure of sharpness (smaller values are sharper). Sharper estimators are
+#'   superior if they are unbiased and well calibrated.
 #' * mean_crps - the mean value of the continuous rank probability score for
 #'   each point estimate (lower values are better)
 #' * mean_unbiased_crps - the mean value of the continuous rank probability
 #'   score for each point estimate assessed after adjustment for bias (lower
 #'   values are better)
+#' * threshold_misclassification_probability - if a metric has a natural threshold
+#'   like 1 for Rt then this measures how probable it is that the estimate will
+#'   propose the epidemic is shrinking when it is growing and vice versa. Lower is
+#'   better
 #'
 #' other outputs are possible if `summarise_by` is false.
 #'
@@ -249,7 +263,8 @@ score_estimate = function(
   lags = NULL,
   summarise_by = est %>% dplyr::groups(),
   bootstraps = 1000,
-  raw_bootstraps = FALSE
+  raw_bootstraps = FALSE,
+  seed = 100
   # cores = NULL
 ) {
   if (is.null(lags)) {
@@ -293,14 +308,32 @@ score_estimate = function(
     paste0(obs_type, collapse = ",")
   )
 
-  crps_data = est %>%
-    inner_join(
-      obs %>% dplyr::select(dplyr::all_of(join_cols), dplyr::ends_with(".obs")),
-      by = join_cols
+  long_obs = obs %>%
+    dplyr::select(
+      tidyselect::all_of(join_cols),
+      tidyselect::ends_with(".obs")
     ) %>%
+    tidyr::pivot_longer(
+      cols = tidyselect::ends_with(".obs"),
+      names_to = ".type",
+      values_to = "ref",
+      names_pattern = "([^\\.]+)\\.obs"
+    ) %>%
+    dplyr::left_join(lags, by = c(join_cols_2, ".type" = "estimate")) %>%
+    # shift the observed to meet the estimate.
+    dplyr::mutate(
+      time = time + ifelse(is.na(lag), 0, round(lag)),
+      cutoff = dplyr::case_when(
+        .type == "rt" ~ 1,
+        .type == "growth" ~ 0,
+        .type == "relative.growth" ~ 0,
+        TRUE ~ NA
+      )
+    )
+
+  crps_data = est %>%
     .long_types() %>%
-    dplyr::filter(.type %in% obs_type) %>%
-    dplyr::rename(ref = obs)
+    dplyr::filter(.type %in% obs_type)
 
   if (!"cdf" %in% colnames(crps_data)) {
     stop(
@@ -309,10 +342,15 @@ score_estimate = function(
   }
 
   crps_data = crps_data %>%
-    dplyr::group_by(!!!summarise_by, .type) %>%
+    dplyr::inner_join(
+      long_obs,
+      by = c(join_cols, ".type")
+    ) %>%
+    # dplyr::group_by(!!!summarise_by, .type) %>%
+    dplyr::group_by(link) %>%
     dplyr::group_modify(function(d, g, ...) {
       # d=crps_data %>% filter(statistic=="infections" & .type=="rt") %>% ungroup() %>% select(-.type,-statistic)
-      link = unique(d$link)
+      link = unique(g$link)
       trans = .trans_fn(link)
       inv = .inv_fn(link)
       low = .min_domain(link)
@@ -323,6 +361,9 @@ score_estimate = function(
       d = d %>%
         dplyr::mutate(
           crps = .crps(ref, cdf, low, high, quantiles),
+          pit0 = .pit(cutoff, cdf),
+          threshold_error_probability = abs(pit0 - ifelse(ref <= cutoff, 1, 0)),
+          threshold_distance = abs(trans(ref) - trans(cutoff)),
           # bias:
           unbiased_ref = inv(trans(ref) + mean_trans_bias),
           quantile_bias = .quantile_bias(ref, cdf),
@@ -343,7 +384,7 @@ score_estimate = function(
     })
 
   if (isFALSE(summarise_by)) {
-    return(crps_data)
+    return(crps_data %>% dplyr::group_by(!!!dplyr::groups(est), .type))
   }
 
   crps_summary = crps_data %>%
@@ -365,60 +406,67 @@ score_estimate = function(
         bootstraps = 1
       }
       # bootstrap resampling:
-      boots = dplyr::bind_rows(
-        purrr::map(
-          1:bootstraps,
-          purrr::in_parallel(
-            \(i) {
-              d |>
-                dplyr::slice_sample(prop = 1, replace = TRUE) |>
-                dplyr::summarise(
-                  mean_crps = mean(crps),
-                  # bias
-                  mean_trans_bias = mean(
-                    trans(median) - trans(ref),
-                    na.rm = TRUE
-                  ),
-                  mean_bias = mean(
-                    inv(trans(median) - trans(ref)),
-                    na.rm = TRUE
-                  ),
-                  mean_quantile_bias = mean(quantile_bias),
-                  # sharpness:
-                  # mean_prediction_variance = mean(prediction_variance),
-                  mean_prediction_interval_width_50 = mean(
-                    prediction_interval_width_50
-                  ),
-                  # calibration
-                  pit_was = mean(abs(unif - sort(pit))),
-                  unbiased_pit_was = mean(abs(unif - sort(unbiased_pit))),
-                  directed_pit_was = mean(
-                    (unif - sort(unbiased_pit)) * ifelse(unif < 0.5, 1, -1)
-                  ),
-                  percent_iqr_coverage = mean(iqr_coverage),
-                  unbiased_percent_iqr_coverage = mean(unbiased_iqr_coverage),
-                ) |>
-                dplyr::mutate(boot = i)
-            },
-            d = d,
-            unif = unif,
-            inv = inv,
-            trans = trans
+      withr::with_seed(seed, {
+        boots = dplyr::bind_rows(
+          purrr::map(
+            1:bootstraps + seed,
+            purrr::in_parallel(
+              \(seed) {
+                set.seed(seed)
+                d |>
+                  dplyr::slice_sample(prop = 1, replace = TRUE) |>
+                  dplyr::summarise(
+                    mean_crps = mean(crps),
+                    threshold_misclassification_probability = stats::weighted.mean(
+                      threshold_error_probability,
+                      threshold_distance
+                    ),
+                    # bias
+                    mean_trans_bias = mean(
+                      trans(median) - trans(ref),
+                      na.rm = TRUE
+                    ),
+                    mean_bias = mean(
+                      inv(trans(median) - trans(ref)),
+                      na.rm = TRUE
+                    ),
+                    mean_quantile_bias = mean(quantile_bias),
+                    # sharpness:
+                    # mean_prediction_variance = mean(prediction_variance),
+                    mean_prediction_interval_width_50 = mean(
+                      prediction_interval_width_50
+                    ),
+                    # calibration
+                    pit_was = mean(abs(unif - sort(pit))),
+                    unbiased_pit_was = mean(abs(unif - sort(unbiased_pit))),
+                    directed_pit_was = mean(
+                      (unif - sort(unbiased_pit)) * ifelse(unif < 0.5, 1, -1)
+                    ),
+                    percent_iqr_coverage = mean(iqr_coverage),
+                    unbiased_percent_iqr_coverage = mean(unbiased_iqr_coverage),
+                  )
+                # }
+              },
+              d = d,
+              unif = unif,
+              inv = inv,
+              trans = trans
+            )
           )
         )
-      )
+      })
 
       if (!raw_bootstraps) {
         boots = boots %>%
           dplyr::summarise(
             dplyr::across(
-              c(-boot),
+              .cols = dplyr::everything(),
               .fns = list(
-                `0.025` = ~ stats::quantile(.x, 0.025),
-                `0.25` = ~ stats::quantile(.x, 0.25),
-                `0.5` = ~ stats::quantile(.x, 0.5),
-                `0.75` = ~ stats::quantile(.x, 0.75),
-                `0.975` = ~ stats::quantile(.x, 0.975)
+                `0.025` = ~ stats::quantile(.x, 0.025, na.rm = TRUE),
+                `0.25` = ~ stats::quantile(.x, 0.25, na.rm = TRUE),
+                `0.5` = ~ stats::quantile(.x, 0.5, na.rm = TRUE),
+                `0.75` = ~ stats::quantile(.x, 0.75, na.rm = TRUE),
+                `0.975` = ~ stats::quantile(.x, 0.975, na.rm = TRUE)
               ),
               .names = "{.col}.{.fn}"
             )
@@ -471,41 +519,49 @@ score_estimate = function(
     cdf = list(cdf)
   }
   interfacer::check_numeric(min, max)
-  interfacer::recycle(true, cdf, min, max, quantiles)
-  purrr::map_dbl(seq_along(true), \(i) {
-    x = true[[i]]
-    fn = cdf[[i]]
-    # ps = quantiles[[i]]$p
-    # xs = quantiles[[i]]$x
-    #
-    # y = fn(x)
-    # xs = c(xs,x)[order(c(ps,y))]
-    # ps = sort(c(ps,y))
+  # interfacer::recycle(true, cdf, min, max, quantiles)
+  purrr::map2_dbl(
+    true,
+    cdf,
+    # purrr::in_parallel(
+    # does not speed up.
+    \(x, fn) {
+      # ps = quantiles[[i]]$p
+      # xs = quantiles[[i]]$x
+      #
+      # y = fn(x)
+      # xs = c(xs,x)[order(c(ps,y))]
+      # ps = sort(c(ps,y))
 
-    tryCatch(
-      stats::integrate(
-        f = \(y) fn(y)^2,
-        lower = min[i],
-        upper = x,
-        stop.on.error = FALSE,
-        subdivisions = 20
-      )$value +
+      tryCatch(
         stats::integrate(
-          f = \(y) (fn(y) - 1)^2,
-          lower = x,
-          upper = max[i],
+          f = \(y) fn(y)^2,
+          lower = min,
+          upper = x,
           stop.on.error = FALSE,
           subdivisions = 20
-        )$value,
-      error = function(e) {
-        NA
-      }
-    )
-  })
+        )$value +
+          stats::integrate(
+            f = \(y) (fn(y) - 1)^2,
+            lower = x,
+            upper = max,
+            stop.on.error = FALSE,
+            subdivisions = 20
+          )$value,
+        error = function(e) {
+          NA
+        }
+      )
+    }
+    #   },
+    #   min = min,
+    #   max = max
+    # )
+  )
 }
 
 .quantile_bias = function(true, cdf) {
-  interfacer::recycle(true, cdf)
+  # interfacer::recycle(true, cdf)
   purrr::map_dbl(seq_along(true), \(i) {
     x = true[[i]]
     fn = cdf[[i]]
@@ -514,7 +570,7 @@ score_estimate = function(
 }
 
 .pit = function(true, cdf) {
-  interfacer::recycle(true, cdf)
+  # interfacer::recycle(true, cdf)
   purrr::map_dbl(seq_along(true), \(i) {
     x = true[[i]]
     fn = cdf[[i]]
