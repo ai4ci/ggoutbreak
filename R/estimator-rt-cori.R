@@ -1,6 +1,5 @@
 ## `EpiEstim` wrapper ----
 
-
 #' Reproduction number estimate using the Cori method
 #'
 #' Calculate a reproduction number estimate from incidence data using a reimplementation
@@ -67,135 +66,174 @@
 #'     ggplot2::coord_cartesian(ylim=c(0.5,3.0))
 #' }
 #'
-rt_cori = function(df = i_incidence_input, ip = i_discrete_ip, window = 14, mean_prior = 1, std_prior = 2, ..., epiestim_compat = FALSE, approx = FALSE, .progress=interactive()) {
-
-  if (any(window<2)) stop("Minimum value for `window` parameter is 2.")
-  if (epiestim_compat) window = window[1]
+rt_cori = function(
+  df = i_incidence_input,
+  ip = i_discrete_ip,
+  window = 14,
+  mean_prior = 1,
+  std_prior = 2,
+  ...,
+  epiestim_compat = FALSE,
+  approx = FALSE,
+  .progress = interactive()
+) {
+  if (any(window < 2)) {
+    stop("Minimum value for `window` parameter is 2.")
+  }
+  if (epiestim_compat) {
+    window = window[1]
+  }
 
   ip = interfacer::ivalidate(ip)
   ip_boots = dplyr::n_distinct(ip$boot)
 
-  shape_prior = mean_prior^2/std_prior^2
-  rate_prior = mean_prior/std_prior^2
+  shape_prior = mean_prior^2 / std_prior^2
+  rate_prior = mean_prior / std_prior^2
 
   env = rlang::current_env()
-  if (.progress) cli::cli_progress_bar("Rt (Cori+)", total = dplyr::n_groups(df), .envir = env)
+  if (.progress) {
+    cli::cli_progress_bar(
+      "Rt (Cori+)",
+      total = dplyr::n_groups(df),
+      .envir = env
+    )
+  }
 
-  modelled = interfacer::igroup_process(df, function(df, window, .groupdata, ...) {
-    .stop_if_not_daily(df$time)
+  modelled = interfacer::igroup_process(
+    df,
+    function(df, window, .groupdata, ...) {
+      .stop_if_not_daily(df$time)
 
-    df2 = df %>%
-      dplyr::cross_join(.select_ip(ip,.groupdata) %>% dplyr::rename(omega_t_tau = probability)) %>%
-      dplyr::group_by(boot)
-
-    # Calculate the FOI (Lambda_t) for every timepoint (and boot)
-    df3 = df2 %>%
-      dplyr::mutate(
-        lambda_t_tau = count*omega_t_tau,
-        t_tau = time+tau,
-      ) %>%
-      dplyr::group_by(boot, t = t_tau) %>%
-      dplyr::summarise(
-        n_t = dplyr::n(),
-        Lambda_t = sum(lambda_t_tau)
-      )
-
-    df3 = df3 %>% dplyr::inner_join(
-      df %>% dplyr::rename(t=time,I_t = count), by="t")
-
-    # We allow multiple windows
-    df4 = dplyr::bind_rows(lapply(window, function(win) {
-
-      df3 %>%
-        dplyr::cross_join(tibble::tibble(s=1:win)) %>%
-        dplyr::mutate(t_end = t+s) %>%
-        dplyr::group_by(boot, t_end) %>%
-        dplyr::summarise(
-          sum_n_s = sum(n_t),
-          sum_I_s = sum(I_t),
-          sum_Lambda_s = sum(Lambda_t)
+      df2 = df %>%
+        dplyr::cross_join(
+          .select_ip(ip, .groupdata) %>%
+            dplyr::rename(omega_t_tau = probability)
         ) %>%
+        dplyr::group_by(boot)
+
+      # Calculate the FOI (Lambda_t) for every timepoint (and boot)
+      df3 = df2 %>%
         dplyr::mutate(
-          t_start = t_end-win
+          lambda_t_tau = count * omega_t_tau,
+          t_tau = time + tau,
+        ) %>%
+        dplyr::group_by(boot, t = t_tau) %>%
+        dplyr::summarise(
+          n_t = dplyr::n(),
+          Lambda_t = sum(lambda_t_tau)
         )
 
-    }))
+      df3 = df3 %>%
+        dplyr::inner_join(
+          df %>% dplyr::rename(t = time, I_t = count),
+          by = "t"
+        )
 
-    df4 = df4 %>%
-      dplyr::mutate(
-        shape_post = shape_prior + sum_I_s,
-        rate_post = rate_prior + sum_Lambda_s, # N.B. Original method parametrised in scale not rate
-        mean_post = shape_post/rate_post,
-        var_post = shape_post/rate_post^2
-      )
+      # We allow multiple windows
+      df4 = dplyr::bind_rows(lapply(window, function(win) {
+        df3 %>%
+          dplyr::cross_join(tibble::tibble(s = 1:win)) %>%
+          dplyr::mutate(t_end = t + s) %>%
+          dplyr::group_by(boot, t_end) %>%
+          dplyr::summarise(
+            sum_n_s = sum(n_t),
+            sum_I_s = sum(I_t),
+            sum_Lambda_s = sum(Lambda_t)
+          ) %>%
+          dplyr::mutate(
+            t_start = t_end - win
+          )
+      }))
 
-    # Each posterior estimate is based on assumption that R_t is constant
-    # between t_start and t_end. Therefore if the value of t is between these
-    # two the estimate is relevant to that time point.
-    if (!epiestim_compat) {
-      by = dplyr::join_by(dplyr::between(time, t_start, t_end))
-    } else {
-      # The original epiestim though does not do this and only estimates from
-      # each IP bootstrap aligend to the end of the window are applicable.
-      by = c("time" = "t_end")
-    }
+      df4 = df4 %>%
+        dplyr::mutate(
+          shape_post = shape_prior + sum_I_s,
+          rate_post = rate_prior + sum_Lambda_s, # N.B. Original method parametrised in scale not rate
+          mean_post = shape_post / rate_post,
+          var_post = shape_post / rate_post^2
+        )
 
-
-    df5 = df %>%
-      dplyr::inner_join(df4, by = by) %>%
-      dplyr::group_by(time)
-
-    if (!approx) {
-      df6 = df5 %>%
-        dplyr::summarise(
-          rt.fit = mean(mean_post),
-          rt.se.fit = sqrt(mean(var_post+mean_post^2)-rt.fit^2),
-          rt.shapes = list(shape_post),
-          rt.rates = list(rate_post) #,
-          # rt.true = if (interfacer::is_col_present(.,rt.true)) unique(rt.true) else NULL
-        ) %>%
-        .result_from_fit(
-          type = "rt",
-          qfn = \(p) .qmixlist(dist="gamma", p=p, param1list = .$rt.shapes, param2list = .$rt.rates, method="exact")
-        ) %>%
-        .keep_cdf(type = "rt", shape=.$rt.shapes, rate=.$rt.rates, link="log") %>%
-        dplyr::select(-c(rt.rates,rt.shapes))
-
-
+      # Each posterior estimate is based on assumption that R_t is constant
+      # between t_start and t_end. Therefore if the value of t is between these
+      # two the estimate is relevant to that time point.
+      if (!epiestim_compat) {
+        by = dplyr::join_by(dplyr::between(time, t_start, t_end))
       } else {
+        # The original epiestim though does not do this and only estimates from
+        # each IP bootstrap aligend to the end of the window are applicable.
+        by = c("time" = "t_end")
+      }
 
+      df5 = df %>%
+        dplyr::inner_join(df4, by = by) %>%
+        dplyr::group_by(time)
+
+      if (!approx) {
+        df6 = df5 %>%
+          dplyr::summarise(
+            rt.fit = mean(mean_post),
+            rt.se.fit = sqrt(mean(var_post + mean_post^2) - rt.fit^2),
+            rt.shapes = list(shape_post),
+            rt.rates = list(rate_post) #,
+            # rt.true = if (interfacer::is_col_present(.,rt.true)) unique(rt.true) else NULL
+          ) %>%
+          .result_from_fit(
+            type = "rt",
+            qfn = \(p) {
+              .qmixlist(
+                dist = "gamma",
+                p = p,
+                param1list = .$rt.shapes,
+                param2list = .$rt.rates,
+                method = "exact"
+              )
+            }
+          ) %>%
+          .keep_cdf(
+            type = "rt",
+            shape = .$rt.shapes,
+            rate = .$rt.rates,
+            link = "log"
+          ) %>%
+          dplyr::select(-c(rt.rates, rt.shapes))
+      } else {
         df6 = df5 %>%
           dplyr::summarise(
             # calculate the mean & sd of the mixture.
             rt.fit = mean(mean_post),
-            rt.se.fit = sqrt(mean(var_post+mean_post^2)-rt.fit^2)#,
+            rt.se.fit = sqrt(mean(var_post + mean_post^2) - rt.fit^2) #,
             # rt.true = if (interfacer::is_col_present(.,rt.true)) unique(rt.true) else NULL
           ) %>%
           dplyr::mutate(
-            rt.shape = rt.fit^2/rt.se.fit^2,
-            rt.rate = rt.fit/rt.se.fit^2
+            rt.shape = rt.fit^2 / rt.se.fit^2,
+            rt.rate = rt.fit / rt.se.fit^2
           ) %>%
           .result_from_fit(
             type = "rt",
             qfn = \(p) qgamma2(p, .$rt.fit, .$rt.se.fit, convex = FALSE)
           ) %>%
-          .keep_cdf(type = "rt", shape=.$rt.shape, rate=.$rt.rate, link="log") %>%
-          dplyr::select(-c(rt.rate,rt.shape))
+          .keep_cdf(
+            type = "rt",
+            shape = .$rt.shape,
+            rate = .$rt.rate,
+            link = "log"
+          ) %>%
+          dplyr::select(-c(rt.rate, rt.shape))
+      }
 
+      new_data = df6
 
+      if (.progress) {
+        cli::cli_progress_update(.envir = env)
+      }
+
+      return(new_data)
     }
+  )
 
-    new_data = df6
-
-    if (.progress) cli::cli_progress_update(.envir = env)
-
-    return(new_data)
-
-  })
-
-  if (.progress) cli::cli_progress_done()
+  if (.progress) {
+    cli::cli_progress_done()
+  }
 
   return(modelled)
-
 }
-

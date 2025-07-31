@@ -11,7 +11,7 @@ sim_poisson_Rt_model(
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
   fn_imports = ~ifelse(.x == 0, 30, 0),
-  fn_ip = ~test_ip,
+  fn_ip = ~ggoutbreak::test_ip,
   time_unit = "1 day"
 )
 }

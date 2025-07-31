@@ -69,6 +69,9 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_variants.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/fdmy.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/format_ip.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/gam_delayed_reporting.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/gam_knots.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/gam_poisson_model_fn.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/ganyani_ip.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/ganyani_ip_2.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/geom_events.html</loc></url>
@@ -76,6 +79,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/germany_demographics.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/ggoutbreak-package.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/grapes-above-grapes.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/growth_rate_from_incidence.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/index.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/infer_population.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/infer_prevalence.html</loc></url>
@@ -114,6 +118,9 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/plot_proportions_data.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/plot_rt.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/pnbinom2.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/poisson_gam_model.censored.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/poisson_gam_model.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/poisson_gam_model.incidence.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/poisson_glm_model.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/poisson_locfit_model.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/proportion_glm_model.html</loc></url>
@@ -158,10 +165,12 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_multinomial.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_poisson_Rt_model.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_poisson_model.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_seir_model.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_summarise_linelist.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/sim_test_data.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/summarise_ip.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_bpm.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_delayed_observation.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_ip.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_growth_rate.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_rt.html</loc></url>

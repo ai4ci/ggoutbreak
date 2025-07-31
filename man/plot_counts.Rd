@@ -13,6 +13,8 @@ see \code{\link[=normalise_count]{normalise_count()}}) - EITHER: a dataframe wit
 \item population (positive_integer) - Size of population
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+\item population_unit (double) - The population unit on which the per capita incidence rate is calculated
+\item time_unit (lubridate::as.period) - The time period over which the per capita incidence rate is calculated
 }
 
 Any grouping allowed.

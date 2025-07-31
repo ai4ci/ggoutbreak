@@ -7,7 +7,8 @@
 sim_summarise_linelist(
   df = i_sim_linelist,
   ...,
-  censoring = list(),
+  censoring = list(admitted = function(t) rgamma2(t, mean = 5), death = function(t)
+    rgamma2(t, mean = 10), sample = function(t, result_delay) result_delay),
   max_time = max(df$time)
 )
 }
@@ -31,7 +32,8 @@ column, i.e. whenever the event that is being reported happened and \code{time}
 the simulation infection time. N.B. since infection is not observed you
 can't censor it.}
 
-\item{max_time}{the censoring time for this observation.}
+\item{max_time}{the censoring time for this observation. If this is a vector
+there will be multiple time series in the output}
 }
 \value{
 a count data frame with additional statistics.

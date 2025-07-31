@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -63,6 +63,8 @@
 see <code><a href="normalise_count.html">normalise_count()</a></code>) - EITHER: a dataframe with columns:</p><ul><li><p>population (positive_integer) - Size of population</p></li>
 <li><p>count (positive_integer) - Positive case counts associated with the specified time frame</p></li>
 <li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
+<li><p>population_unit (double) - The population unit on which the per capita incidence rate is calculated</p></li>
+<li><p>time_unit (lubridate::as.period) - The time period over which the per capita incidence rate is calculated</p></li>
 </ul><p>Any grouping allowed.</p>
 <p>OR with columns:</p><ul><li><p>count (positive_integer) - Positive case counts associated with the specified time frame</p></li>
 <li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>

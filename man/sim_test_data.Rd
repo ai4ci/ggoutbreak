@@ -4,7 +4,7 @@
 \alias{sim_test_data}
 \title{Generate a simple time-series of cases based on a growth rate step function}
 \usage{
-sim_test_data(ip = test_ip, duration = 500, period = 50)
+sim_test_data(ip = ggoutbreak::test_ip, duration = 500, period = 50)
 }
 \arguments{
 \item{ip}{an infectivity profile. any uncertainty will be collapsed into the

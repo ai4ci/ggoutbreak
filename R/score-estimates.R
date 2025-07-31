@@ -131,7 +131,7 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
   types = stringr::str_extract(colnames(est), "([^\\.]*)?\\..*", group = 1)
   types = unique(stats::na.omit(types))
   dplyr::bind_rows(
-    lapply(types, \(t) {
+    lapply(types, function(t) {
       est %>%
         dplyr::select(!!!grps, time, dplyr::starts_with(t)) %>%
         dplyr::mutate(
@@ -148,7 +148,7 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
         ) %>%
         dplyr::mutate(p = as.numeric(p)) %>%
         tidyr::nest(quantiles = c(p, x)) %>%
-        dplyr::rename_with(.cols = dplyr::starts_with(t), .fn = \(n) {
+        dplyr::rename_with(.cols = dplyr::starts_with(t), .fn = function(n) {
           stringr::str_remove(n, paste0(t, "\\."))
         })
     })
@@ -411,7 +411,7 @@ score_estimate = function(
           purrr::map(
             1:bootstraps + seed,
             purrr::in_parallel(
-              \(seed) {
+              function(seed) {
                 set.seed(seed)
                 d |>
                   dplyr::slice_sample(prop = 1, replace = TRUE) |>
@@ -525,7 +525,7 @@ score_estimate = function(
     cdf,
     # purrr::in_parallel(
     # does not speed up.
-    \(x, fn) {
+    function(x, fn) {
       # ps = quantiles[[i]]$p
       # xs = quantiles[[i]]$x
       #
@@ -535,14 +535,14 @@ score_estimate = function(
 
       tryCatch(
         stats::integrate(
-          f = \(y) fn(y)^2,
+          f = function(y) fn(y)^2,
           lower = min,
           upper = x,
           stop.on.error = FALSE,
           subdivisions = 20
         )$value +
           stats::integrate(
-            f = \(y) (fn(y) - 1)^2,
+            f = function(y) (fn(y) - 1)^2,
             lower = x,
             upper = max,
             stop.on.error = FALSE,
@@ -562,7 +562,7 @@ score_estimate = function(
 
 .quantile_bias = function(true, cdf) {
   # interfacer::recycle(true, cdf)
-  purrr::map_dbl(seq_along(true), \(i) {
+  purrr::map_dbl(seq_along(true), function(i) {
     x = true[[i]]
     fn = cdf[[i]]
     return(1 - 2 * fn(x))
@@ -571,7 +571,7 @@ score_estimate = function(
 
 .pit = function(true, cdf) {
   # interfacer::recycle(true, cdf)
-  purrr::map_dbl(seq_along(true), \(i) {
+  purrr::map_dbl(seq_along(true), function(i) {
     x = true[[i]]
     fn = cdf[[i]]
     return(fn(x))
@@ -580,12 +580,12 @@ score_estimate = function(
 
 # .variance = function(cdf,quantiles, min = -Inf, max=Inf) {
 #   interfacer::recycle(cdf,quantiles,min,max)
-#   purrr::map_dbl(seq_along(cdf), \(i){
+#   purrr::map_dbl(seq_along(cdf), function(i){
 #     fn=cdf[[i]]
 #     p = quantiles[[i]]$p
 #     x = quantiles[[i]]$x
-#     mu = integrate(\(x) x*fn(x), min, max, subdivisions = 30)
-#     v = 2 * integrate(\(x) x*(1-fn(x)+fn(-x)), 0, max, subdivisions = 30) - mu^2
+#     mu = integrate(function(x) x*fn(x), min, max, subdivisions = 30)
+#     v = 2 * integrate(function(x) x*(1-fn(x)+fn(-x)), 0, max, subdivisions = 30) - mu^2
 #
 #   })
 # }

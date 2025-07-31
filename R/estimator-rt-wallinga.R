@@ -1,4 +1,3 @@
-
 #' Wallinga-Lipsitch reproduction number from growth rates
 #'
 #' Calculate a reproduction number estimate from growth rate using the Wallinga
@@ -33,10 +32,18 @@
 #'   plot_rt(tmp, date_labels="%b %y")+sim_geom_function(data,colour="red")
 #' }
 #'
-rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstraps = 1000, seed = Sys.time(), .progress=interactive()) {
-
+rt_from_growth_rate = function(
+  df = i_growth_rate,
+  ip = i_empirical_ip,
+  bootstraps = 1000,
+  seed = Sys.time(),
+  .progress = interactive()
+) {
   df = interfacer::ivalidate(df)
-  ip = interfacer::ivalidate(ip, .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5))
+  ip = interfacer::ivalidate(
+    ip,
+    .imap = interfacer::imapper(a0 = pmax(tau - 0.5, 0), a1 = tau + 0.5)
+  )
 
   # e.g. converting a weekly to a daily growth rate
   # exp(r_wk) = exp(r_daily)^7
@@ -44,70 +51,76 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
   .daily_unit = .step(df$time)
 
   ip_boots = ip %>% dplyr::n_groups()
-  boots_per_ip = max(ceiling(bootstraps/ip_boots),10)
-  boots = boots_per_ip*ip_boots
+  boots_per_ip = max(ceiling(bootstraps / ip_boots), 10)
+  boots = boots_per_ip * ip_boots
 
-  df = df %>% dplyr::mutate(
-    rt = purrr::map2(growth.fit, growth.se.fit, .progress = .progress, function(mean_r, sd_r) {
+  df = df %>%
+    dplyr::mutate(
+      rt = purrr::map2(
+        growth.fit,
+        growth.se.fit,
+        .progress = .progress,
+        function(mean_r, sd_r) {
+          mean_r = .daily_unit * mean_r
+          sd_r = .daily_unit * sd_r
 
-      mean_r = .daily_unit*mean_r
-      sd_r = .daily_unit*sd_r
+          # rather than bootstrap samples we sample quantiles of growth rate
+          # to ensure a representative distribution
+          # qnts = seq(0,1,length.out = boots_per_ip+3)[2:(boots_per_ip+2)]
+          # r_samples = tibble::tibble(r = stats::qnorm(p=qnts,mean_r,sd_r)) %>%
+          #   dplyr::mutate(r_i = dplyr::row_number())
 
-      # rather than bootstrap samples we sample quantiles of growth rate
-      # to ensure a representative distribution
-      # qnts = seq(0,1,length.out = boots_per_ip+3)[2:(boots_per_ip+2)]
-      # r_samples = tibble::tibble(r = stats::qnorm(p=qnts,mean_r,sd_r)) %>%
-      #   dplyr::mutate(r_i = dplyr::row_number())
+          r_samples = withr::with_seed(seed, {
+            tibble::tibble(
+              r = stats::rnorm(boots, mean_r, sd_r),
+              boot = rep(unique(ip$boot), boots_per_ip)
+            ) %>%
+              dplyr::group_by(boot) %>%
+              dplyr::mutate(r_i = dplyr::row_number())
+          })
 
-      r_samples = withr::with_seed(seed,{
-        tibble::tibble(
-          r = stats::rnorm(boots, mean_r, sd_r),
-          boot = rep(unique(ip$boot),boots_per_ip)
-        ) %>%
-        dplyr::group_by(boot) %>%
-        dplyr::mutate(r_i = dplyr::row_number())
-      })
+          tmp = ip %>%
+            dplyr::inner_join(r_samples, by = "boot") %>%
+            dplyr::rename(y = probability) %>%
+            dplyr::group_by(boot, r_i) %>%
+            dplyr::arrange(boot, r_i) %>%
+            dplyr::mutate(
+              R = r /
+                sum(
+                  y *
+                    (exp(-r * a0) - exp(-r * a1)) /
+                    (a1 - a0)
+                )
+            ) %>%
+            dplyr::mutate(R = ifelse(r == 0, 1, R))
 
-      tmp = ip %>%
-        dplyr::inner_join(r_samples, by="boot") %>%
-        dplyr::rename(y = probability) %>%
-        dplyr::group_by(boot,r_i) %>%
-        dplyr::arrange(boot,r_i) %>%
-        dplyr::mutate(
-          R = r/sum(
-            y
-              *
-            (exp(-r*a0)-exp(-r*a1))
-              /
-            (a1 - a0)
-          )
-        ) %>%
-        dplyr::mutate(R = ifelse(r==0,1,R))
+          R_summ = tmp %>%
+            dplyr::ungroup() %>%
+            dplyr::summarise(
+              rt.fit = mean(R, na.rm = TRUE),
+              rt.se.fit = stats::sd(R, na.rm = TRUE),
+              rt.samples = list(R)
+            ) %>%
+            .result_from_fit(
+              "rt",
+              # This format is needed because quantile is not vectorised on data:
+              qfn = function(p) {
+                purrr::map_dbl(.$rt.samples, function(data) {
+                  stats::quantile(data, p)
+                })
+              }
+            ) %>%
+            .keep_cdf(type = "rt", .$rt.samples, link = "log") %>%
+            dplyr::select(-rt.samples)
 
-      R_summ = tmp %>% dplyr::ungroup() %>% dplyr::summarise(
-        rt.fit = mean(R, na.rm=TRUE),
-        rt.se.fit = stats::sd(R, na.rm=TRUE),
-        rt.samples = list(R)
-      ) %>%
-      .result_from_fit(
-        "rt",
-        # This format is needed because quantile is not vectorised on data:
-        qfn = \(p) purrr::map_dbl(.$rt.samples, \(data) stats::quantile(data, p))
-      )  %>%
-      .keep_cdf(type = "rt", .$rt.samples, link="log") %>%
-      dplyr::select(-rt.samples)
-
-      return(R_summ)
-    })
-  )
+          return(R_summ)
+        }
+      )
+    )
 
   out = df %>% tidyr::unnest(rt)
   interfacer::ireturn(out, i_reproduction_number)
-
 }
-
-
-
 
 
 #' Calculate the reproduction number from a growth rate estimate and an infectivity profile
@@ -134,31 +147,35 @@ rt_from_growth_rate = function(df = i_growth_rate, ip = i_empirical_ip, bootstra
 #' # using an infectivity profile
 #' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=test_ip)
 #'
-wallinga_lipsitch = function(r, y = i_empirical_ip, a1=seq(0.5, length.out=length(y)), a0=dplyr::lag(a1,default=0)) {
-
+wallinga_lipsitch = function(
+  r,
+  y = i_empirical_ip,
+  a1 = seq(0.5, length.out = length(y)),
+  a0 = dplyr::lag(a1, default = 0)
+) {
   if (is.data.frame(y)) {
-    ip = interfacer::ivalidate(y, .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5))
+    ip = interfacer::ivalidate(
+      y,
+      .imap = interfacer::imapper(a0 = pmax(tau - 0.5, 0), a1 = tau + 0.5)
+    )
     ip = .summary_ip_no_chk(ip)
     a0 = ip$a0
     a1 = ip$a1
     y = ip$probability
   }
 
-  y = y/sum(y)
+  y = y / sum(y)
   tmp = sapply(r, function(r2) {
-    R = r2/sum(
-      y
-      *
-        (exp(-r2*a0)-exp(-r2*a1))
-      /
-        (a1 - a0)
-    )
+    R = r2 /
+      sum(
+        y *
+          (exp(-r2 * a0) - exp(-r2 * a1)) /
+          (a1 - a0)
+      )
     return(R)
   })
-  return(ifelse(r==0,1,tmp))
+  return(ifelse(r == 0, 1, tmp))
 }
-
-
 
 
 #' Calculate a growth rate from a reproduction number and an infectivity profile,
@@ -185,26 +202,32 @@ wallinga_lipsitch = function(r, y = i_empirical_ip, a1=seq(0.5, length.out=lengt
 #' @examples
 #' inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=test_ip)
 #'
-inv_wallinga_lipsitch = function(Rt, y= i_empirical_ip, a1=seq(0.5, length.out=length(y)), a0=dplyr::lag(a1,default=0)) {
-
+inv_wallinga_lipsitch = function(
+  Rt,
+  y = i_empirical_ip,
+  a1 = seq(0.5, length.out = length(y)),
+  a0 = dplyr::lag(a1, default = 0)
+) {
   if (is.data.frame(y)) {
-    ip = interfacer::ivalidate(y, .imap = interfacer::imapper(a0 = pmax(tau-0.5,0), a1=tau+0.5))
+    ip = interfacer::ivalidate(
+      y,
+      .imap = interfacer::imapper(a0 = pmax(tau - 0.5, 0), a1 = tau + 0.5)
+    )
     ip = .summary_ip_no_chk(ip)
     a0 = ip$a0
     a1 = ip$a1
     y = ip$probability
   }
 
-  Tc = sum(y*(a1-a0)*(a0+a1)/2) # mean generation interval
+  Tc = sum(y * (a1 - a0) * (a0 + a1) / 2) # mean generation interval
 
   sapply(Rt, function(R) {
-    r_delta = log(R)/Tc
-    r_exp = (R-1)/Tc
-    f = function(r) wallinga_lipsitch(r, y, a1, a0)-R
-    if (R==1) return(0)
-    stats::uniroot(f,
-            interval = c(r_delta,r_exp),
-            extendInt = "yes"
-            )$root
+    r_delta = log(R) / Tc
+    r_exp = (R - 1) / Tc
+    f = function(r) wallinga_lipsitch(r, y, a1, a0) - R
+    if (R == 1) {
+      return(0)
+    }
+    stats::uniroot(f, interval = c(r_delta, r_exp), extendInt = "yes")$root
   })
 }

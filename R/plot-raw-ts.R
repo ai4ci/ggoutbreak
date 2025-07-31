@@ -33,7 +33,7 @@ plot_counts = function(
 ) {
   interfacer::idispatch(
     raw,
-    plot_counts.per_capita = i_incidence_per_capita_data,
+    plot_counts.per_capita = i_incidence_per_capita_normalised,
     plot_counts.default = i_incidence_data
   )
 }

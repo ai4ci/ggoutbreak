@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -331,21 +331,18 @@ estimates given modelled incidence typically occurring in a matter of
 seconds:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">:::</span><span class="va">.internal_r_t_estim</span><span class="op">)</span></span>
-<span><span class="co">#&gt; function (mu, sigma, omega, mu_t, sigma_t, cor = FALSE, approx = TRUE) </span></span>
+<span><span class="co">#&gt; function (mu, sigma, omega, mu_t, sigma_t, cor_ij = NULL, approx = TRUE) </span></span>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     omega_m = as.matrix(omega)</span></span>
 <span><span class="co">#&gt;     omega_m = apply(omega_m, MARGIN = 2, rev)</span></span>
 <span><span class="co">#&gt;     tmp = apply(omega_m, MARGIN = 2, function(omega) {</span></span>
 <span><span class="co">#&gt;         log_S_t = .logsumexp(mu_t + sigma_t^2/2 + log(omega))</span></span>
 <span><span class="co">#&gt;         log_T_t_tau = mu_t + sigma_t^2/2 + log(omega) + log(sigma_t)</span></span>
-<span><span class="co">#&gt;         if (cor) {</span></span>
-<span><span class="co">#&gt;             n = length(omega)</span></span>
-<span><span class="co">#&gt;             idx = 0:(n^2 - 1)</span></span>
-<span><span class="co">#&gt;             i = idx%/%n</span></span>
-<span><span class="co">#&gt;             j = idx%%n</span></span>
-<span><span class="co">#&gt;             log_cor_ij = c(0, log(omega))[abs(i - j) + 1]</span></span>
-<span><span class="co">#&gt;             log_var_Zt_ij = log_cor_ij + log_T_t_tau[i + 1] + </span></span>
-<span><span class="co">#&gt;                 log_T_t_tau[j + 1]</span></span>
+<span><span class="co">#&gt;         if (!is.null(cor_ij)) {</span></span>
+<span><span class="co">#&gt;             log_T_t_matrix = outer(log_T_t_tau, log_T_t_tau, </span></span>
+<span><span class="co">#&gt;                 FUN = "+")</span></span>
+<span><span class="co">#&gt;             log_var_Zt_ij = log_T_t_matrix + log(pmax(cor_ij, </span></span>
+<span><span class="co">#&gt;                 0))</span></span>
 <span><span class="co">#&gt;         }</span></span>
 <span><span class="co">#&gt;         else {</span></span>
 <span><span class="co">#&gt;             log_var_Zt_ij = 2 * log_T_t_tau</span></span>
@@ -380,7 +377,7 @@ seconds:</p>
 <span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     return(out)</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x6168637b5968&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x596933350ca0&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre></div>
 </div>
 <div class="section level2">
@@ -402,7 +399,7 @@ estimates in fine grained geographical or demographic subgroups.</p>
 <span>  <span class="va">rt_fit</span> <span class="op">=</span> <span class="va">fit</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">covid_ip</span>, approx <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   3.796   0.000   3.797</span></span>
+<span><span class="co">#&gt;   4.823   0.007   4.831</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">rt_fit</span>, events <span class="op">=</span> <span class="va">england_events</span>, colour<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>,<span class="st">"2023-01-01"</span><span class="op">)</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>,<span class="fl">1.6</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>

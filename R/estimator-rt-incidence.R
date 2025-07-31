@@ -59,46 +59,59 @@ rt_from_incidence = function(
     .stop_if_not_daily(df$time)
 
     tmp_ip = .select_ip(ip, .groupdata)
-    # omega is a matrix
+    mu = df$incidence.fit
+    sigma = df$incidence.se.fit
+    min_tau = min(tmp_ip$tau)
     omega = tmp_ip %>% .omega_matrix(epiestim_compat = FALSE)
-    window = nrow(omega)
-    # relax assumption that time in infectivity profile starts at 1.
-    # negative serial intervals should be OK
-    start = min(tmp_ip$tau)
-    end = nrow(df) + min(c(start, 0))
+    rt = .estimate_rt_timeseries(
+      mu,
+      sigma,
+      omega,
+      min_tau,
+      cor_ij = NULL,
+      approx = approx
+    )
 
-    rt = lapply(1:end, function(i) {
-      if (i < window + start) {
-        pad = .ln_pad(
-          window - i + start,
-          df$incidence.fit[1],
-          df$incidence.se.fit[1],
-          spread = 1.1
-        )
-        mu_t = c(pad$mu, df$incidence.fit[1:(i - start)])
-        sigma_t = c(pad$sigma, df$incidence.se.fit[1:(i - start)])
-
-        # omega = omega[1:(i-1)]/sum(omega[1:(i-1)])
-        # mu_t = df$incidence.fit[1:(i-1)]
-        # sigma_t = df$incidence.se.fit[1:(i-1)]
-      } else {
-        mu_t = df$incidence.fit[(i - window - start + 1):(i - start)]
-        sigma_t = df$incidence.se.fit[(i - window - start + 1):(i - start)]
-      }
-      return(.internal_r_t_estim(
-        mu = df$incidence.fit[i],
-        sigma = df$incidence.se.fit[i],
-        omega = omega,
-        mu_t = mu_t,
-        sigma_t = sigma_t,
-        cor = FALSE,
-        approx = approx
-      ))
-    })
-
-    if (length(rt) < nrow(df)) {
-      rt = c(rt, rep(list(NULL), nrow(df) - length(rt)))
-    }
+    # # omega is a matrix
+    # omega = tmp_ip %>% .omega_matrix(epiestim_compat = FALSE)
+    # window = nrow(omega)
+    # # relax assumption that time in infectivity profile starts at 1.
+    # # negative serial intervals should be OK
+    # start = min(tmp_ip$tau)
+    # end = nrow(df) + min(c(start, 0))
+    #
+    # rt = lapply(1:end, function(i) {
+    #   if (i < window + start) {
+    #     pad = .ln_pad(
+    #       window - i + start,
+    #       df$incidence.fit[1],
+    #       df$incidence.se.fit[1],
+    #       spread = 1.1
+    #     )
+    #     mu_t = c(pad$mu, df$incidence.fit[1:(i - start)])
+    #     sigma_t = c(pad$sigma, df$incidence.se.fit[1:(i - start)])
+    #
+    #     # omega = omega[1:(i-1)]/sum(omega[1:(i-1)])
+    #     # mu_t = df$incidence.fit[1:(i-1)]
+    #     # sigma_t = df$incidence.se.fit[1:(i-1)]
+    #   } else {
+    #     mu_t = df$incidence.fit[(i - window - start + 1):(i - start)]
+    #     sigma_t = df$incidence.se.fit[(i - window - start + 1):(i - start)]
+    #   }
+    #   return(.internal_r_t_estim(
+    #     mu = df$incidence.fit[i],
+    #     sigma = df$incidence.se.fit[i],
+    #     omega = omega,
+    #     mu_t = mu_t,
+    #     sigma_t = sigma_t,
+    #     cor_ij = NULL,
+    #     approx = approx
+    #   ))
+    # })
+    #
+    # if (length(rt) < nrow(df)) {
+    #   rt = c(rt, rep(list(NULL), nrow(df) - length(rt)))
+    # }
 
     new_data = df %>%
       dplyr::mutate(rt = rt) %>%
@@ -138,7 +151,7 @@ rt_from_incidence = function(
   omega,
   mu_t,
   sigma_t,
-  cor = FALSE,
+  cor_ij = NULL,
   approx = TRUE
 ) {
   # This function estimates the reproduction number for a specific point in time
@@ -153,15 +166,16 @@ rt_from_incidence = function(
   # - mu_t is a central estimate of the log of an incidence rate in the days leading up
   # to the given time point
   # - sigma_t is a standard error of the log an incidence rate in
-  # the days leading up to the given time point
-  # - cor indicates if we should assume that samples from the incidence rate
-  # distributions are correlated depending on the infectivity profile, or
-  # uncorrelated. This does not greatly influence accuracy of estimates.
+  # the days leading up to the given time point.
+  # - cor_ij the predicted correlation matrix. If missing time points are assumed independent.
+  # can be generated from cov2cor(vcov), or we can generate candidates based on
+  # time differences and bandwidth.
   # - approx indicates that we should approximate the quantiles using the
   # arithmetic mean of the mixture distribution quantiles (quick), rather than solving
   # the mixture cumulative distribution function (slow)
 
   omega_m = as.matrix(omega)
+
   # switch direction of omega to match timeseries. This eliminates need for
   # t-\tau indexes
   omega_m = apply(omega_m, MARGIN = 2, rev)
@@ -177,21 +191,35 @@ rt_from_incidence = function(
     log_T_t_tau = mu_t + sigma_t^2 / 2 + log(omega) + log(sigma_t)
 
     # Are individual samples correlated or not (default is not)
-    if (cor) {
+    if (!is.null(cor_ij)) {
       # assuming the terms are correlated does not make much of a difference to
       # outcome but requires a matrix the size of length(omega)^2
-      n = length(omega)
-      idx = 0:(n^2 - 1)
-      i = idx %/% n
-      j = idx %% n
-      log_cor_ij = c(0, log(omega))[abs(i - j) + 1]
-      log_var_Zt_ij = log_cor_ij + log_T_t_tau[i + 1] + log_T_t_tau[j + 1]
+      # log_T_t_tau_minus_log_sigma = mu_t + sigma_t^2 / 2 + log(omega)
+      # log_T_t_matrix = outer(log_T_t_tau_minus_log_sigma, log_T_t_tau_minus_log_sigma,FUN = "+")
+      # n = length(omega)
+      # lambda = 1 / cor
+      # idx = 0:(n^2 - 1)
+      # i = idx %/% n
+      # j = idx %% n
+      #
+      # log_var_Zt_ij = log_T_t_tau[i + 1] +
+      #   log_T_t_tau[j + 1] -
+      #   lambda * abs(i - j)
+
+      log_T_t_matrix = outer(
+        log_T_t_tau,
+        log_T_t_tau,
+        FUN = "+"
+      )
+      # cor_t is the same as cor_{ij}*\sigma_i*\sigma_j
+      # negative values are ignored
+      log_var_Zt_ij = log_T_t_matrix + log(pmax(cor_ij, 0))
     } else {
       # cor_ij is zero for i <> j
+
       log_var_Zt_ij = 2 * log_T_t_tau
     }
 
-    #
     log_var_Zt = .logsumexp(log_var_Zt_ij) - 2 * log_S_t
 
     var_Zt = exp(log_var_Zt)
@@ -255,12 +283,89 @@ rt_from_incidence = function(
 
 # create a set of lognormals based on mu and sigma with increasing SD
 .ln_pad = function(length, mu, sigma, spread = 1.1) {
-  mean = exp(mu + sigma^2 / 2)
-  sd = sqrt((exp(sigma^2) - 1) * exp(2 * mu + sigma^2))
-  means = rep(mean, length.out = length)
-  sds = rep(sd, length.out = length)
-  sds = sds * spread^(1:length)
-  mus = log(means / sqrt(sds^2 / means^2 + 1))
-  sigmas = sqrt(log(sds^2 / means^2 + 1))
+  if (length(mu) > 1) {
+    l = length(mu)
+    mus = stats::lm(y ~ x, dplyr::tibble(y = rev(mu[1:l]), x = -(l - 1):0)) %>%
+      stats::predict(dplyr::tibble(x = 1:length))
+    # sigmas = rep(sigma[1], length)
+    sigmas = sigma[1] * 1:length * spread
+  } else {
+    mean = exp(mu[1] + sigma[1]^2 / 2)
+    sd = sqrt((exp(sigma[1]^2) - 1) * exp(2 * mu[1] + sigma[1]^2))
+    means = rep(mean, length.out = length)
+    sds = sd * spread^(1:length)
+    mus = log(means) - 1 / 2 * log(sds^2 / means^2 + 1)
+    sigmas = sqrt(log(sds^2 / means^2 + 1))
+  }
   return(list(mu = rev(mus), sigma = rev(sigmas)))
+}
+
+
+# mu the incidence on the log scale
+# sigma the incidence sd on the log scale
+# omeag a matrix style infectivity profile,
+# min_tau the smallest value of the tau column in the infectivity profile
+# cor_ij the correlation matrix (e.g. output from .gam_glm_cor or .time_based_correlation)
+.estimate_rt_timeseries = function(
+  mu,
+  sigma,
+  omega,
+  min_tau,
+  cor_ij = NULL,
+  approx = TRUE
+) {
+  window = nrow(omega)
+  padding = .ln_pad(window, mu[1:5], sigma[1], 1.1)
+
+  # relax assumption that time in infectivity profile starts at 1.
+  # negative serial intervals should be OK
+  end_offset = -min_tau # offset from index of start of data window, if tau is negative this will be positive
+  start_offset = end_offset - window + 1 # smaller than end offset
+  end = length(mu) - max(c(end_offset, 0)) # the end is the last index value for which we can derive a window
+  cor_ij_pad = matrix(0, window, window)
+  diag(cor_ij_pad) = 1
+
+  rt = lapply(1:end, function(i) {
+    #i=78
+    w = start_offset:end_offset + i + window
+    mu_t = c(padding$mu, mu)[w]
+    sigma_t = c(padding$sigma, sigma)[w]
+    mu_i = mu[i]
+    sigma_i = sigma[i]
+
+    if (is.null(cor_ij)) {
+      # disable the correlation matrix and assume independence
+      tmp_cor_ij = NULL
+    } else if (all(dim(cor_ij) == window)) {
+      # The correlation matrix is the right size because it is a fixed size
+      # one generated by .time_based_correlation()
+      tmp_cor_ij = cor_ij
+    } else if (all(dim(cor_ij) == length(mu))) {
+      # The correlation matrix is the same size as the data because it was
+      # extracted from the vcov of the prediction.
+      # we need to select the correct part of the matrix for each time window
+      # and pad out the bits that are before the data,
+      w2 = max(c(1, i + start_offset)):(i + end_offset)
+      w3 = window + 1 - length(w2):1
+      tmp_cor_ij = cor_ij_pad
+      tmp_cor_ij[w3, w3] = cor_ij[w2, w2]
+    }
+
+    .internal_r_t_estim(
+      mu_i,
+      sigma_i,
+      omega,
+      mu_t,
+      sigma_t,
+      tmp_cor_ij,
+      approx = approx
+    )
+  })
+
+  if (length(rt) < length(mu)) {
+    # If there are negative serial intervals then there is
+    rt = c(rt, rep(list(NULL), length(mu) - length(rt)))
+  }
+
+  return(rt)
 }

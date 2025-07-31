@@ -291,7 +291,7 @@ make_resampled_ip = function(
   seed = Sys.time()
 ) {
   withr::with_seed(seed, {
-    dplyr::bind_rows(lapply(1:n_boots, \(i) {
+    dplyr::bind_rows(lapply(1:n_boots, function(i) {
       tmp = tibble::tibble(
         min = min_tau,
         max = max_tau

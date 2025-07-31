@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.4.6
+Version: 0.4.7
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -51,13 +51,16 @@ Imports:
     ragg,
     withr,
     MASS,
-    interfacer,
+    interfacer (>= 0.3.7),
     lobstr,
     cli,
     lifecycle,
     PDQutils,
+    signal,
     mirai,
-    carrier
+    carrier,
+    mgcv,
+    deSolve
 Remotes: github::ai4ci/interfacer
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,

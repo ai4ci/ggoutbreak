@@ -195,7 +195,12 @@ integer_breaks = function(n = 5, ...) {
   }
   for (k in names(mapping)) {
     tmp = try(rlang::eval_tidy(mapping[[k]], df), silent = TRUE)
-    if (inherits(tmp, "try-error") || is.language(tmp) || is.function(tmp)) {
+    if (
+      inherits(tmp, "try-error") ||
+        is.language(tmp) ||
+        is.function(tmp) ||
+        length(tmp) != nrow(df)
+    ) {
       mapping[[k]] = NULL
     }
   }

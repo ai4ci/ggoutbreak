@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -109,27 +109,27 @@ Rotavirus dataset from <code>EpiEstim</code>:</p>
 <span>  verbose <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running 6000 MCMC iterations </span></span>
 <span><span class="co">## MCMCmetrop1R iteration 1 of 6000 </span></span>
-<span><span class="co">## function value =  -31.57675</span></span>
+<span><span class="co">## function value =  -31.85255</span></span>
 <span><span class="co">## theta = </span></span>
-<span><span class="co">##    0.13231</span></span>
-<span><span class="co">##    0.29055</span></span>
-<span><span class="co">## Metropolis acceptance rate = 0.00000</span></span>
+<span><span class="co">##   -0.13964</span></span>
+<span><span class="co">##    0.52568</span></span>
+<span><span class="co">## Metropolis acceptance rate = 1.00000</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span></span>
-<span><span class="co">## The Metropolis acceptance rate was 0.56433</span></span>
+<span><span class="co">## The Metropolis acceptance rate was 0.55417</span></span>
 <span><span class="co">## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span></span></code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SI_fit_clever</span></span></code></pre></div>
 <pre><code><span><span class="co">## Coarse Data Model Parameter and Quantile Estimates: </span></span>
 <span><span class="co">##         est CIlow CIhigh</span></span>
-<span><span class="co">## shape 1.076 0.433  2.297</span></span>
-<span><span class="co">## scale 1.367 0.634  3.730</span></span>
-<span><span class="co">## p5    0.091 0.003  0.360</span></span>
-<span><span class="co">## p50   1.051 0.455  1.702</span></span>
-<span><span class="co">## p95   4.282 2.849  7.951</span></span>
-<span><span class="co">## p99   6.514 4.157 13.012</span></span>
+<span><span class="co">## shape 1.122 0.493  2.331</span></span>
+<span><span class="co">## scale 1.314 0.638  3.185</span></span>
+<span><span class="co">## p5    0.098 0.005  0.353</span></span>
+<span><span class="co">## p50   1.066 0.531  1.665</span></span>
+<span><span class="co">## p95   4.234 2.837  7.107</span></span>
+<span><span class="co">## p99   6.396 4.120 11.698</span></span>
 <span><span class="co">## Note: please check that the MCMC converged on the target distribution by running multiple chains. MCMC samples are available in the mcmc slot (e.g. my.fit@mcmc)</span></span></code></pre>
 <p>The median estimate and confidence intervals are quantiles of the
 posterior samples each of which define a candidate gamma distribution.
@@ -180,8 +180,8 @@ statistics as follows:</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 2 × 4</span></span></span>
 <span><span class="co">##   parameter mean  sd    `median [95% CrI]`</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>             </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> mean      1.53  0.37  1.49 [0.93 — 2.36]</span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> sd        1.52  0.50  1.41 [0.89 — 2.79]</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> mean      1.51  0.33  1.48 [0.95 — 2.24]</span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> sd        1.46  0.41  1.38 [0.88 — 2.52]</span></span></code></pre>
 <p>In many cases it will only be the median and 95% credible intervals
 that are published, and in some cases not even that. In very rare cases
 posterior estimates of shape and scale parameters of the gamma
@@ -301,7 +301,7 @@ distributed.</p>
 <div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">correlation</span> <span class="op">=</span> <span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">gammas</span><span class="op">$</span><span class="va">mean</span>, <span class="va">gammas</span><span class="op">$</span><span class="va">sd</span><span class="op">)</span></span>
 <span><span class="va">correlation</span></span></code></pre></div>
-<pre><code><span><span class="co">## [1] 0.7326295</span></span></code></pre>
+<pre><code><span><span class="co">## [1] 0.7003436</span></span></code></pre>
 <p>Let us also assume that rather than knowledge of mean, sd, etc, we
 know only median and 95% credible intervals of the distribution of mean
 and SD, which are more commonly what is reported in the literature. For
@@ -316,8 +316,8 @@ the time being we also assume we know the degree of correlation.</p>
 <span><span class="va">quantiles</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Rows: 3</span></span>
 <span><span class="co">## Columns: 3</span></span>
-<span><span class="co">## $ mean <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.9295801<span style="color: #949494;">, </span>1.4852901<span style="color: #949494;">, </span>2.3556312</span></span>
-<span><span class="co">## $ sd   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.8905979<span style="color: #949494;">, </span>1.4079267<span style="color: #949494;">, </span>2.7878889</span></span>
+<span><span class="co">## $ mean <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.9459479<span style="color: #949494;">, </span>1.4781341<span style="color: #949494;">, </span>2.2372881</span></span>
+<span><span class="co">## $ sd   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.8821672<span style="color: #949494;">, </span>1.3824275<span style="color: #949494;">, </span>2.5180828</span></span>
 <span><span class="co">## $ p    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.025<span style="color: #949494;">, </span>0.500<span style="color: #949494;">, </span>0.975</span></span></code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="co"># We can log transform quantiles and estimate a normal distribution</span></span>
@@ -422,10 +422,10 @@ with the Cori method.</p>
 <pre><code><span><span class="co">## <span style="color: #949494;"># A tibble: 4 × 5</span></span></span>
 <span><span class="co">##   source             sd  mean parameter disc_type</span></span>
 <span><span class="co">##   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">1</span> raw mcmc        0.348  1.56 mean      epiestim </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">2</span> epiestim        0.323  1.58 mean      epiestim </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">3</span> corr log normal 0.348  1.54 mean      epiestim </span></span>
-<span><span class="co">## <span style="color: #BCBCBC;">4</span> raw             0.368  1.53 mean      none</span></span></code></pre>
+<span><span class="co">## <span style="color: #BCBCBC;">1</span> raw mcmc        0.313  1.54 mean      epiestim </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">2</span> epiestim        0.296  1.55 mean      epiestim </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">3</span> corr log normal 0.318  1.51 mean      epiestim </span></span>
+<span><span class="co">## <span style="color: #BCBCBC;">4</span> raw             0.329  1.51 mean      none</span></span></code></pre>
 <p><code>EpiEstim</code>’s default resampling strategy in this example
 results in a slightly less skewed discretised infectivity profile
 distribution than either the original data derived

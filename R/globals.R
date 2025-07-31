@@ -192,7 +192,12 @@ utils::globalVariables(c(
   "link",
   "pit0",
   "threshold_distance",
-  "threshold_error_probability"
+  "threshold_error_probability",
+  ".n",
+  "obs_time",
+  "result",
+  "S",
+  "cumulative_I"
 ))
 
 #' @importFrom ragg agg_png

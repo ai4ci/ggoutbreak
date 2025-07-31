@@ -15,7 +15,7 @@ also calculated."><meta property="og:image" content="https://ai4ci.github.io/ggo
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,8 @@ also calculated.</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">sim_summarise_linelist</span><span class="op">(</span></span>
 <span>  df <span class="op">=</span> <span class="va">i_sim_linelist</span>,</span>
 <span>  <span class="va">...</span>,</span>
-<span>  censoring <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  censoring <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>admitted <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="fu"><a href="rgamma2.html">rgamma2</a></span><span class="op">(</span><span class="va">t</span>, mean <span class="op">=</span> <span class="fl">5</span><span class="op">)</span>, death <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span><span class="op">)</span></span>
+<span>    <span class="fu"><a href="rgamma2.html">rgamma2</a></span><span class="op">(</span><span class="va">t</span>, mean <span class="op">=</span> <span class="fl">10</span><span class="op">)</span>, sample <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">t</span>, <span class="va">result_delay</span><span class="op">)</span> <span class="va">result_delay</span><span class="op">)</span>,</span>
 <span>  max_time <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html" class="external-link">max</a></span><span class="op">(</span><span class="va">df</span><span class="op">$</span><span class="va">time</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -96,7 +97,8 @@ can't censor it.</p></dd>
 
 
 <dt id="arg-max-time">max_time<a class="anchor" aria-label="anchor" href="#arg-max-time"></a></dt>
-<dd><p>the censoring time for this observation.</p></dd>
+<dd><p>the censoring time for this observation. If this is a vector
+there will be multiple time series in the output</p></dd>
 
 </dl></div>
     <div class="section level2">

@@ -10,7 +10,7 @@ sim_branching_process(
   max_time = 80,
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
-  fn_ip = ~test_ip,
+  fn_ip = ~ggoutbreak::test_ip,
   fn_kappa = ~1,
   imports_df = NULL,
   fn_imports = ~ifelse(.x == 0, 30, 0),

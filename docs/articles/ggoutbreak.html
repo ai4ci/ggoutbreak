@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.6</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,13 +78,40 @@
 
     
     
-<div class="section level2">
-<h2 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
-</h2>
+<div class="section level3">
+<h3 id="background">Background<a class="anchor" aria-label="anchor" href="#background"></a>
+</h3>
 <p>Collection of tools from COVID-19 with focus on simplicity with a
-goal to provide a simple pipeline from data to visualisation</p>
-<p><a href="https://github.com/ai4ci/ggoutbreak" class="external-link uri">https://github.com/ai4ci/ggoutbreak</a> and AI4CI
-r-universe</p>
+goal to provide a simple pipeline from data to visualisation. The main
+features are listed below. The documentation is in development. For the
+time being the best resources are the other vignettes including:</p>
+<ul>
+<li><code><a href="../articles/covid-timeseries.html">vignette("covid-timeseries",package="ggoutbreak")</a></code></li>
+<li><code><a href="../articles/incidence-trends.html">vignette("incidence-trends",package="ggoutbreak")</a></code></li>
+<li><code><a href="../articles/variant-proportions.html">vignette("variant-proportions",package="ggoutbreak")</a></code></li>
+</ul>
+</div>
+<div class="section level3">
+<h3 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h3>
+<p><code>ggoutbreak</code> is hosted on the <a href="https://ai4ci.r-universe.dev/" class="external-link">AI4CI r-universe</a>. Installation
+from there is as follows:</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/options.html" class="external-link">options</a></span><span class="op">(</span>repos <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>  <span class="st">"ai4ci"</span> <span class="op">=</span> <span class="st">'https://ai4ci.r-universe.dev/'</span>,</span>
+<span>  CRAN <span class="op">=</span> <span class="st">'https://cloud.r-project.org'</span><span class="op">)</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Download and install ggoutbreak in R</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"ggoutbreak"</span><span class="op">)</span></span></code></pre></div>
+<p>You can install the development version of <code>ggoutbreak</code>
+from <a href="https://github.com/ai4ci/ggoutbreak" class="external-link">GitHub</a> with:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># install.packages("devtools")</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"ai4ci/ggoutbreak"</span><span class="op">)</span></span></code></pre></div>
+</div>
+<div class="section level3">
+<h3 id="features">Features<a class="anchor" aria-label="anchor" href="#features"></a>
+</h3>
 <p>Simulation</p>
 <ul>
 <li>Poisson (aggregate count) &amp; branching process (line list)</li>
@@ -98,6 +125,10 @@ number (and wrappers for existing tools)</li>
 <li>Poisson count and binomial/multinomial proportion models</li>
 </ul>
 <p>Visualization</p>
+<ul>
+<li>Default <code>ggplot2</code> visualisations of epidemic time series,
+including adjustment for population and variable time steps.</li>
+</ul>
 <div class="float">
 <img src="pipeline-map.svg" alt="Pipeline functions"><div class="figcaption">Pipeline functions</div>
 </div>
@@ -109,17 +140,17 @@ number (and wrappers for existing tools)</li>
 <h3 id="models">Models:<a class="anchor" aria-label="anchor" href="#models"></a>
 </h3>
 <ul>
-<li>Poisson growth rate</li>
-<li>Poisson reproduction number</li>
-<li>Branching process model</li>
-<li>SEIR ODE</li>
+<li>Poisson growth rate (count model)</li>
+<li>Poisson reproduction number (count model)</li>
+<li>Branching process model (individual model)</li>
+<li>SEIR ODE (compartment model)</li>
 </ul>
 </div>
 <div class="section level3">
 <h3 id="time-varying-parameters">Time varying parameters:<a class="anchor" aria-label="anchor" href="#time-varying-parameters"></a>
 </h3>
 <ul>
-<li>Rt / growth rate</li>
+<li>Rt / growth rate / transmission</li>
 <li>Importation</li>
 <li>Generation time</li>
 <li>Ascertainment</li>
@@ -132,31 +163,53 @@ number (and wrappers for existing tools)</li>
 <h3 id="scoring">Scoring<a class="anchor" aria-label="anchor" href="#scoring"></a>
 </h3>
 <ul>
-<li>mean_quantile_bias - the average of the universal residuals. Lower
-values are better.</li>
-<li>mean_trans_bias - the bias on the link function scale.</li>
-<li>link - the link function</li>
-<li>mean_bias - the bias on the natural scale (which may be interpreted
-as additive or multiplicative depending on the link)</li>
-<li>pit_was - an unadjusted probability integral transform histogram
-Wasserstein distance from the uniform (lower values are better).</li>
-<li>unbiased_pit_was - an PIT Wasserstein distance from the uniform,
-adjusted for estimator bias (lower values are better).</li>
-<li>directed_pit_was - a PIT Wasserstein distance from the uniform,
-directed away from the centre, adjusted for estimator bias (values
-closer to zero are better, positive values indicate overconfidence, and
-negative values excessively conservative estimates).</li>
-<li>percent_iqr_coverage - the percentage of estimators that include the
-true value in their IQR. For a perfectly calibrated estimate this should
-be 0.5. Lower values reflect overconfidence, higher values reflect
-excessively conservative estimates.</li>
-<li>unbiased_percent_iqr_coverage - the percentage of estimators that
-include the true value in their IQR once adjusted for bias</li>
-<li>mean_crps - the mean value of the continuous rank probability score
-for each point estimate (lower values are better)</li>
-<li>mean_unbiased_crps - the mean value of the continuous rank
-probability score for each point estimate assessed after adjustment for
-bias (lower values are better)</li>
+<li>
+<code>mean_quantile_bias</code> - the average of the universal
+residuals. Lower values are better.</li>
+<li>
+<code>mean_bias</code> - the bias on the natural scale (which may be
+interpreted as additive or multiplicative depending on the link)</li>
+<li>
+<code>pit_was</code> - an unadjusted probability integral transform
+histogram Wasserstein distance from the uniform (lower values are
+better).</li>
+<li>
+<code>unbiased_pit_was</code> - an PIT Wasserstein distance from the
+uniform, adjusted for estimator bias (lower values are better). This is
+a measure of calibration.</li>
+<li>
+<code>directed_pit_was</code> - a PIT Wasserstein distance from the
+uniform, directed away from the centre, adjusted for estimator bias
+(values closer to zero are better, positive values indicate
+overconfidence, and negative values excessively conservative
+estimates).</li>
+<li>
+<code>percent_iqr_coverage</code> - the percentage of estimators
+that include the true value in their IQR. For a perfectly calibrated
+estimate this should be 0.5. Lower values reflect overconfidence, higher
+values reflect excessively conservative estimates. This is a measure of
+calibration but is influenced by bias.</li>
+<li>
+<code>unbiased_percent_iqr_coverage</code> - the percentage of
+estimators that include the true value in their IQR once adjusted for
+bias. This should be 0.5. This is a measure of calibration, and tells
+you which direction (smaller numbers are over-confident, larger values
+excessively conservative).</li>
+<li>
+<code>mean_prediction_interval_width_50</code> - the prediction
+interval width is a measure of sharpness (smaller values are sharper).
+Sharper estimators are superior if they are unbiased and well
+calibrated.</li>
+<li>
+<code>mean_crps</code> - the mean value of the continuous rank
+probability score for each point estimate (lower values are better)</li>
+<li>
+<code>threshold_misclassification_probability</code> - if a metric
+has a natural threshold like 1 for
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
+then this measures how probable it is that the estimate will propose the
+epidemic is shrinking when it is growing and vice versa. Lower is
+better.</li>
 </ul>
 </div>
 </div>
@@ -164,19 +217,20 @@ bias (lower values are better)</li>
 <h2 id="estimation-methods">Estimation methods<a class="anchor" aria-label="anchor" href="#estimation-methods"></a>
 </h2>
 <ul>
-<li>Rapid simple estimates over multiple sub-groups</li>
+<li>Rapid simple estimates.</li>
+<li>All methods can operate over multiple sub-group time series.</li>
 <li>Supports daily / weekly / monthly / yearly time series*</li>
-<li>Testing estimators against simulations</li>
+<li>Testing estimators against simulations.</li>
 </ul>
 <div class="section level3">
 <h3 id="infectivity-profile-estimation">Infectivity profile estimation<a class="anchor" aria-label="anchor" href="#infectivity-profile-estimation"></a>
 </h3>
 <ul>
-<li>Estimation of generation time or serial interval</li>
-<li>From published estimates (including uncertainty)</li>
+<li>Estimation of generation time or serial interval from published
+estimates (including uncertainty)</li>
 <li>Resampled from raw interval data (with bootstrapping for
-uncertainty)</li>
-<li>From posterior estimates of a fitted gamma distribution</li>
+uncertainty) from posterior estimates of a fitted gamma
+distribution</li>
 </ul>
 </div>
 <div class="section level3">
@@ -184,6 +238,7 @@ uncertainty)</li>
 </h3>
 <ul>
 <li>Locfit or GLM fitted time varying quasipoisson model.</li>
+<li>GAM models including adjustment for right censoring.</li>
 <li>Estimates incidence and growth rate</li>
 <li>Normalisation per capita population or to population baseline
 rate</li>
@@ -199,8 +254,12 @@ rate</li>
 </ul>
 </div>
 <div class="section level3">
-<h3 id="multinomial-proportion-models">Multinomial proportion models:<a class="anchor" aria-label="anchor" href="#multinomial-proportion-models"></a>
+<h3 id="multinomial-proportion-models">Multinomial proportion models<a class="anchor" aria-label="anchor" href="#multinomial-proportion-models"></a>
 </h3>
+<ul>
+<li>
+<code>nnet</code> based multinomial proportion models.</li>
+</ul>
 </div>
 <div class="section level3">
 <h3 id="r_t-estimation-methods">
@@ -210,6 +269,7 @@ estimation methods:<a class="anchor" aria-label="anchor" href="#r_t-estimation-m
 <div class="section level4">
 <h4 id="epiestim-wrapper">EpiEstim wrapper<a class="anchor" aria-label="anchor" href="#epiestim-wrapper"></a>
 </h4>
+<p>Simple adaptor for EpiEstim reference method</p>
 </div>
 <div class="section level4">
 <h4 id="reimplementation-of-cori-method">Reimplementation of Cori method<a class="anchor" aria-label="anchor" href="#reimplementation-of-cori-method"></a>
@@ -243,8 +303,18 @@ from modelled incidence<a class="anchor" aria-label="anchor" href="#r_t-from-mod
 <li>Propagates uncertainty in infectivity profile and incidence
 data</li>
 <li>Deterministic &amp; tolerant of missing values.</li>
-<li>Can use weekly count time series.</li>
+<li>Can use incidence model derived from weekly count time series.</li>
 <li>Can deal with negative values in serial interval</li>
+</ul>
+</div>
+<div class="section level4">
+<h4 id="bootstrapped-renewal-eqaution">Bootstrapped renewal eqaution<a class="anchor" aria-label="anchor" href="#bootstrapped-renewal-eqaution"></a>
+</h4>
+<ul>
+<li>Inputs distributional for of incidence estimate.</li>
+<li>Uses resampling to propagate uncertainty in incidence and
+infectivity profile</li>
+<li>Non deterministic, can use weekly time-series</li>
 </ul>
 </div>
 </div>

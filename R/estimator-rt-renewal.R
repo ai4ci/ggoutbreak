@@ -139,8 +139,10 @@ rt_from_renewal = function(
         .result_from_fit(
           "rt",
           # This format is needed because quantile is not vectorised on data:
-          qfn = \(p) {
-            purrr::map_dbl(.$rt.samples, \(data) stats::quantile(data, p))
+          qfn = function(p) {
+            purrr::map_dbl(.$rt.samples, function(data) {
+              stats::quantile(data, p)
+            })
           }
         ) %>%
         .keep_cdf(type = "rt", .$rt.samples, link = "log") %>%

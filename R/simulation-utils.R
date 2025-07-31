@@ -368,7 +368,11 @@ cfg_transition_fn = function(transition) {
 #'
 #' @examples
 #' sim_test_data() %>% dplyr::glimpse()
-sim_test_data = function(ip = test_ip, duration = 500, period = 50) {
+sim_test_data = function(
+  ip = ggoutbreak::test_ip,
+  duration = 500,
+  period = 50
+) {
   ip = summarise_ip(ip)
 
   changes = tibble::tibble(
@@ -519,7 +523,7 @@ sim_poisson_Rt_model = function(
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
   fn_imports = ~ ifelse(.x == 0, 30, 0),
-  fn_ip = ~test_ip,
+  fn_ip = ~ ggoutbreak::test_ip,
   time_unit = "1 day"
 ) {
   fn_Rt = .fn_check(fn_Rt)
@@ -759,7 +763,7 @@ sim_branching_process = function(
   max_time = 80,
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
-  fn_ip = ~test_ip,
+  fn_ip = ~ ggoutbreak::test_ip,
   fn_kappa = ~1,
   imports_df = NULL,
   fn_imports = ~ ifelse(.x == 0, 30, 0),
@@ -916,6 +920,142 @@ sim_branching_process = function(
       i_sim_linelist
     )
   })
+}
+
+
+#' SEIR model with time-varying transmission parameter
+#'
+#' This function simulates an SEIR (Susceptible-Exposed-Infectious-Recovered) model
+#' where the transmission rate (\code{beta}) varies over time.
+#'
+#' The latent period (time from infection to becoming infectious) is assumed to be
+#' exponentially distributed. The infectious period is derived from the given
+#' mean of the generation time and the latent period.
+#'
+#' @param changes a dataframe holding change time points (`t`) and
+#'   the proportional increase in the transmission rate in the `dBeta` column
+#' @param seed a random seed
+#' @param mean_latent_period Mean time from infection to becoming infectious (E to I),
+#'        assumed to be exponentially distributed.
+#' @param mean_gen_time The average generation time (will be latent period+infectious duration).
+#' @param R0 the initial reproduction number
+#' @param fn_dBeta A function of time \code{t} that returns the multiple of
+#'   transmission rate at that time point. Transmission (beta) at time zero is
+#'   defined by R0 and the infectious duration, This is multiplied at each time
+#'   by this factor.
+#' @param N Total population size. Defaults to 10,000.
+#' @param imports Initial number of infectious individuals. Defaults to 10.
+#' @param max_time Maximum simulation time (in days or time units). Defaults to 100.
+#'
+#' @return `r i_sim_count_data`
+#' @export
+#' @concept test
+#'
+#' @details
+#' The model assumes:
+#' - Latent period ~ Exponential(sigma), where sigma = 1 / \code{mean_latent_period}
+#' - Infectious period ~ Exponential(gamma), where gamma = 1 / (mean_gen_time - mean_latent_period)
+#' - Generation time ~ Exponential(sigma) + Exponential(gamma)
+#' - beta0 = R0 * gamma
+#' - Transmission rate beta(t) = fn_dBeta(t) * beta0
+#'
+#' The generation time is defined as the sum of the latent and infectious periods.
+#'
+#' @examples
+#' # Example: Lockdown after day 30
+#'
+#' seir_output <- sim_seir_model(
+#'   mean_latent_period = 4,
+#'   mean_gen_time = 7,
+#'   R0 = 2.5,
+#'   fn_dBeta = function(t) ifelse(t < 30, 1, 0.5)
+#' )
+#'
+#' if (interactive()) {
+#'   plot_ip(attr(seir_output,"ip"))
+#'   plot_counts(seir_output)
+#' }
+#'
+sim_seir_model <- function(
+  changes = tibble::tibble(
+    t = c(0, 30),
+    dBeta = c(1, 0.5)
+  ),
+  mean_latent_period,
+  mean_gen_time,
+  R0 = 2.5,
+  fn_dBeta = cfg_step_fn(changes),
+  N = 10000,
+  imports = 10,
+  max_time = 104,
+  seed = Sys.time()
+) {
+  # --- Step 2: Validate input: latent period must be less than generation time ---
+  if (mean_latent_period >= mean_gen_time) {
+    stop("mean_latent_period must be less than mean_gen_time")
+  }
+
+  # --- Step 3: Derive infectious period and gamma ---
+  mean_inf_period <- mean_gen_time - mean_latent_period
+  gamma <- 1 / mean_inf_period
+  sigma <- 1 / mean_latent_period
+
+  # --- Step 4: Initial conditions ---
+  S0 <- N - imports
+  y0 <- c(S = S0, E = 0, I = imports, R = 0, CumI = 0)
+
+  beta0 <- R0 * gamma
+
+  # --- Step 5: Time vector ---
+  times <- seq(0, max_time, by = 1)
+
+  # --- Step 6: Define the ODE system ---
+  SEIR <- function(t, y, ...) {
+    with(as.list(y), {
+      # Get current R_t and compute beta
+
+      # beta_t <- Rt * gamma * N / S
+      beta_t = beta0 * fn_dBeta(t)
+
+      # ODEs
+      dS <- -beta_t * S * I / N
+      dE <- beta_t * S * I / N - sigma * E
+      dI <- sigma * E - gamma * I
+      dR <- gamma * I
+
+      dCumI <- sigma * E
+
+      list(c(dS, dE, dI, dR, dCumI))
+    })
+  }
+
+  # --- Step 7: Solve the ODEs ---
+  out <- deSolve::ode(y = y0, times = times, func = SEIR)
+
+  # --- Step 8: Convert output to data frame ---
+  colnames(out)[2:6] <- c("S", "E", "I", "R", "cumulative_I")
+  withr::with_seed(seed, {
+    out_df <- as.data.frame(out) %>%
+      dplyr::mutate(
+        beta = beta0 * fn_dBeta(time),
+        rt = beta / gamma * S / N,
+        time = as.time_period(time, unit = "1 day"),
+        statistic = "infections",
+        population = N,
+        rate = cumulative_I - dplyr::lag(cumulative_I, default = 0),
+        count = stats::rpois(dplyr::n(), rate),
+        imports = ifelse(time == 0, imports, 0)
+      )
+
+    ip = ggoutbreak::make_resampled_ip(
+      stats::rexp(1000, sigma) + stats::rexp(1000, gamma)
+    )
+  })
+
+  return(structure(
+    out_df,
+    ip = ip
+  ))
 }
 
 # Plot helpers ----
@@ -1566,11 +1706,12 @@ sim_apply_delay.linelist = function(
       ) %>%
       dplyr::rename(tested = sample) %>%
       sim_delay(
-        p_fn = ~1,
+        p_fn = \(t, tested) tested,
         delay_fn = fn_result_delay,
         input = "sample_time",
         "result"
-      )
+      ) %>%
+      dplyr::select(-result)
   })
 
   attr(df, "events") = events
@@ -1596,7 +1737,8 @@ sim_apply_delay.linelist = function(
 #'   column, i.e. whenever the event that is being reported happened and `time`
 #'   the simulation infection time. N.B. since infection is not observed you
 #'   can't censor it.
-#' @param max_time the censoring time for this observation.
+#' @param max_time the censoring time for this observation. If this is a vector
+#'   there will be multiple time series in the output
 #' @ireturn a count data frame with additional statistics.
 #' @concept test
 #' @export
@@ -1625,7 +1767,11 @@ sim_apply_delay.linelist = function(
 sim_summarise_linelist = function(
   df = i_sim_linelist,
   ...,
-  censoring = list(),
+  censoring = list(
+    admitted = \(t) rgamma2(t, mean = 5),
+    death = \(t) rgamma2(t, mean = 10),
+    sample = \(t, result_delay) result_delay
+  ),
   max_time = max(df$time)
 ) {
   oldGroups = df %>% dplyr::groups()
@@ -1663,6 +1809,10 @@ sim_summarise_linelist = function(
       infections = dplyr::n(),
       rt.case = mean(infectee_n),
       dispersion = stats::sd(infectee_n) / mean(infectee_n)
+    ) %>%
+    tidyr::complete(
+      time = ggoutbreak::date_seq(time, 1),
+      fill = list(infections = 0, rt.case = NA_real_, dispersion = NA_real_)
     )
 
   # Force of infection is calculated at an individual level.
@@ -1712,27 +1862,45 @@ sim_summarise_linelist = function(
     }
     fn_delay = .fn_check(fn_delay)
 
-    out2 = tmp2 %>%
+    tmp3 = df %>%
       dplyr::mutate(t = !!col) %>%
       dplyr::relocate(t) %>%
       # Censoring filter
-      dplyr::mutate(.delay = .ts_evaluate(fn_delay, .)) %>%
+      dplyr::mutate(.delay = .ts_evaluate(fn_delay, .))
 
-      #TODO: insert a loop here to vectorise max_time and insert censoring column
-      dplyr::filter(t + .delay < max_time) %>%
-      dplyr::transmute(!!!grps, time = floor(!!col)) %>%
-      dplyr::group_by(!!!grps, time) %>%
-      dplyr::summarise(
-        !!tgt := dplyr::n()
-      )
+    out2 = dplyr::bind_rows(lapply(max_time, function(mt) {
+      tmp3 %>%
+        dplyr::filter(t + .delay <= mt) %>%
+        dplyr::transmute(!!!grps, time = floor(!!col)) %>%
+        dplyr::group_by(!!!grps, time) %>%
+        dplyr::summarise(
+          .n = dplyr::n()
+        ) %>%
+        tidyr::complete(
+          time = ggoutbreak::as.time_period(0:mt, time),
+          fill = list(.n = 0)
+        ) %>%
+        dplyr::rename(!!tgt := .n) %>%
+        dplyr::mutate(obs_time = mt)
+    }))
 
-    out = out %>% dplyr::left_join(out2, by = join_cols)
+    if ("obs_time" %in% colnames(out)) {
+      # from the second iteration we will have observation date columns
+      out = out %>% dplyr::left_join(out2, by = c(join_cols, "obs_time"))
+    } else {
+      out = out %>% dplyr::left_join(out2, by = join_cols)
+    }
+  }
+
+  if (!"obs_time" %in% colnames(out)) {
+    out = out %>% dplyr::mutate(obs_time = max(time))
   }
 
   out = out %>%
     tidyr::pivot_longer(
       cols = -c(
         !!!grps,
+        obs_time,
         time,
         rt.case,
         dispersion,
@@ -1743,9 +1911,12 @@ sim_summarise_linelist = function(
       names_to = "statistic",
       values_to = "count"
     ) %>%
-    dplyr::filter(!is.na(count)) %>%
-    dplyr::mutate(time = ggoutbreak::as.time_period(time, "1 day")) %>%
-    dplyr::group_by(statistic, !!!grps)
+    dplyr::mutate(count = as.integer(ifelse(is.na(count), 0, count))) %>%
+    dplyr::mutate(
+      time = ggoutbreak::as.time_period(time, df$time),
+      obs_time = ggoutbreak::as.time_period(obs_time, df$time),
+    ) %>%
+    dplyr::group_by(obs_time, statistic, !!!grps)
 
   attr(out, "events") = events
   interfacer::ireturn(out, i_sim_count_data)

@@ -197,6 +197,8 @@ poisson_glm_model = function(
     # this prediction in in the logit space:
     est2 = stats::predict(model, newdata = new_data, se.fit = TRUE)
     # it is possible to get CIs out here but they are the logit transformed ones.
+    # deriv = predict_derivative(model, newdata = new_data)
+    # lpmatrix is not available for GLM
 
     new_data = new_data %>%
       .result_from_fit(
@@ -205,12 +207,24 @@ poisson_glm_model = function(
         est2$se.fit,
         model$family$linkinv
       ) %>%
+      # .result_from_fit(
+      #   type = "growth",
+      #   deriv$fit,
+      #   deriv$se.fit
+      # ) %>%
       .keep_cdf(
         type = "incidence",
         meanlog = est2$fit,
         sdlog = est2$se.fit,
         link = "log"
       ) %>%
+      # .keep_cdf(
+      #   type = "growth",
+      #   meanlog = deriv$fit,
+      #   sdlog = deriv$se.fit,
+      #   link = "identity"
+      # ) %>%
+      # .tidy_fit("growth", growth.se.fit > 0.25) %>%
       .tidy_fit("incidence", incidence.se.fit > 4)
 
     if (.progress) {
