@@ -93,7 +93,7 @@ these posteriors which might include statistics as follows:
 
 gammas %>% 
   dplyr::select(mean, sd) %>%
-  tidyr::pivot_longer(cols=tidyselect::everything()) %>%
+  tidyr::pivot_longer(cols=dplyr::everything()) %>%
   dplyr::group_by(parameter = name) %>%
   dplyr::summarise(
     mean = sprintf("%1.2f", mean(value)),
@@ -127,7 +127,7 @@ values.
 
 summary = gammas %>% 
   dplyr::select(mean, sd) %>%
-  tidyr::pivot_longer(cols=tidyselect::everything()) %>%
+  tidyr::pivot_longer(cols=dplyr::everything()) %>%
   dplyr::group_by(parameter = name) %>%
   dplyr::summarise(
     mean = mean(value),
@@ -245,7 +245,7 @@ assume we know the degree of correlation.
 # on the log scale.
 quantiles = gammas %>% 
   dplyr::select(mean, sd) %>% 
-  dplyr::reframe(dplyr::across(tidyselect::everything(), ~ stats::quantile(p=c(0.025,0.5,0.975),.x))) %>% dplyr::mutate(p=c(0.025,0.5,0.975))
+  dplyr::reframe(dplyr::across(dplyr::everything(), ~ stats::quantile(p=c(0.025,0.5,0.975),.x))) %>% dplyr::mutate(p=c(0.025,0.5,0.975))
 quantiles %>% dplyr::glimpse()
 
 ```

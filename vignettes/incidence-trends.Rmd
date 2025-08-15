@@ -196,7 +196,7 @@ p2 = ggoutbreak::england_covid_pcr_positivity %>%
   proportion_locfit_model() %>%
   dplyr::inner_join(ggoutbreak::england_ons_infection_survey %>% 
                       dplyr::filter(geography=="England") %>% 
-                      dplyr::rename_with(.cols = tidyselect::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
+                      dplyr::rename_with(.cols = dplyr::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
   ) %>%
   dplyr::transmute(date=date, pre_test_odds = proportion.0.5 / ons.0.5) %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=pre_test_odds)) + ggplot2::geom_line() +
@@ -245,7 +245,7 @@ p3 = ggoutbreak::england_covid_pcr_positivity %>%
   ggoutbreak::infer_prevalence(pop = england_pop, ip = covid_viral_shedding) %>%
   dplyr::inner_join(england_ons_infection_survey %>% 
                       dplyr::filter(geography=="England") %>% 
-                      dplyr::rename_with(.cols = tidyselect::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
+                      dplyr::rename_with(.cols = dplyr::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
   ) %>%
   dplyr::transmute(date=date, ascertainment = prevalence.0.5 / ons.0.5 * 100) %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=ascertainment)) + 

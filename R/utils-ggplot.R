@@ -1,5 +1,12 @@
 ## Custom scales ----
 
+.ifnull = function(x, default) {
+  if (is.null(x)) {
+    return(default)
+  }
+  return(x)
+}
+
 #' A scales breaks generator for log1p scales
 #'
 #' @param n the number of breaks
@@ -179,11 +186,11 @@ integer_breaks = function(n = 5, ...) {
       stat = ggplot2::StatIdentity,
       data = data,
       mapping = .check_in_data(data, mapping),
-      position = dots$position %||% "identity",
-      show.legend = dots$show.legend %||% TRUE,
-      inherit.aes = dots$inherit.aes %||% FALSE,
-      check.aes = dots$check.aes %||% TRUE,
-      check.param = dots$check.param %||% TRUE,
+      position = .ifnull(dots$position, "identity"),
+      show.legend = .ifnull(dots$show.legend, TRUE),
+      inherit.aes = .ifnull(dots$inherit.aes, FALSE),
+      check.aes = .ifnull(dots$check.aes, TRUE),
+      check.param = .ifnull(dots$check.param, TRUE),
       param = .flt(geom, dots, .default = .default)
     )
   )

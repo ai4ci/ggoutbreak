@@ -177,13 +177,21 @@ ggplot(
 
 # RT ----
 
-cor_ij = .gam_glm_cor(best_model, newdata)
+# cor_ij = .gam_glm_cor(best_model, newdata)
+Xp <- stats::predict(best_model, newdata, type = "lpmatrix")
+pred_vcov <- Xp %*% stats::vcov(best_model) %*% t(Xp)
+
 tmp_ip = ggoutbreak::test_ip
 mu = pred$fit
 sigma = pred$se.fit
 min_tau = min(tmp_ip$tau)
-omega = tmp_ip %>% .omega_matrix(epiestim_compat = FALSE)
-rt = .estimate_rt_timeseries(mu, sigma, omega, min_tau, cor_ij, approx = FALSE)
+omega = tmp_ip %>% omega_matrix(epiestim_compat = FALSE)
+rt = rt_incidence_timeseries_implementation(
+  pred$time,
+  mu = pred$fit,
+  vcov = pred_vcov,
+  ip = tmp_ip
+)
 
 rt_df = bind_rows(rt)
 plot_rt(rt_df %>% mutate(time = as.time_period(row_number(), "1 day")))

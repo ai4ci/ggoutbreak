@@ -199,8 +199,3 @@ utils::globalVariables(c(
   "S",
   "cumulative_I"
 ))
-
-#' @importFrom ragg agg_png
-#' @importFrom mirai mirai
-#' @importFrom carrier crate
-NULL

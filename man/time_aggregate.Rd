@@ -23,7 +23,7 @@ for \code{.fns}}
 
 \item{.groups}{as per \code{dplyr::summarise}}
 
-\item{.cols}{Optional tidyselect column specification for \code{dplyr::across}. if
+\item{.cols}{Optional dplyr column specification for \code{dplyr::across}. if
 \code{.fns} is given and the \code{.cols} parameter is not specified then the columns
 to summarise are automatically identified. In doing this any \code{Date} columns
 are dropped. If this in not what you want then \code{.cols} or \code{...} must be given}

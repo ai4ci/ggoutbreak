@@ -52,7 +52,7 @@ infer_population = function(
   grps = dplyr::groups(modelled)
 
   shared_cols = intersect(colnames(base), c(dplyr::group_vars(modelled),"time"))
-  base = base %>% dplyr::select(tidyselect::all_of(shared_cols), !!baseline_col)
+  base = base %>% dplyr::select(dplyr::all_of(shared_cols), !!baseline_col)
 
   if (!all(dplyr::group_vars(base) %in% shared_cols))
     stop(

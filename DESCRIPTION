@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.4.7
+Version: 0.4.8
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -28,13 +28,16 @@ Suggests:
     testthat (>= 3.0.0),
     devtools,
     patchwork,
-    coarseDataTools
+    coarseDataTools,
+    splines,
+    lmtest,
+    mirai,
+    carrier
 VignetteBuilder: knitr
 Imports: 
     dplyr,
     forcats,
     magrittr,
-    memoise,
     nnet,
     rlang,
     stats,
@@ -43,9 +46,7 @@ Imports:
     locfit,
     lubridate,
     scales,
-    tidyselect,
     ggplot2,
-    glue,
     purrr,
     EpiEstim,
     ragg,
@@ -57,8 +58,6 @@ Imports:
     lifecycle,
     PDQutils,
     signal,
-    mirai,
-    carrier,
     mgcv,
     deSolve
 Remotes: github::ai4ci/interfacer

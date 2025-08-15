@@ -170,7 +170,7 @@ time_summarise = function(
 #'   should be included in the grouping.
 #' @param ... A set of `dplyr::summarise` statements, or additional parameters
 #'   for `.fns`
-#' @param .cols Optional tidyselect column specification for `dplyr::across`. if
+#' @param .cols Optional dplyr column specification for `dplyr::across`. if
 #'   `.fns` is given and the `.cols` parameter is not specified then the columns
 #'   to summarise are automatically identified. In doing this any `Date` columns
 #'   are dropped. If this in not what you want then `.cols` or `...` must be given

@@ -148,7 +148,7 @@
 #' #' @export
 #' renameResult = function(df, prefix, estimates = c("Growth","Est","Proportion","Rt","doublingTime")) {
 #'   for (estimate in estimates) {
-#'     df = df %>% dplyr::rename_with(.cols = tidyselect::starts_with("Growth"), .fn = ~ paste0(prefix,".",.x))
+#'     df = df %>% dplyr::rename_with(.cols = dplyr::starts_with("Growth"), .fn = ~ paste0(prefix,".",.x))
 #'   }
 #' }
 #'
@@ -411,7 +411,7 @@
 #' #' @export
 #' doublingTimeFromGrowthRate = function(simpleTimeseries) {
 #'   reorder = function(x) (1-(stringr::str_extract(x,"[0-9]\\.[0-9]+") %>% as.numeric())) %>% sprintf(fmt="doublingTime.Quantile.%1.3g")
-#'   simpleTimeseries %>% dplyr::mutate(across(.cols = tidyselect::starts_with("Growth.Quantile"), .fns = ~ log(2)/.x, .names = "{stats::reorder(.col)}"))
+#'   simpleTimeseries %>% dplyr::mutate(across(.cols = dplyr::starts_with("Growth.Quantile"), .fns = ~ log(2)/.x, .names = "{stats::reorder(.col)}"))
 #' }
 #'
 #'
@@ -683,7 +683,7 @@
 #'         invokeRestart("muffleWarning")
 #'       })
 #'   tmp5 = tmp4$R %>% dplyr::mutate(seq_id=t_end, errors=NA, `Rt.window`=window) #warn)
-#'   tmp5 = tmp5 %>% dplyr::rename_with(.cols = tidyselect::contains("(R)"),.fn=function(x) paste0("Rt.",stringr::str_remove(x,fixed("(R)")))) %>%
+#'   tmp5 = tmp5 %>% dplyr::rename_with(.cols = dplyr::contains("(R)"),.fn=function(x) paste0("Rt.",stringr::str_remove(x,fixed("(R)")))) %>%
 #'     dplyr::rename(`Rt.Quantile.0.5` = Rt.Median)
 #'   tmp6 = simpleTimeseries %>% dplyr::left_join(tmp5, by="seq_id")
 #'   return(tmp6 %>% dplyr::select(-seq_id))
@@ -988,7 +988,7 @@
 #'     },
 #'     observation = function(type="count") {
 #'       tmp = v %>% dplyr::filter(side=="lhs" & mapping==type) %>% dplyr::pull(value)
-#'       # can subst NULL using !! and it behaves as expected in ggplot and tidyselect
+#'       # can subst NULL using !! and it behaves as expected in ggplot and dplyr
 #'       if (length(tmp) == 0) return(NULL)
 #'       tmp[[1]]
 #'     },
@@ -1415,7 +1415,7 @@
 #'   if (is.na(interval)) interval = .day_interval(y$date)
 #'
 #'   y = y %>%
-#'     dplyr::select(tidyselect::all_of(stats::na.omit(meta$specification$mapping)), !!!grps, .id)
+#'     dplyr::select(dplyr::all_of(stats::na.omit(meta$specification$mapping)), !!!grps, .id)
 #'
 #'   y = y %>% dplyr::group_by(!!!grps) %>% dplyr::mutate(
 #'     .grpId = dplyr::cur_group_id(),
@@ -1466,8 +1466,8 @@
 #'     new_cols_df)
 #'   new_meta = as.epimetadata.specification(new_spec, type=meta$type, interval = meta$interval)
 #'
-#'   y = y %>% dplyr::ungroup() %>% dplyr::select(tidyselect::any_of(old_cols),tidyselect::all_of(new_obs),tidyselect::any_of(".id"))
-#'   # y = y %>% dplyr::ungroup() %>% dplyr::select(c(!tidyselect::starts_with("."),.id)) %>% dplyr::glimpse()
+#'   y = y %>% dplyr::ungroup() %>% dplyr::select(dplyr::any_of(old_cols),dplyr::all_of(new_obs),dplyr::any_of(".id"))
+#'   # y = y %>% dplyr::ungroup() %>% dplyr::select(c(!dplyr::starts_with("."),.id)) %>% dplyr::glimpse()
 #'   return(y %>% .guess_type(new_meta))
 #' }
 #'

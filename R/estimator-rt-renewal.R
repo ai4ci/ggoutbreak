@@ -57,7 +57,7 @@ rt_from_renewal = function(
 
   #TODO: nest into igroup_rprocess
   # omega is a matrix 13x100
-  omega = ip %>% .omega_matrix(epiestim_compat = FALSE)
+  omega = ip %>% omega_matrix(epiestim_compat = FALSE)
 
   window = nrow(omega)
   # at a minimum we sample 10 times per infectivity profile.
@@ -83,21 +83,19 @@ rt_from_renewal = function(
     function(df, logomega, window, ...) {
       .stop_if_not_daily(df$time)
       pad = .ln_pad(
-        window,
-        df$incidence.fit[1],
-        df$incidence.se.fit[1],
+        length = window,
+        time = df$time,
+        mu = df$incidence.fit,
+        vcov = df$incidence.se.fit^2,
         spread = 1.1
       )
 
       tmp = withr::with_seed(seed, {
-        dplyr::bind_rows(
-          tibble::tibble(
-            time = min(df$time) - window:1,
-            incidence.fit = pad$mu,
-            incidence.se.fit = pad$sigma,
-            imputed = TRUE
-          ),
-          df %>% dplyr::mutate(imputed = FALSE)
+        tibble::tibble(
+          time = pad$time,
+          incidence.fit = pad$mu,
+          incidence.se.fit = pad$sigma,
+          imputed = pad$imputed
         ) %>%
           dplyr::mutate(
             incidence.logsamples = purrr::map2(

@@ -1065,6 +1065,7 @@ cut_date = function(
   return(out)
 }
 
+
 # get a set of labels based on the values of a time_period.
 #
 .time_labels = function(
@@ -1087,7 +1088,9 @@ cut_date = function(
   end_label = format(end_dates, format = dfmt)
 
   if (!all(start_label == end_label)) {
-    label = glue::glue_data(list(start = start_label, end = end_label), ifmt)
+    label = rep(ifmt, length(start_label))
+    label = .str_replace(label, "{start}", start_label)
+    label = .str_replace(label, "{end}", end_label)
   } else {
     label = start_label
   }

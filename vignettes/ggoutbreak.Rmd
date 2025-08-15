@@ -31,7 +31,7 @@ library(patchwork)
 
 ## Background
 
-Collection of tools from COVID-19 with focus on simplicity with a goal
+A collection of tools from COVID-19 with focus on simplicity and a goal
 to provide a simple pipeline from data to visualisation. The main
 features are listed below. The documentation is in development. For the
 time being the best resources are the other vignettes including:
@@ -39,7 +39,10 @@ time being the best resources are the other vignettes including:
 -   `vignette("covid-timeseries",package="ggoutbreak")`
 -   `vignette("incidence-trends",package="ggoutbreak")`
 -   `vignette("variant-proportions",package="ggoutbreak")`
-
+-   `vignette("weekly-incidence",package="ggoutbreak")`
+-   `vignette("rt-from-incidence",package="ggoutbreak")`
+-   `vignette("managing-an-outbreak",package="ggoutbreak")`
+-   `vignette("simulation-test-models",package="ggoutbreak")`
 
 ## Installation
 

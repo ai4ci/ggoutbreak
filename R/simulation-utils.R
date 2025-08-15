@@ -171,6 +171,10 @@ cfg_weekly_ip_fn = function(
   sd = sqrt(mean),
   week_starts = weekdays(as.Date("2024-10-14"))
 ) {
+  # TODO: the way this works is repeatedly building gamma based infectivity
+  # profiles. This is mitigated a bit my memoising the make_gamma_ip function
+  # but this is still slow.
+
   idx = which(weekdays(as.time_period(0:6, "1 days")) == week_starts)
   if (length(idx) != 1) {
     stop(
@@ -1333,7 +1337,7 @@ sim_convolution = function(
   delay_fn = .fn_check(delay_fn)
 
   tmp = df %>%
-    dplyr::select(time, tidyselect::everything()) %>%
+    dplyr::select(time, dplyr::everything()) %>%
     dplyr::filter(statistic == input) %>%
     dplyr::mutate(
       .p = .ts_evaluate(p_fn, .),
@@ -1449,7 +1453,7 @@ sim_delayed_observation = function(
 
   tmp = df %>%
     dplyr::filter(statistic == input) %>%
-    dplyr::select(time, tidyselect::everything()) %>%
+    dplyr::select(time, dplyr::everything()) %>%
     dplyr::mutate(
       .prof = .ts_evaluate(delay_fn, .) %>%
         purrr::map(.summary_ip_no_chk) %>%
@@ -1847,8 +1851,8 @@ sim_summarise_linelist = function(
 
   tmp2 = df %>%
     dplyr::ungroup() %>%
-    dplyr::select(!!!grps, tidyselect::ends_with("_time")) %>%
-    dplyr::select(-tidyselect::where(~ all(is.na(.x))))
+    dplyr::select(!!!grps, dplyr::ends_with("_time")) %>%
+    dplyr::select(-dplyr::where(~ all(is.na(.x))))
 
   for (col in setdiff(colnames(tmp2), join_cols)) {
     tgts = stringr::str_remove(col, "_time")
@@ -2176,8 +2180,6 @@ sim_summarise_linelist = function(
     return(df)
   }
 }
-
-# .make_gamma_ip = memoise::memoise(make_gamma_ip)
 
 # deal with potentially empty times parameter]
 .rep2 = function(x, times) {

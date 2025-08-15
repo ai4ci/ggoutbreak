@@ -147,7 +147,7 @@ value of 14 is calibrated for data provided on a daily frequency, with
 weekly data a lower value may be preferred. - default \code{14}}
 \item{\code{deg}}{polynomial degree (min 1) - higher degree results in less
 smoothing, lower values result in more smoothing. A degree of 1 is fitting
-a linear model piece wise. - default \code{1}}
+a linear model piece wise. - default \code{2}}
 \item{\code{frequency}}{the density of the output estimates as a time period such as
 \verb{7 days} or \verb{2 weeks}. - default \code{1 day}}
 \item{\code{predict}}{result is a prediction dataframe. If false we return the

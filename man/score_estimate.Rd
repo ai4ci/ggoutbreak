@@ -41,7 +41,7 @@ values matching \code{incidence},\code{rt},\code{growth},\code{proportion},\code
 and a \code{lag} column, with (whole) number of days.}
 
 \item{summarise_by}{by default every group is treated separately. This can be
-overridden with a \code{tidyselect} specification of the groupings we want to
+overridden with a \code{dplyr} specification of the groupings we want to
 see in the final summarised output (e.g. if we want to differentiate
 performance on a particular type of scenario or timeframe). If this is
 exactly \code{FALSE} the function will return all the raw point estimates.}

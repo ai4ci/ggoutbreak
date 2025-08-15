@@ -153,7 +153,8 @@ if (interactive()) {
       data=data2 \%>\% dplyr::filter(obs_time \%\% 10 == 0),
       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
       )
-  tmp3 \%>\% plot_rt(events = attr(data2,"events"))
+  tmp3 \%>\% plot_rt(events = attr(data2,"events"))+
+  sim_geom_function(data2,colour="red")
 }
 }
 \concept{models}

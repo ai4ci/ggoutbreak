@@ -80,6 +80,41 @@ proportion_from_incidence = function(
   ))
 }
 
+
+# .time_based_correlation(1:10, index_time = 4)
+# .time_based_correlation(1:10)
+.time_based_correlation = function(
+  times,
+  bw = 1,
+  index_time = NULL,
+  decay = c("exponential", "gaussian", "power")
+) {
+  if (is.null(index_time)) {
+    return(sapply(times, function(i) {
+      .time_based_correlation(times, bw, i, decay)
+    }))
+  }
+
+  time_distances <- abs(times - index_time)
+  decay = match.arg(decay)
+
+  # Different correlation decay functions
+  if (decay == "exponential") {
+    alpha = 1 / bw
+    rho = exp(-alpha * time_distances)
+  } else if (decay == "gaussian") {
+    alpha = 1 / (bw^2)
+    rho = exp(-alpha * time_distances^2)
+  } else if (decay == "power") {
+    alpha = 1 / log(bw + 1)
+    rho = (1 + time_distances)^(-alpha)
+  } else {
+    stop("correlation_decay must be 'exponential', 'gaussian', or 'power'")
+  }
+
+  return(rho)
+}
+
 # Example usage:
 # params <- logit_normal_params(
 #   mu = c(1, 1.2, 1.5, 1.3, 1.1),

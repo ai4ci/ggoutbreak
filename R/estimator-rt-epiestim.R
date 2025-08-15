@@ -80,7 +80,7 @@ rt_epiestim = function(
 
       # find the right ip for this group.
       yMatrix = .select_ip(ip, .groupdata) %>%
-        .omega_matrix(epiestim_compat = TRUE)
+        omega_matrix(epiestim_compat = TRUE)
 
       rt.warn = NA
 

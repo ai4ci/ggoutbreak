@@ -78,7 +78,7 @@ however the median values do not necessarily sum to 1.
 
 ```{r}
 
-probs2 = england_variants %>% proportion_locfit_model(window = 14)
+probs2 = england_variants %>% proportion_locfit_model(window = 14, deg=1)
 
 plot_proportion(probs2)+
   ggplot2::scale_colour_viridis_d(option="cividis",aesthetics = c("colour","fill"))

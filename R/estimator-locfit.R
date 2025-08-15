@@ -67,7 +67,7 @@ proportion_locfit_model = function(
   d = i_proportion_input,
   ...,
   window = 14,
-  deg = 1,
+  deg = 1, # The proportions model is quite sensitive to this parameter
   frequency = "1 day",
   predict = TRUE,
   .progress = interactive()
@@ -269,7 +269,7 @@ poisson_locfit_model = function(
   d = i_incidence_input,
   ...,
   window = 14,
-  deg = 1,
+  deg = 2,
   frequency = "1 day",
   predict = TRUE,
   .progress = interactive()

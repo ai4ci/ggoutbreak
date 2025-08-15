@@ -23,10 +23,8 @@ here::i_am("vignettes/estimators-example.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 ```
 
-
 This test data is based around a known time varying exponential growth rate
-with an initial epidemic seed size of 100. The data is simulated with weekly
-periodicity.
+with an initial epidemic seed size of 100.
 
 # Locfit models
 
@@ -155,12 +153,18 @@ plot_multinomial(tmp4)
 ## Poisson model
 
 Run a poisson model on input data using `glm` this returns incidence
-only and derived growth rates are not at this point supported.
+only. Derived growth rates can be estimated by using a savitsky-golay filter
+based approach.
 
 ```{r}
 
-tmp5 = data %>% poisson_glm_model(window=7)
+tmp5 = data %>% poisson_glm_model(window=7) %>% growth_rate_from_incidence()
 plot_incidence(tmp5,data)
+
+plot_growth_rate(tmp5)+
+  ggplot2::geom_line(mapping=ggplot2::aes(x=as.Date(time),y=growth), data=data, colour="red",inherit.aes = FALSE)
+
+plot_growth_phase(tmp5)
 
 ```
 

@@ -263,7 +263,7 @@
 #     },
 #     observation = function(type="count") {
 #       tmp = v %>% dplyr::filter(side=="lhs" & mapping==type) %>% dplyr::pull(value)
-#       # can subst NULL using !! and it behaves as expected in ggplot and tidyselect
+#       # can subst NULL using !! and it behaves as expected in ggplot and dplyr
 #       if (length(tmp) == 0) return(NULL)
 #       tmp[[1]]
 #     },

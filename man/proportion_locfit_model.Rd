@@ -8,7 +8,7 @@ proportion_locfit_model(
   d = i_proportion_input,
   ...,
   window = 14,
-  deg = 1,
+  deg = 2,
   frequency = "1 day",
   predict = TRUE,
   .progress = interactive()
@@ -35,7 +35,7 @@ weekly data a lower value may be preferred. - default \code{14}}
 
 \item{deg}{polynomial degree (min 1) - higher degree results in less
 smoothing, lower values result in more smoothing. A degree of 1 is fitting
-a linear model piece wise. - default \code{1}}
+a linear model piece wise. - default \code{2}}
 
 \item{frequency}{the density of the output estimates as a time period such as
 \verb{7 days} or \verb{2 weeks}. - default \code{1 day}}

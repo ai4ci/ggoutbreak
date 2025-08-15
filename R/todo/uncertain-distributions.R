@@ -610,7 +610,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
   #'       }
   #'       out = out %>% tibble::add_column(!!paramName := paramBoot)
   #'     }
-  #'     return(out %>% tidyr::pivot_longer(cols = tidyselect::all_of(params), names_to = "param", values_to = "value"))
+  #'     return(out %>% tidyr::pivot_longer(cols = dplyr::all_of(params), names_to = "param", values_to = "value"))
   #'   })
   #'   self$bootstraps = distributionsDf %>% dplyr::group_by(!!!grps, bootstrapNumber)
   #'   invisible(self)
@@ -818,7 +818,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
 
       #funcCDF = paste0("p",d$distribution)
       #params = formals(func)
-      #params2 = d %>% dplyr::select(tidyselect::any_of(names(params))) %>% as.list()
+      #params2 = d %>% dplyr::select(dplyr::any_of(names(params))) %>% as.list()
       start = timepoints[1:(length(timepoints)-1)]
       end = timepoints[2:(length(timepoints))]
       discreteDist = tibble::tibble(

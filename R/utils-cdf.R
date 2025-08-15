@@ -232,7 +232,7 @@
   df = new_data %>%
     dplyr::ungroup() %>%
     dplyr::mutate(id = dplyr::row_number()) %>%
-    dplyr::select(id, tidyselect::starts_with(paste0(type, ".0."))) %>%
+    dplyr::select(id, dplyr::starts_with(paste0(type, ".0."))) %>%
     tidyr::pivot_longer(names_prefix = paste0(type, "."), cols = -id) %>%
     dplyr::transmute(id, p = as.numeric(name), value) %>%
     dplyr::group_by(id) %>%

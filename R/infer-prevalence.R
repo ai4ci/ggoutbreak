@@ -1,19 +1,26 @@
 #' Infer the prevalence of disease from incidence estimates and population size.
 #'
+#' @description
+#' `r lifecycle::badge("experimental")`
+#'
 #' Log-scaled incidence estimates are used to generate samples of incidence.
-#' These are convolved with the infectivity profile (as a set of discrete distributions)
-#' and the result is evaluated as a fraction of population. The result is
-#' fitted to a logit-normal (using moments) and quantiles produced from samples.
+#' These are convolved with the duration of infection (as the probability still
+#' infected) on any given day (as a set of discrete distributions) and the
+#' result is evaluated as a fraction of population. The result is fitted to a
+#' logit-normal (using moments) and quantiles produced from samples. If test
+#' sensitivity is used instead of duration of infection then the prevalence
+#' estimate will be the expected proportion of test positives by screening test
+#' rather than a true prevalence. Differences between this and the proportion of
+#' test positives observed may be due to ascertainment bias or test sensitivity
+#' misspecification.
 #'
 #' @iparam pop The population data must be grouped in the same way as `modelled`.
 #' @iparam modelled Model output from processing the `raw` dataframe with something like
 #'   `poission_locfit_model`
-#' @iparam ip A discrete distribution representing the probability
-#'   of detection of disease on a given day after infection.
-#'   This will not necessarily sum to one, but each entry will not exceed the
-#'   asymptomatic fraction.
+#' @iparam ip A discrete distribution representing the duration of infection (or
+#'   probability of detection of infection). This will not sum to one.
 #' @param bootstraps the number of samples to take at each time point. This will
-#'   be rounded up to a whole multiple of the infectivity profile distribution
+#'   be rounded up to a whole multiple of the infection duration distribution
 #'   length.
 #' @param seed a random number seed for reproducibility
 #' @param ... not used
@@ -57,7 +64,7 @@ infer_prevalence = function(
   start = min(ip$tau)
 
   # omega is a matrix 13x100
-  omega = ip %>% .omega_matrix(epiestim_compat = FALSE)
+  omega = ip %>% omega_matrix(epiestim_compat = FALSE)
 
   window = nrow(omega)
   # at a minimum we sample 10 times per infectivity profile.
@@ -74,21 +81,19 @@ infer_prevalence = function(
     function(modelled, logomega, window, ...) {
       df = modelled
       pad = .ln_pad(
-        window,
-        df$incidence.fit[1],
-        df$incidence.se.fit[1],
+        length = window,
+        time = df$time,
+        mu = df$incidence.fit,
+        vcov = df$incidence.se.fit^2,
         spread = 1.1
       )
 
       tmp = withr::with_seed(seed, {
-        dplyr::bind_rows(
-          tibble::tibble(
-            time = min(df$time) - window:1,
-            incidence.fit = pad$mu,
-            incidence.se.fit = pad$sigma,
-            imputed = TRUE
-          ),
-          df %>% dplyr::mutate(imputed = FALSE)
+        tibble::tibble(
+          time = pad$time,
+          incidence.fit = pad$mu,
+          incidence.se.fit = pad$sigma,
+          imputed = pad$imputed
         ) %>%
           dplyr::mutate(
             incidence.logsamples = purrr::map2(
@@ -96,6 +101,10 @@ infer_prevalence = function(
               incidence.se.fit,
               ~ stats::rnorm(boots, .x, .y)
             )
+          ) %>%
+          dplyr::left_join(
+            modelled %>% dplyr::select(time, population),
+            by = "time"
           )
       })
 

@@ -7,8 +7,22 @@
 #' the `ip` distribution, and that this is daily, if this is not the case then
 #' [rescale_model()] may be able to fix it.
 #'
+#' N.B. for certain estimators (e.g. [poisson_gam_model()]) a version of this
+#' function will be called automatically with a full covariance matrix if the
+#' infectivity profile is supplied. The inbuilt version is preferred over this
+#' function for [poisson_gam_model()], as the full covariance matrix is not
+#' externalised in `ggoutbreak`. If you are rolling your own incidence estimates
+#' and want an Rt estimate then [rt_incidence_timeseries_implementation()] maybe
+#' better suited to your task.
+#'
 #' @iparam df modelled incidence estimate
 #' @iparam ip an infectivity profile (aka generation time distribution)
+#' @iparam raw the raw data that the modelled incidence is based on. This is
+#'   optional. If not given the algorithm will assume independence, which will
+#'   be faster to estimate, but with more uncertain Rt estimates. In some
+#'   circumstances this assumption of independence can cause underestimation of
+#'   Rt. If this is a risk there will be a warning given, and this parameter may
+#'   need to be supplied.
 #' @param approx use a faster, but approximate, estimate of quantiles
 #' @param .progress show a CLI progress bar
 #'
@@ -39,6 +53,7 @@
 rt_from_incidence = function(
   df = i_incidence_model,
   ip = i_discrete_ip,
+  raw = i_incidence_data,
   approx = TRUE,
   .progress = interactive()
 ) {
@@ -55,73 +70,66 @@ rt_from_incidence = function(
     )
   }
 
+  # TODO: do residuals to alpha once for all models?
+  infer_vcov = !interfacer::imissing(raw)
+
+  if (infer_vcov) {
+    raw = interfacer::ivalidate(raw, .default = NULL)
+    .message_once("Rt from incidence: inferring vcov from residuals.")
+    if (is.null(approx)) {
+      approx = FALSE
+    }
+  } else {
+    if (is.null(approx)) {
+      approx = TRUE
+    }
+    if (approx) {
+      .message_once(
+        "Rt from incidence: assuming independence and approximating quantiles."
+      )
+    } else {
+      .message_once("Rt from incidence: assuming independence.")
+    }
+  }
+
   modelled = interfacer::igroup_process(df, function(df, .groupdata, ...) {
     .stop_if_not_daily(df$time)
 
     tmp_ip = .select_ip(ip, .groupdata)
     mu = df$incidence.fit
-    sigma = df$incidence.se.fit
-    min_tau = min(tmp_ip$tau)
-    omega = tmp_ip %>% .omega_matrix(epiestim_compat = FALSE)
-    rt = .estimate_rt_timeseries(
-      mu,
-      sigma,
-      omega,
-      min_tau,
-      cor_ij = NULL,
+
+    if (infer_vcov) {
+      # Infer a vcov from residuals
+      data = .select_group(raw, .groupdata)
+      linked = df %>% dplyr::inner_join(data, by = "time")
+      tmp = vcov_from_residuals(
+        linked$count,
+        linked$incidence.fit,
+        linked$incidence.se.fit
+      )
+      vcov = tmp$vcov_matrix
+    } else {
+      # just use variance as input to estimate function.
+      # This will signify that the algorithm is to assume independence
+      vcov = df$incidence.se.fit^2
+    }
+
+    rt = rt_incidence_timeseries_implementation(
+      time = df$time,
+      mu = mu,
+      vcov = vcov,
+      ip = tmp_ip,
+      tidy = TRUE,
       approx = approx
     )
 
-    # # omega is a matrix
-    # omega = tmp_ip %>% .omega_matrix(epiestim_compat = FALSE)
-    # window = nrow(omega)
-    # # relax assumption that time in infectivity profile starts at 1.
-    # # negative serial intervals should be OK
-    # start = min(tmp_ip$tau)
-    # end = nrow(df) + min(c(start, 0))
-    #
-    # rt = lapply(1:end, function(i) {
-    #   if (i < window + start) {
-    #     pad = .ln_pad(
-    #       window - i + start,
-    #       df$incidence.fit[1],
-    #       df$incidence.se.fit[1],
-    #       spread = 1.1
-    #     )
-    #     mu_t = c(pad$mu, df$incidence.fit[1:(i - start)])
-    #     sigma_t = c(pad$sigma, df$incidence.se.fit[1:(i - start)])
-    #
-    #     # omega = omega[1:(i-1)]/sum(omega[1:(i-1)])
-    #     # mu_t = df$incidence.fit[1:(i-1)]
-    #     # sigma_t = df$incidence.se.fit[1:(i-1)]
-    #   } else {
-    #     mu_t = df$incidence.fit[(i - window - start + 1):(i - start)]
-    #     sigma_t = df$incidence.se.fit[(i - window - start + 1):(i - start)]
-    #   }
-    #   return(.internal_r_t_estim(
-    #     mu = df$incidence.fit[i],
-    #     sigma = df$incidence.se.fit[i],
-    #     omega = omega,
-    #     mu_t = mu_t,
-    #     sigma_t = sigma_t,
-    #     cor_ij = NULL,
-    #     approx = approx
-    #   ))
-    # })
-    #
-    # if (length(rt) < nrow(df)) {
-    #   rt = c(rt, rep(list(NULL), nrow(df) - length(rt)))
-    # }
-
-    new_data = df %>%
-      dplyr::mutate(rt = rt) %>%
-      tidyr::unnest(rt, keep_empty = TRUE)
+    df = df %>% dplyr::left_join(rt, by = "time")
 
     if (.progress) {
       cli::cli_progress_update(.envir = env)
     }
 
-    return(new_data)
+    return(df)
   })
 
   if (.progress) {
@@ -131,6 +139,7 @@ rt_from_incidence = function(
   return(modelled)
 }
 
+# unsigend log sum exp.
 .logsumexp = function(x, na.rm = FALSE) {
   if (!na.rm & any(is.na(x))) {
     return(NA)
@@ -145,109 +154,371 @@ rt_from_incidence = function(
   return(c + log(sum(exp(x - c))))
 }
 
-.internal_r_t_estim = function(
+
+# add a set of log-normals based on mu and sigma with increasing SD to the
+# front of a time series.
+# mu = 1:10
+# sigma2 = rep(0.2,10)
+# tmp = .ln_pad(5, 1:10, mu, sigma2)
+# exp(tmp$mu + tmp$vcov/2)
+# exp(mu + sigma2/2)
+.ln_pad = function(
+  length,
+  time,
   mu,
-  sigma,
-  omega,
-  mu_t,
-  sigma_t,
-  cor_ij = NULL,
-  approx = TRUE
+  vcov,
+  spread = 1.1
 ) {
-  # This function estimates the reproduction number for a specific point in time
-  # given a current log-normally distributed incidence estimate, a set of
-  # infectivity profiles, and a set of historical incidence estimates. N.B. the
-  # description of this algorithm is given here:
-  # https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
-  # - mu is a central estimate of the log of an incidence rate
-  # - sigma is a standard error of the log an incidence rate
-  # - omega is a matrix of infectivity profiles with each column representing one
-  # infectivity profile probability distribution.
-  # - mu_t is a central estimate of the log of an incidence rate in the days leading up
-  # to the given time point
-  # - sigma_t is a standard error of the log an incidence rate in
-  # the days leading up to the given time point.
-  # - cor_ij the predicted correlation matrix. If missing time points are assumed independent.
-  # can be generated from cov2cor(vcov), or we can generate candidates based on
-  # time differences and bandwidth.
-  # - approx indicates that we should approximate the quantiles using the
-  # arithmetic mean of the mixture distribution quantiles (quick), rather than solving
-  # the mixture cumulative distribution function (slow)
+  covariances = is.matrix(vcov)
+  sigma2 = if (covariances) diag(vcov) else vcov
 
-  omega_m = as.matrix(omega)
+  old_length = length(mu)
+  if (length(sigma2) != old_length) {
+    stop("mu and vcov must compatible dimensions")
+  }
 
-  # switch direction of omega to match timeseries. This eliminates need for
-  # t-\tau indexes
-  omega_m = apply(omega_m, MARGIN = 2, rev)
+  mean = exp(mu + sigma2 / 2)
+  sd0 = sqrt((exp(sigma2[1]) - 1) * exp(2 * mu[1] + sigma2[1]))
 
-  # for each infectivity profile we
-  # approximate the denominator of the renewal equation by
-  # implementing the lognormal approximation for sum of (weighted) lognormals:
-  # This is referenced on the wikipedia page for lognormal but is also
-  # from Lo 2013 (10.2139/ssrn.2220803).
-  tmp = apply(omega_m, MARGIN = 2, function(omega) {
-    # We keep everything in log space for numerical stability.
-    log_S_t = .logsumexp(mu_t + sigma_t^2 / 2 + log(omega))
-    log_T_t_tau = mu_t + sigma_t^2 / 2 + log(omega) + log(sigma_t)
+  if (old_length > 1) {
+    l = min(c(old_length, 5))
+    means = stats::lm(
+      y ~ x,
+      dplyr::tibble(y = log(rev(mean[1:l])), x = -(l - 1):0)
+    ) %>%
+      stats::predict(dplyr::tibble(x = 1:length)) %>%
+      exp()
+  } else {
+    means = rep(mean, length.out = length)
+  }
 
-    # Are individual samples correlated or not (default is not)
-    if (!is.null(cor_ij)) {
-      # assuming the terms are correlated does not make much of a difference to
-      # outcome but requires a matrix the size of length(omega)^2
-      # log_T_t_tau_minus_log_sigma = mu_t + sigma_t^2 / 2 + log(omega)
-      # log_T_t_matrix = outer(log_T_t_tau_minus_log_sigma, log_T_t_tau_minus_log_sigma,FUN = "+")
-      # n = length(omega)
-      # lambda = 1 / cor
-      # idx = 0:(n^2 - 1)
-      # i = idx %/% n
-      # j = idx %% n
-      #
-      # log_var_Zt_ij = log_T_t_tau[i + 1] +
-      #   log_T_t_tau[j + 1] -
-      #   lambda * abs(i - j)
+  sds = sd0 * spread^(1:length)
+  mus = log(means) - 1 / 2 * log(sds^2 / means^2 + 1)
+  sigmas = sqrt(log(sds^2 / means^2 + 1))
 
-      log_T_t_matrix = outer(
-        log_T_t_tau,
-        log_T_t_tau,
-        FUN = "+"
-      )
-      # cor_t is the same as cor_{ij}*\sigma_i*\sigma_j
-      # negative values are ignored
-      log_var_Zt_ij = log_T_t_matrix + log(pmax(cor_ij, 0))
-    } else {
-      # cor_ij is zero for i <> j
+  mus = c(rev(mus), mu)
+  sigmas = c(rev(sigmas), sqrt(sigma2))
+  new_time = c(time[1] - length:1, time)
+  new_length = length(mus)
+  imputed = c(rep(TRUE, length), rep(FALSE, old_length))
 
-      log_var_Zt_ij = 2 * log_T_t_tau
+  new_cor_ij = NULL
+  if (covariances) {
+    if (!all(dim(vcov) == old_length)) {
+      stop("vcov must be a square matrix the same dimensions as mu")
     }
+    new_cor_ij = diag(sigmas^2)
+    new_cor_ij[(length + 1):new_length, (length + 1):new_length] = vcov
+  } else {
+    new_cor_ij = sigmas^2
+  }
 
-    log_var_Zt = .logsumexp(log_var_Zt_ij) - 2 * log_S_t
+  return(list(
+    time = new_time,
+    mu = unname(mus),
+    sigma = unname(sigmas),
+    vcov = unname(new_cor_ij),
+    imputed = imputed
+  ))
+}
 
-    var_Zt = exp(log_var_Zt)
-    mu_Zt = log_S_t - var_Zt / 2
+## Reference implementation (timeseries) ----
 
-    mu_Rt = mu - mu_Zt
-    var_Rt = sigma^2 + var_Zt
+#' Time series implementation of the Rt from modelled incidence algorithm
+#'
+#' This function estimates the reproduction number for a while time series
+#' given log-normally distributed incidence estimates, and a set of
+#' infectivity profiles. This version of the algorithm is optimised for running
+#' over all of a single time series.
+#'
+#' N.B. the description of this algorithm is given here:
+#' https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
+#'
+#' @param time a set of time points as a numeric vector. This is a vector of length `k`.
+#' @param mu a time series of meanlog parameters of a lognormal distribution of
+#'   modelled incidence. This is a vector of length `k`.
+#' @param vcov a log scale variance-covariance matrix of predictions. It is
+#'   optional but if not given and `sigma_t` is given then this will be inferred
+#'   assuming independence between estimates. This should be a matrix with
+#'   dimensions `k * k`
+#' @param sigma if `vcov` is not given then this must be supplied as the
+#'   sdlog of the log normal incidence estimate. If this is the case the
+#'   estimates will be made assuming estimate independence. A vector of length `k`
+#' @iparam ip a long format infectivity profile dataframe.
+#' @param tidy do you want detailed raw output (`FALSE` - default) or summary output
+#'   with quantiles predicted.
+#' @param ... passed onto output formatter if `tidy=TRUE`, at the moment only
+#'   `approx = FALSE`
+#'
+#' @returns a dataframe with `k` rows with the following columns:
+#' - time_Rt: the time point of the Rt estimate (usually `k-1`)
+#' - mean_Rt_star: the mean of the Rt estimate
+#' - var_Rt_star: the variance of the Rt estimate
+#' - meanlog_Rt_star: log normal parameter for approximate distribution of Rt
+#' - sdlog_Rt_star: log normal parameter for approximate distribution of Rt
+#' - mu_Rt_mix: a list of vectors of log normal parameters for more exact mixture
+#'   distribution of Rt
+#' - sigma_Rt_mix: a list of vectors of log normal parameters for more exact mixture
+#'   distribution of Rt
+#'
+#' Approximate quantiles can be obtained from e.g. `qlnorm(0.5, meanlog_Rt_star, sdlog_Rt_star)`
+#'
+#' Alternatively if `tidy` is true the output will be post processed to conform to:
+#'
+#' `r i_reproduction_number`
+#'
+#'
+#'
+#' @export
+#' @concept models
+#'
+#' @examples
+#'
+#' data = ggoutbreak::test_poisson_rt_smooth
+#' ip = ggoutbreak::test_ip
+#'
+#' # we will try and estimate the Rt at the first 100 time points:
+#' print(data$rt[k+10])
+#'
+#' # first we need a set of incidence estimates
+#' # we fit a poisson model to counts using a GAM:
+#' model = mgcv::gam(count ~ s(time), family = "poisson", data=data)
+#' newdata = tibble::tibble(time = 1:100)
+#'
+#' pred = stats::predict(model, newdata, se.fit = TRUE)
+#'
+#' # we can get prediction vcov from GAMs fairly easily
+#' Xp = stats::predict(model, newdata, type = "lpmatrix")
+#' pred_vcov = Xp %*% stats::vcov(model) %*% t(Xp)
+#'
+#' # Now we estimate rt
+#' rt_est = rt_incidence_timeseries_implementation(
+#'   time = newdata$time,
+#'   mu = pred$fit,
+#'   vcov = pred_vcov,
+#'   ip = ip)
+#'
+#' # Lets compare epiestim on the same data
+#' withr::with_seed(100, {
+#'   epi = EpiEstim::estimate_R(
+#'     data$count,
+#'     method = "si_from_sample",
+#'     si_sample = omega_matrix(ip),
+#'     config = EpiEstim::make_config(
+#'       method = "si_from_sample",
+#'       t_start = 10:100-7,
+#'       t_end = 10:100,
+#'       n2 = 100)
+#'   )
+#' })
+#'
+#' ggplot2::ggplot()+
+#'   ggplot2::geom_line(data=data, ggplot2::aes(x=time,y=rt), colour="black")+
+#'   ggplot2::geom_line(data = rt_est, ggplot2::aes(x=time, y=mean_Rt_star, colour="gam+rt"))+
+#'   ggplot2::geom_line(data = epi$R, ggplot2::aes(x=t_end, y=`Mean(R)`, colour="epiestim"))
+#'
+#' # mean bias of GAM+rt estimate:
+#' mean(data$rt[1:100] - rt_est$mean_Rt_star)
+#'
+rt_incidence_timeseries_implementation = function(
+  time,
+  mu,
+  vcov = sigma^2,
+  sigma = NULL,
+  ip = i_discrete_ip,
+  tidy = FALSE,
+  ...
+) {
+  window = length(unique(ip$tau))
 
-    return(c(mu_Rt, var_Rt))
-  })
+  # the user has supplied a sigma vector rather than a vcov matrix. This
+  # forces us to assume independence between estimates. This is sometimes OK
+  # depending on the mass of the off diagonal, and is very quick.
+  assume_indep = !is.matrix(vcov)
 
-  # Combine results from multiple infectivity profiles using a
-  # mixture distribution
-  mu_Rt = tmp[1, ]
-  var_Rt = tmp[2, ]
-  sigma_Rt = sqrt(var_Rt)
-  means = exp(mu_Rt + var_Rt / 2)
-  vars = (exp(var_Rt) - 1) * exp(2 * mu_Rt + var_Rt)
-  mean_star = mean(means)
-  var_star = mean(vars + means^2) - mean_star^2
-
-  out = tibble::tibble(
-    rt.fit = log(mean_star) - log(var_star / mean_star^2 + 1) / 2,
-    #rt.fit = log(mean_star^2/sqrt(mean_star^2+var_star)),
-    rt.se.fit = sqrt(log(1 + var_star / mean_star^2))
+  # extend the data set backwards in time by the size of the infectivity profile
+  # using a log scale linear model of the first few data points, plus increased
+  # uncertainty.
+  pad = .ln_pad(
+    length = max(ip$tau),
+    # time = 1:length(mu),
+    time = as.numeric(time),
+    mu = mu,
+    vcov = vcov,
+    spread = 1.1
   )
 
-  if (approx) {
+  if (assume_indep) {
+    # vcov is a vector of variances, we have no diagonal terms.
+    long_vcov = tibble::tibble(
+      i = pad$time,
+      j = pad$time,
+      Sigma_ij = pad$sigma^2
+    )
+  } else {
+    # vcov is a variance covariance matrix. make it into a long format dataframe
+    tmp = matrix(pad$time, length(pad$time), length(pad$time))
+    long_vcov = tibble::tibble(
+      i = as.numeric(tmp),
+      j = as.numeric(t(tmp)),
+      Sigma_ij = as.numeric(pad$vcov)
+    ) %>%
+      dplyr::filter(
+        # all covariances are assumed positive.
+        Sigma_ij > 0 &
+          # we are only interested in the covariance matrix around the diagonal
+          abs(i - j) <= window
+      )
+  }
+
+  # A note on naming in this function:
+  # everything is aligned to the paper. variables with big Sigma are capitalised
+  # and these are variances or covariances (on the log scale).
+  # small sigma are log normal sdlog parameters. sigma2 will be a squared version
+  # of that. omega are infectivity profile probabilities.
+
+  tmp = ip %>%
+    dplyr::select(boot, tau, omega_tau = probability) %>%
+    dplyr::cross_join(tibble::tibble(
+      time_minus_tau = pad$time,
+      mu = pad$mu,
+      sigma = pad$sigma,
+      imputed = pad$imputed
+    )) %>% # grouped by ip boot
+    dplyr::mutate(
+      # by using this as the summarising time we perform a convolution
+      # of tau and time-tau items. time column is going to be the time(s) at
+      # which we are estimating R_t
+      time = time_minus_tau + tau,
+      log_m_tau = mu + log(omega_tau) + 0.5 * sigma^2
+    )
+
+  # The cross join copies a mu and sigma for each bootstrap and tau
+  # value and we need something with bootstrap only.
+  tmp_mu_t = tmp %>%
+    dplyr::group_by(boot, time) %>%
+    dplyr::filter(tau == 0 & !imputed) %>%
+    dplyr::select(boot, time, mu_t = mu, sigma_t = sigma)
+
+  tmp_S = tmp %>%
+    dplyr::group_by(boot, time) %>%
+    dplyr::summarise(
+      log_S_plus = .logsumexp(log_m_tau),
+      c_max = 1 - sum(exp(2 * (log_m_tau - log_S_plus))),
+      log_V_plus = .logsumexp(log_m_tau + 2 * log(sigma)) - log_S_plus,
+      n = dplyr::n()
+    ) %>%
+    # make sure that we are dealing with full windows of data.
+    # this prevents estimates for negative serial intervals
+    # based on not enough input at end of time-series TODO: test
+    # it would also prevent estimates at the start of the time-series if it
+    # had not been padded.
+    dplyr::filter(n == window) %>%
+    dplyr::select(-n)
+
+  # slow step.
+  tmp2 = long_vcov %>%
+    dplyr::inner_join(
+      tmp %>% dplyr::select(boot, time, time_minus_tau, log_m_i = log_m_tau),
+      by = c("i" = "time_minus_tau"),
+      relationship = "many-to-many"
+    ) %>%
+    dplyr::inner_join(
+      tmp %>% dplyr::select(boot, time, time_minus_tau, log_m_j = log_m_tau),
+      by = c("j" = "time_minus_tau", "boot", "time")
+    ) %>%
+    dplyr::inner_join(
+      tmp_S %>% dplyr::select(boot, time, log_S_plus),
+      by = c("boot", "time")
+    ) %>%
+    dplyr::group_by(boot, time)
+
+  tmp_sigma_Z2 = tmp2 %>%
+    dplyr::summarise(
+      log_sigma_z2 = .logsumexp(
+        log_m_i + log_m_j + log(Sigma_ij) - 2 * log_S_plus
+      )
+    )
+
+  tmp_sigma_0Z = tmp2 %>%
+    # This filter selects the subset of covariances related to the estimate
+    # time, this is the equivalent of taking a single row (or column) from the covariance
+    # matrix.
+    dplyr::filter(time == i) %>%
+    dplyr::rename(tau = j, log_m_tau = log_m_j, Sigma_0tau = Sigma_ij) %>%
+    dplyr::group_by(boot, time) %>%
+    dplyr::summarise(
+      log_Sigma_0Z = .logsumexp(log_m_tau + log(Sigma_0tau) - log_S_plus)
+    )
+
+  tmp_Rt =
+    tmp_mu_t %>%
+    dplyr::inner_join(tmp_S, by = c("boot", "time")) %>%
+    dplyr::inner_join(tmp_sigma_Z2, by = c("boot", "time")) %>%
+    dplyr::inner_join(tmp_sigma_0Z, by = c("boot", "time")) %>%
+    dplyr::mutate(
+      mu_Rt = mu_t - log_S_plus + exp(log_sigma_z2) / 2,
+      sigma_Rt2 = sigma_t^2 + exp(log_sigma_z2) - 2 * exp(log_Sigma_0Z),
+      mean_Rt = exp(mu_Rt + sigma_Rt2 / 2),
+      var_Rt = (exp(sigma_Rt2) - 1) * exp(2 * mu_Rt + sigma_Rt2),
+    )
+
+  if (assume_indep) {
+    tmp_Rt = tmp_Rt %>%
+      dplyr::mutate(
+        log_risk_bias = log_V_plus - log_sigma_z2,
+        log_scale_bias = c_max * exp(log_V_plus) / 2,
+        max_Rt_bias = (mean_Rt * exp(log_scale_bias) - mean_Rt),
+        bias_flag = max_Rt_bias > 0.05 & log_risk_bias > log(5)
+      )
+
+    if (mean(tmp_Rt$bias_flag) > 0.01) {
+      .warn_once(
+        "Estimates were assumed to be independent, but more that 1% of estimates\n",
+        "are at risk of Rt underestimation by more that 0.05 (absolute).\n",
+        "We advise re-running supplying a full variance-covariance matrix, or\n",
+        "a value to the `raw` parameter, or setting `quick=FALSE`."
+      )
+    }
+
+    # ggplot(tmp_Rt)+geom_point(aes(x=time, y=max_Rt_bias))
+    # ggplot(tmp_Rt)+geom_point(aes(x=time, y=exp(log_risk_bias)))
+    # quantile(tmp_Rt$max_Rt_bias, c(0.5,0.99))
+  }
+
+  # combine the Rt estimates for each infectivity profile bootstrap. This is
+  # either done by moments (mean_Rt_star, var_Rt_star, etc) or as a mixture
+  # distribution with sets of mu and sigma parameters (mu_Rt_mix, sigma_Rt_mix).
+  tmp_Rt_mix = tmp_Rt %>%
+    dplyr::group_by(time) %>%
+    dplyr::summarise(
+      mean_Rt_star = mean(mean_Rt),
+      var_Rt_star = mean(var_Rt + mean_Rt^2) - mean_Rt_star^2,
+      mu_Rt_mix = list(mu_Rt),
+      sigma_Rt_mix = list(sqrt(sigma_Rt2))
+    ) %>%
+    dplyr::mutate(
+      meanlog_Rt_star = log(mean_Rt_star) -
+        log(var_Rt_star / mean_Rt_star^2 + 1) / 2,
+      sdlog_Rt_star = sqrt(log(1 + var_Rt_star / mean_Rt_star^2))
+    )
+
+  # ggplot() + geom_line(data=data, aes(x=time,y=rt),colour="red") + geom_line(data = tmp_Rt_mix,aes(x=time,y=mean_star))
+
+  if (tidy) {
+    return(.process_rt_timeseries(tmp_Rt_mix, time, ...))
+  }
+  return(tmp_Rt_mix)
+}
+
+
+.process_rt_timeseries = function(df, input_time, approx = TRUE) {
+  out = df %>%
+    # out = tmp_Rt_mix %>%
+    dplyr::rename(rt.fit = meanlog_Rt_star, rt.se.fit = sdlog_Rt_star) %>%
+    dplyr::mutate(time = as.time_period(time, input_time))
+
+  if (isTRUE(approx)) {
     # We approximate the mixture with one lognormal with same mean and SD as
     # the mixture.
     out = out %>%
@@ -262,110 +533,360 @@ rt_from_incidence = function(
         link = "log"
       )
   } else {
+    if (isFALSE(approx)) {
+      approx = "exact"
+    }
     out = out %>%
       .result_from_fit(
         type = "rt",
         # This is one estimate of Rt, as a mixture distribution.
         qfn = \(p) {
-          .qmixlnorm(p, meanlogs = mu_Rt, sdlogs = sigma_Rt, method = "exact")
+          purrr::map2_dbl(
+            .$mu_Rt_mix,
+            .$sigma_Rt_mix,
+            ~ .qmixlnorm(p, meanlogs = .x, sdlogs = .y, method = approx)
+          )
         }
       ) %>%
       .keep_cdf(
         type = "rt",
-        meanlog = list(mu_Rt),
-        sdlog = list(sigma_Rt),
+        meanlog = .$mu_Rt_mix,
+        sdlog = .$sigma_Rt_mix,
         link = "log"
       )
   }
+  out = out %>%
+    dplyr::select(-c(mean_Rt_star, var_Rt_star, mu_Rt_mix, sigma_Rt_mix))
 
   return(out)
 }
 
-# create a set of lognormals based on mu and sigma with increasing SD
-.ln_pad = function(length, mu, sigma, spread = 1.1) {
-  if (length(mu) > 1) {
-    l = length(mu)
-    mus = stats::lm(y ~ x, dplyr::tibble(y = rev(mu[1:l]), x = -(l - 1):0)) %>%
-      stats::predict(dplyr::tibble(x = 1:length))
-    # sigmas = rep(sigma[1], length)
-    sigmas = sigma[1] * 1:length * spread
-  } else {
-    mean = exp(mu[1] + sigma[1]^2 / 2)
-    sd = sqrt((exp(sigma[1]^2) - 1) * exp(2 * mu[1] + sigma[1]^2))
-    means = rep(mean, length.out = length)
-    sds = sd * spread^(1:length)
-    mus = log(means) - 1 / 2 * log(sds^2 / means^2 + 1)
-    sigmas = sqrt(log(sds^2 / means^2 + 1))
-  }
-  return(list(mu = rev(mus), sigma = rev(sigmas)))
-}
-
-
 # mu the incidence on the log scale
-# sigma the incidence sd on the log scale
-# omeag a matrix style infectivity profile,
+# vcov the prediction variance covariance matrix on the log scale
+# omega a matrix style infectivity profile, each column is a single infectivity profile
 # min_tau the smallest value of the tau column in the infectivity profile
-# cor_ij the correlation matrix (e.g. output from .gam_glm_cor or .time_based_correlation)
-.estimate_rt_timeseries = function(
-  mu,
-  sigma,
+# rt_incidence_timeseries_implementation_old = function(
+#   mu,
+#   vcov,
+#   omega,
+#   min_tau,
+#   cor_ij = NULL,
+#   approx = TRUE
+# ) {
+#   window = nrow(omega)
+#   sigma = sqrt(diag(vcov))
+#   padding = .ln_pad(window, mu[1:5], sigma[1], 1.1)
+#
+#   pad = .ln_pad(
+#     length = window,
+#     time = df$time,
+#     mu = df$incidence.fit,
+#     sigma = df$incidence.se.fit,
+#     spread = 1.1
+#   )
+#
+#   tmp = withr::with_seed(seed, {
+#     tibble::tibble(
+#       time = pad$time,
+#       incidence.fit = pad$mu,
+#       incidence.se.fit = pad$sigma,
+#       imputed = pad$imputed
+#     )
+#
+#   # relax assumption that time in infectivity profile starts at 1.
+#   # negative serial intervals should be OK
+#   end_offset = -min_tau # offset from index of start of data window, if tau is negative this will be positive
+#   start_offset = end_offset - window + 1 # smaller than end offset
+#   end = length(mu) - max(c(end_offset, 0)) # the end is the last index value for which we can derive a window
+#   cor_ij_pad = matrix(0, window, window)
+#   diag(cor_ij_pad) = 1
+#
+#   rt = lapply(1:end, function(i) {
+#     #i=78
+#     w = start_offset:end_offset + i + window
+#     mu_t = c(padding$mu, mu)[w]
+#     sigma_t = c(padding$sigma, sigma)[w]
+#     mu_i = mu[i]
+#     sigma_i = sigma[i]
+#
+#     if (is.null(cor_ij)) {
+#       # disable the correlation matrix and assume independence
+#       tmp_cor_ij = NULL
+#     } else if (all(dim(cor_ij) == window)) {
+#       tmp_cor_ij = cor_ij
+#     } else if (all(dim(cor_ij) == length(mu))) {
+#       # The correlation matrix is the same size as the data because it was
+#       # extracted from the vcov of the prediction.
+#       # we need to select the correct part of the matrix for each time window
+#       # and pad out the bits that are before the data,
+#       w2 = max(c(1, i + start_offset)):(i + end_offset)
+#       w3 = window + 1 - length(w2):1
+#       tmp_cor_ij = cor_ij_pad
+#       tmp_cor_ij[w3, w3] = cor_ij[w2, w2]
+#     }
+#
+#     .internal_r_t_estim(
+#       mu_i,
+#       sigma_i,
+#       omega,
+#       mu_t,
+#       sigma_t,
+#       tmp_cor_ij,
+#       approx = approx
+#     )
+#   })
+#
+#   if (length(rt) < length(mu)) {
+#     # If there are negative serial intervals then there is
+#     rt = c(rt, rep(list(NULL), length(mu) - length(rt)))
+#   }
+#
+#   return(rt)
+# }
+
+## Reference implementation (matrix) ----
+
+#' Reference implementation of the Rt from modelled incidence algorithm
+#'
+#' This function estimates the reproduction number for a specific point in time
+#' given a time series of log-normally distributed incidence estimates, a set of
+#' infectivity profiles. This version of the algorithm only works for a single
+#' time point and is not optimised for running over a whole time series. For that
+#' please see [rt_incidence_timeseries_implementation()].
+#'
+#' N.B. the description of this algorithm is given here:
+#' https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
+#'
+#' @param mu_t a vector of meanlog parameters of a lognormal distribution of
+#'   modelled incidence. This is a vector of length `k`.
+#' @param vcov_ij a log scale variance-covariance matrix of predictions. It is
+#'   optional but if not given and `sigma_t` is given then this will be inferred
+#'   assuming independence between estimates. This should be a matrix with
+#'   dimensions `k * k`
+#' @param omega a matrix (or vector) representing the infectivity profile as a
+#'   discrete time probability distribution. This must be a `k * n` matrix or a
+#'   vector of length `k`. Each of the `n` columns is a individual estimate of
+#'   the infectivity profile (N.B. this is the same format as `EpiEstim`). In
+#'   `EpiEstim` the first row of this matrix must be zero and represents a
+#'   delay of zero. This constraint does not apply here.
+#' @param sigma_t if `vcov_ij` is not given then this must be supplied as the
+#'   sdlog of the log normal incidence estimate
+#' @param tau_offset In most cases the infectivity profile has support for
+#'   delays from `0:(k-1)` and the Rt estimate is made at time `(k-1)`. If there
+#'   is a negative component of a serial interval being used as a proxy then the
+#'   support will be `-tau_offset:(k-tau_offset-1)`.
+#'
+#' @returns a list with the following items:
+#' - time_Rt: the time point of the Rt esitmate (usually `k-1`)
+#' - mean_Rt_star: the mean of the Rt estimate
+#' - var_Rt_star: the variance of the Rt estimate
+#' - meanlog_Rt_star: log normal parameter for approximate distribution of Rt
+#' - sdlog_Rt_star: log normal parameter for approximate distribution of Rt
+#' - mu_Rt_mix: a vector of log normal parameters for more exact mixture
+#'   distribution of Rt
+#' - sigma_Rt_mix: a vector of log normal parameters for more exact mixture
+#'   distribution of Rt
+#' - quantile_Rt_fn: A log-normal mixture quantile function for Rt
+#'
+#' Quantiles can either be obtained from the quantile function or from e.g.
+#' `qlnorm(p, meanlog_Rt_star, sdlog_Rt_star)`
+#'
+#' @export
+#' @concept models
+#'
+#' @examples
+#'
+#' data = ggoutbreak::test_poisson_rt_smooth
+#'
+#' omega = ggoutbreak::omega_matrix(ggoutbreak::test_ip)
+#' k = nrow(omega)
+#'
+#' pred_time = 50
+#' index = pred_time-k:1+1
+#'
+#' # we will try and estimate the Rt at time k+10:
+#' print(data$rt[pred_time])
+#'
+#' # first we need a set of incidence estimates
+#' # in the simplest example we use a GLM:
+#'
+#' newdata = tibble::tibble(time = 1:100)
+#'
+#'
+#'
+#' model = stats::glm(count ~ splines::bs(time,df=8), family = "poisson", data=data)
+#' pred = stats::predict(model, newdata, se.fit = TRUE)
+#'
+#' # I've picked a df to make this example work. In real life you would need
+#' # to validate the incidence model is sensible and not over fitting
+#' # before using it to estimate RT:
+#' # ggplot2::ggplot()+
+#' #   ggplot2::geom_point(data=data, ggplot2::aes(x=time, y=count))+
+#' #   ggplot2::geom_line(
+#' #     data = newdata %>% dplyr::mutate(fit = exp(pred$fit)
+#' #     ), ggplot2::aes(x=time,y=fit))
+#'
+#' mu_t = pred$fit[index]
+#' sigma_t = pred$se.fit[index]
+#'
+#' # prediction vcov is not simple from GLM models.
+#' rt_est = rt_incidence_reference_implementation(mu_t=mu_t,sigma_t = sigma_t, omega = omega)
+#'
+#' # quantiles from a mixture distribution:
+#' rt_est$quantile_Rt_fn(c(0.025,0.5,0.975))
+#' # and from the rough estimate based on matching of moments:
+#' stats::qlnorm(c(0.025,0.5,0.975), rt_est$meanlog_Rt_star, rt_est$sdlog_Rt_star)
+#'
+#' # GLM do not produce vcov matrices we can estimate them if we have access to
+#' # the data:
+#' vcov_glm = vcov_from_residuals(data$count[1:100], pred$fit, pred$se.fit)$vcov_matrix
+#' vcov_glm_ij = vcov_glm[index, index]
+#'
+#' # Using an estimated vcov we get very similar answers:
+#' rt_est_vcov = rt_incidence_reference_implementation(mu_t=mu_t,vcov_ij = vcov_glm_ij, omega = omega)
+#' rt_est_vcov$quantile_Rt_fn(c(0.025,0.5,0.975))
+#' # In theory assuming independence leads to excess uncertainty and possible
+#' # underestimation bias. In most situations though this appears low risk.
+#'
+#' # Lets do the same with a GAM:
+#' model2 = mgcv::gam(count ~ s(time), family = "poisson", data=data)
+#' pred2 = stats::predict(model2, newdata, se.fit = TRUE)
+#'
+#' # we can get prediction level vcov from GAMs easily
+#' Xp = stats::predict(model2, newdata, type = "lpmatrix")
+#' pred_vcov = Xp %*% stats::vcov(model2) %*% t(Xp)
+#' vcov_ij = pred_vcov[index, index]
+#' mu_t2 = pred2$fit[index]
+#'
+#' rt_est2 = rt_incidence_reference_implementation(mu_t=mu_t2, vcov_ij=vcov_ij, omega = omega)
+#' rt_est2$quantile_Rt_fn(c(0.025,0.5,0.975))
+#'
+#' # How does this compare to EpiEstim:
+#' # N.B. setting seed to make deterministic
+#' withr::with_seed(100, {
+#'   epi = EpiEstim::estimate_R(
+#'     data$count,
+#'     method = "si_from_sample",
+#'     si_sample = omega,
+#'     config = EpiEstim::make_config(
+#'       method = "si_from_sample",
+#'       t_start = pred_time-7,
+#'       t_end = pred_time,
+#'       n2 = 100)
+#'   )
+#' })
+#'
+#' epi$R %>%
+#'   dplyr::select(`Quantile.0.025(R)`, `Median(R)`, `Quantile.0.975(R)`)
+#'
+#'
+rt_incidence_reference_implementation = function(
+  mu_t,
+  vcov_ij = diag(sigma_t^2),
   omega,
-  min_tau,
-  cor_ij = NULL,
-  approx = TRUE
+  sigma_t = NULL,
+  tau_offset = 0
 ) {
-  window = nrow(omega)
-  padding = .ln_pad(window, mu[1:5], sigma[1], 1.1)
+  ## Parameters
+  # mu_t: a vector of meanlog parameters of a lognormal distribution of
+  #   modelled incidence. This is a vector of length `k`.
+  # vcov_ij: a log scale variance-covariance matrix of predictions. It is
+  #   optional but if not given and `sigma_t` is given then this will be inferred
+  #   assuming independence between estimates. This should be a matrix with
+  #   dimensions `k * k`
+  # omega: a matrix (or vector) representing the infectivity profile as a
+  #   discrete time probability distribution. This must be a `k * n` matrix or a
+  #   vector of length `k`. Each of the `n` columns is a individual estimate of
+  #   the infectivity profile (N.B. this is the same format as `EpiEstim`). In
+  #   `EpiEstim` the first row of this matrix must be zero and represents a
+  #   delay of zero. This constraint does not apply here.
+  # sigma_t: if `vcov_ij` is not given then this must be supplied as the
+  #   sdlog of the log normal incidence estimate
+  # tau_offset: In most cases the infectivity profile has support for
+  #   delays from `0:(k-1)` and the Rt estimate is made at time `(k-1)`. If there
+  #   is a negative component of a serial interval being used as a proxy then the
+  #   support will be `-tau_offset:(k-tau_offset-1)`.
 
-  # relax assumption that time in infectivity profile starts at 1.
-  # negative serial intervals should be OK
-  end_offset = -min_tau # offset from index of start of data window, if tau is negative this will be positive
-  start_offset = end_offset - window + 1 # smaller than end offset
-  end = length(mu) - max(c(end_offset, 0)) # the end is the last index value for which we can derive a window
-  cor_ij_pad = matrix(0, window, window)
-  diag(cor_ij_pad) = 1
-
-  rt = lapply(1:end, function(i) {
-    #i=78
-    w = start_offset:end_offset + i + window
-    mu_t = c(padding$mu, mu)[w]
-    sigma_t = c(padding$sigma, sigma)[w]
-    mu_i = mu[i]
-    sigma_i = sigma[i]
-
-    if (is.null(cor_ij)) {
-      # disable the correlation matrix and assume independence
-      tmp_cor_ij = NULL
-    } else if (all(dim(cor_ij) == window)) {
-      # The correlation matrix is the right size because it is a fixed size
-      # one generated by .time_based_correlation()
-      tmp_cor_ij = cor_ij
-    } else if (all(dim(cor_ij) == length(mu))) {
-      # The correlation matrix is the same size as the data because it was
-      # extracted from the vcov of the prediction.
-      # we need to select the correct part of the matrix for each time window
-      # and pad out the bits that are before the data,
-      w2 = max(c(1, i + start_offset)):(i + end_offset)
-      w3 = window + 1 - length(w2):1
-      tmp_cor_ij = cor_ij_pad
-      tmp_cor_ij[w3, w3] = cor_ij[w2, w2]
-    }
-
-    .internal_r_t_estim(
-      mu_i,
-      sigma_i,
-      omega,
-      mu_t,
-      sigma_t,
-      tmp_cor_ij,
-      approx = approx
+  omega_m = as.matrix(omega)
+  k = nrow(omega_m)
+  if (k != length(mu_t)) {
+    stop("omega must have the same number of rows as length of mu_t.")
+  }
+  if (!all(dim(vcov_ij) == k)) {
+    stop(
+      "vcov_ij must be a square matrix with the same dimensions as mu_t, and nrow(omega)"
     )
+  }
+
+  # switch direction of omega to match time-series. This eliminates need for
+  # t-\tau indexes
+  omega_m = apply(omega_m, MARGIN = 2, rev)
+  sigma_t = sqrt(diag(vcov_ij))
+
+  # The tau_offset defines where the zero point of the infectivity profile is.
+  # the variable origin is where this is in the time-series. Usually this will
+  # be the last entry.
+  # This enables us to handle negative time points in infectivity profile, if
+  # for example we are using serial interval as a proxy. In this case we can't
+  # estimate Rt right at the end, and the estimate is offset by the number of
+  # negative entries in the serial interval distribution.
+  time_Rt = length(mu_t) - tau_offset
+  mu = mu_t[time_Rt]
+  sigma = sigma_t[time_Rt]
+
+  tmp = apply(omega_m, MARGIN = 2, function(omega) {
+    # we approximate the denominator of the renewal equation by
+    # implementing the lognormal approximation for sum of (weighted) lognormals:
+    # This is referenced on the wikipedia page for lognormal but is also
+    # from Lo 2013 (10.2139/ssrn.2220803).
+
+    log_m_tau = mu_t + sigma_t^2 / 2 + log(omega)
+    log_S_plus = .logsumexp(log_m_tau)
+
+    # enforce constraint that covariance must be positive (n.b. this is actually
+    # only needed for logsumexp and could be relaxed with a signed logsumexp)
+    log_Sigma_ij = log(pmax(vcov_ij, 0))
+    log_Sigma_0tau = log_Sigma_ij[time_Rt, ]
+
+    # parameters of denominator of renewal equation as a lognormal
+    log_sigma_Z2 = .logsumexp(outer(log_m_tau, log_m_tau, "+") + log_Sigma_ij) -
+      2 * log_S_plus
+    mu_Z = log_S_plus - 1 / 2 * exp(log_sigma_Z2)
+
+    # Calculate the ratio of lognormals including potential correlation
+    log_Sigma_0Z = .logsumexp(log_m_tau + log_Sigma_0tau) - log_S_plus
+    mu_Rt = mu - mu_Z
+    sigma_Rt2 = sigma^2 + exp(log_sigma_Z2) - 2 * exp(log_Sigma_0Z)
+
+    return(c(mu_Rt, sigma_Rt2))
   })
 
-  if (length(rt) < length(mu)) {
-    # If there are negative serial intervals then there is
-    rt = c(rt, rep(list(NULL), length(mu) - length(rt)))
-  }
+  # Combine results from multiple infectivity profiles using a
+  # mixture distribution:
+  mu_Rt = tmp[1, ]
+  sigma_Rt2 = tmp[2, ]
 
-  return(rt)
+  # log normal moments:
+  means = exp(mu_Rt + sigma_Rt2 / 2)
+  vars = (exp(sigma_Rt2) - 1) * exp(2 * mu_Rt + sigma_Rt2)
+
+  # parameters of an approximating log-normal matched by moments:
+  mean_star = mean(means)
+  var_star = mean(vars + means^2) - mean_star^2
+  mu_star = log(mean_star) - log(var_star / mean_star^2 + 1) / 2
+  sigma_star = sqrt(log(1 + var_star / mean_star^2))
+
+  return(list(
+    time_Rt = time_Rt,
+    mean_Rt_star = mean_star,
+    var_Rt_star = var_star,
+    meanlog_Rt_star = mu_star,
+    sdlog_Rt_star = sigma_star,
+    mu_Rt_mix = mu_Rt,
+    sigma_Rt_mix = sqrt(sigma_Rt2),
+    # A log-normal mixture quantile function:
+    quantile_Rt_fn = function(p) {
+      ggoutbreak:::.qmixlnorm(p, mu_Rt, sqrt(sigma_Rt2))
+    }
+  ))
 }

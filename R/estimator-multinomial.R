@@ -40,7 +40,7 @@ multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, fre
     tmp2 = tmp2 %>% dplyr::select(time,class,count) %>%
       tidyr::pivot_wider(names_from = class, values_from = count, values_fill = 0)
 
-    response = tmp2 %>% dplyr::select(-tidyselect::any_of(c("time"))) %>% as.matrix()
+    response = tmp2 %>% dplyr::select(-dplyr::any_of(c("time"))) %>% as.matrix()
     predictor = tmp2 %>% dplyr::pull(time)
     data = tibble::tibble(prob=response,time=predictor)
 

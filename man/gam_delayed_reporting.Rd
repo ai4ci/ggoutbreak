@@ -43,10 +43,12 @@ a list with 2 entries - \code{model_fn} and \code{predict} suitable as the
 input for \code{poisson_gam_model(model_fn = ..., predict=...)}.
 }
 \description{
-This function is used to configure a delayed reporting GAM model. The model
-is of the form:
+Delayed GAM reporting model function generator
 }
 \details{
+This function is used to configure a delayed reporting GAM model. The model
+is of the form:
+
 \code{count ~ s(time, bs = "cr", k = length(kts)) + s(log(tau), k = 4, pc = max_delay)}
 
 where \code{tau} is the difference between time series observation time and the

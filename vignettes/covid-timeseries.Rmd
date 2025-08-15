@@ -101,14 +101,18 @@ plot_growth_phase(fit,
 
 ```
 
-# Reproduction number estimation from growth rates
+# Reproduction number estimation
 
 The growth rate has a unit or "per day" in this example. From it we can derive
-the reproduction number. Using the methods of Wallinga and Lipsitch and an
+the reproduction number, using the methods of Wallinga and Lipsitch and an
 estimate of the infectivity profile of COVID-19. This describes the probability
 that an infectee is infected x days after the infector, and includes a temporal
 dimension rendering the reproduction number a dimensionless quantity reflecting 
 the average number of infectees resulting from each infector.
+
+We also have methods to infer the reproduction unmber from modelled incidence
+estimates where logarithmic link functions are used. This is described in
+the vignette: `vignette("rt-from-incidence", package="ggoutbreak")`
 
 `ggoutbreak` has an estimate of the infectivity profile based on a
 meta-analysis of serial interval estimates of COVID-19. The infectivity profile
@@ -123,25 +127,16 @@ ggoutbreak::plot_ip(ggoutbreak::covid_ip, alpha=0.1)
 
 ```
 
-For each growth rate estimate this methods uses 1000 bootstraps to propagate
-uncertainty and is hence somewhat slow. Here we use `memoise` to cache the
-result. As with before effective $R_t$ estimates are compared to consensus
+As with before effective $R_t$ estimates are compared to consensus
 values from the SPI-M-O group (red):
 
 ```{r}
 
-# .cache = memoise::cache_filesystem(rappdirs::user_cache_dir("ggoutbreak"))
-# 
-# cached_rt_from_growth_rate = memoise::memoise(
-#   ggoutbreak::rt_from_growth_rate,
-#   cache = .cache
-# )
-
-rt_fit = fit %>% ggoutbreak::rt_from_growth_rate(ip = covid_ip)
+rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_ip)
 
 plot_rt(rt_fit, events = england_events, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(0.6,1.6))+
-  ggplot2::geom_errorbar(data=england_consensus_rt,ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="red")
+  ggplot2::geom_errorbar(data=england_consensus_rt,ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="red")
 ```
 
 `EpiEstim` $R_t$ fits for comparison for the same data, and the same infectivity
@@ -171,8 +166,6 @@ case represents the number of tests conducted:
 
 ```{r}
 england_covid_pcr_positivity %>% dplyr::glimpse()
-
-
 ```
 
 
@@ -253,3 +246,29 @@ p3 = ggplot2::ggplot(ggoutbreak::england_nhs_app)+
 p1+p2+p3+patchwork::plot_layout(ncol=1)
 
 ```
+
+The weekly alerts data can be also modelled as a poisson process after which it 
+can be converted to a daily timeseries and aligned to the incidence and growth
+rate data. With a fully aligned and modelled data set we can test for 
+granger causality:
+
+```{r}
+alerts = ggoutbreak::england_nhs_app %>% 
+  dplyr::rename(count = alerts) %>% 
+  poisson_locfit_model() %>% 
+  rescale_model("1 day") %>%
+  dplyr::mutate(time = as.time_period(time, fit$time)) %>%
+  dplyr::select(-dplyr::starts_with("growth")) %>%
+  dplyr::rename_with(.cols = dplyr::starts_with("incidence"), .fn = ~ stringr::str_replace(.x,"incidence","alert")) %>%
+  dplyr::inner_join(fit, by="time")
+
+lmtest::grangertest(alert.0.5 ~ growth.0.5, order = 1, data=alerts)
+lmtest::grangertest(growth.0.5 ~ alert.0.5, order = 1, data=alerts)
+
+lmtest::grangertest(incidence.0.5 ~ alert.0.5, order = 1, data=alerts)
+lmtest::grangertest(alert.0.5 ~ incidence.0.5, order = 1, data=alerts)
+
+```
+
+The conclusion of this test would be that growth is more predictive of alerts
+rather than vice versa.

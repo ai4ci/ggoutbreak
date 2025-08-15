@@ -47,9 +47,8 @@
 #' # This data is all the day by day observations of the whole timeseries from
 #' # the beginning of the outbreak.
 #' data2 = test_delayed_observation
-#' model = gam_delayed_reporting(7)
+#' model = gam_delayed_reporting(window = 14)
 #' tmp3 = data2 %>% ggoutbreak::poisson_gam_model(
-#'   window=7,
 #'   ip=test_ip,
 #'   model_fn = model$model_fn,
 #'   predict = model$predict)
@@ -60,7 +59,8 @@
 #'       data=data2 %>% dplyr::filter(obs_time %% 10 == 0),
 #'       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
 #'       )
-#'   tmp3 %>% plot_rt(events = attr(data2,"events"))
+#'   tmp3 %>% plot_rt(events = attr(data2,"events"))+
+#'     sim_geom_function(data2,colour="red")
 #' }
 poisson_gam_model = function(
   d,
@@ -223,21 +223,25 @@ poisson_gam_model.incidence = function(
 
   if (interfacer::itest(ip, i_discrete_ip)) {
     .message_once(
-      "Rt estimation using GAM + `rt_from_incidence(approx=TRUE)`"
+      "Rt estimation using GAM + `rt_from_incidence(approx = FALSE)`"
     )
-    cor_ij = .gam_glm_cor(fit, newdata)
+
+    # get prediction vcov from GAM fit:
+    Xp <- stats::predict(fit, newdata, type = "lpmatrix")
+    pred_vcov <- Xp %*% stats::vcov(fit) %*% t(Xp)
+
     tmp_ip = .select_ip(ip, .groupdata)
-    min_tau = min(tmp_ip$tau)
-    omega = tmp_ip %>% .omega_matrix(epiestim_compat = FALSE)
-    rt = .estimate_rt_timeseries(
-      pred$fit,
-      pred$se.fit,
-      omega,
-      min_tau,
-      cor_ij,
-      approx = TRUE
+
+    rt = rt_incidence_timeseries_implementation(
+      time = incid$time,
+      mu = pred$fit,
+      vcov = pred_vcov,
+      ip = tmp_ip,
+      tidy = TRUE,
+      approx = FALSE
     )
-    incid = incid %>% dplyr::mutate(rt = rt) %>% tidyr::unnest(rt)
+
+    incid = incid %>% dplyr::left_join(rt, by = "time")
   }
   return(incid)
 }
@@ -290,6 +294,7 @@ gam_poisson_model_fn = function(
 
 #' Delayed GAM reporting model function generator
 #'
+#' @details
 #' This function is used to configure a delayed reporting GAM model. The model
 #' is of the form:
 #'
@@ -337,10 +342,6 @@ gam_delayed_reporting = function(
       data = data %>%
         dplyr::mutate(tau = pmin(max_delay, as.numeric(obs_time - time))) %>%
         dplyr::filter(tau > 0)
-      # %>%
-      # dplyr::mutate(
-      #   count1 = cbind(count, pmax(count, 2))
-      # )
 
       kts = knots_fn(data)
 
@@ -359,6 +360,8 @@ gam_delayed_reporting = function(
     predict = list(tau = max_delay)
   ))
 }
+
+#TODO: GAM weekday effect model.
 
 #' Derive a set of knot points for a GAM from data
 #'

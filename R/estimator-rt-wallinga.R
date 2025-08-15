@@ -106,7 +106,10 @@ rt_from_growth_rate = function(
               # This format is needed because quantile is not vectorised on data:
               qfn = function(p) {
                 purrr::map_dbl(.$rt.samples, function(data) {
-                  stats::quantile(data, p)
+                  if (all(is.na(data))) {
+                    return(NA_real_)
+                  }
+                  stats::quantile(data, p, na.rm = TRUE)
                 })
               }
             ) %>%

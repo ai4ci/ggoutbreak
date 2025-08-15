@@ -7,6 +7,7 @@
 rt_from_incidence(
   df = i_incidence_model,
   ip = i_discrete_ip,
+  raw = i_incidence_data,
   approx = TRUE,
   .progress = interactive()
 )
@@ -37,6 +38,20 @@ Minimally grouped by: boot (and other groupings allowed).
 A default value is defined.
 }
 
+\item{raw}{the raw data that the modelled incidence is based on. This is
+optional. If not given the algorithm will assume independence, which will
+be faster to estimate, but with more uncertain Rt estimates. In some
+circumstances this assumption of independence can cause underestimation of
+Rt. If this is a risk there will be a warning given, and this parameter may
+need to be supplied. - a dataframe with columns:
+\itemize{
+\item count (positive_integer) - Positive case counts associated with the specified time frame
+\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
+}
+
+Any grouping allowed.
+}
+
 \item{approx}{use a faster, but approximate, estimate of quantiles}
 
 \item{.progress}{show a CLI progress bar}
@@ -61,6 +76,15 @@ modelled incidence" and using a set of empirical generation time
 distributions. This assumes that modelled incidence has the same time unit as
 the \code{ip} distribution, and that this is daily, if this is not the case then
 \code{\link[=rescale_model]{rescale_model()}} may be able to fix it.
+}
+\details{
+N.B. for certain estimators (e.g. \code{\link[=poisson_gam_model]{poisson_gam_model()}}) a version of this
+function will be called automatically with a full covariance matrix if the
+infectivity profile is supplied. The inbuilt version is preferred over this
+function for \code{\link[=poisson_gam_model]{poisson_gam_model()}}, as the full covariance matrix is not
+externalised in \code{ggoutbreak}. If you are rolling your own incidence estimates
+and want an Rt estimate then \code{\link[=rt_incidence_timeseries_implementation]{rt_incidence_timeseries_implementation()}} maybe
+better suited to your task.
 }
 \examples{
 tmp = ggoutbreak::test_poisson_rt_smooth \%>\%

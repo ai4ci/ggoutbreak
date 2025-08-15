@@ -107,10 +107,10 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
     dplyr::select(
       !!!grps,
       time,
-      tidyselect::matches("\\.0\\.[0-9]+$")
+      dplyr::matches("\\.0\\.[0-9]+$")
     ) %>%
     tidyr::pivot_longer(
-      cols = tidyselect::matches("\\.0\\.[0-9]+$"),
+      cols = dplyr::matches("\\.0\\.[0-9]+$"),
       names_pattern = "^(.*)\\.(0\\.[0-9]+$)",
       names_to = c(".type", ".p"),
       values_to = ".value"
@@ -141,7 +141,7 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
           upper_quartile = .data[[paste0(t, ".0.75")]]
         ) %>%
         tidyr::pivot_longer(
-          cols = tidyselect::matches("\\.0\\.[0-9]+$"),
+          cols = dplyr::matches("\\.0\\.[0-9]+$"),
           names_pattern = "^.*\\.(0\\.[0-9]+$)",
           names_to = c("p"),
           values_to = "x"
@@ -186,7 +186,7 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #'   values matching `incidence`,`rt`,`growth`,`proportion`,`relative.growth`,
 #'   and a `lag` column, with (whole) number of days.
 #' @param summarise_by by default every group is treated separately. This can be
-#'   overridden with a `tidyselect` specification of the groupings we want to
+#'   overridden with a `dplyr` specification of the groupings we want to
 #'   see in the final summarised output (e.g. if we want to differentiate
 #'   performance on a particular type of scenario or timeframe). If this is
 #'   exactly `FALSE` the function will return all the raw point estimates.
@@ -310,11 +310,11 @@ score_estimate = function(
 
   long_obs = obs %>%
     dplyr::select(
-      tidyselect::all_of(join_cols),
-      tidyselect::ends_with(".obs")
+      dplyr::all_of(join_cols),
+      dplyr::ends_with(".obs")
     ) %>%
     tidyr::pivot_longer(
-      cols = tidyselect::ends_with(".obs"),
+      cols = dplyr::ends_with(".obs"),
       names_to = ".type",
       values_to = "ref",
       names_pattern = "([^\\.]+)\\.obs"
@@ -410,48 +410,49 @@ score_estimate = function(
         boots = dplyr::bind_rows(
           purrr::map(
             1:bootstraps + seed,
-            purrr::in_parallel(
-              function(seed) {
-                set.seed(seed)
-                d |>
-                  dplyr::slice_sample(prop = 1, replace = TRUE) |>
-                  dplyr::summarise(
-                    mean_crps = mean(crps),
-                    threshold_misclassification_probability = stats::weighted.mean(
-                      threshold_error_probability,
-                      threshold_distance
-                    ),
-                    # bias
-                    mean_trans_bias = mean(
-                      trans(median) - trans(ref),
-                      na.rm = TRUE
-                    ),
-                    mean_bias = mean(
-                      inv(trans(median) - trans(ref)),
-                      na.rm = TRUE
-                    ),
-                    mean_quantile_bias = mean(quantile_bias),
-                    # sharpness:
-                    # mean_prediction_variance = mean(prediction_variance),
-                    mean_prediction_interval_width_50 = mean(
-                      prediction_interval_width_50
-                    ),
-                    # calibration
-                    pit_was = mean(abs(unif - sort(pit))),
-                    unbiased_pit_was = mean(abs(unif - sort(unbiased_pit))),
-                    directed_pit_was = mean(
-                      (unif - sort(unbiased_pit)) * ifelse(unif < 0.5, 1, -1)
-                    ),
-                    percent_iqr_coverage = mean(iqr_coverage),
-                    unbiased_percent_iqr_coverage = mean(unbiased_iqr_coverage),
-                  )
-                # }
-              },
-              d = d,
-              unif = unif,
-              inv = inv,
-              trans = trans
-            )
+            # purrr::in_parallel(
+            function(seed) {
+              set.seed(seed)
+              d |>
+                dplyr::slice_sample(prop = 1, replace = TRUE) |>
+                dplyr::summarise(
+                  mean_crps = mean(crps),
+                  threshold_misclassification_probability = stats::weighted.mean(
+                    threshold_error_probability,
+                    threshold_distance
+                  ),
+                  # bias
+                  mean_trans_bias = mean(
+                    trans(median) - trans(ref),
+                    na.rm = TRUE
+                  ),
+                  mean_bias = mean(
+                    inv(trans(median) - trans(ref)),
+                    na.rm = TRUE
+                  ),
+                  mean_quantile_bias = mean(quantile_bias),
+                  # sharpness:
+                  # mean_prediction_variance = mean(prediction_variance),
+                  mean_prediction_interval_width_50 = mean(
+                    prediction_interval_width_50
+                  ),
+                  # calibration
+                  pit_was = mean(abs(unif - sort(pit))),
+                  unbiased_pit_was = mean(abs(unif - sort(unbiased_pit))),
+                  directed_pit_was = mean(
+                    (unif - sort(unbiased_pit)) * ifelse(unif < 0.5, 1, -1)
+                  ),
+                  percent_iqr_coverage = mean(iqr_coverage),
+                  unbiased_percent_iqr_coverage = mean(unbiased_iqr_coverage),
+                )
+              # }
+            }
+            # ,
+            #   d = d,
+            #   unif = unif,
+            #   inv = inv,
+            #   trans = trans
+            # )
           )
         )
       })

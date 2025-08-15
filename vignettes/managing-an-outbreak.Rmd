@@ -1,8 +1,8 @@
 ---
-title: "Estimating the reproduction number from weekly data"
+title: "Managing an outbreak"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Estimating the reproduction number from weekly data}
+  %\VignetteIndexEntry{Managing an outbreak}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,26 +23,19 @@ knitr::opts_chunk$set(
 
 library(patchwork)
 library(ggoutbreak)
-here::i_am("vignettes/time-units.Rmd")
+here::i_am("vignettes/managing-an-outbreak.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
 ```
 
-Its common for epidemic data to be aggregated into weekly, monthly or even yearly 
-case counts, for example the result of batching in reporting processes. 
-`ggoutbreak` has a set of infrastructure to allow case counts to be 
-used to estimate the reproduction number, regardless of their periodicity.
 
-# Simulation with weekly data
+# Constructing a simulation
 
-We construct a very simple count model based on a time-varying growth rate which
-is specified as an exponential growth in case counts per week. The `time_unit`
-is defined here as 1 week, but this would typically be determined by the data.
-`ggoutbreak` will generally make an informed guess at the periodicity of data
-when we construct a `time_period` column from dates, if it is not stated.
+# Early outbreak
 
-In this case the simulation generates an outbreak over the course of one year
-with a maximum number of weekly cases around 250, resulting from an initial
-import of 30 infectious cases in week 0.
+# Refining infectivity profile
+
+# Estimating delays
+
 
 ```{r}
 

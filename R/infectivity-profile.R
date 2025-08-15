@@ -565,21 +565,36 @@ format_ip = function(ip = i_empirical_ip) {
     dplyr::group_by(boot)
 }
 
+.select_group = function(df, .groupdata) {
+  joincols = intersect(colnames(.groupdata), colnames(ip))
+  if (length(joincols) > 0) {
+    suppressMessages({
+      # will not touch grouping.
+      df = df %>%
+        dplyr::semi_join(.groupdata, by = joincols) %>%
+        dplyr::select(-dplyr::all_of(joincols))
+    })
+  }
+  return(df)
+}
 
 ## Internal infectivity profile utilities ----
 
 #' Generate a infectivity profile matrix from a long format
 #'
-#' Makes sure that this starts at zero. No guarantee matrix columns adds up to 1.
+#' This converts a long format infectivity profile to something that will work
+#' with `EpiEstim`. In general `ggoutbreak` will do the conversion internally.
+#' This is provided as a utility for examples mostly.
 #'
-#' @param ip long format infectivity profile
+#' @iparam ip long format infectivity profile
 #'
-#' @return a matrix
-#' @noRd
+#' @return a matrix with `0:max(tau)` rows and `1:max(boot)` columns.
+#' @concept delay_distribution
+#' @export
 #'
 #' @examples
-#' .omega_matrix(ggoutbreak::covid_ip)
-.omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
+#' omega_matrix(ggoutbreak::covid_ip)
+omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
   ip = interfacer::ivalidate(ip, .prune = TRUE)
 
   if (epiestim_compat) {

@@ -94,7 +94,7 @@ seq
 sim
 sunday
 tidyr
-tidyselect
+dplyr
 timeframe
 timeseries
 timezone

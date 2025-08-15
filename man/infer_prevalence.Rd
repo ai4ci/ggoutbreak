@@ -36,10 +36,8 @@ Any grouping allowed.
 Any grouping allowed.
 }
 
-\item{ip}{A discrete distribution representing the probability
-of detection of disease on a given day after infection.
-This will not necessarily sum to one, but each entry will not exceed the
-asymptomatic fraction. - a dataframe with columns:
+\item{ip}{A discrete distribution representing the duration of infection (or
+probability of detection of infection). This will not sum to one. - a dataframe with columns:
 \itemize{
 \item boot (anything + default(1)) - a bootstrap identifier
 \item probability (proportion) - the probability of new event during this period.
@@ -52,7 +50,7 @@ A default value is defined.
 }
 
 \item{bootstraps}{the number of samples to take at each time point. This will
-be rounded up to a whole multiple of the infectivity profile distribution
+be rounded up to a whole multiple of the infection duration distribution
 length.}
 
 \item{seed}{a random number seed for reproducibility}
@@ -63,10 +61,18 @@ length.}
 the modelled input with additional proportion columns
 }
 \description{
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
+
 Log-scaled incidence estimates are used to generate samples of incidence.
-These are convolved with the infectivity profile (as a set of discrete distributions)
-and the result is evaluated as a fraction of population. The result is
-fitted to a logit-normal (using moments) and quantiles produced from samples.
+These are convolved with the duration of infection (as the probability still
+infected) on any given day (as a set of discrete distributions) and the
+result is evaluated as a fraction of population. The result is fitted to a
+logit-normal (using moments) and quantiles produced from samples. If test
+sensitivity is used instead of duration of infection then the prevalence
+estimate will be the expected proportion of test positives by screening test
+rather than a true prevalence. Differences between this and the proportion of
+test positives observed may be due to ascertainment bias or test sensitivity
+misspecification.
 }
 \examples{
 tmp = ggoutbreak::test_poisson_rt_smooth \%>\%

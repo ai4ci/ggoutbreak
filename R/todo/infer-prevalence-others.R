@@ -96,7 +96,7 @@
 #'   start = min(ip$tau)
 #'
 #'   # omega is a matrix 13x100
-#'   omega = ip %>% .omega_matrix(epiestim_compat = FALSE)
+#'   omega = ip %>% omega_matrix(epiestim_compat = FALSE)
 #'
 #'   window = nrow(omega)
 #'   # at a minimum we sample 10 times per infectivity profile.

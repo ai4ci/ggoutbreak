@@ -158,7 +158,7 @@
 
 .warn_once = function(...) {
   msg = paste0(...)
-  if (!.messaged(msg)) warning(msg)
+  if (!.messaged(msg)) warning(msg, call. = FALSE)
 }
 
 cache_env <- new.env(parent = emptyenv())
@@ -176,4 +176,11 @@ cache_env$map = list()
     return(FALSE)
   }
   return(TRUE)
+}
+
+.str_replace = function(string, pattern, replacement) {
+  interfacer::recycle(string, pattern, replacement)
+  sapply(seq_along(replacement), function(i) {
+    sub(pattern[i], replacement[i], string[i], fixed = TRUE)
+  })
 }

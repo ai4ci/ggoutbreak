@@ -584,11 +584,11 @@ seasonal_sim = sim_poisson_Rt_model(
     fn_ip = ~ make_gamma_ip(6)
   )
 
-#profvis::profvis(
+# profvis::profvis(
 system.time({
   seasonal_sim = seasonal_sim %>% sim_apply_delay()
 })
-#)
+# )
 
 p1=plot_changes(
         seasonal_sim, 
