@@ -6,15 +6,23 @@
 # imports: rlang
 # ---
 
+# This is a fairly close reimplementation of
+# https://github.com/r-lib/memoise/blob/main/R/memoise.R
+
 .memoise_cache = rlang::new_environment(
   data = list(fns = list(), memoised = list())
 )
 
-
 #' Memoise a function with an in memory cache
 #'
-#' @param fn a self contained function. This cannot reference anything outside
-#'   of its own parameters, and should be deterministic.
+#'
+#' Options to control:
+#' - options(".memoise.disabled"): no new functions are memoised. existing
+#'   memoised functions will recalculate the values
+#' - options(".memoise.recalculate"):
+#'
+#' @param fn a self contained function. This should not reference anything
+#'   outside of its own parameters, and should be deterministic.
 #'
 #' @returns a function that takes the
 #' @noRd
@@ -37,85 +45,213 @@
 #' plus = .memoise(~ .x + .y)
 #'
 #' tmp = .memoise(function(x,y) {z})
-.memoise = function(fn) {
-  # have we memoised this function before?
-  fn = rlang::as_function(fn)
-  matches = sapply(.memoise_cache$fns, identical, fn)
-  if (any(matches)) {
-    return(.memoise_cache$memoised[matches][[1]])
-  }
-  # no? lets define a memoised function generator just for this function.
+#' fn = function(x,y=2,z=x) {z+y}
+.memoise = function(fn, .cache_errors = FALSE, .debug = FALSE) {
+  `_fn_name` = rlang::as_label(rlang::enexpr(fn))
 
-  # first lets check it is self contained:
-  maybe_globals = setdiff(all.vars(rlang::fn_body(fn)), names(formals(fn)))
-  if (length(maybe_globals) > 0) {
-    maybe_globals = paste0(maybe_globals, collapse = ",")
-    rlang::warn(
-      sprintf(
-        "memoised function is not self contained and references global: %s",
-        maybe_globals
-      ),
-      .internal = TRUE,
+  if (getOption(".memoise.disabled", default = FALSE)) {
+    rlang::inform(
+      sprintf("function memoisation is disabled: %s(...).", `_fn_name`),
       .frequency = "once",
-      .frequency_id = sprintf("memoise %s", maybe_globals)
+      .frequency_id = `_fn_name`
     )
+    return(fn)
   }
 
-  mem_fn_fn = function() {
-    fn = fn
-    cache = rlang::new_environment(data = list(items = list()))
-    # The parent of the global environment is the package search stack. We
-    # wont have to fully qualify package functions, but no data will be available.
-    exec_env = rlang::env_parent(rlang::global_env())
-    rlang::fn_env(fn) <- exec_env
-    return(function(...) {
-      dots = rlang::list2(...)
-      hsh = rlang::hash(dots)
-      cached = cache$items[[hsh]]
-      if (!is.null(cached)) {
-        if (identical(cached, "!!NULL!!")) {
-          return(NULL)
-        }
-        return(cached)
-      }
-      result = try(fn(...), silent = TRUE)
-      if (is.null(result)) {
-        cache$items[[hsh]] = "!!NULL!!"
-        # structure("!!NULL!!", cache = "hit")
-      } else {
-        cache$items[[hsh]] = result
-        # structure(result, cache = "hit")
-      }
-      # return(structure(result, cache = "miss"))
-      return(result)
-    })
+  # have we memoised this function before?
+  # this implementation only allows one cache per function.
+  `_fn` = rlang::as_function(fn)
+
+  `_matches` = sapply(.memoise_cache$fns, identical, fn)
+  if (any(`_matches`)) {
+    return(.memoise_cache$memoised[`_matches`][[1]])
   }
-  mem_fn = mem_fn_fn()
+
+  # no? lets define a memoised function for this function.
+  # this is a function generating function.
+  # this is the encl environment. We create a data cache in this environment:
+
+  `_fn_formals` = formals(fn)
+
+  # This is the result cache:
+  `_memoise_data` = rlang::new_environment(
+    data = list(
+      items = list(),
+      defaults = Filter(
+        function(x) !identical(x, quote(expr = )),
+        `_fn_formals`
+      ),
+      fn_name = `_fn_name`,
+      cache_errors = .cache_errors,
+      debug = .debug
+    )
+  )
+
+  `_mem_fn` = function(...) {
+    # the formals for this function will be switched to match those of `fn`
+    # in part this needs to be done to make R CMD check not how a problem with
+    # mismatch and part to make autocomplete work ok
+    # Evaluation needs to be forced.
+    mc = match.call()
+    encl = parent.env(environment())
+    debug = getOption(".memoise.debug", FALSE) || encl$`_memoise_data`$debug
+
+    if (debug) {
+      message(
+        encl$`_memoise_data`$fn_name,
+        ": ",
+        length(encl$`_memoise_data`$items),
+        " cached items. ",
+        appendLF = FALSE
+      )
+    }
+
+    if (!getOption(".memoise.disabled", default = FALSE)) {
+      # the cache is globally enabled
+
+      # calculate arguments for the function
+      params = as.list(match.call())[-1]
+      defaults = encl$`_memoise_data`$defaults[setdiff(
+        names(encl$`_memoise_data`$defaults),
+        names(params)
+      )]
+
+      args = c(
+        lapply(params, eval, envir = parent.frame()),
+        lapply(defaults, eval, envir = environment())
+      )
+      # get a hash for the arguments
+      hsh = rlang::hash(args)
+
+      if (getOption(".memoise.recalculate", default = FALSE)) {
+        # when recalculate is switched on all entries that are cached will
+        # be ignored, leaving those that are not checked.
+        # We simply clear the cache for this item.
+        if (debug) {
+          message("remove cached item. hash: ", hsh)
+        }
+        encl$`_memoise_data`$items[[hsh]] = NULL
+      }
+      result = encl$`_memoise_data`$items[[hsh]]
+      if (debug) {
+        if (is.null(result)) {
+          message("cache miss. hash: ", hsh)
+        } else {
+          message("cache hit. hash: ", hsh)
+        }
+      }
+    } else {
+      # the cache was globally disabled
+      # should we be messaging this?
+      result = NULL
+    }
+
+    if (is.null(result)) {
+      # this is a cache miss (or cache was globally disabled), we need to
+      # evaluate the original function. We alter the memoised call to switch the
+      # function name to the original function. This is largely to support
+      # functions (like lm) that report the call used to invoke them.
+
+      mem_name = sprintf("(memoised) %s", encl$`_memoise_data`$fn_name)
+      mc[[1]] = as.symbol(mem_name)
+      # put the unmemoised function into the parent frame:
+      assign(mem_name, encl$`_fn`, envir = parent.frame())
+      result = withVisible(try(
+        eval(mc, envir = parent.frame()),
+        silent = TRUE
+      ))
+
+      #TODO: implement staleness.
+      result$time = as.numeric(Sys.time())
+
+      # having evaluated the original function we have to cache it
+      if (!getOption(".memoise.disabled", default = FALSE)) {
+        if (
+          # caching errors is usually a bad idea but this is up to the user.
+          # nulls are not "try-errors" so this condition works for nulls also
+          !inherits(result$value, "try-error") ||
+            encl$`_memoise_data`$cache_errors
+        ) {
+          # cache the visible.
+          if (debug) {
+            if (inherits(result$value, "try-error")) {
+              message("caching error value. hash: ", hsh)
+            } else {
+              message("caching. hash: ", hsh)
+            }
+          }
+          encl$`_memoise_data`$items[[hsh]] = result
+        }
+      } else {
+        # globally disabled cache. Should we be clearing existing values?
+        # at the moment this is not possible because the hash value was not
+        # calculated, if the cache is disabled.
+      }
+    } else {
+      # A cache hit.
+    }
+
+    # Throw the error or return the value. This may be a cache hit or a miss.
+    if (inherits(result$value, "try-error")) {
+      # inherits does not need null check.
+      stop(result$value, call. = FALSE)
+    } else if (result$visible) {
+      return(result$value)
+    } else {
+      return(invisible(result$value))
+    }
+  }
+
+  # N.B. back in function generator.
+
+  # rewrite the functions formals to match expected (needed for R CMD check)
+  # if the function is overwritten in `zz_onload` and autocomplete in RStudio.
+  formals(`_mem_fn`) = `_fn_formals`
+  # cache the original and memoised version so we can find it again.
   .memoise_cache$fns[[length(.memoise_cache$fns) + 1]] = fn
-  .memoise_cache$memoised[[length(.memoise_cache$memoised) + 1]] = mem_fn
-  return(mem_fn)
+  .memoise_cache$memoised[[length(.memoise_cache$memoised) + 1]] = `_mem_fn`
+  return(`_mem_fn`)
 }
 
-#' Unmemoise a function and drop its cache
+#' Unmemoise a function and drop its cache.
 #'
-#' @param fn a self contained function. This cannot reference anything outside
-#'   of its own parameters, and should be deterministic.
+#' @param fn the memoised or unmemoised function.
 #'
-#' @returns TRUE if function was found FALSE otherwise
+#' @returns the unmemoised function if it was found. If the function was not
+#'   found then the input is returned with a message.
 #' @noRd
 #'
 #' @examples
 #' lmmem = .memoise(stats::lm)
-#' .unmemoise(stats::lm)
+#' identical(lmmem, stats::lm)
+#' # The memoised and unmemoised functions are different
+#'
+#' lmmem = .unmemoise(lmmem)
+#' identical(lmmem, stats::lm)
+#' # The unmemoised functions has been restored. At this point the
+#' # memoised function's cache is gone.
+#'
+#' # it also works to use the original function:
+#' lmmem = .memoise(stats::lm)
+#' lmmem = .unmemoise(stats::lm)
+#' identical(lmmem, stats::lm)
+#'
+#' # If the function was not memoised it is returned as is
+#' lmmem2 = .unmemoise(stats::quantile)
+#' identical(lmmem2, stats::quantile)
 .unmemoise = function(fn) {
   # have we memoised this function before?
+  fn_name = rlang::as_label(rlang::enexpr(fn))
   fn = rlang::as_function(fn)
-  matches = sapply(.memoise_cache$fns, identical, fn)
+  matches =
+    sapply(.memoise_cache$memoised, identical, fn) |
+    sapply(.memoise_cache$fns, identical, fn)
   if (any(matches)) {
+    fn = .memoise_cache$fns[matches][[1]]
     .memoise_cache$memoised = .memoise_cache$memoised[!matches]
     .memoise_cache$fns = .memoise_cache$fns[!matches]
-    return(TRUE)
   } else {
-    return(FALSE)
+    message("`", fn_name, "`() was not memoised")
   }
+  return(fn)
 }

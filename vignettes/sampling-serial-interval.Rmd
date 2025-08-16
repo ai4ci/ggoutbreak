@@ -38,10 +38,8 @@ this with a mock Rotavirus dataset from `EpiEstim`:
 
 ```{r}
 
-dic.fit.mcmc = memoise::memoise(coarseDataTools::dic.fit.mcmc)
-
 clever_init_param <- EpiEstim::init_mcmc_params(si_data, "G")
-SI_fit_clever <- dic.fit.mcmc(dat = si_data,
+SI_fit_clever <- coarseDataTools::dic.fit.mcmc(dat = si_data,
   dist = "G", # Gamma distribution
   init.pars = clever_init_param,
   burnin = 1000,
@@ -160,7 +158,7 @@ for (k in seq_len(config$n1)) {
     }
 }
 
-epiestim_si_samples = tibble::tibble(
+epiestim_si_samples = dplyr::tibble(
   mean = mean_si_sample,
   sd = std_si_sample
 ) %>% dplyr::mutate(
@@ -322,7 +320,7 @@ original_disc = comparison %>%
   dplyr::group_by(source) %>%
   dplyr::transmute(
     coll = dplyr::row_number(),
-    disc = purrr::map2(mean,sd, ~ tibble::tibble(
+    disc = purrr::map2(mean,sd, ~ dplyr::tibble(
                          x=0:50,
                          p = EpiEstim::discr_si(0:50, .x, .y))),
     disc_type = "discr_si"
@@ -377,15 +375,13 @@ tmp2 = tmp %>% dplyr::group_by(source) %>% dplyr::reframe(
 
 # tmp2$si_matrix[[1]][1:10,1:10]
 
-cached_estimate_R = memoise::memoise(EpiEstim::estimate_R)
-
 compare_R = tmp2 %>% dplyr::mutate(R = purrr::map2(si_matrix, r, ~ {
-  ts = tibble::tibble(
+  ts = dplyr::tibble(
         t = 0:50
       ) %>% dplyr::mutate(
         I = 100*exp(.y*t)
       )
-  return(cached_estimate_R(ts, 
+  return(EpiEstim::estimate_R(ts, 
       method="si_from_sample", si_sample = .x,
       config = EpiEstim::make_config(t_start=2, t_end = 50))$R)
   })
@@ -454,10 +450,10 @@ comparison2 = dplyr::bind_rows(
   do.call(make_posterior_ip, epiestim_si_samples %>% dplyr::select(shape,rate)) %>% dplyr::mutate(source="epiestim")
 ) %>% tidyr::nest(ip = -source)
 
-tmp3 = tibble::tibble(r = r) %>%
+tmp3 = dplyr::tibble(r = r) %>%
   dplyr::mutate(
     data = purrr::map(r, ~ {
-      tibble::tibble(
+      dplyr::tibble(
         time = 0:30,
         count = stats::rpois(0:30, 100*exp(.x*0:30))
       )}

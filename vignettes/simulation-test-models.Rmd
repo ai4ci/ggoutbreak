@@ -114,7 +114,7 @@ columns too. The evaluation happens internally but here we use the `.ts_evaluate
 function to demonstrate the results.
 
 ```{r}
-demo = tibble::tibble(
+demo = dplyr::tibble(
   time = 0:9,
   class = rep(c("one","two"),5),
   flag = c(rep(TRUE,5),rep(FALSE,5))
@@ -166,7 +166,7 @@ the reproduction number.
 
 ```{r}
 
-changes = tibble::tibble(
+changes = dplyr::tibble(
   t = c(0,20,40,60,80), 
   growth = c(0.1,0,-0.1,0,0.1)
 )
@@ -181,7 +181,7 @@ and changes occurring such that the value at the knot is correct.
 
 ```{r}
 
-changes = tibble::tibble(
+changes = dplyr::tibble(
   t = c(0,10,20,30,40,50,60,70,80), 
   R = c(1,1.5,1.75,1.25,0.9,0.7,0.8,0.95,1)
 )
@@ -249,7 +249,7 @@ hospitalisation_prob_fn = cfg_beta_prob_rng(
 )
 
 
-demo = tibble::tibble(
+demo = dplyr::tibble(
   t = 1:200,
   variant = c(rep("wildtype",100),rep("alpha", 100))
 ) %>% dplyr::mutate(
@@ -294,7 +294,7 @@ directly. For empirical distributions we can generate random numbers
 ```{r}
 emp_sample_fn = cfg_ip_sampler_rng(emp_ip)
 
-tmp = tibble::tibble(
+tmp = dplyr::tibble(
   serial_interval = emp_sample_fn(2000)
 )
 
@@ -313,7 +313,7 @@ this:
 ```{r}
 
 # We start by defining a time varying function for the mean of a gamma
-delay_mean_fn = cfg_linear_fn(tibble::tribble(
+delay_mean_fn = cfg_linear_fn(dplyr::tribble(
   ~t , ~delay,
   0, 3, # 3 day delays initially,
   4, 3, # Until day 4. Between day 4 and 10 delays improving
@@ -332,7 +332,7 @@ times = 0:14
 delay_t = delay_fn(t=times)
 
 # this is a list of IP distributions.
-tibble::tibble(ip = delay_t, t=times) %>% tidyr::unnest(ip) %>% dplyr::glimpse() %>%
+dplyr::tibble(ip = delay_t, t=times) %>% tidyr::unnest(ip) %>% dplyr::glimpse() %>%
   ggplot2::ggplot()+
   ggplot2::geom_rect(ggplot2::aes(xmin=t,xmax=t+1,ymin=a0,ymax=a1,fill = probability))+
   ggplot2::xlab("time")+ggplot2::ylab("delay")
@@ -344,7 +344,7 @@ We create RNG that has a mean for every individual in the simulation.
 
 ```{r}
 
-delay_mean_fn = cfg_linear_fn(tibble::tribble(
+delay_mean_fn = cfg_linear_fn(dplyr::tribble(
   ~t , ~delay,
   0, 3, # 3 day delays initially,
   4, 3, # Until day 4. Between day 4 and 10 delays improving
@@ -356,7 +356,7 @@ delay_rng = function(t) { rgamma2(t, delay_mean_fn(t)) }
 times = rep(0:14,1000)
 delay = delay_rng(t=times)
 
-tibble::tibble(delay = delay, t=times) %>%
+dplyr::tibble(delay = delay, t=times) %>%
   ggplot2::ggplot()+ggplot2::geom_boxplot(ggplot2::aes(x=as.factor(t),y=delay),outliers = FALSE)+
   ggplot2::xlab("time")+ggplot2::ylab("delay")
 
@@ -397,7 +397,7 @@ delay_fn = cfg_weekly_ip_fn(mean=gamma_means)
 # delay_fn can be used as the parameter for a delay distribution convolution 
 # format_ip takes a probability based delay distribution and gives us a summary
 # the mean, sd, etc.
-.ts_evaluate(delay_fn, tibble::tibble(t=1:7)) %>% 
+.ts_evaluate(delay_fn, dplyr::tibble(t=1:7)) %>% 
   purrr::map_chr(format_ip)
 ```
 
@@ -407,7 +407,7 @@ delay_fn = cfg_weekly_ip_fn(mean=gamma_means)
 # `cfg_weekly_gamma_rng`
 delay_rng = cfg_weekly_gamma_rng(mean=gamma_means)
 
-tibble::tibble(t=rep(1:7,100)) %>%
+dplyr::tibble(t=rep(1:7,100)) %>%
   dplyr::mutate(sample = .ts_evaluate(delay_rng, .)) %>%
   dplyr::group_by(t) %>%
   dplyr::summarise(
@@ -446,7 +446,7 @@ and a time dependent importation rate.
 withr::with_options(list('day_zero'=Sys.Date()),{
 
   # define a growth rate time series
-  changes = tibble::tibble(
+  changes = dplyr::tibble(
     t = c(0,15,40,60,80), 
     growth = c(0.1,0.01,-0.075,0,0.05)
   )
@@ -516,7 +516,7 @@ in slow down and catch up anomalies.
 
 ```{r}
 
-ip_mean_fn = cfg_linear_fn(tibble::tribble(
+ip_mean_fn = cfg_linear_fn(dplyr::tribble(
   ~t , ~delay,
   0, 3, # 3 day avg delays initially
   10, 1, # by day 10 delays decreased to 1
@@ -526,7 +526,7 @@ ip_mean_fn = cfg_linear_fn(tibble::tribble(
   28, 1 # returning to normal on day 28
 ))
 
-p_detection_fn = cfg_linear_fn(tibble::tribble(
+p_detection_fn = cfg_linear_fn(dplyr::tribble(
   ~t , ~p,
   0, 0.1, # initial low probability of detection
   10, 0.7,
@@ -709,7 +709,7 @@ quickly as the higher exponential rate kicks in.
 
 ```{r}
 
-variant_imports_df = tibble::tribble(
+variant_imports_df = dplyr::tribble(
   ~time, ~variant, ~count,
   0:4, "wild-type", 5,
   20:24, "alpha", 5
@@ -772,7 +772,7 @@ transmissible nature.
 
 ```{r}
 
-variant_imports_df = tibble::tribble(
+variant_imports_df = dplyr::tribble(
   ~time, ~variant, ~count,
   -20:-1, "alpha", 300,
   15:19, "delta", 5
@@ -831,13 +831,14 @@ population have a high super-spreading potential.
 ```{r}
 
 kappa = c(1,1.5,2,3,4)
+ip = make_gamma_ip(8)
 
 comparison = dplyr::bind_rows(lapply(kappa, function(k) {
   
   sim_branching_process(
     max_time = 80,
     fn_Rt = ~ 2, # Both variants have the same fixed R_t
-    fn_ip = ~ make_gamma_ip(8),
+    fn_ip = ~ ip,
     fn_import = ~ ifelse(.x<10,4,0),
     fn_kappa = ~ k,
     seed=101
@@ -861,7 +862,7 @@ a infectee class. We also need to define the initial metadata for imported cases
 ```{r}
 
 # This simulation is seeded in the younger age groups:
-strat_imports_df = tibble::tribble(
+strat_imports_df = dplyr::tribble(
   ~time, ~age_cat, ~count,
   0:4, "child", 5,
   0:4, "adolescent", 5
@@ -921,7 +922,7 @@ plot_cases(strat_bpm,mapping = ggplot2::aes(fill=age_cat),individual=TRUE)+ggplo
 #' 
 #' # Delay distribution example:
 #' tmp3 = sim_branching_process(
-#'   changes = tibble::tibble(t = c(0,20,40,60,80,110), R_t = c(1.8,1.5,0.9,1.5,0.8,1.2)),
+#'   changes = dplyr::tibble(t = c(0,20,40,60,80,110), R_t = c(1.8,1.5,0.9,1.5,0.8,1.2)),
 #'   kappa = 1,
 #'   max_time = 120,
 #'   seed = 100,
@@ -947,7 +948,7 @@ plot_cases(strat_bpm,mapping = ggplot2::aes(fill=age_cat),individual=TRUE)+ggplo
 #' }
 #'
 #' #' tmp2 = sim_branching_process(
-#'   changes = tibble::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
+#'   changes = dplyr::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
 #'   kappa = 1,
 #'   max_time = 120,
 #'   seed = 100

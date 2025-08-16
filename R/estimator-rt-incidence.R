@@ -277,13 +277,10 @@ rt_from_incidence = function(
 #' data = ggoutbreak::test_poisson_rt_smooth
 #' ip = ggoutbreak::test_ip
 #'
-#' # we will try and estimate the Rt at the first 100 time points:
-#' print(data$rt[k+10])
-#'
 #' # first we need a set of incidence estimates
 #' # we fit a poisson model to counts using a GAM:
 #' model = mgcv::gam(count ~ s(time), family = "poisson", data=data)
-#' newdata = tibble::tibble(time = 1:100)
+#' newdata = dplyr::tibble(time = 1:100)
 #'
 #' pred = stats::predict(model, newdata, se.fit = TRUE)
 #'
@@ -350,7 +347,7 @@ rt_incidence_timeseries_implementation = function(
 
   if (assume_indep) {
     # vcov is a vector of variances, we have no diagonal terms.
-    long_vcov = tibble::tibble(
+    long_vcov = dplyr::tibble(
       i = pad$time,
       j = pad$time,
       Sigma_ij = pad$sigma^2
@@ -358,7 +355,7 @@ rt_incidence_timeseries_implementation = function(
   } else {
     # vcov is a variance covariance matrix. make it into a long format dataframe
     tmp = matrix(pad$time, length(pad$time), length(pad$time))
-    long_vcov = tibble::tibble(
+    long_vcov = dplyr::tibble(
       i = as.numeric(tmp),
       j = as.numeric(t(tmp)),
       Sigma_ij = as.numeric(pad$vcov)
@@ -379,7 +376,7 @@ rt_incidence_timeseries_implementation = function(
 
   tmp = ip %>%
     dplyr::select(boot, tau, omega_tau = probability) %>%
-    dplyr::cross_join(tibble::tibble(
+    dplyr::cross_join(dplyr::tibble(
       time_minus_tau = pad$time,
       mu = pad$mu,
       sigma = pad$sigma,
@@ -586,7 +583,7 @@ rt_incidence_timeseries_implementation = function(
 #   )
 #
 #   tmp = withr::with_seed(seed, {
-#     tibble::tibble(
+#     dplyr::tibble(
 #       time = pad$time,
 #       incidence.fit = pad$mu,
 #       incidence.se.fit = pad$sigma,
@@ -710,7 +707,7 @@ rt_incidence_timeseries_implementation = function(
 #' # first we need a set of incidence estimates
 #' # in the simplest example we use a GLM:
 #'
-#' newdata = tibble::tibble(time = 1:100)
+#' newdata = dplyr::tibble(time = 1:100)
 #'
 #'
 #'
@@ -886,7 +883,7 @@ rt_incidence_reference_implementation = function(
     sigma_Rt_mix = sqrt(sigma_Rt2),
     # A log-normal mixture quantile function:
     quantile_Rt_fn = function(p) {
-      ggoutbreak:::.qmixlnorm(p, mu_Rt, sqrt(sigma_Rt2))
+      .qmixlnorm(p, mu_Rt, sqrt(sigma_Rt2))
     }
   ))
 }

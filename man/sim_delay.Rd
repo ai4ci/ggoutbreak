@@ -55,7 +55,7 @@ Apply a time-varying probability and delay function to linelist data
 \examples{
 
 tmp = sim_branching_process(
-  changes = tibble::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
+  changes = dplyr::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
   max_time = 120,
   seed = 100
 )

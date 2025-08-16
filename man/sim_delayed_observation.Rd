@@ -55,7 +55,7 @@ weekend_delay = make_gamma_ip(median_of_mean = 7, median_of_sd = 2)
 
 delay_fn = ~ ifelse(.x \%\% 7 \%in\% c(6,7), list(weekend_delay), list(weekday_delay))
 
-data = tibble::tibble(time=1:40, count = rep(100,40), statistic="infections") \%>\%
+data = dplyr::tibble(time=1:40, count = rep(100,40), statistic="infections") \%>\%
   dplyr::group_by(statistic) \%>\%
   sim_delayed_observation(delay_fn,output="delayed")
 

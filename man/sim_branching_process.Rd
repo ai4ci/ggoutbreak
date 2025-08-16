@@ -6,7 +6,7 @@
 reproduction number}
 \usage{
 sim_branching_process(
-  changes = tibble::tibble(t = c(0, 40), rt = c(2.5, 0.8)),
+  changes = dplyr::tibble(t = c(0, 40), rt = c(2.5, 0.8)),
   max_time = 80,
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
@@ -73,7 +73,7 @@ reproduction number
 }
 \examples{
 tmp = sim_branching_process(
-  changes = tibble::tibble(t = c(0,40), R = c(1.5,0.8)),
+  changes = dplyr::tibble(t = c(0,40), R = c(1.5,0.8)),
   max_time = 120,
   seed = 100,
   fn_imports = ~ ifelse(.x<10,1,0)
@@ -85,7 +85,7 @@ if(interactive()) {
 
 # imports can also be specified as a dataframe, which allows additional
 # metadata in the line list. An example of which is as follows:
-imports_df = tibble::tribble(
+imports_df = dplyr::tribble(
   ~time, ~variant, ~count,
   0:4, "wild-type", 100,
   10:14, "alpha", 5,

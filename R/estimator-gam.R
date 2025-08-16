@@ -27,7 +27,7 @@
 #'
 #' # Simple poisson model
 #' data = test_poisson_rt_smooth
-#' tmp2 = data %>% ggoutbreak::poisson_gam_model(window=7,ip=test_ip)
+#' tmp2 = data %>% poisson_gam_model(window=7,ip=test_ip)
 #'
 #' if (interactive()) {
 #'   plot_incidence(
@@ -48,8 +48,7 @@
 #' # the beginning of the outbreak.
 #' data2 = test_delayed_observation
 #' model = gam_delayed_reporting(window = 14)
-#' tmp3 = data2 %>% ggoutbreak::poisson_gam_model(
-#'   ip=test_ip,
+#' tmp3 = data2 %>% poisson_gam_model(
 #'   model_fn = model$model_fn,
 #'   predict = model$predict)
 #'
@@ -59,8 +58,6 @@
 #'       data=data2 %>% dplyr::filter(obs_time %% 10 == 0),
 #'       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
 #'       )
-#'   tmp3 %>% plot_rt(events = attr(data2,"events"))+
-#'     sim_geom_function(data2,colour="red")
 #' }
 poisson_gam_model = function(
   d,
@@ -69,6 +66,7 @@ poisson_gam_model = function(
   ip = i_discrete_ip,
   .progress = interactive()
 ) {
+  .message_context()
   interfacer::idispatch(
     d,
     poisson_gam_model.censored = i_censored_incidence_data,
@@ -185,7 +183,7 @@ poisson_gam_model.incidence = function(
     return(list(fit))
   }
 
-  newdata = tibble::tibble(time = output_times, !!!predict)
+  newdata = dplyr::tibble(time = output_times, !!!predict)
   pred = stats::predict(fit, newdata, se.fit = TRUE)
   deriv = try(predict_derivative(fit, newdata), silent = TRUE)
 

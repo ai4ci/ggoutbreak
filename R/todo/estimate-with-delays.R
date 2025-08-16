@@ -70,7 +70,7 @@ library(mgcv)
 #   return(model)
 # }, data=admit_count %>% mutate(time= as.numeric(time)))
 
-# model = tibble(
+# model = dplyr::tibble(
 #     k = exp(seq(2,-6,length.out = 100))
 #   ) %>% dplyr::mutate(
 #     model = furrr::future_map(k, do_model,.progress = TRUE)
@@ -81,7 +81,7 @@ library(mgcv)
 # model %>% filter(aic < min(aic)+qchisq(0.95, df = 1)) %>% glimpse()
 #
 # best_model = model %>% filter(aic == min(aic)) %>% pull(model) %>% `[[`(1)
-# newdata = tibble(time=0:80)
+# newdata = dplyr::tibble(time=0:80)
 # pred = predict(best_model,newdata,se.fit = TRUE)
 # newdata = newdata %>% mutate(
 #   time = as.time_period(time,"1 day"),
@@ -118,7 +118,7 @@ best_model =
 
 # gam.check(best_model)
 
-newdata = tibble(time = 0:80, tau = 40)
+newdata = dplyr::tibble(time = 0:80, tau = 40)
 pred = predict(best_model, newdata, se.fit = TRUE)
 deriv = predict_derivative(best_model, newdata)
 
@@ -145,7 +145,7 @@ plot_incidence(incid, admit_count %>% filter(obs_time == 80)) +
 
 # Delay distribution ----
 
-newdata_tau = tibble(tau = 1:40, time = 80)
+newdata_tau = dplyr::tibble(tau = 1:40, time = 80)
 pred_tau = predict(best_model, newdata_tau, se.fit = TRUE)
 
 test = proportion_from_incidence(

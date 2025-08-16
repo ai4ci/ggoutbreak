@@ -145,7 +145,7 @@ make_gamma_ip = function(
         lower_ci_of_sd == median_of_sd &&
         upper_ci_of_sd == median_of_sd)
   ) {
-    tmp = tibble::tibble(
+    tmp = dplyr::tibble(
       mean = median_of_mean,
       sd = median_of_sd
     ) %>%
@@ -154,7 +154,7 @@ make_gamma_ip = function(
         rate = mean / (sd^2)
       )
   } else {
-    quantiles = tibble::tibble(
+    quantiles = dplyr::tibble(
       lmean = log(c(median_of_mean, lower_ci_of_mean, upper_ci_of_mean)),
       lsd = log(c(median_of_sd, lower_ci_of_sd, upper_ci_of_sd)),
       z = stats::qnorm(c(0.5, 0.5 - z_crit / 2, 0.5 + z_crit / 2))
@@ -213,7 +213,6 @@ make_gamma_ip = function(
   )
 }
 
-
 #' Recover a long format infectivity profile from an `EpiEstim` style matrix
 #'
 #' @param omega a matrix of probabilities, starting at time zero, with columns
@@ -237,7 +236,7 @@ make_empirical_ip = function(omega, normalise = TRUE) {
   tau = rep(0:(r - 1), c)
   boot = as.vector(sapply(1:c, rep, times = r))
   probability = as.vector(omega)
-  ip = tibble::tibble(
+  ip = dplyr::tibble(
     tau = tau,
     probability = probability,
     a0 = rep(c(0, seq(0.5, length.out = r - 1)), c),
@@ -292,7 +291,7 @@ make_resampled_ip = function(
 ) {
   withr::with_seed(seed, {
     dplyr::bind_rows(lapply(1:n_boots, function(i) {
-      tmp = tibble::tibble(
+      tmp = dplyr::tibble(
         min = min_tau,
         max = max_tau
       ) %>%
@@ -398,7 +397,7 @@ make_posterior_ip = function(
     sd = sqrt(shape) * scale,
   )
 
-  tmp = tibble::tibble(
+  tmp = dplyr::tibble(
     shape = shape,
     rate = rate,
     mean = mean,
@@ -587,6 +586,8 @@ format_ip = function(ip = i_empirical_ip) {
 #' This is provided as a utility for examples mostly.
 #'
 #' @iparam ip long format infectivity profile
+#' @param epiestim_compat ensure the matrix works with `EpiEstim`'s
+#' `si_from_sample` method by making probability at time zero equal to zero.
 #'
 #' @return a matrix with `0:max(tau)` rows and `1:max(boot)` columns.
 #' @concept delay_distribution
@@ -604,7 +605,7 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
   # Make sure matrix includes one entry for tau=0: The pivot_wider will do the rest
   if (min(ip$tau) > 0) {
     ip = ip %>%
-      dplyr::bind_rows(tibble::tibble(
+      dplyr::bind_rows(dplyr::tibble(
         tau = 0:(min(ip$tau) - 1),
         probability = 0,
         boot = ip$boot[1]
@@ -672,7 +673,7 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
   }
 
   return(
-    tibble::tibble(
+    dplyr::tibble(
       mean = mean_si_sample,
       sd = std_si_sample
     ) %>%
@@ -775,7 +776,7 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
       discr_si = purrr::map2(
         mean,
         sd,
-        ~ tibble::tibble(
+        ~ dplyr::tibble(
           tau = 0:max_tau,
           a0 = c(0, seq(0.5, length.out = max_tau)),
           a1 = seq(0.5, length.out = max_tau + 1),
@@ -826,7 +827,7 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
       discr_si = purrr::map2(
         shape,
         rate,
-        ~ tibble::tibble(
+        ~ dplyr::tibble(
           tau = 0:max_tau,
           a0 = c(0, seq(0.5, length.out = max_tau)),
           a1 = seq(0.5, length.out = max_tau + 1),

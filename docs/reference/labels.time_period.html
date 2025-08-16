@@ -13,7 +13,7 @@ are used in preference."><meta property="og:image" content="https://ai4ci.github
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,8 +33,8 @@ are used in preference."><meta property="og:image" content="https://ai4ci.github
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
     <li><a class="dropdown-item" href="../articles/time-periods.html">Data wrangling and working with `ggoutbreak`</a></li>
-    <li><a class="dropdown-item" href="../articles/time-units.html">Estimating the reproduction number from weekly data</a></li>
     <li><a class="dropdown-item" href="../articles/variant-proportions.html">Multinomial proportions models for genomic variants</a></li>
+    <li><a class="dropdown-item" href="../articles/weekly-incidence.html">Estimating the reproduction number from weekly data</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -103,43 +103,20 @@ formatted date</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">eg</span> <span class="op">=</span> <span class="fu"><a href="as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">*</span><span class="fl">7</span>, anchor<span class="op">=</span><span class="st">"start"</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> No unit given. Guessing a sensible value from the dates gives: 7d 0H 0M 0S</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> No unit given. Guessing a sensible value from the dates gives: 7d 0H 0M 0S </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> (N.B. this message will only be displayed once.)</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/labels.html" class="external-link">labels</a></span><span class="op">(</span><span class="va">eg</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31/Jul — 06/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 07/Aug — 13/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14/Aug — 20/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21/Aug — 27/Aug</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28/Aug — 03/Sep</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 04/Sep — 10/Sep</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11/Sep — 17/Sep</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18/Sep — 24/Sep</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25/Sep — 01/Oct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 02/Oct — 08/Oct</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 09/Oct — 15/Oct</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "16/Aug — 22/Aug" "23/Aug — 29/Aug" "30/Aug — 05/Sep" "06/Sep — 12/Sep"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "13/Sep — 19/Sep" "20/Sep — 26/Sep" "27/Sep — 03/Oct" "04/Oct — 10/Oct"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "11/Oct — 17/Oct" "18/Oct — 24/Oct" "25/Oct — 31/Oct"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/labels.html" class="external-link">labels</a></span><span class="op">(</span><span class="va">eg</span>, ifmt<span class="op">=</span><span class="st">"{start}"</span>, dfmt<span class="op">=</span><span class="st">"%d/%b/%y"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 31/Jul/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 07/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 14/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 21/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 28/Aug/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 04/Sep/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 11/Sep/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 18/Sep/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 25/Sep/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 02/Oct/25</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 09/Oct/25</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "16/Aug/25" "23/Aug/25" "30/Aug/25" "06/Sep/25" "13/Sep/25" "20/Sep/25"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "27/Sep/25" "04/Oct/25" "11/Oct/25" "18/Oct/25" "25/Oct/25"</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/labels.html" class="external-link">labels</a></span><span class="op">(</span><span class="va">eg</span>, ifmt<span class="op">=</span><span class="st">"until {end}"</span>, dfmt<span class="op">=</span><span class="st">"%d %b %Y"</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 06 Aug 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 13 Aug 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 20 Aug 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 27 Aug 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 03 Sep 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 10 Sep 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 17 Sep 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 24 Sep 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 01 Oct 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 08 Oct 2025</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> until 15 Oct 2025</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "until 22 Aug 2025" "until 29 Aug 2025" "until 05 Sep 2025"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "until 12 Sep 2025" "until 19 Sep 2025" "until 26 Sep 2025"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "until 03 Oct 2025" "until 10 Oct 2025" "until 17 Oct 2025"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [10] "until 24 Oct 2025" "until 31 Oct 2025"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># labels retained in constructor:</span></span></span>
 <span class="r-in"><span><span class="va">eg2</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fl">0</span><span class="op">:</span><span class="fl">10</span><span class="op">*</span><span class="fl">7</span></span></span>

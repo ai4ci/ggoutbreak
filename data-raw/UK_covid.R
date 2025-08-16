@@ -31,7 +31,7 @@ england_demographics = UK_pop %>%
           "\\1_\\2"
         )
     ) %>%
-      forcats::as_factor(),
+      .as_factor(),
     population = value,
     baseline_proportion = population / sum(population),
   ) %>%

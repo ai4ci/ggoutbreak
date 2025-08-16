@@ -93,7 +93,7 @@ proportion_glm_model = function(
       data = d,
       singular.ok = TRUE
     )
-    new_data = tibble::tibble(time = output_times)
+    new_data = dplyr::tibble(time = output_times)
     # response is transformed:
     # proportion_estimate = stats::predict(model, newdata = new_data, type="response")
     # this prediction in in the logit space:
@@ -191,7 +191,7 @@ poisson_glm_model = function(
       data = d,
       singular.ok = TRUE
     )
-    new_data = tibble::tibble(time = output_times)
+    new_data = dplyr::tibble(time = output_times)
     # response is transformed:
     rate_estimate = stats::predict(model, newdata = new_data, type = "response")
     # this prediction in in the logit space:

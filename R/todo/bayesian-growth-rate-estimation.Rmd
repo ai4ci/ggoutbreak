@@ -109,7 +109,7 @@ No clear answer here apart from resampling
 We calculate growth rates for two time series. Time series one is artificial, constructed from 100 time points starting form Jan 1st 2020 at 1, and growing exponentially with a day on day increase given by 1.5 for days 1-29 days, followed by 0.8 for 20-49, then 1.1 for 50-69 days, 0.7 for 70-89, then steady at 1 for the last 10 days. Timeseries 2 is based on case counts published on the Public Health England coronavirus website for England. It has a few missing values.
 
 ```{r}
-testData = tibble::tibble(time = 1:200) %>% dplyr::mutate(growth_rate = dplyr::case_when(
+testData = dplyr::tibble(time = 1:200) %>% dplyr::mutate(growth_rate = dplyr::case_when(
   time < 60 ~ 0.05,
   time < 80 ~ -0.025,
   time < 140 ~ -0.025+0.045/40*(time-80),
@@ -118,7 +118,7 @@ testData = tibble::tibble(time = 1:200) %>% dplyr::mutate(growth_rate = dplyr::c
 ), value = growth_rate ) %>% 
   dplyr::mutate(type = "incidence", lambda_t = cumsum(growth_rate), date = as.Date("2020-01-01")+time) %>%
   dplyr::group_by_all() %>%
-  dplyr::summarise(tibble::tibble(subgroup = 1:10,value=stats::rpois(10,exp(lambda_t)))) %>%
+  dplyr::summarise(dplyr::tibble(subgroup = 1:10,value=stats::rpois(10,exp(lambda_t)))) %>%
   dplyr::ungroup()
 
 testTs = testData %>% dplyr::mutate(statistic = "case",type = "incidence", code="XYZ", name="Test",codeType = "TEST",source="TEST",gender=NA_character_,ageCat=NA_character_)

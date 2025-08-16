@@ -58,7 +58,7 @@
 #' @examples
 #'
 #' # a set of random dates with a class column:
-#' input = tibble::tibble(
+#' input = dplyr::tibble(
 #'   class = rep(c("A","B"),1000),
 #'   date = as.Date("2020-01-01")+sample.int(100,2000,TRUE)
 #' )

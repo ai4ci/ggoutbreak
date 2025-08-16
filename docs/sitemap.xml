@@ -14,6 +14,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/time-periods.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/time-units.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/variant-proportions.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/articles/weekly-incidence.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/authors.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/index.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/as.Date.time_period.html</loc></url>
@@ -101,6 +102,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/multinomial_nnet_model.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/normalise_count.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/normalise_incidence.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/omega_matrix.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/pbeta2.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/pgamma2.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/pipe.html</loc></url>
@@ -148,6 +150,8 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/rt_from_growth_rate.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/rt_from_incidence.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/rt_from_renewal.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/rt_incidence_reference_implementation.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/rt_incidence_timeseries_implementation.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/rwedge.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/scale_y_log1p.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/scale_y_logit.html</loc></url>
@@ -182,6 +186,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/time_summarise.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/time_to_date.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/type.time_period.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/vcov_from_residuals.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/wallinga_lipsitch.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/wedge.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/weekdays.time_period.html</loc></url>

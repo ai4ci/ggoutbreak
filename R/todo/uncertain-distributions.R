@@ -187,12 +187,12 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
         if(nrow(d) > 1) stop(paste0("param ",g$param," is not unique"))
         print(list(mean = d$mean, sd = d$sd, lower = d$lower, upper = d$upper))
         if (!is.null(d$lower) & !is.null(d$upper) & is.finite(d$lower) & is.finite(d$upper)) {
-          return(tibble::tibble(
+          return(dplyr::tibble(
             bootstrapNumber = (1:bootstraps)+currentBS,
             value = msm::rtnorm(n=bootstraps, mean = d$mean, sd = d$sd, lower = d$lower, upper = d$upper)
           ))
         } else {
-          return(tibble::tibble(
+          return(dplyr::tibble(
             bootstrapNumber = (1:bootstraps)+currentBS,
             value = stats::rnorm(n=bootstraps, mean = d$mean, sd = d$sd)
           ))
@@ -237,7 +237,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
     self$bootstraps = bootstrappedDf %>% ensurer::ensure_that("bootstrapNumber" %in% colnames(.) ~ "bootstrapDf must have a bootstrapNumber column") %>%
       dplyr::group_by(!!!grps, bootstrapNumber) %>%
       dplyr::group_modify(function(d,g,...) {
-        tmpBootstrap = tibble::tibble(dist=NA_character_,param=NA_character_,value=NA_real_) %>% dplyr::filter(!is.na(dist))
+        tmpBootstrap = dplyr::tibble(dist=NA_character_,param=NA_character_,value=NA_real_) %>% dplyr::filter(!is.na(dist))
         for (m in self$models) {
           values = d %>% dplyr::mutate(x = !!valueExpr) %>% dplyr::pull(x)
           values = values+self$shifted
@@ -269,7 +269,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
             # build a bootstraps entry
             #browser()
             tmpBootstrap = tmpBootstrap %>% dplyr::bind_rows(
-              tibble::tibble(
+              dplyr::tibble(
                 dist = dist2$distname,
                 param = names(dist2$estimate),
                 value = dist2$estimate,
@@ -281,7 +281,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
             )
             if(length(m$fix.arg)>0) {
               tmpBootstrap = tmpBootstrap %>% dplyr::bind_rows(
-                tibble::tibble(
+                dplyr::tibble(
                   dist = dist2$distname,
                   param = names(m$fix.arg),
                   value = unlist(m$fix.arg),
@@ -345,7 +345,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
         # if(any(d$left == 0,na.rm=TRUE)) warning("Input contains zero values after shift.")
         # if(any(d$left < 0,na.rm=TRUE)) warning("Input contains negative values after shift.")
 
-        tmpBootstrap = tibble::tibble(dist=character(),param=character(),value=numeric())
+        tmpBootstrap = dplyr::tibble(dist=character(),param=character(),value=numeric())
         for (m in self$models) {
           values = d %>% dplyr::select(left,right)
           oldLen = nrow(values)
@@ -391,7 +391,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
             # build a bootstraps entry
             #browser()
             tmpBootstrap = tmpBootstrap %>% dplyr::bind_rows(
-              tibble::tibble(
+              dplyr::tibble(
                 dist = dist2$distname,
                 param = names(dist2$estimate),
                 value = dist2$estimate,
@@ -403,7 +403,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
             )
             if(length(m$fix.arg)>0) {
               tmpBootstrap = tmpBootstrap %>% dplyr::bind_rows(
-                tibble::tibble(
+                dplyr::tibble(
                   dist = dist2$distname,
                   param = names(m$fix.arg),
                   value = unlist(m$fix.arg),
@@ -529,7 +529,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
     }
     #browser()
     m=DistributionFit$standardDistributions[[dist2$fitpart$distname]]
-    fittedModels=tibble::tibble(
+    fittedModels=dplyr::tibble(
       n=distFit$n,
       aic=distFit$aic,
       bic=distFit$bic,
@@ -543,7 +543,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
     )
     if(length(m$fix.arg)>0) {
       fittedModels = fittedModels %>% dplyr::bind_rows(
-        tibble::tibble(
+        dplyr::tibble(
           n=distFit$n,
           aic=distFit$aic,
           bic=distFit$bic,
@@ -588,7 +588,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
   #'   distributionsDf = self$fittedModels %>% dplyr::group_by(!!!grps,dist) %>% dplyr::group_modify(function(d,g,...) {
   #'     #if(nrow(d) != 1) stop("A single covolution distribution must be defined for each group")
   #'     #func = paste0("p",d$distribution)
-  #'     out = tibble::tibble(
+  #'     out = dplyr::tibble(
   #'       #!!distributionVar = g %>% dplyr::pull(distributionVar),
   #'       bootstrapNumber = 1:bootstraps
   #'     )
@@ -608,7 +608,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
   #'         paramBoot = msm::rtnorm(bootstraps, paramMean, paramSd, paramMin, paramMax)
   #'
   #'       }
-  #'       out = out %>% tibble::add_column(!!paramName := paramBoot)
+  #'       out = out %>% dplyr::add_column(!!paramName := paramBoot)
   #'     }
   #'     return(out %>% tidyr::pivot_longer(cols = dplyr::all_of(params), names_to = "param", values_to = "value"))
   #'   })
@@ -627,8 +627,8 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
       dplyr::group_modify(function(d,g,...) {
         samples = g$tmp_samples
         func = paste0("r",g %>% dplyr::pull(dist))
-        params2 = d %>% dplyr::select(param,value) %>% tibble::deframe()
-        sampledDist = tibble::tibble(
+        params2 = d %>% dplyr::select(param,value) %>% dplyr::deframe()
+        sampledDist = dplyr::tibble(
           value = suppressWarnings(do.call(func, c(list(n=samples),params2))),
           sampleNumber = 1:samples
         )
@@ -649,8 +649,8 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
       if (DistributionFit$standardDistributions[[g$dist]]$discrete) {
         x = round(min(x)):round(max(x))
       }
-      params2 = d %>% dplyr::select(param,value) %>% tibble::deframe()
-      pdfs = tibble::tibble(
+      params2 = d %>% dplyr::select(param,value) %>% dplyr::deframe()
+      pdfs = dplyr::tibble(
         density = suppressWarnings(do.call(func, c(list(x=x),params2))),
         value = x
       )
@@ -670,8 +670,8 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
       if (DistributionFit$standardDistributions[[g$dist]]$discrete) {
         q = round(q)
       }
-      params2 = d %>% dplyr::select(param,value) %>% tibble::deframe()
-      pdfs = tibble::tibble(
+      params2 = d %>% dplyr::select(param,value) %>% dplyr::deframe()
+      pdfs = dplyr::tibble(
         cumulative = suppressWarnings(do.call(func, c(list(q=q),params2))),
         value = q
       )
@@ -688,8 +688,8 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
     grps = self$grps
     tmp = self$bootstraps %>% dplyr::group_by(!!!grps,dist,bootstrapNumber) %>% dplyr::group_modify(function(d,g,...) {
       func = paste0("q",g %>% dplyr::pull(dist))
-      params2 = d %>% dplyr::select(param,value) %>% tibble::deframe()
-      pdfs = tibble::tibble(
+      params2 = d %>% dplyr::select(param,value) %>% dplyr::deframe()
+      pdfs = dplyr::tibble(
         quantile = suppressWarnings(do.call(func, c(list(p=p),params2))),
         probability = p
       )
@@ -751,7 +751,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
     )
     #TODO: could make this configurable with purrr nested list
     #levels = c(0.025,0.25,0.5,0.75,0.975)
-    #quan = stats::quantile(sample, levels) %>% tibble::enframe() %>% dplyr::mutate(name = paste0("Quantile."),levels) %>% tidyr::pivot_wider(names_from="name", values_from="value")
+    #quan = stats::quantile(sample, levels) %>% dplyr::enframe() %>% dplyr::mutate(name = paste0("Quantile."),levels) %>% tidyr::pivot_wider(names_from="name", values_from="value")
     #followed by an unnest or flatten
   },
 
@@ -814,14 +814,14 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
       #if(nrow(d) != 1) stop("A single covolution distribution must be defined for each group in groupedDf")
       func = paste0("p",g %>% dplyr::pull(!!distributionVar))
 
-      params2 = paramList = d %>% dplyr::select(!!paramNameVar,!!paramValueVar) %>% tibble::deframe()
+      params2 = paramList = d %>% dplyr::select(!!paramNameVar,!!paramValueVar) %>% dplyr::deframe()
 
       #funcCDF = paste0("p",d$distribution)
       #params = formals(func)
       #params2 = d %>% dplyr::select(dplyr::any_of(names(params))) %>% as.list()
       start = timepoints[1:(length(timepoints)-1)]
       end = timepoints[2:(length(timepoints))]
-      discreteDist = tibble::tibble(
+      discreteDist = dplyr::tibble(
         start = start,
         end = end,
         prob = do.call(func, c(q=list(end),params2))-do.call(func, c(q=list(start),params2)),
@@ -888,7 +888,7 @@ DistributionFit = R6::R6Class("DistributionFit", inherit=PassthroughFilesystemCa
 
   tsBootstrapConvolution = function(groupedDf, distributionDistDf, bootstraps=100, outputVar = "output", valueVar="value", dateVar="date", days = 30, timepoints = 0:days, padLeft=NA_real_, padRight=NA_real_) {
     grps = groupedDf %>% dplyr::groups()
-    tmp = groupedDf %>% tidyr::crossing(tibble::tibble(bootstrapNumber = 1:bootstraps)) %>% dplyr::group_by(!!!grps,bootstrapNumber)
+    tmp = groupedDf %>% tidyr::crossing(dplyr::tibble(bootstrapNumber = 1:bootstraps)) %>% dplyr::group_by(!!!grps,bootstrapNumber)
     distributionDistDf = distributionDistDf %>% dplyr::group_by(!!!grps)
     out = tmp %>% tsParameterizedConvolution(bootstrapDistributions(distributionDistDf, bootstraps = bootstraps),
                                              outputVar = {{outputVar}}, valueVar = {{valueVar}}, dateVar = {{dateVar}}, days = days, timepoints = timepoints, padLeft = padLeft, padRight = padRight)
@@ -1026,12 +1026,12 @@ DistributionFit$unconvertParameters = function(
   grps = bootstrapsDf %>% dplyr::groups()
 
   tmp = bootstrapsDf %>% dplyr::group_by(!!!grps,dist) %>% dplyr::group_modify(function(d,g,...) {
-    paramList = d %>% dplyr::select(param,value) %>% tidyr::nest(data=c(value)) %>% tibble::deframe() %>% purrr::map(~ .$value)
+    paramList = d %>% dplyr::select(param,value) %>% tidyr::nest(data=c(value)) %>% dplyr::deframe() %>% purrr::map(~ .$value)
     funcs = DistributionFit$conversionTo[[g$dist]]
-    conv = tibble::tibble(
+    conv = dplyr::tibble(
       param = "mean",
       value = suppressWarnings(do.call(funcs$mean, paramList)),
-    ) %>% dplyr::bind_rows(tibble::tibble(
+    ) %>% dplyr::bind_rows(dplyr::tibble(
       param = "sd",
       value = suppressWarnings(do.call(funcs$sd, paramList)),
     ))
@@ -1125,7 +1125,7 @@ DistributionFit$convertParameters = function(
         # we are fitting here a nakagami distribution (see resampling vignette)
         # the nakagami omega (scale) parameter is the 1/meanOfSd^2
         fn = function(x,tmp_shape) nakagami::qnaka(x,shape=tmp_shape, scale=sdScale)
-        fit.sd.naka = suppressWarnings(stats::nls(y ~ fn(x,tmp_shape), data = tibble::tibble( x=confint, y=c(lowerOfSd, upperOfSd) ), start=list(tmp_shape=1), lower=0.5 ))
+        fit.sd.naka = suppressWarnings(stats::nls(y ~ fn(x,tmp_shape), data = dplyr::tibble( x=confint, y=c(lowerOfSd, upperOfSd) ), start=list(tmp_shape=1), lower=0.5 ))
         sdShape = summary(fit.sd.naka)$parameters[["tmp_shape",1]]
       }
       # with scale and shape derived we can define the sdOfSd
@@ -1187,7 +1187,7 @@ DistributionFit$convertParameters = function(
   # browser()
   # having samples in the mean SD space we need to augment this with native parameters
   for(paramName in names(conversion)) {
-    paramSamples = paramSamples %>% dplyr::bind_rows(tibble::tibble(
+    paramSamples = paramSamples %>% dplyr::bind_rows(dplyr::tibble(
       dist = dist,
       bootstrapNumber = 1:bootstraps,
       param = paramName,
@@ -1209,7 +1209,7 @@ DistributionFit$convertParameters = function(
 }
 
 #TODO: reversing thsi is a question of grabbing bootstraps and converting them back into mean and sd
-# paramList = dfit$bootstraps %>% dplyr::select(param,value) %>% tidyr::nest(value) %>% tibble::deframe() %>% dplyr::map(~ .$value)
+# paramList = dfit$bootstraps %>% dplyr::select(param,value) %>% tidyr::nest(value) %>% dplyr::deframe() %>% dplyr::map(~ .$value)
 # gives you a named list of vectors
 # funcs = DistributionFit$conversionTo[["dist"]]
 # mean = suppressWarnings(do.call(funcs$mean, paramList)),

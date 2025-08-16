@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,8 +47,8 @@
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
     <li><a class="dropdown-item" href="../articles/time-periods.html">Data wrangling and working with `ggoutbreak`</a></li>
-    <li><a class="dropdown-item" href="../articles/time-units.html">Estimating the reproduction number from weekly data</a></li>
     <li><a class="dropdown-item" href="../articles/variant-proportions.html">Multinomial proportions models for genomic variants</a></li>
+    <li><a class="dropdown-item" href="../articles/weekly-incidence.html">Estimating the reproduction number from weekly data</a></li>
   </ul>
 </li>
       </ul>
@@ -140,7 +140,7 @@ and may have other columns too. The evaluation happens internally but
 here we use the <code>.ts_evaluate</code> function to demonstrate the
 results.</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">demo</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<code class="sourceCode R"><span><span class="va">demo</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  time <span class="op">=</span> <span class="fl">0</span><span class="op">:</span><span class="fl">9</span>,</span>
 <span>  class <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"one"</span>,<span class="st">"two"</span><span class="op">)</span>,<span class="fl">5</span><span class="op">)</span>,</span>
 <span>  flag <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">TRUE</span>,<span class="fl">5</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="cn">FALSE</span>,<span class="fl">5</span><span class="op">)</span><span class="op">)</span></span>
@@ -189,7 +189,7 @@ point. These can be used as parametrisation for the reproduction
 number.</p>
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">changes</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span><span class="va">changes</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">20</span>,<span class="fl">40</span>,<span class="fl">60</span>,<span class="fl">80</span><span class="op">)</span>, </span>
 <span>  growth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>,<span class="fl">0</span>,<span class="op">-</span><span class="fl">0.1</span>,<span class="fl">0</span>,<span class="fl">0.1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -203,7 +203,7 @@ abrupt changes in
 and changes occurring such that the value at the knot is correct.</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">changes</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span><span class="va">changes</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">10</span>,<span class="fl">20</span>,<span class="fl">30</span>,<span class="fl">40</span>,<span class="fl">50</span>,<span class="fl">60</span>,<span class="fl">70</span>,<span class="fl">80</span><span class="op">)</span>, </span>
 <span>  R <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1.5</span>,<span class="fl">1.75</span>,<span class="fl">1.25</span>,<span class="fl">0.9</span>,<span class="fl">0.7</span>,<span class="fl">0.8</span>,<span class="fl">0.95</span>,<span class="fl">1</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
@@ -273,7 +273,7 @@ delays for example.</p>
 <span><span class="op">)</span></span>
 <span></span>
 <span></span>
-<span><span class="va">demo</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span><span class="va">demo</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  t <span class="op">=</span> <span class="fl">1</span><span class="op">:</span><span class="fl">200</span>,</span>
 <span>  variant <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"wildtype"</span>,<span class="fl">100</span><span class="op">)</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="st">"alpha"</span>, <span class="fl">100</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
@@ -314,7 +314,7 @@ distributions we can generate random numbers</p>
 <div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">emp_sample_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_ip_sampler_rng.html">cfg_ip_sampler_rng</a></span><span class="op">(</span><span class="va">emp_ip</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">tmp</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span><span class="va">tmp</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>  serial_interval <span class="op">=</span> <span class="fu">emp_sample_fn</span><span class="op">(</span><span class="fl">2000</span><span class="op">)</span></span>
 <span><span class="op">)</span></span>
 <span></span>
@@ -330,7 +330,7 @@ selecting one of 2 IP delays might look like this:</p>
 <div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># We start by defining a time varying function for the mean of a gamma</span></span>
-<span><span class="va">delay_mean_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span><span class="va">delay_mean_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">t</span> , <span class="op">~</span><span class="va">delay</span>,</span>
 <span>  <span class="fl">0</span>, <span class="fl">3</span>, <span class="co"># 3 day delays initially,</span></span>
 <span>  <span class="fl">4</span>, <span class="fl">3</span>, <span class="co"># Until day 4. Between day 4 and 10 delays improving</span></span>
@@ -349,7 +349,7 @@ selecting one of 2 IP delays might look like this:</p>
 <span><span class="va">delay_t</span> <span class="op">=</span> <span class="fu">delay_fn</span><span class="op">(</span>t<span class="op">=</span><span class="va">times</span><span class="op">)</span></span>
 <span></span>
 <span><span class="co"># this is a list of IP distributions.</span></span>
-<span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">delay_t</span>, t<span class="op">=</span><span class="va">times</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">ip</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">delay_t</span>, t<span class="op">=</span><span class="va">times</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/unnest.html" class="external-link">unnest</a></span><span class="op">(</span><span class="va">ip</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_tile.html" class="external-link">geom_rect</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>xmin<span class="op">=</span><span class="va">t</span>,xmax<span class="op">=</span><span class="va">t</span><span class="op">+</span><span class="fl">1</span>,ymin<span class="op">=</span><span class="va">a0</span>,ymax<span class="op">=</span><span class="va">a1</span>,fill <span class="op">=</span> <span class="va">probability</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"time"</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"delay"</span><span class="op">)</span></span>
@@ -367,7 +367,7 @@ little simpler. We create RNG that has a mean for every individual in
 the simulation.</p>
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">delay_mean_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span><span class="va">delay_mean_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">t</span> , <span class="op">~</span><span class="va">delay</span>,</span>
 <span>  <span class="fl">0</span>, <span class="fl">3</span>, <span class="co"># 3 day delays initially,</span></span>
 <span>  <span class="fl">4</span>, <span class="fl">3</span>, <span class="co"># Until day 4. Between day 4 and 10 delays improving</span></span>
@@ -379,7 +379,7 @@ the simulation.</p>
 <span><span class="va">times</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">14</span>,<span class="fl">1000</span><span class="op">)</span></span>
 <span><span class="va">delay</span> <span class="op">=</span> <span class="fu">delay_rng</span><span class="op">(</span>t<span class="op">=</span><span class="va">times</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>delay <span class="op">=</span> <span class="va">delay</span>, t<span class="op">=</span><span class="va">times</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>delay <span class="op">=</span> <span class="va">delay</span>, t<span class="op">=</span><span class="va">times</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_boxplot.html" class="external-link">geom_boxplot</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">as.factor</a></span><span class="op">(</span><span class="va">t</span><span class="op">)</span>,y<span class="op">=</span><span class="va">delay</span><span class="op">)</span>,outliers <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">xlab</a></span><span class="op">(</span><span class="st">"time"</span><span class="op">)</span><span class="op">+</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/labs.html" class="external-link">ylab</a></span><span class="op">(</span><span class="st">"delay"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="simulation-test-models_files/figure-html/unnamed-chunk-15-1.png" width="576"></p>
@@ -417,7 +417,7 @@ another for random sampling in individual based simulations.</p>
 <span><span class="co"># delay_fn can be used as the parameter for a delay distribution convolution </span></span>
 <span><span class="co"># format_ip takes a probability based delay distribution and gives us a summary</span></span>
 <span><span class="co"># the mean, sd, etc.</span></span>
-<span><span class="fu"><a href="../reference/dot-ts_evaluate.html">.ts_evaluate</a></span><span class="op">(</span><span class="va">delay_fn</span>, <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>t<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span><span class="fu"><a href="../reference/dot-ts_evaluate.html">.ts_evaluate</a></span><span class="op">(</span><span class="va">delay_fn</span>, <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>t<span class="op">=</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">purrr</span><span class="fu">::</span><span class="fu"><a href="https://purrr.tidyverse.org/reference/map.html" class="external-link">map_chr</a></span><span class="op">(</span><span class="va">format_ip</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "mean: 1.06; sd: 1.01" "mean: 1.06; sd: 1.01" "mean: 1.06; sd: 1.01"</span></span>
 <span><span class="co">#&gt; [4] "mean: 1.06; sd: 1.01" "mean: 4; sd: 2.04"    "mean: 3; sd: 1.77"   </span></span>
@@ -428,7 +428,7 @@ another for random sampling in individual based simulations.</p>
 <span><span class="co"># `cfg_weekly_gamma_rng`</span></span>
 <span><span class="va">delay_rng</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_weekly_gamma_rng.html">cfg_weekly_gamma_rng</a></span><span class="op">(</span>mean<span class="op">=</span><span class="va">gamma_means</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>t<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>t<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">7</span>,<span class="fl">100</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>sample <span class="op">=</span> <span class="fu"><a href="../reference/dot-ts_evaluate.html">.ts_evaluate</a></span><span class="op">(</span><span class="va">delay_rng</span>, <span class="va">.</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">t</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/summarise.html" class="external-link">summarise</a></span><span class="op">(</span></span>
@@ -478,7 +478,7 @@ rate.</p>
 <span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_options.html" class="external-link">with_options</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">'day_zero'</span><span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span>,<span class="op">{</span></span>
 <span></span>
 <span>  <span class="co"># define a growth rate time series</span></span>
-<span>  <span class="va">changes</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  <span class="va">changes</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
 <span>    t <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">15</span>,<span class="fl">40</span>,<span class="fl">60</span>,<span class="fl">80</span><span class="op">)</span>, </span>
 <span>    growth <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>,<span class="fl">0.01</span>,<span class="op">-</span><span class="fl">0.075</span>,<span class="fl">0</span>,<span class="fl">0.05</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
@@ -545,7 +545,7 @@ dynamic delays in test processing can result in slow down and catch up
 anomalies.</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">ip_mean_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span><span class="va">ip_mean_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">t</span> , <span class="op">~</span><span class="va">delay</span>,</span>
 <span>  <span class="fl">0</span>, <span class="fl">3</span>, <span class="co"># 3 day avg delays initially</span></span>
 <span>  <span class="fl">10</span>, <span class="fl">1</span>, <span class="co"># by day 10 delays decreased to 1</span></span>
@@ -555,7 +555,7 @@ anomalies.</p>
 <span>  <span class="fl">28</span>, <span class="fl">1</span> <span class="co"># returning to normal on day 28</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
 <span></span>
-<span><span class="va">p_detection_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span><span class="va">p_detection_fn</span> <span class="op">=</span> <span class="fu"><a href="../reference/cfg_linear_fn.html">cfg_linear_fn</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">t</span> , <span class="op">~</span><span class="va">p</span>,</span>
 <span>  <span class="fl">0</span>, <span class="fl">0.1</span>, <span class="co"># initial low probability of detection</span></span>
 <span>  <span class="fl">10</span>, <span class="fl">0.7</span>,</span>
@@ -612,13 +612,13 @@ hospitalisations and death time series.</p>
 <span>    fn_ip <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="../reference/make_gamma_ip.html">make_gamma_ip</a></span><span class="op">(</span><span class="fl">6</span><span class="op">)</span></span>
 <span>  <span class="op">)</span></span>
 <span></span>
-<span><span class="co">#profvis::profvis(</span></span>
+<span><span class="co"># profvis::profvis(</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
 <span>  <span class="va">seasonal_sim</span> <span class="op">=</span> <span class="va">seasonal_sim</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/sim_apply_delay.html">sim_apply_delay</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;  16.650   0.003  16.658</span></span>
-<span><span class="co">#)</span></span>
+<span><span class="co">#&gt;  17.701   0.001  17.704</span></span>
+<span><span class="co"># )</span></span>
 <span></span>
 <span><span class="va">p1</span><span class="op">=</span><span class="fu">plot_changes</span><span class="op">(</span></span>
 <span>        <span class="va">seasonal_sim</span>, </span>
@@ -707,9 +707,9 @@ weekend.</p>
 <span><span class="co">#&gt; $ generation_interval <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span>…</span></span>
 <span><span class="co">#&gt; $ infector            <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span>…</span></span>
 <span><span class="co">#&gt; $ generation          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">,</span>…</span></span>
-<span><span class="co">#&gt; $ sequencing          <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> FALSE<span style="color: #949494;">, </span>TRUE<span style="color: #949494;">, </span>FALSE<span style="color: #949494;">, </span>TRUE<span style="color: #949494;">, </span>TRUE<span style="color: #949494;">, </span>FALSE<span style="color: #949494;">, </span>FALSE<span style="color: #949494;">, </span>TRUE…</span></span>
-<span><span class="co">#&gt; $ sequencing_delay    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.403239<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>2.809682<span style="color: #949494;">, </span>3.116341<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>2.95…</span></span>
-<span><span class="co">#&gt; $ sequencing_time     <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.403239<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>2.809682<span style="color: #949494;">, </span>3.116341<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">,</span>…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ sequencing          <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span> FALSE<span style="color: #949494;">, </span>FALSE<span style="color: #949494;">, </span>FALSE<span style="color: #949494;">, </span>TRUE<span style="color: #949494;">, </span>FALSE<span style="color: #949494;">, </span>TRUE<span style="color: #949494;">, </span>TRUE<span style="color: #949494;">, </span>TRUE…</span></span>
+<span><span class="co">#&gt; $ sequencing_delay    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>2.741308<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.551143<span style="color: #949494;">, </span>2.328963<span style="color: #949494;">, </span>3.63…</span></span>
+<span><span class="co">#&gt; $ sequencing_time     <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>2.741308<span style="color: #949494;">, </span><span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>3.551143<span style="color: #949494;">, </span>2.328963<span style="color: #949494;">,</span>…</span></span></code></pre></div>
 <p>With this additional date we can summarise both time points into
 daily counts of infections, and in this case “sequencing” samples, which
 shows some periodicity as a result of the extended delay over the
@@ -749,7 +749,7 @@ original variant, but curve away more quickly as the higher exponential
 rate kicks in.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">variant_imports_df</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span><span class="va">variant_imports_df</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">time</span>, <span class="op">~</span><span class="va">variant</span>, <span class="op">~</span><span class="va">count</span>,</span>
 <span>  <span class="fl">0</span><span class="op">:</span><span class="fl">4</span>, <span class="st">"wild-type"</span>, <span class="fl">5</span>,</span>
 <span>  <span class="fl">20</span><span class="op">:</span><span class="fl">24</span>, <span class="st">"alpha"</span>, <span class="fl">5</span></span>
@@ -811,7 +811,7 @@ the overall direction of the epidemic on its own. It must have been
 associated with a more transmissible nature.</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="va">variant_imports_df</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span><span class="va">variant_imports_df</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">time</span>, <span class="op">~</span><span class="va">variant</span>, <span class="op">~</span><span class="va">count</span>,</span>
 <span>  <span class="op">-</span><span class="fl">20</span><span class="op">:</span><span class="op">-</span><span class="fl">1</span>, <span class="st">"alpha"</span>, <span class="fl">300</span>,</span>
 <span>  <span class="fl">15</span><span class="op">:</span><span class="fl">19</span>, <span class="st">"delta"</span>, <span class="fl">5</span></span>
@@ -869,13 +869,14 @@ of the population have a high super-spreading potential.</p>
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">kappa</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">1.5</span>,<span class="fl">2</span>,<span class="fl">3</span>,<span class="fl">4</span><span class="op">)</span></span>
+<span><span class="va">ip</span> <span class="op">=</span> <span class="fu"><a href="../reference/make_gamma_ip.html">make_gamma_ip</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">comparison</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">kappa</span>, <span class="kw">function</span><span class="op">(</span><span class="va">k</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  </span>
 <span>  <span class="fu"><a href="../reference/sim_branching_process.html">sim_branching_process</a></span><span class="op">(</span></span>
 <span>    max_time <span class="op">=</span> <span class="fl">80</span>,</span>
 <span>    fn_Rt <span class="op">=</span> <span class="op">~</span> <span class="fl">2</span>, <span class="co"># Both variants have the same fixed R_t</span></span>
-<span>    fn_ip <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="../reference/make_gamma_ip.html">make_gamma_ip</a></span><span class="op">(</span><span class="fl">8</span><span class="op">)</span>,</span>
+<span>    fn_ip <span class="op">=</span> <span class="op">~</span> <span class="va">ip</span>,</span>
 <span>    fn_import <span class="op">=</span> <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html" class="external-link">ifelse</a></span><span class="op">(</span><span class="va">.x</span><span class="op">&lt;</span><span class="fl">10</span>,<span class="fl">4</span>,<span class="fl">0</span><span class="op">)</span>,</span>
 <span>    fn_kappa <span class="op">=</span> <span class="op">~</span> <span class="va">k</span>,</span>
 <span>    seed<span class="op">=</span><span class="fl">101</span></span>
@@ -900,7 +901,7 @@ also need to define the initial metadata for imported cases.</p>
 <div class="sourceCode" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># This simulation is seeded in the younger age groups:</span></span>
-<span><span class="va">strat_imports_df</span> <span class="op">=</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
+<span><span class="va">strat_imports_df</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tribble.html" class="external-link">tribble</a></span><span class="op">(</span></span>
 <span>  <span class="op">~</span><span class="va">time</span>, <span class="op">~</span><span class="va">age_cat</span>, <span class="op">~</span><span class="va">count</span>,</span>
 <span>  <span class="fl">0</span><span class="op">:</span><span class="fl">4</span>, <span class="st">"child"</span>, <span class="fl">5</span>,</span>
 <span>  <span class="fl">0</span><span class="op">:</span><span class="fl">4</span>, <span class="st">"adolescent"</span>, <span class="fl">5</span></span>
@@ -959,7 +960,7 @@ also need to define the initial metadata for imported cases.</p>
 <span><span class="co">#' </span></span>
 <span><span class="co">#' # Delay distribution example:</span></span>
 <span><span class="co">#' tmp3 = sim_branching_process(</span></span>
-<span><span class="co">#'   changes = tibble::tibble(t = c(0,20,40,60,80,110), R_t = c(1.8,1.5,0.9,1.5,0.8,1.2)),</span></span>
+<span><span class="co">#'   changes = dplyr::tibble(t = c(0,20,40,60,80,110), R_t = c(1.8,1.5,0.9,1.5,0.8,1.2)),</span></span>
 <span><span class="co">#'   kappa = 1,</span></span>
 <span><span class="co">#'   max_time = 120,</span></span>
 <span><span class="co">#'   seed = 100,</span></span>
@@ -985,7 +986,7 @@ also need to define the initial metadata for imported cases.</p>
 <span><span class="co">#' }</span></span>
 <span><span class="co">#'</span></span>
 <span><span class="co">#' #' tmp2 = sim_branching_process(</span></span>
-<span><span class="co">#'   changes = tibble::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),</span></span>
+<span><span class="co">#'   changes = dplyr::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),</span></span>
 <span><span class="co">#'   kappa = 1,</span></span>
 <span><span class="co">#'   max_time = 120,</span></span>
 <span><span class="co">#'   seed = 100</span></span>

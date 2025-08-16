@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,8 +47,8 @@
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
     <li><a class="dropdown-item" href="../articles/time-periods.html">Data wrangling and working with `ggoutbreak`</a></li>
-    <li><a class="dropdown-item" href="../articles/time-units.html">Estimating the reproduction number from weekly data</a></li>
     <li><a class="dropdown-item" href="../articles/variant-proportions.html">Multinomial proportions models for genomic variants</a></li>
+    <li><a class="dropdown-item" href="../articles/weekly-incidence.html">Estimating the reproduction number from weekly data</a></li>
   </ul>
 </li>
       </ul>
@@ -154,15 +154,19 @@ this case the epidemic state in the 10 weeks leading up to Christmas in
 <p><img src="covid-timeseries_files/figure-html/unnamed-chunk-5-1.png" width="576"></p>
 </div>
 <div class="section level2">
-<h2 id="reproduction-number-estimation-from-growth-rates">Reproduction number estimation from growth rates<a class="anchor" aria-label="anchor" href="#reproduction-number-estimation-from-growth-rates"></a>
+<h2 id="reproduction-number-estimation">Reproduction number estimation<a class="anchor" aria-label="anchor" href="#reproduction-number-estimation"></a>
 </h2>
 <p>The growth rate has a unit or “per day” in this example. From it we
-can derive the reproduction number. Using the methods of Wallinga and
+can derive the reproduction number, using the methods of Wallinga and
 Lipsitch and an estimate of the infectivity profile of COVID-19. This
 describes the probability that an infectee is infected x days after the
 infector, and includes a temporal dimension rendering the reproduction
 number a dimensionless quantity reflecting the average number of
 infectees resulting from each infector.</p>
+<p>We also have methods to infer the reproduction unmber from modelled
+incidence estimates where logarithmic link functions are used. This is
+described in the vignette:
+<code><a href="../articles/rt-from-incidence.html">vignette("rt-from-incidence", package="ggoutbreak")</a></code></p>
 <p><code>ggoutbreak</code> has an estimate of the infectivity profile
 based on a meta-analysis of serial interval estimates of COVID-19. The
 infectivity profile is a bootstrapped set of discrete probability
@@ -171,26 +175,17 @@ distributions. It is truncated at 14 days.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/plot_ip.html">plot_ip</a></span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="../reference/covid_ip.html">covid_ip</a></span>, alpha<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="covid-timeseries_files/figure-html/unnamed-chunk-6-1.png" width="576"></p>
-<p>For each growth rate estimate this methods uses 1000 bootstraps to
-propagate uncertainty and is hence somewhat slow. Here we use
-<code>memoise</code> to cache the result. As with before effective
+<p>As with before effective
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
 estimates are compared to consensus values from the SPI-M-O group
 (red):</p>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
-<span><span class="co"># .cache = memoise::cache_filesystem(rappdirs::user_cache_dir("ggoutbreak"))</span></span>
-<span><span class="co"># </span></span>
-<span><span class="co"># cached_rt_from_growth_rate = memoise::memoise(</span></span>
-<span><span class="co">#   ggoutbreak::rt_from_growth_rate,</span></span>
-<span><span class="co">#   cache = .cache</span></span>
-<span><span class="co"># )</span></span>
-<span></span>
-<span><span class="va">rt_fit</span> <span class="op">=</span> <span class="va">fit</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/rt_from_growth_rate.html">rt_from_growth_rate</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">covid_ip</span><span class="op">)</span></span>
+<span><span class="va">rt_fit</span> <span class="op">=</span> <span class="va">fit</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">covid_ip</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">rt_fit</span>, events <span class="op">=</span> <span class="va">england_events</span>, colour<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>,<span class="st">"2022-01-01"</span><span class="op">)</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>,<span class="fl">1.6</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">england_consensus_rt</span>,<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">date</span><span class="op">-</span><span class="fl">21</span>,ymin<span class="op">=</span><span class="va">low</span>,ymax<span class="op">=</span><span class="va">high</span><span class="op">)</span>,colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">england_consensus_rt</span>,<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">date</span><span class="op">-</span><span class="fl">14</span>,ymin<span class="op">=</span><span class="va">low</span>,ymax<span class="op">=</span><span class="va">high</span><span class="op">)</span>,colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
 <p><img src="covid-timeseries_files/figure-html/unnamed-chunk-7-1.png" width="576"></p>
 <p><code>EpiEstim</code>
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
@@ -298,6 +293,59 @@ the NHS app notifications. (N.B. data from <a href="https://www.gov.uk/governmen
 <span></span>
 <span><span class="va">p1</span><span class="op">+</span><span class="va">p2</span><span class="op">+</span><span class="va">p3</span><span class="op">+</span><span class="fu">patchwork</span><span class="fu">::</span><span class="fu"><a href="https://patchwork.data-imaginist.com/reference/plot_layout.html" class="external-link">plot_layout</a></span><span class="op">(</span>ncol<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <p><img src="covid-timeseries_files/figure-html/unnamed-chunk-13-1.png" width="576"></p>
+<p>The weekly alerts data can be also modelled as a poisson process
+after which it can be converted to a daily timeseries and aligned to the
+incidence and growth rate data. With a fully aligned and modelled data
+set we can test for granger causality:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">alerts</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="../reference/england_nhs_app.html">england_nhs_app</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename</a></span><span class="op">(</span>count <span class="op">=</span> <span class="va">alerts</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/rescale_model.html">rescale_model</a></span><span class="op">(</span><span class="st">"1 day"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>time <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">time</span>, <span class="va">fit</span><span class="op">$</span><span class="va">time</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"growth"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/rename.html" class="external-link">rename_with</a></span><span class="op">(</span>.cols <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">starts_with</a></span><span class="op">(</span><span class="st">"incidence"</span><span class="op">)</span>, .fn <span class="op">=</span> <span class="op">~</span> <span class="fu">stringr</span><span class="fu">::</span><span class="fu"><a href="https://stringr.tidyverse.org/reference/str_replace.html" class="external-link">str_replace</a></span><span class="op">(</span><span class="va">.x</span>,<span class="st">"incidence"</span>,<span class="st">"alert"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">inner_join</a></span><span class="op">(</span><span class="va">fit</span>, by<span class="op">=</span><span class="st">"time"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/grangertest.html" class="external-link">grangertest</a></span><span class="op">(</span><span class="va">alert.0.5</span> <span class="op">~</span> <span class="va">growth.0.5</span>, order <span class="op">=</span> <span class="fl">1</span>, data<span class="op">=</span><span class="va">alerts</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Granger causality test</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model 1: alert.0.5 ~ Lags(alert.0.5, 1:1) + Lags(growth.0.5, 1:1)</span></span>
+<span><span class="co">#&gt; Model 2: alert.0.5 ~ Lags(alert.0.5, 1:1)</span></span>
+<span><span class="co">#&gt;   Res.Df Df      F    Pr(&gt;F)    </span></span>
+<span><span class="co">#&gt; 1    947                        </span></span>
+<span><span class="co">#&gt; 2    948 -1 281.93 &lt; 2.2e-16 ***</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/grangertest.html" class="external-link">grangertest</a></span><span class="op">(</span><span class="va">growth.0.5</span> <span class="op">~</span> <span class="va">alert.0.5</span>, order <span class="op">=</span> <span class="fl">1</span>, data<span class="op">=</span><span class="va">alerts</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Granger causality test</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model 1: growth.0.5 ~ Lags(growth.0.5, 1:1) + Lags(alert.0.5, 1:1)</span></span>
+<span><span class="co">#&gt; Model 2: growth.0.5 ~ Lags(growth.0.5, 1:1)</span></span>
+<span><span class="co">#&gt;   Res.Df Df      F  Pr(&gt;F)  </span></span>
+<span><span class="co">#&gt; 1    947                    </span></span>
+<span><span class="co">#&gt; 2    948 -1 4.1647 0.04155 *</span></span>
+<span><span class="co">#&gt; ---</span></span>
+<span><span class="co">#&gt; Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</span></span>
+<span></span>
+<span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/grangertest.html" class="external-link">grangertest</a></span><span class="op">(</span><span class="va">incidence.0.5</span> <span class="op">~</span> <span class="va">alert.0.5</span>, order <span class="op">=</span> <span class="fl">1</span>, data<span class="op">=</span><span class="va">alerts</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Granger causality test</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model 1: incidence.0.5 ~ Lags(incidence.0.5, 1:1) + Lags(alert.0.5, 1:1)</span></span>
+<span><span class="co">#&gt; Model 2: incidence.0.5 ~ Lags(incidence.0.5, 1:1)</span></span>
+<span><span class="co">#&gt;   Res.Df Df      F Pr(&gt;F)</span></span>
+<span><span class="co">#&gt; 1    947                 </span></span>
+<span><span class="co">#&gt; 2    948 -1 1.8558 0.1734</span></span>
+<span><span class="fu">lmtest</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/lmtest/man/grangertest.html" class="external-link">grangertest</a></span><span class="op">(</span><span class="va">alert.0.5</span> <span class="op">~</span> <span class="va">incidence.0.5</span>, order <span class="op">=</span> <span class="fl">1</span>, data<span class="op">=</span><span class="va">alerts</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Granger causality test</span></span>
+<span><span class="co">#&gt; </span></span>
+<span><span class="co">#&gt; Model 1: alert.0.5 ~ Lags(alert.0.5, 1:1) + Lags(incidence.0.5, 1:1)</span></span>
+<span><span class="co">#&gt; Model 2: alert.0.5 ~ Lags(alert.0.5, 1:1)</span></span>
+<span><span class="co">#&gt;   Res.Df Df      F Pr(&gt;F)</span></span>
+<span><span class="co">#&gt; 1    947                 </span></span>
+<span><span class="co">#&gt; 2    948 -1 1.2816 0.2579</span></span></code></pre></div>
+<p>The conclusion of this test would be that growth is more predictive
+of alerts rather than vice versa.</p>
 </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>
     </nav></aside>

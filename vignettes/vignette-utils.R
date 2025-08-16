@@ -49,7 +49,8 @@ ggplot2::theme_set(
 
 knitr::opts_chunk$set(
   fig.width = 6,
-  fig.height = 4
+  fig.height = 4,
+  dev = "ragg_png"
 )
 
 # source(here::here("R/standalone-test-utils.R"))

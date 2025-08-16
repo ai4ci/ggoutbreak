@@ -93,6 +93,7 @@ predict_derivative = function(model, newdata, dimension = "time") {
 #'   - acf_fit: fitted ACF values
 #'   - residuals: Pearson residuals used
 #'   - times: time indices
+#' @export
 #'
 #' @examples
 #' T <- 50
@@ -104,7 +105,7 @@ predict_derivative = function(model, newdata, dimension = "time") {
 #' result <- vcov_from_residuals(data, mu, sigma, max_lag = 8)
 #' dim(result$vcov_matrix)  # Should be T x T
 #'
-vcov_from_residuals <- function(
+vcov_from_residuals = function(
   data,
   mu,
   sigma,
@@ -148,7 +149,7 @@ vcov_from_residuals <- function(
     lag.max = max_lag,
     type = "correlation",
     plot = FALSE,
-    na.action = na.pass
+    na.action = stats::na.pass
   )
   lags <- acf_fit$lag
   acf_obs <- acf_fit$acf

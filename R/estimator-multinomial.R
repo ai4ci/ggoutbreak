@@ -42,15 +42,15 @@ multinomial_nnet_model = function(d = i_multinomial_input, ..., window = 14, fre
 
     response = tmp2 %>% dplyr::select(-dplyr::any_of(c("time"))) %>% as.matrix()
     predictor = tmp2 %>% dplyr::pull(time)
-    data = tibble::tibble(prob=response,time=predictor)
+    data = dplyr::tibble(prob=response,time=predictor)
 
     output_times = date_seq.time_period(d$time, period = frequency)
     df = .df_from_window(window, timeseries = d, classes = ncol(response))
     model = nnet::multinom(prob ~ splines::ns(time, df = df), Hess = TRUE,data = data)
 
 
-    if (!predict) return(tibble::tibble(proportion = list(model)))
-    new_data = tibble::tibble(time = output_times)
+    if (!predict) return(dplyr::tibble(proportion = list(model)))
+    new_data = dplyr::tibble(time = output_times)
 
     #TODO: get the confidence intervals from the spline.
     # This will need to be done with resampling and a spaghetti plot.

@@ -11,8 +11,8 @@ lineage_keys = jsonlite::read_json(lineages)
 recombinants = lineage_keys %>% magrittr::extract(lapply(.,length)>1)
 lineage_keys = lineage_keys %>% magrittr::extract(lapply(.,length)==1)
 
-lineage_key_df = tibble::tibble(prefix = names(lineage_keys), expanded = unlist(unname(lineage_keys)))
-recombinant_key_df = tibble::tibble(prefix = names(recombinants), expanded = names(recombinants))
+lineage_key_df = dplyr::tibble(prefix = names(lineage_keys), expanded = unlist(unname(lineage_keys)))
+recombinant_key_df = dplyr::tibble(prefix = names(recombinants), expanded = names(recombinants))
 
 lineage_key_df = dplyr::bind_rows(lineage_key_df, recombinant_key_df)
 

@@ -5,7 +5,7 @@
 \title{Generate an outbreak case count series defined by Reproduction number using a poisson model.}
 \usage{
 sim_poisson_Rt_model(
-  changes = tibble::tibble(t = c(0, 40), rt = c(2.5, 0.8)),
+  changes = dplyr::tibble(t = c(0, 40), rt = c(2.5, 0.8)),
   kappa = 1,
   max_time = 80,
   seed = Sys.time(),

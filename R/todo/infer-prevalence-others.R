@@ -116,7 +116,7 @@
 #'
 #'       tmp = withr::with_seed(seed, {
 #'         # dplyr::bind_rows(
-#'         #   tibble::tibble(
+#'         #   dplyr::tibble(
 #'         #     time = min(df$time) - window:1,
 #'         #     incidence.fit = pad$mu,
 #'         #     incidence.se.fit = pad$sigma,

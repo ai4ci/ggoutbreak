@@ -267,8 +267,10 @@ score_estimate = function(
   seed = 100
   # cores = NULL
 ) {
+  .message_context()
+
   if (is.null(lags)) {
-    lags = tibble::tibble(
+    lags = dplyr::tibble(
       estimate = c(
         "incidence",
         "rt",

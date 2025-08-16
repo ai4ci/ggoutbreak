@@ -5,7 +5,7 @@
 \title{Generate an outbreak case count series defined by growth rates using a poisson model.}
 \usage{
 sim_poisson_model(
-  changes = tibble::tibble(t = c(0, 20, 40, 60, 80), growth = c(0.1, 0, -0.1, 0, 0.1)),
+  changes = dplyr::tibble(t = c(0, 20, 40, 60, 80), growth = c(0.1, 0, -0.1, 0, 0.1)),
   kappa = 1,
   max_time = 104,
   seed = Sys.time(),

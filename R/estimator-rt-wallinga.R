@@ -67,11 +67,11 @@ rt_from_growth_rate = function(
           # rather than bootstrap samples we sample quantiles of growth rate
           # to ensure a representative distribution
           # qnts = seq(0,1,length.out = boots_per_ip+3)[2:(boots_per_ip+2)]
-          # r_samples = tibble::tibble(r = stats::qnorm(p=qnts,mean_r,sd_r)) %>%
+          # r_samples = dplyr::tibble(r = stats::qnorm(p=qnts,mean_r,sd_r)) %>%
           #   dplyr::mutate(r_i = dplyr::row_number())
 
           r_samples = withr::with_seed(seed, {
-            tibble::tibble(
+            dplyr::tibble(
               r = stats::rnorm(boots, mean_r, sd_r),
               boot = rep(unique(ip$boot), boots_per_ip)
             ) %>%

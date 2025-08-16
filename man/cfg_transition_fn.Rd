@@ -24,7 +24,7 @@ for example (assuming a categorical age).
 \examples{
 age = rep(c("child","adult","elderly"),100)
 
-fn = cfg_transition_fn(tibble::tribble(
+fn = cfg_transition_fn(dplyr::tribble(
   ~input, ~output, ~probability,
   "child", "child", 0.5,
   "child", "adult", 0.5,

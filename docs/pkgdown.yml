@@ -11,9 +11,9 @@ articles:
   sampling-serial-interval: sampling-serial-interval.html
   simulation-test-models: simulation-test-models.html
   time-periods: time-periods.html
-  time-units: time-units.html
   variant-proportions: variant-proportions.html
-last_built: 2025-07-31T15:40Z
+  weekly-incidence: weekly-incidence.html
+last_built: 2025-08-16T22:50Z
 urls:
   reference: https://ai4ci.github.io/ggoutbreak/reference
   article: https://ai4ci.github.io/ggoutbreak/articles

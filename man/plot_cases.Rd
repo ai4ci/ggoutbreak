@@ -148,7 +148,7 @@ Plot a raw case counts as a histogram
 \examples{
 
 # 50 random times:
-tmp = tibble::tibble(
+tmp = dplyr::tibble(
   time = as.time_period( sample.int(10,50,replace=TRUE) ,"1 day"),
   class = rep(c("one","two","three"), length.out=50)
 )

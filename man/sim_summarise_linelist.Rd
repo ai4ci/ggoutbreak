@@ -57,7 +57,7 @@ also calculated.
 \examples{
 
 sim = sim_branching_process(
-  changes = tibble::tibble(t = c(0,40), R = c(1.7,0.8)),
+  changes = dplyr::tibble(t = c(0,40), R = c(1.7,0.8)),
   max_time = 120,
   seed = 100,
   fn_imports = ~ ifelse(.x==0,100,0)

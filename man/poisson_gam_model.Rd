@@ -140,9 +140,8 @@ if (interactive()) {
 # This data is all the day by day observations of the whole timeseries from
 # the beginning of the outbreak.
 data2 = test_delayed_observation
-model = gam_delayed_reporting(7)
+model = gam_delayed_reporting(window = 14)
 tmp3 = data2 \%>\% ggoutbreak::poisson_gam_model(
-  window=7,
   ip=test_ip,
   model_fn = model$model_fn,
   predict = model$predict)
@@ -154,7 +153,7 @@ if (interactive()) {
       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
       )
   tmp3 \%>\% plot_rt(events = attr(data2,"events"))+
-  sim_geom_function(data2,colour="red")
+    sim_geom_function(data2,colour="red")
 }
 }
 \concept{models}

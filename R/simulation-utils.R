@@ -326,7 +326,7 @@ cfg_ip_sampler_rng = function(ip = i_empirical_ip) {
 #' @examples
 #' age = rep(c("child","adult","elderly"),100)
 #'
-#' fn = cfg_transition_fn(tibble::tribble(
+#' fn = cfg_transition_fn(dplyr::tribble(
 #'   ~input, ~output, ~probability,
 #'   "child", "child", 0.5,
 #'   "child", "adult", 0.5,
@@ -379,11 +379,11 @@ sim_test_data = function(
 ) {
   ip = summarise_ip(ip)
 
-  changes = tibble::tibble(
+  changes = dplyr::tibble(
     t = seq(0, duration - period, period),
     growth = rep(c(0.05, -0.05), length.out = duration %/% period)
   )
-  test = tibble::tibble(
+  test = dplyr::tibble(
     time = as.time_period(0:duration, "1 day")
   ) %>%
     dplyr::mutate(
@@ -438,7 +438,7 @@ sim_test_data = function(
 #' }
 #'
 sim_poisson_model = function(
-  changes = tibble::tibble(
+  changes = dplyr::tibble(
     t = c(0, 20, 40, 60, 80),
     growth = c(0.1, 0, -0.1, 0, 0.1)
   ),
@@ -461,7 +461,7 @@ sim_poisson_model = function(
       rate[i] = rate[i - 1] * exp(r[i - 1]) + imports[i]
     }
 
-    tmp = tibble::tibble(
+    tmp = dplyr::tibble(
       time = 0:max_time,
       growth = r,
       imports = imports,
@@ -518,7 +518,7 @@ sim_poisson_model = function(
 #' }
 #'
 sim_poisson_Rt_model = function(
-  changes = tibble::tibble(
+  changes = dplyr::tibble(
     t = c(0, 40),
     rt = c(2.5, 0.8)
   ),
@@ -551,7 +551,7 @@ sim_poisson_Rt_model = function(
       rate[i] = sum(ip$probability[-1] * tmp) * R[i] + imports[i]
     }
 
-    tmp = tibble::tibble(
+    tmp = dplyr::tibble(
       time = 0:max_time,
       rt = R,
       imports = imports,
@@ -596,7 +596,7 @@ sim_poisson_Rt_model = function(
 #'   )
 #' }
 sim_multinomial = function(
-  changes = tibble::tibble(
+  changes = dplyr::tibble(
     t = c(0, 20, 40, 60, 80),
     variant1 = c(0.1, 0, -0.1, 0, 0.1),
     variant2 = c(0.15, 0.05, -0.05, -0.01, 0.05),
@@ -612,7 +612,7 @@ sim_multinomial = function(
       "Must be one initial value for each column (class) specified in `changes`"
     )
   }
-  out = tibble::tibble()
+  out = dplyr::tibble()
   i = 1
   for (col in cols) {
     out = dplyr::bind_rows(
@@ -624,7 +624,7 @@ sim_multinomial = function(
         ...
       ) %>%
         dplyr::mutate(class = col, time = as.numeric(time)) %>%
-        tibble::as_tibble()
+        dplyr::as_tibble()
     )
     i = i + 1
   }
@@ -666,7 +666,7 @@ sim_multinomial = function(
 # this would need a serial interval per variant.
 
 # sim_deterministic_sir = function(
-#     changes = tibble::tibble(
+#     changes = dplyr::tibble(
 #       t = c(0,40),
 #       R_t = c(2.5,0.8)
 #     ),
@@ -742,7 +742,7 @@ sim_multinomial = function(
 #'
 #' @examples
 #' tmp = sim_branching_process(
-#'   changes = tibble::tibble(t = c(0,40), R = c(1.5,0.8)),
+#'   changes = dplyr::tibble(t = c(0,40), R = c(1.5,0.8)),
 #'   max_time = 120,
 #'   seed = 100,
 #'   fn_imports = ~ ifelse(.x<10,1,0)
@@ -754,13 +754,13 @@ sim_multinomial = function(
 #'
 #' # imports can also be specified as a dataframe, which allows additional
 #' # metadata in the line list. An example of which is as follows:
-#' imports_df = tibble::tribble(
+#' imports_df = dplyr::tribble(
 #'   ~time, ~variant, ~count,
 #'   0:4, "wild-type", 100,
 #'   10:14, "alpha", 5,
 #' )
 sim_branching_process = function(
-  changes = tibble::tibble(
+  changes = dplyr::tibble(
     t = c(0, 40),
     rt = c(2.5, 0.8)
   ),
@@ -981,7 +981,7 @@ sim_branching_process = function(
 #' }
 #'
 sim_seir_model <- function(
-  changes = tibble::tibble(
+  changes = dplyr::tibble(
     t = c(0, 30),
     dBeta = c(1, 0.5)
   ),
@@ -1227,7 +1227,7 @@ sim_apply_delay.count_data = function(
 #' @concept test
 #'
 #' @examples
-#' tibble::tibble(
+#' dplyr::tibble(
 #'   statistic = "incidence",
 #'   time=as.time_period(1:10,"1 day"),
 #'   count=rep(100,10)
@@ -1298,7 +1298,7 @@ sim_apply_ascertainment = function(
 #' delay_fn = ~ ifelse(.x %% 7 %in% c(6,7), list(weekend_delay), list(weekday_delay))
 #' p_fn = ~ ifelse(.x < 20, 0.5, 0.75)
 #'
-#' data = tibble::tibble(
+#' data = dplyr::tibble(
 #'     time=1:40,
 #'     count = rep(100,40),
 #'     rate = rep(100,40),
@@ -1427,7 +1427,7 @@ sim_convolution = function(
 #'
 #' delay_fn = ~ ifelse(.x %% 7 %in% c(6,7), list(weekend_delay), list(weekday_delay))
 #'
-#' data = tibble::tibble(time=1:40, count = rep(100,40), statistic="infections") %>%
+#' data = dplyr::tibble(time=1:40, count = rep(100,40), statistic="infections") %>%
 #'   dplyr::group_by(statistic) %>%
 #'   sim_delayed_observation(delay_fn,output="delayed")
 #'
@@ -1520,7 +1520,7 @@ sim_delayed_observation = function(
 #' @examples
 #'
 #' tmp = sim_branching_process(
-#'   changes = tibble::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
+#'   changes = dplyr::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
 #'   max_time = 120,
 #'   seed = 100
 #' )
@@ -1592,7 +1592,7 @@ sim_delay = function(
 #'
 #' @examples
 #' tmp = sim_branching_process(
-#'   changes = tibble::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
+#'   changes = dplyr::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
 #'   max_time = 120,
 #'   seed = 100
 #' )
@@ -1654,7 +1654,7 @@ sim_apply_delay = function(
 #'
 #' @examples
 #' tmp = sim_branching_process(
-#'   changes = tibble::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
+#'   changes = dplyr::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.9,1.5,0.8,1.2)),
 #'   max_time = 120,
 #'   seed = 100
 #' )
@@ -1749,7 +1749,7 @@ sim_apply_delay.linelist = function(
 #' @examples
 #'
 #' sim = sim_branching_process(
-#'   changes = tibble::tibble(t = c(0,40), R = c(1.7,0.8)),
+#'   changes = dplyr::tibble(t = c(0,40), R = c(1.7,0.8)),
 #'   max_time = 120,
 #'   seed = 100,
 #'   fn_imports = ~ ifelse(.x==0,100,0)
@@ -1946,7 +1946,7 @@ sim_summarise_linelist = function(
 #'
 #' if(interactive()) {
 #'   plot_ip(covid_ip, alpha=0.01) +
-#'     ggplot2::geom_density(data = tibble::tibble(x=tmp), mapping = ggplot2::aes(x=x), bounds = c(0.5,13.5))
+#'     ggplot2::geom_density(data = dplyr::tibble(x=tmp), mapping = ggplot2::aes(x=x), bounds = c(0.5,13.5))
 #' }
 .ip_quantile_function = function(ip = i_empirical_ip) {
   # Add in defaults for a0 and a1 if they are not defined:
@@ -2033,7 +2033,7 @@ sim_summarise_linelist = function(
 #' @keywords internal
 #'
 #' @examples
-#' test = tibble::tibble(
+#' test = dplyr::tibble(
 #'   time = 1:10,
 #'   class = rep(c("one","two"),5)
 #' )
@@ -2196,7 +2196,7 @@ sim_summarise_linelist = function(
     fn_imports = .fn_check(fn_imports)
     imports = fn_imports(0:max_time)
     # Set up the imported infections
-    tmp = tibble::tibble(
+    tmp = dplyr::tibble(
       time = 0:max_time,
       count = imports,
     ) %>%

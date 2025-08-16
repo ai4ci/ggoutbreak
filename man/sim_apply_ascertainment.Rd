@@ -33,7 +33,7 @@ include ascertainment bias.
 Apply a ascertainment bias to the observed case counts.
 }
 \examples{
-tibble::tibble(
+dplyr::tibble(
   statistic = "incidence",
   time=as.time_period(1:10,"1 day"),
   count=rep(100,10)

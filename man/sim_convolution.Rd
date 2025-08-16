@@ -74,7 +74,7 @@ weekend_delay = make_gamma_ip(median_of_mean = 6, median_of_sd = 2)
 delay_fn = ~ ifelse(.x \%\% 7 \%in\% c(6,7), list(weekend_delay), list(weekday_delay))
 p_fn = ~ ifelse(.x < 20, 0.5, 0.75)
 
-data = tibble::tibble(
+data = dplyr::tibble(
     time=1:40,
     count = rep(100,40),
     rate = rep(100,40),

@@ -115,10 +115,10 @@ infer_population = function(
 # tmp = .loessfn(x=seq(0,5,0.01), y=seq(0,5,0.01)^2)
 # tmp(xout=1:4)
 .loessfn = function(x,y,window=14) {
-  tofit = tibble::tibble(x=x,y=y)
+  tofit = dplyr::tibble(x=x,y=y)
   tmp = stats::loess(y~x, tofit, span = .nn_from_window(window,tofit))
   return(function(xout) {
-    yout = stats::predict(tmp, tibble::tibble(x=xout))
+    yout = stats::predict(tmp, dplyr::tibble(x=xout))
     return(unname(yout))
   })
 }

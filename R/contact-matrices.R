@@ -14,12 +14,13 @@
 #' )
 #' lookup = .matrix_to_long(m)
 .matrix_to_long = function(m) {
-  m = apply(m, MARGIN=2, function(x) x/sum(x))
-  tibble::tibble(
-    input = forcats::as_factor(as.vector(sapply(colnames(m),rep, dim(m)[1]))),
+  m = apply(m, MARGIN = 2, function(x) x / sum(x))
+  dplyr::tibble(
+    input = .as_factor(as.vector(sapply(colnames(m), rep, dim(m)[1]))),
     probability = as.vector(m),
-    output = forcats::as_factor(rep(rownames(m),dim(m)[2]))
-  ) %>% dplyr::filter(probability>0)
+    output = .as_factor(rep(rownames(m), dim(m)[2]))
+  ) %>%
+    dplyr::filter(probability > 0)
 }
 
 
@@ -36,38 +37,43 @@
 #' )
 #' .sinkhorn_knopp(m)
 .sinkhorn_knopp = function(m, tol = sqrt(.Machine$double.eps)) {
-  while ( any(abs(apply(m,MARGIN=1,sum)-1)>tol) || any(abs(apply(m,MARGIN=2,sum)-1)>tol) ) {
-    m = apply(m, MARGIN=1, function(x) x/sum(x))
-    m = apply(m, MARGIN=2, function(x) x/sum(x))
+  while (
+    any(abs(apply(m, MARGIN = 1, sum) - 1) > tol) ||
+      any(abs(apply(m, MARGIN = 2, sum) - 1) > tol)
+  ) {
+    m = apply(m, MARGIN = 1, function(x) x / sum(x))
+    m = apply(m, MARGIN = 2, function(x) x / sum(x))
   }
   return(m)
-
 }
 
 .sample_from_matrix = function(input, m) {
-  m = apply(m, MARGIN=2, function(x) x/sum(x))
-  cum_m = apply(m,MARGIN = 2,cumsum)
-  to_test = cum_m[,input]
+  m = apply(m, MARGIN = 2, function(x) x / sum(x))
+  cum_m = apply(m, MARGIN = 2, cumsum)
+  to_test = cum_m[, input]
   against = stats::runif(input)
-  which = apply(to_test <= against,MARGIN=2,sum)+1
+  which = apply(to_test <= against, MARGIN = 2, sum) + 1
   rownames(m)[which]
 }
 
-.sample_from_long = function(input,lookup) {
-  lookup = lookup %>% dplyr::group_by(input) %>% dplyr::mutate(
-    probability = probability/sum(probability),
-    cum=cumsum(probability))
-  tibble::tibble(
+.sample_from_long = function(input, lookup) {
+  lookup = lookup %>%
+    dplyr::group_by(input) %>%
+    dplyr::mutate(
+      probability = probability / sum(probability),
+      cum = cumsum(probability)
+    )
+  dplyr::tibble(
     id = seq_along(input),
     input = input,
     test = stats::runif(input)
   ) %>%
-    dplyr::left_join(lookup, by="input", relationship="many-to-many") %>%
+    dplyr::left_join(lookup, by = "input", relationship = "many-to-many") %>%
     dplyr::mutate(
-      cum = ifelse(is.na(cum),1,cum),
-      diff = test-cum
+      cum = ifelse(is.na(cum), 1, cum),
+      diff = test - cum
     ) %>%
-    dplyr::filter(diff<0) %>%
+    dplyr::filter(diff < 0) %>%
     dplyr::group_by(id) %>%
     dplyr::filter(diff == max(diff)) %>%
     dplyr::pull(output)

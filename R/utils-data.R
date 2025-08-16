@@ -46,7 +46,7 @@
 
 .null_result = function(new_time, ...) {
   dots = rlang::list2(...)
-  out = tibble::tibble(time = new_time)
+  out = dplyr::tibble(time = new_time)
   for (k in names(dots)) {
     v = dots[[k]]
     out = out %>%
@@ -146,26 +146,81 @@
   return(1 / (1 + exp(-x)))
 }
 
-
-.callid = function() {
-  lobstr::obj_addr(sys.frame(which = 1))
+# The goal of this is to get a different id for every invocation of the
+# calling function. In a loop in a function this should give the same value,
+# but in a new invocation of the same function it will give a different value
+# x = function() { c(.callid(),.callid(),.callid()) }
+# x() ; x(); x()
+.callid = function(env) {
+  rval = NULL
+  file = withr::local_connection(textConnection("rval", "w", local = TRUE))
+  withr::with_output_sink(file, try(print(env), silent = TRUE))
+  return(rval)
 }
 
+# .callid = function() {
+#   lobstr::obj_addr(sys.frame(which = 1))
+# }
+
+# x = function() {.message_context(); for(i in 1:10) .message_once("one time per call"); .message_once("another time")}
+# x(); x(); x()
+# y = function() {.message_context(); invisible(lapply(1:10, function(i) .message_once("one time per call")))}
+# y();y();y()
+# z = function() {invisible(lapply(1:10, function(i) .warn_once("one time only")))}
+# z(); z(); z()
 .message_once = function(...) {
   msg = paste0(...)
-  if (!.messaged(msg)) message(msg)
+  id = .get_context()
+  # rlang::inform(msg, .frequency = "once", .frequency_id = id)
+  if (!.messaged(msg, id)) {
+    if (id == "ggoutbreak-package") {
+      msg = paste0(msg, " \n(N.B. this message will only be displayed once.)")
+    }
+    message(msg)
+  }
 }
 
 .warn_once = function(...) {
   msg = paste0(...)
-  if (!.messaged(msg)) warning(msg, call. = FALSE)
+  id = .get_context()
+  # rlang::warn(msg, .frequency = "once", .frequency_id = id)
+  if (!.messaged(msg, id)) {
+    if (id == "ggoutbreak-package") {
+      msg = paste0(msg, " \n(N.B. this warning will only be displayed once.)")
+    }
+    warning(msg, call. = FALSE)
+  }
+}
+
+.message_context = function() {
+  env = rlang::caller_env()
+  if (!identical(env, rlang::global_env())) {
+    env[[".message_ctx"]] = .callid(env)
+  }
+}
+
+# x = function() {.message_context(); print(.message_ctx); .get_context()}
+# x()
+.get_context = function() {
+  # tmp = try(
+  #   get(".message_ctx", inherits = TRUE, envir = rlang::caller_env()),
+  #   silent = TRUE
+  # )
+  # if (inherits(tmp, "try-error")) {
+  #   return("ggoutbreak package")
+  # }
+  tmp = dynGet(
+    ".message_ctx",
+    inherits = TRUE,
+    ifnotfound = "ggoutbreak-package"
+  )
+  return(tmp)
 }
 
 cache_env <- new.env(parent = emptyenv())
 cache_env$map = list()
 
-.messaged = function(msg) {
-  id = .callid()
+.messaged = function(msg, id) {
   sent = cache_env$map[[id]]
   if (is.null(sent)) {
     cache_env$map[[id]] = msg
@@ -183,4 +238,13 @@ cache_env$map = list()
   sapply(seq_along(replacement), function(i) {
     sub(pattern[i], replacement[i], string[i], fixed = TRUE)
   })
+}
+
+# .as_factor(c("a",NA,"c","b","a"))
+.as_factor = function(s) {
+  if (is.factor(s)) {
+    return(s)
+  }
+  levels = unique(s[!is.na(s)])
+  return(factor(s, levels = levels))
 }

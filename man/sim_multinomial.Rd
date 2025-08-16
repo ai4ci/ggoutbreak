@@ -6,7 +6,7 @@
 poisson model}
 \usage{
 sim_multinomial(
-  changes = tibble::tibble(t = c(0, 20, 40, 60, 80), variant1 = c(0.1, 0, -0.1, 0, 0.1),
+  changes = dplyr::tibble(t = c(0, 20, 40, 60, 80), variant1 = c(0.1, 0, -0.1, 0, 0.1),
     variant2 = c(0.15, 0.05, -0.05, -0.01, 0.05), variant3 = c(0, 0.05, -0.05, +0.05,
     -0.05), ),
   initial = c(100, 100, 100),

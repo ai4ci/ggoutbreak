@@ -126,7 +126,7 @@ plot_counts.per_capita = function(
 #' @examples
 #' # example code
 #'
-#' tmp = tibble::tibble(
+#' tmp = dplyr::tibble(
 #'   time = as.time_period(1:10, "1 day"),
 #'   count = 101:110
 #' ) %>% dplyr::mutate(
@@ -181,7 +181,7 @@ plot_proportions_data = function(
 #' @examples
 #'
 #' # 50 random times:
-#' tmp = tibble::tibble(
+#' tmp = dplyr::tibble(
 #'   time = as.time_period( sample.int(10,50,replace=TRUE) ,"1 day"),
 #'   class = rep(c("one","two","three"), length.out=50)
 #' )

@@ -3,7 +3,7 @@
 #' infectee times, accounting for changes in the R_t over the
 #' future and the infectivity profile.
 #' @examples
-#' changes = tibble::tibble(
+#' changes = dplyr::tibble(
 #'   t = c(0,40),
 #'   R = c(2.5,0.8)
 #' )
@@ -65,7 +65,7 @@
 #' @noRd
 #'
 #' @examples
-#' changes = tibble::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.2,1.5,0.8,1.2))
+#' changes = dplyr::tibble(t = c(0,20,40,60,80,110), R = c(1.8,1.5,0.2,1.5,0.8,1.2))
 #' pdf = cfg_step_fn(changes)
 #' # 10,000 samples for each
 #' tmp = .rtrans(xmin=c(0,40,30), xmax=c(10,50,50), pdf=pdf, n=10000*3)

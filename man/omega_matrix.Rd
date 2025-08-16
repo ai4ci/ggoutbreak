@@ -18,6 +18,9 @@ Minimally grouped by: boot (and other groupings allowed).
 
 A default value is defined.
 }
+
+\item{epiestim_compat}{ensure the matrix works with \code{EpiEstim}'s
+\code{si_from_sample} method by making probability at time zero equal to zero.}
 }
 \value{
 a matrix with \code{0:max(tau)} rows and \code{1:max(boot)} columns.

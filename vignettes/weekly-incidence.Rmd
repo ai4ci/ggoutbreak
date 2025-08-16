@@ -46,7 +46,7 @@ import of 30 infectious cases in week 0.
 
 ```{r}
 
-changes = tibble::tribble(
+changes = dplyr::tribble(
   ~t,    ~r,
   0,      0,
   5,     0.2,

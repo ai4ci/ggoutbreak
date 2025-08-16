@@ -8,7 +8,7 @@ proportion_locfit_model(
   d = i_proportion_input,
   ...,
   window = 14,
-  deg = 2,
+  deg = 1,
   frequency = "1 day",
   predict = TRUE,
   .progress = interactive()

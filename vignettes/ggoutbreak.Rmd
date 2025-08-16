@@ -41,7 +41,7 @@ time being the best resources are the other vignettes including:
 -   `vignette("variant-proportions",package="ggoutbreak")`
 -   `vignette("weekly-incidence",package="ggoutbreak")`
 -   `vignette("rt-from-incidence",package="ggoutbreak")`
--   `vignette("managing-an-outbreak",package="ggoutbreak")`
+<!-- -   `vignette("managing-an-outbreak",package="ggoutbreak")` -->
 -   `vignette("simulation-test-models",package="ggoutbreak")`
 
 ## Installation

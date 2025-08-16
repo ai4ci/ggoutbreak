@@ -91,7 +91,7 @@ rt_from_renewal = function(
       )
 
       tmp = withr::with_seed(seed, {
-        tibble::tibble(
+        dplyr::tibble(
           time = pad$time,
           incidence.fit = pad$mu,
           incidence.se.fit = pad$sigma,

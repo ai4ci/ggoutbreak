@@ -18,7 +18,7 @@ a vector, the result of applying the function to df.
 N.B. only exported as used in one vignette for demo purposes
 }
 \examples{
-test = tibble::tibble(
+test = dplyr::tibble(
   time = 1:10,
   class = rep(c("one","two"),5)
 )

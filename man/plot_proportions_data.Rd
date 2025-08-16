@@ -140,7 +140,7 @@ Plot a raw case count proportion timeseries
 \examples{
 # example code
 
-tmp = tibble::tibble(
+tmp = dplyr::tibble(
   time = as.time_period(1:10, "1 day"),
   count = 101:110
 ) \%>\% dplyr::mutate(

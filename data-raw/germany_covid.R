@@ -16,7 +16,7 @@ covid_count_3 = covid_count_1 %>% dplyr::inner_join(covid_count_2)
 # work out population.
 germany_demographics = covid_count_3 %>%
   dplyr::filter(count > 100 & incidence > 0) %>%
-  dplyr::mutate(age_cat = forcats::fct_drop(age_cat)) %>%
+  dplyr::mutate(age_cat = droplevels(age_cat)) %>%
   # mutate(pop = count/incidence*100000, year = format(date, "%Y")) %>% group_by(age_cat,year) %>%
   dplyr::mutate(pop = count / incidence * 100000) %>%
   dplyr::group_by(class = age_cat) %>%

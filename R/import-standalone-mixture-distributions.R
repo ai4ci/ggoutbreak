@@ -279,12 +279,12 @@
 #' # a single mixture with vectorised input:
 #' .pmix("norm", seq(-5,5,1), param1=c(-1,0,1), param2=c(1,1,1))
 #' # a dataframe of mixture distributions
-#' tmp = tibble(
+#' tmp = dplyr::tibble(
 #'   x = 1:3,
 #'   param1 = list(c(1,2),c(3,4,5),c(6,7,8,9)),
 #'   param2 = list(1,2,3)
 #' )
-#' tmp %>% mutate(
+#' tmp %>% dplyr::mutate(
 #'   pX = .pmix(pnorm, x, param1, param2),
 #'   qX = .qmixnorm(pX, param1,param2)
 #' ) %>% glimpse()

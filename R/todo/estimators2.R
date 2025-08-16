@@ -202,7 +202,7 @@
 #     purrr::map(stringr::str_split,fixed("+"),n=Inf) %>%
 #     purrr::flatten() %>%
 #     purrr::map(stringr::str_trim)
-#   form_df = form_chr %>% tibble::enframe() %>% tidyr::unnest(c(value)) %>% dplyr::mutate(
+#   form_df = form_chr %>% dplyr::enframe() %>% tidyr::unnest(c(value)) %>% dplyr::mutate(
 #     mapping = value %>% stringr::str_extract("(.*)\\(.*\\)") %>% stringr::str_remove("\\(.*\\)"),
 #     mapped = value %>% stringr::str_remove("(.*)\\(") %>% stringr::str_remove("\\)") %>% stringr::str_remove_all("`"),
 #     value = ifelse(mapped == "", mapping, mapped)
@@ -288,7 +288,7 @@
 # # .vars_from_rhs = function(formula) {
 # #   if (is.null(formula)) return(NULL)
 # #   v = .specification_from_formula(formula)
-# #   sym = v %>% dplyr::filter(side=="rhs" & !is.na(mapping)) %>% dplyr::select(mapping,value) %>% tibble::deframe()
+# #   sym = v %>% dplyr::filter(side=="rhs" & !is.na(mapping)) %>% dplyr::select(mapping,value) %>% dplyr::deframe()
 # #   return(sym)
 # # }
 # #
@@ -320,8 +320,8 @@
 # #     dplyr::mutate(.name = ifelse(is.na(.name),"na",as.character(.name))) %>%
 # #     dplyr::group_by(.name) %>% dplyr::group_modify(function(d,g,...) {
 # #
-# #       tibble::tibble(.value = list(.rdeframe(d,!!!vars[-1])))
-# #   }) %>% tibble::deframe()
+# #       dplyr::tibble(.value = list(.rdeframe(d,!!!vars[-1])))
+# #   }) %>% dplyr::deframe()
 # # }
 # #
 # # .map
@@ -476,7 +476,7 @@
 #   if(is.null(count)) stop("count column must be present")
 #   y = x %>% dplyr::group_by(!!!grps,!!date,!!cls) %>% dplyr::group_modify(function(d,g,..) {
 #     join = unlist(dplyr::map2(d %>% dplyr::pull(.id), d %>% dplyr::pull(!!count), ~ rep(.x,.y)))
-#     return(d %>% dplyr::select(-count) %>% dplyr::inner_join(tibble::tibble(.id=join), by=".id") %>% dplyr::select(-.id))
+#     return(d %>% dplyr::select(-count) %>% dplyr::inner_join(dplyr::tibble(.id=join), by=".id") %>% dplyr::select(-.id))
 #   })
 #   y = y %>% dplyr::ungroup() %>% dplyr::mutate(.id=dplyr::row_number())
 #   if (jitter & interval > 1) {
@@ -516,7 +516,7 @@
 #
 # as.epi_ts.Date = function(x, count, class = NULL, ...) {
 #
-#   x = tibble::tibble(date = x, count = count, class = class)
+#   x = dplyr::tibble(date = x, count = count, class = class)
 #   formula = dplyr::count() ~ date()
 #   if(!is.null(class)) formula = .update(formula, class() + . ~ .)
 #   as.epidata.data.frame(x, formula, ...)
@@ -594,7 +594,7 @@
 #   # step 1 setup the complete combination of dates and classes (if present)
 #   if (multinom) {
 #     # ensure counts are complete for each of the outcome classes also as well as for each date.
-#     clsses = tibble::tibble(x) %>% dplyr::pull(!!cls) %>% unique() %>% sort()
+#     clsses = dplyr::tibble(x) %>% dplyr::pull(!!cls) %>% unique() %>% sort()
 #     join_cols = c(rlang::as_label(date),rlang::as_label(cls))
 #   } else {
 #     clsses = NULL
@@ -607,7 +607,7 @@
 #   lhs = .dates_and_classes(date,dates,cls,clsses)
 #   # step 3 left join crossing dataframe with data and fill missing counts with zero.
 #   # ensuring that the result is valid
-#   x = tibble::tibble(x) %>%
+#   x = dplyr::tibble(x) %>%
 #     dplyr::group_by(!!!grps) %>%
 #     dplyr::group_modify(function(d,g,...) {
 #       # do a groupwise join. the lhs is either all dates or all dates and class levels
@@ -635,7 +635,7 @@
 #   }
 #
 #   return(.make_epidata(
-#     tibble::as_tibble(x),
+#     dplyr::as_tibble(x),
 #     meta,
 #     out_class))
 # }
@@ -644,7 +644,7 @@
 #   if (!is.null(clsses)) {
 #     lhs = tidyr::crossing(!!date := dates, !!cls := clsses)
 #   } else {
-#     lhs = tibble::tibble(!!date := dates)
+#     lhs = dplyr::tibble(!!date := dates)
 #   }
 # }
 #
@@ -730,7 +730,7 @@
 #   new_cols = colnames(y)[!colnames(y) %in% old_cols]
 #   new_obs = new_cols %>% magrittr::extract(!stringr::str_starts(.,stringr::fixed(".")))
 #   # all new cols are added as new observations onto the lhs
-#   new_cols_df = tibble::tibble(
+#   new_cols_df = dplyr::tibble(
 #     side = "lhs",
 #     value = sapply(new_obs, as.symbol,USE.NAMES = FALSE),
 #     mapping = new_obs
@@ -808,7 +808,7 @@
 # # format a transformed normally distributed variable into quantiles
 # .format_result = function(df, fit, se.fit, t, estimate, modelName,link, error=NA_character_) {
 #   est = #purrr::map2(fit,se.fit,.f = function(fit,se.fit) {
-#     tibble::tibble(
+#     dplyr::tibble(
 #       !!(paste0(link,"(x)")) := fit,
 #       !!(paste0("SE.",link,"(x)")) := se.fit,
 #       Quantile.0.025 = .opt(t(stats::qnorm(0.025,fit,se.fit))),
@@ -830,7 +830,7 @@
 # }
 #
 # .empty_result = function(df, estimate) {
-#   df %>% dplyr::mutate(!!estimate := tibble::tibble())
+#   df %>% dplyr::mutate(!!estimate := dplyr::tibble())
 # }
 #
 # .inv = list(
@@ -910,7 +910,7 @@
 #   cumulative = is.ordered(d$class)
 #   model_name = sprintf("locfit:probability:%s:%s:%1.0f*%1.0f:%1.0f",if(cumulative) "cumulative" else "binomial",if(quick) "counts" else "linelist", window, interval,degree)
 #
-#   out = tibble::tibble()
+#   out = dplyr::tibble()
 #   # repeat once for each class level. This is a binomial comparison (x vs magrittr::not(x)) or cumulative (<=x) vs (>x)
 #   for (level in sort(unique(d$class))) {
 #
@@ -924,13 +924,13 @@
 #     if (is_ts) {
 #       # summarise the counts
 #       tmpdf_quick = tmpdf %>% dplyr::group_by(.time,class_bool) %>% dplyr::summarise(count = sum(count),.groups="drop")
-#       if(!quick) tmpdf_slow = tmpdf_quick %>% dplyr::group_by(.time,class_bool) %>% dplyr::group_modify(function(d,g,..) {return(tibble::tibble(count = rep(1,d$count)))})
+#       if(!quick) tmpdf_slow = tmpdf_quick %>% dplyr::group_by(.time,class_bool) %>% dplyr::group_modify(function(d,g,..) {return(dplyr::tibble(count = rep(1,d$count)))})
 #     } %>% {
 #       tmpdf_slow = tmpdf
 #       if(quick) tmpdf_quick = tmpdf %>% dplyr::group_by(.time,class_bool) %>% dplyr::summarise(count = dplyr::n(),.groups="drop") %>% tidyr::complete(.time = data_times, class_bool, fill=list(count=0) )
 #     }
 #
-#     result = tibble::tibble(.time=predict_times, class=level)
+#     result = dplyr::tibble(.time=predict_times, class=level)
 #
 #     if (nrow(tmpdf) == 0) {
 #       # empty estimate

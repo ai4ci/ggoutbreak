@@ -92,13 +92,10 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
 data = ggoutbreak::test_poisson_rt_smooth
 ip = ggoutbreak::test_ip
 
-# we will try and estimate the Rt at the first 100 time points:
-print(data$rt[k+10])
-
 # first we need a set of incidence estimates
 # we fit a poisson model to counts using a GAM:
 model = mgcv::gam(count ~ s(time), family = "poisson", data=data)
-newdata = tibble::tibble(time = 1:100)
+newdata = dplyr::tibble(time = 1:100)
 
 pred = stats::predict(model, newdata, se.fit = TRUE)
 

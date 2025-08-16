@@ -80,6 +80,7 @@ proportion_locfit_model = function(
       .envir = env
     )
   }
+  .message_context()
 
   modelled = interfacer::igroup_process(
     d,
@@ -145,7 +146,7 @@ proportion_locfit_model = function(
       )
 
       if (!predict) {
-        return(tibble::tibble(
+        return(dplyr::tibble(
           proportion = list(fit),
           relative.growth = list(deriv)
         ))
@@ -170,7 +171,7 @@ proportion_locfit_model = function(
       )
       t2 = function(x) x
 
-      new_data = tibble::tibble(
+      new_data = dplyr::tibble(
         time = output_times
       ) %>%
         .result_from_fit(type = "proportion", tmp$fit, tmp$se.fit, t) %>%
@@ -282,6 +283,7 @@ poisson_locfit_model = function(
       .envir = env
     )
   }
+  .message_context()
 
   modelled = interfacer::igroup_process(
     d,
@@ -326,7 +328,7 @@ poisson_locfit_model = function(
       )
 
       if (!predict) {
-        return(tibble::tibble(incidence = list(fit), growth = list(deriv)))
+        return(dplyr::tibble(incidence = list(fit), growth = list(deriv)))
       }
 
       tmp = stats::preplot(
@@ -350,7 +352,7 @@ poisson_locfit_model = function(
       )
       t2 = function(x) x
 
-      new_data = tibble::tibble(
+      new_data = dplyr::tibble(
         time = output_times
       ) %>%
         .result_from_fit(type = "incidence", tmp$fit, tmp$se.fit, t) %>%

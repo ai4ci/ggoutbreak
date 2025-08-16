@@ -132,7 +132,7 @@ rt_cori = function(
       # We allow multiple windows
       df4 = dplyr::bind_rows(lapply(window, function(win) {
         df3 %>%
-          dplyr::cross_join(tibble::tibble(s = 1:win)) %>%
+          dplyr::cross_join(dplyr::tibble(s = 1:win)) %>%
           dplyr::mutate(t_end = t + s) %>%
           dplyr::group_by(boot, t_end) %>%
           dplyr::summarise(

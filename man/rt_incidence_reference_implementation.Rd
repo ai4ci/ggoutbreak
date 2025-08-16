@@ -81,7 +81,7 @@ print(data$rt[pred_time])
 # first we need a set of incidence estimates
 # in the simplest example we use a GLM:
 
-newdata = tibble::tibble(time = 1:100)
+newdata = dplyr::tibble(time = 1:100)
 
 
 

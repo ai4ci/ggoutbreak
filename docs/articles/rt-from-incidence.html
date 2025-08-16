@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -47,8 +47,8 @@
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
     <li><a class="dropdown-item" href="../articles/time-periods.html">Data wrangling and working with `ggoutbreak`</a></li>
-    <li><a class="dropdown-item" href="../articles/time-units.html">Estimating the reproduction number from weekly data</a></li>
     <li><a class="dropdown-item" href="../articles/variant-proportions.html">Multinomial proportions models for genomic variants</a></li>
+    <li><a class="dropdown-item" href="../articles/weekly-incidence.html">Estimating the reproduction number from weekly data</a></li>
   </ul>
 </li>
       </ul>
@@ -95,16 +95,6 @@ and
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>σ</mi><annotation encoding="application/x-tex">\sigma</annotation></semantics></math>.
 Such a fitted model is shown below on a log1p scale, for the COVID-19
 epidemic in England:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="va">raw</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="../reference/england_covid.html">england_covid</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="../reference/time_aggregate.html">time_aggregate</a></span><span class="op">(</span>count<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/sum.html" class="external-link">sum</a></span><span class="op">(</span><span class="va">count</span><span class="op">)</span><span class="op">)</span></span>
-<span></span>
-<span><span class="va">fit</span> <span class="op">=</span> <span class="va">raw</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">fit</span>,<span class="va">raw</span>, colour<span class="op">=</span><span class="st">"blue"</span>,size<span class="op">=</span><span class="fl">0.025</span>,events <span class="op">=</span> <span class="va">england_events</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu"><a href="../reference/scale_y_log1p.html">scale_y_log1p</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>,<span class="st">"2023-01-01"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 <p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-1-1.png" width="576"></p>
 <p>It is appealing to use this modelled incidence estimate to calculate
 an estimate of the reproduction number,
@@ -127,155 +117,220 @@ infectivity profile of the disease
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ω</mi><annotation encoding="application/x-tex">\omega</annotation></semantics></math>)
 at a number of days after infection
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>τ</mi><annotation encoding="application/x-tex">\tau</annotation></semantics></math>):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>I</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><msub><mi>I</mi><mi>t</mi></msub><mrow><munder><mo>∑</mo><mi>τ</mi></munder><mrow><msub><mi>ω</mi><mi>τ</mi></msub><msub><mi>I</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub></mrow></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-I_t &amp;\sim Lognormal(\mu_t,\sigma_t) \\
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>I</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mi>P</mi><mi>o</mi><mi>i</mi><mi>s</mi><mi>s</mi><mi>o</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>λ</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>λ</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><msub><mi>I</mi><mi>t</mi></msub><mrow><munder><mo>∑</mo><mi>τ</mi></munder><mrow><msub><mi>ω</mi><mi>τ</mi></msub><msub><mi>I</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub></mrow></mrow></mfrac></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
+I_t &amp;\sim Poisson(\lambda_t) \\
+\lambda_t &amp;\sim Lognormal(\mu_t,\sigma_t) \\
 R_t &amp;= \frac{I_t}{\sum_{\tau}{\omega_{\tau}I_{t-\tau}}}
-\end{align}
+\end{aligned}
+\end{eqnarray}
 </annotation></semantics></math></p>
-<p>giving us:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub><mo>=</mo><mfrac><mrow><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munder><mo>∑</mo><mi>τ</mi></munder><mrow><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo>+</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ω</mi><mi>τ</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>,</mo><msub><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mrow></mfrac></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-R_t = \frac{Lognormal(\mu_t,\sigma_t)}{\sum_{\tau}{
-  Lognormal( \mu_{t-\tau} + log(\omega_{\tau}) , \sigma_{t-\tau})
-}}
-\end{align}
+<p>In expectation, this gives:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>≈</mo><mfrac><msub><mi>λ</mi><mi>t</mi></msub><mrow><munderover><mo>∑</mo><mrow><mi>τ</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msub><mi>ω</mi><mi>τ</mi></msub><msub><mi>λ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mfrac><mrow><mtext mathvariant="normal">Lognormal</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><munderover><mo>∑</mo><mrow><mi>τ</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><mtext mathvariant="normal">Lognormal</mtext><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo>+</mo><mo>log</mo><msub><mi>ω</mi><mi>τ</mi></msub><mo>,</mo><msub><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
+R_t &amp;\approx \frac{\lambda_t}{\sum_{\tau=1}^{k} \omega_\tau \lambda_{t-\tau}} \\
+&amp;\sim \frac{\text{Lognormal}(\mu_t, \sigma_t)}{\sum_{\tau=1}^{k} \text{Lognormal}\left( \mu_{t-\tau} + \log \omega_\tau, \sigma_{t-\tau} \right)}
+\end{aligned}
+\tag{1}
+\end{eqnarray}
 </annotation></semantics></math></p>
-<p>The sum of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>i</mi><annotation encoding="application/x-tex">i</annotation></semantics></math>
-such log normal distributions can be approximated by another log normal
-(Lo 2013) with parameters
+<p>It has been shown that the sum of correlated log-normal distributed
+random variables can be approximated by another log-normal with
+parameters
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>Z</mi></msub><annotation encoding="application/x-tex">\mu_Z</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>Z</mi></msub><annotation encoding="application/x-tex">\sigma_Z</annotation></semantics></math>.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>S</mi><mo>+</mo></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>E</mo><mrow><mo stretchy="true" form="prefix">[</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mo>E</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><msup><mi>e</mi><mrow><msub><mi>μ</mi><mi>i</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><msubsup><mi>S</mi><mo>+</mo><mn>2</mn></msubsup></mfrac><mspace width="0.167em"></mspace><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msub><mo>cor</mo><mrow><mi>i</mi><mi>j</mi></mrow></msub><msub><mi>σ</mi><mi>i</mi></msub><msub><mi>σ</mi><mi>j</mi></msub><mo>E</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>E</mo><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>X</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><mfrac><mn>1</mn><msubsup><mi>S</mi><mo>+</mo><mn>2</mn></msubsup></mfrac><mspace width="0.167em"></mspace><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msub><mo>cor</mo><mrow><mi>i</mi><mi>j</mi></mrow></msub><msub><mi>σ</mi><mi>i</mi></msub><msub><mi>σ</mi><mi>j</mi></msub><msup><mi>e</mi><mrow><msub><mi>μ</mi><mi>i</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup></mrow></msup><msup><mi>e</mi><mrow><msub><mi>μ</mi><mi>j</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>j</mi><mn>2</mn></msubsup></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mi>Z</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>ln</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mo>+</mo></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-    S_+ &amp;= \operatorname{E}\left[\sum_i X_i \right] = \sum_i 
-    \operatorname{E}[X_i] = 
-    \sum_i e^{\mu_i + \frac{1}{2}\sigma_i^2}
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>Z</mi></msub><annotation encoding="application/x-tex">\sigma_Z</annotation></semantics></math>,
+where the correlation between them is
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>ρ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo>=</mo><mtext mathvariant="normal">Corr</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><msub><mi>X</mi><mi>i</mi></msub><mo>,</mo><mo>log</mo><msub><mi>X</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\rho_{ij} = \text{Corr}(\log X_i, \log X_j)</annotation></semantics></math>.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>S</mi><mo>+</mo></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><munder><mo>∑</mo><mi>i</mi></munder><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><munder><mo>∑</mo><mi>i</mi></munder><msup><mi>e</mi><mrow><msub><mi>μ</mi><mi>i</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><msubsup><mi>S</mi><mo>+</mo><mn>2</mn></msubsup></mfrac><mspace width="0.167em"></mspace><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msub><mi>ρ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><msub><mi>σ</mi><mi>i</mi></msub><msub><mi>σ</mi><mi>j</mi></msub><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>X</mi><mi>i</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow><mi>𝔼</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>X</mi><mi>j</mi></msub><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><msubsup><mi>S</mi><mo>+</mo><mn>2</mn></msubsup></mfrac><mspace width="0.167em"></mspace><munder><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></munder><msub><mi>ρ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><msub><mi>σ</mi><mi>i</mi></msub><msub><mi>σ</mi><mi>j</mi></msub><msup><mi>e</mi><mrow><msub><mi>μ</mi><mi>i</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>i</mi><mn>2</mn></msubsup></mrow></msup><msup><mi>e</mi><mrow><msub><mi>μ</mi><mi>j</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>j</mi><mn>2</mn></msubsup></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mi>Z</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><msub><mi>S</mi><mo>+</mo></msub><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
+    S_+ &amp;= \mathbb{E}\left[\sum_i X_i \right] = \sum_i
+    \mathbb{E}[X_i] \\
+    &amp;= \sum_i e^{\mu_i + \frac{1}{2}\sigma_i^2}
     \\
     \sigma^2_{Z} &amp;= \frac{1}{S_+^2} \, \sum_{i,j}
-      \operatorname{cor}_{ij} \sigma_i \sigma_j \operatorname{E}[X_i] \operatorname{E}[X_j] =
-      \frac{1}{S_+^2} \, \sum_{i,j}
-      \operatorname{cor}_{ij} \sigma_i \sigma_j e^{\mu_i+\frac{1}{2}\sigma_i^2} 
-      e^{\mu_j+\frac{1}{2}\sigma_j^2} 
+      \rho_{ij} \sigma_i \sigma_j \mathbb{E}[X_i] \mathbb{E}[X_j] \\
+      &amp;= \frac{1}{S_+^2} \, \sum_{i,j}
+      \rho_{ij} \sigma_i \sigma_j e^{\mu_i+\frac{1}{2}\sigma_i^2}
+      e^{\mu_j+\frac{1}{2}\sigma_j^2}
     \\
-    \mu_Z &amp;= \ln\left( S_+ \right) - \frac{1}{2}\sigma_{Z}^2 
-\end{align}
+    \mu_Z &amp;= \log S_+ - \frac{1}{2}\sigma_{Z}^2
+\end{aligned}
+\tag{2}
+\end{eqnarray}
 </annotation></semantics></math></p>
-<p>The sum term in the denominator of the renewal equations consists of
-a set of correlated scaled log normal distributions with both scale and
-correlation defined by the infectivity profile
+<p>The sum term in the denominator of the renewal equation (1) consists
+of a set of correlated scaled log normal distributions with scale
+defined by the infectivity profile
 (<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ω</mi><annotation encoding="application/x-tex">\omega</annotation></semantics></math>).
-In our case
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>c</mi><mi>o</mi><msub><mi>r</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mrow><annotation encoding="application/x-tex">cor_{ij}</annotation></semantics></math>
-can be equated to the infectivity profile
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>ω</mi><mrow><mo stretchy="true" form="prefix">|</mo><mi>i</mi><mo>−</mo><mi>j</mi><mo stretchy="true" form="postfix">|</mo></mrow></msub><annotation encoding="application/x-tex">\omega_{|i-j|}</annotation></semantics></math>)
-when
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>≠</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i \neq j</annotation></semantics></math>
-and 1 when
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>i</mi><mo>=</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">i = j</annotation></semantics></math>.
+For our case for a given time point
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>
+we equate
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>X</mi><mi>i</mi></msub><mo>=</mo><msub><mi>ω</mi><mi>τ</mi></msub><msub><mi>λ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub></mrow><annotation encoding="application/x-tex">X_i = \omega_{\tau} \lambda_{t-\tau}</annotation></semantics></math>,
+and substitute
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>i</mi></msub><annotation encoding="application/x-tex">\mu_i</annotation></semantics></math>
-is
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo>+</mo><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ω</mi><mi>τ</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_{t-\tau} + ln(\omega_{\tau})</annotation></semantics></math>.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>S</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>s</mi><mo>=</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></munderover><mrow><msub><mi>ω</mi><mi>s</mi></msub><msup><mi>e</mi><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>s</mi></mrow></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>s</mi></mrow><mn>2</mn></msubsup></mrow></msup></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msqrt><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></munderover><mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ω</mi><mrow><mo stretchy="true" form="prefix">|</mo><mi>i</mi><mo>−</mo><mi>j</mi><mo stretchy="true" form="postfix">|</mo></mrow></msub><mo>+</mo><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo>,</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow><msub><mi>ω</mi><mi>i</mi></msub><msub><mi>ω</mi><mi>j</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>σ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msub><msup><mi>e</mi><mrow><msub><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msubsup></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>σ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msub><msup><mi>e</mi><mrow><msub><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msubsup></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mrow><msubsup><mi>S</mi><mi>t</mi><mn>2</mn></msubsup></mfrac></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow><mn>2</mn></msubsup></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-    S_{t} &amp;= \sum_{s=1}^{|\omega|} { \omega_s e^{\mu_{t-s} + \frac{1}{2}\sigma_{t-s}^2 }} \\
-    \sigma_{Z,t} &amp;= \sqrt{
+=
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo>+</mo><mi>l</mi><mi>o</mi><mi>g</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ω</mi><mi>τ</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\mu_{t-\tau} + log(\omega_{\tau})</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>σ</mi><mi>i</mi></msub><mo>=</mo><msub><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\sigma_i = \sigma_{t-\tau}</annotation></semantics></math>
+into (2) to account for the infectivity profile. We define
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>k</mi><annotation encoding="application/x-tex">k</annotation></semantics></math>
+to be the support of the infectivity profile
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi><mo>=</mo><mrow><mo stretchy="true" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mrow><annotation encoding="application/x-tex">k = |\omega|</annotation></semantics></math>).
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mi>s</mi></msub><annotation encoding="application/x-tex">m_{s}</annotation></semantics></math>
+is the weighted contribution from incidence estimates on day
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow><annotation encoding="application/x-tex">t-\tau</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>Σ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><annotation encoding="application/x-tex">\Sigma_{ij}</annotation></semantics></math>
+is the covariance between log-incidence estimates from days
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mi>i</mi></mrow><annotation encoding="application/x-tex">t-i</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>t</mi><mo>−</mo><mi>j</mi></mrow><annotation encoding="application/x-tex">t-j</annotation></semantics></math>.</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>m</mi><mi>τ</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msup><mi>e</mi><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo>+</mo><mo>log</mo><msub><mi>ω</mi><mi>τ</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow><mn>2</mn></msubsup></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>Σ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><msub><mi>λ</mi><mrow><mi>t</mi><mo>−</mo><mi>i</mi></mrow></msub><mo>,</mo><mo>log</mo><msub><mi>λ</mi><mrow><mi>t</mi><mo>−</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>=</mo><msub><mi>ρ</mi><mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>i</mi><mo stretchy="true" form="postfix">)</mo></mrow><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msub><msub><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>i</mi></mrow></msub><msub><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>j</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>S</mi><mo>+</mo></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><munderover><mo>∑</mo><mrow><mi>τ</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msub><mi>m</mi><mi>τ</mi></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>m</mi><mi>i</mi></msub><msub><mi>m</mi><mi>j</mi></msub><msub><mi>Σ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><msubsup><mi>S</mi><mo>+</mo><mn>2</mn></msubsup></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mi>Z</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><msub><mi>S</mi><mo>+</mo></msub><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
+    m_{\tau} &amp;= e^{\mu_{t-\tau} + \log \omega_{\tau} + \frac{1}{2}\sigma_{t-\tau}^2 } \\
+    \Sigma_{ij} &amp;= \text{Cov}(\log \lambda_{t-i}, \log \lambda_{t-j}) = \rho_{(t-i)(t-j)} \sigma_{t-i} \sigma_{t-j} \\
+    S_{+} &amp;= \sum_{\tau=1}^k { m_{\tau} } \\
+    \sigma_{Z}^2 &amp;=
       \frac{
-        \sum_{i,j=1}^{|\omega|} {
-        (\omega_{|i-j|}+I(i,j)) \omega_i \omega_j (\sigma_{(t-i)} e^{\mu_{(t-i)}+\frac{1}{2}\sigma_{(t-i)}^2}) (\sigma_{(t-j)} e^{\mu_{(t-j)}+\frac{1}{2}\sigma_{(t-j)}^2}) 
+        \sum_{i,j=1}^k {
+          (m_{i} m_{j} \Sigma_{ij})
         }
-      }{S_{t}^2}
-    }   \\
-    \mu_{Z,t} &amp;= \log\left( S_{t} \right) - \frac{1}{2}\sigma_{Z,t}^2 
-\end{align}
+      }{S_{+}^2}    \\
+    \mu_{Z} &amp;= \log S_+ - \frac{1}{2}\sigma_{Z}^2
+\end{aligned}
+\end{eqnarray}
 </annotation></semantics></math></p>
-<p><math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>μ</mi><annotation encoding="application/x-tex">\mu</annotation></semantics></math>
-is the central estimate of case counts on the log scale, and its
-standard deviation can also be large. There are numerical stability
-issues dealing with terms involving
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msup><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></msup><annotation encoding="application/x-tex">e^{(\mu+\sigma^2)}</annotation></semantics></math>,
-however keeping everything in log space and using optimised log-sum-exp
-functions this can be made computationally tractable.</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>s</mi><mo>=</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></munderover><msup><mi>e</mi><mrow><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>s</mi></mrow></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>s</mi></mrow><mn>2</mn></msubsup><mo>+</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ω</mi><mi>s</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>T</mi><mrow><mi>t</mi><mo>,</mo><mi>τ</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ω</mi><mi>τ</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>σ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><msub><mi>μ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>t</mi><mo>−</mo><mi>τ</mi><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msubsup><mo stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>c</mi><mi>o</mi><msub><mi>r</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>ω</mi><mrow><mo stretchy="true" form="prefix">|</mo><mi>i</mi><mo>−</mo><mi>j</mi><mo stretchy="true" form="postfix">|</mo></mrow></msub><mo>+</mo><mi>I</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>i</mi><mo>=</mo><mi>j</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>i</mi><mo>,</mo><mi>j</mi><mo>=</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></munderover><msup><mi>e</mi><mrow><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>c</mi><mi>o</mi><msub><mi>r</mi><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>T</mi><mrow><mi>t</mi><mo>,</mo><mi>i</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>+</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>T</mi><mrow><mi>t</mi><mo>,</mo><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>2</mn><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow><mn>2</mn></msubsup></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-    \log(S_{t}) &amp;= \log(\sum_{s=1}^{|\omega|} {  e^{\mu_{t-s} + \frac{1}{2}\sigma_{t-s}^2 + \log(\omega_s) }}) \\
-    \log(T_{t,\tau}) &amp;= \log(\omega_{\tau}) + \log(\sigma_{(t-{\tau})}) + \mu_{(t-{\tau})} + \frac{1}{2}\sigma_{(t-{\tau})}^2) \\
-    \log(cor_{i,j}) &amp;= \log(\omega_{|i-j|}+I(i=j)) \\
-    \log(\sigma_{Z,t}^2) &amp;= \log(
-        \sum_{i,j=1}^{|\omega|} {
-          e^{
-            \log(cor_{i,j}) + \log(T_{t,i}) + \log(T_{t,j})
-          }
-        }) - 2 \log(S_{t}) \\
-    \mu_{Z,t} &amp;= \log( S_{t} ) - \frac{1}{2}\sigma_{Z,t}^2 
-\end{align}
-</annotation></semantics></math></p>
-<p>N.B. if we assume the individual estimates of the incidence are
-uncorrelated this simplifies to:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><munderover><mo>∑</mo><mrow><mi>τ</mi><mo>=</mo><mn>1</mn></mrow><mrow><mo stretchy="true" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></munderover><msup><mi>e</mi><mrow><mn>2</mn><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>T</mi><mrow><mi>t</mi><mo>,</mo><mi>τ</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></msup><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>2</mn><mo>log</mo><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>S</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-\log(\sigma_{Z,t}^2) &amp;= \log(
-        \sum_{\tau=1}^{|\omega|} {
-          e^{
-            2 \log(T_{t,\tau})
-          }
-        }) - 2 \log(S_{t})
-\end{align}
-</annotation></semantics></math></p>
-<p>Empirically there is not a huge amount of difference in estimates
-between these two forms. If the infectivity profile
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ω</mi><annotation encoding="application/x-tex">\omega</annotation></semantics></math>
-is spread out over a large period then the correlation matrix will be
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><msup><mrow><mo stretchy="true" form="prefix">(</mo><mi>ω</mi><mo stretchy="true" form="postfix">)</mo></mrow><mn>2</mn></msup></mrow><annotation encoding="application/x-tex">O(\omega)^2</annotation></semantics></math>
-which may predicate this simpler order 1 formulation.</p>
 <p>With
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>Z</mi></msub><annotation encoding="application/x-tex">\mu_{Z}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>Z</mi></msub><annotation encoding="application/x-tex">\sigma_{Z}</annotation></semantics></math>
+defined,
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
+is approximated as the ratio of two log-normals where
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Σ</mi><mrow><mn>0</mn><mi>Z</mi></mrow></msub><mo>=</mo><mtext mathvariant="normal">Cov</mtext><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><msub><mi>λ</mi><mi>t</mi></msub><mo>,</mo><mo>log</mo><mi>S</mi><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\Sigma_{0Z} = \text{Cov}(\log \lambda_t, \log S)</annotation></semantics></math>
+is the covariance between the numerator and the log-denominator. Since
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>S</mi><mo>=</mo><msub><mo>∑</mo><mi>τ</mi></msub><msub><mi>X</mi><mi>τ</mi></msub></mrow><annotation encoding="application/x-tex">S = \sum_\tau X_\tau</annotation></semantics></math>,
+and using a first-order approximation, this covariance is a weighted
+average of the covariances between
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>λ</mi><mi>t</mi></msub></mrow><annotation encoding="application/x-tex">\log \lambda_t</annotation></semantics></math>
+and each
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>log</mo><msub><mi>λ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub></mrow><annotation encoding="application/x-tex">\log \lambda_{t-\tau}</annotation></semantics></math>,
+weighted by the relative expected contributions
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>m</mi><mi>τ</mi></msub><annotation encoding="application/x-tex">m_\tau</annotation></semantics></math>.:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mfrac><mrow><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>Z</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>Z</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><msub><mi>R</mi><mi>t</mi></msub></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>−</mo><msub><mi>μ</mi><mi>Z</mi></msub><mo>=</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>−</mo><mo>log</mo><msub><mi>S</mi><mo>+</mo></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>σ</mi><msub><mi>R</mi><mi>t</mi></msub></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msqrt><mrow><msubsup><mi>σ</mi><mi>t</mi><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup><mo>−</mo><mn>2</mn><msub><mi>Σ</mi><mrow><mn>0</mn><mi>Z</mi></mrow></msub></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>Σ</mi><mrow><mn>0</mn><mi>Z</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mrow><munderover><mo>∑</mo><mrow><mi>τ</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msub><mi>m</mi><mi>τ</mi></msub><msub><mi>Σ</mi><mrow><mn>0</mn><mi>τ</mi></mrow></msub></mrow><mrow><munderover><mo>∑</mo><mrow><mi>τ</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msub><mi>m</mi><mi>τ</mi></msub></mrow></mfrac><mo>=</mo><mfrac><mn>1</mn><msub><mi>S</mi><mo>+</mo></msub></mfrac><munderover><mo>∑</mo><mrow><mi>τ</mi><mo>=</mo><mn>1</mn></mrow><mi>k</mi></munderover><msub><mi>m</mi><mi>τ</mi></msub><msub><mi>Σ</mi><mrow><mn>0</mn><mi>τ</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><msub><mi>R</mi><mi>t</mi></msub></msub><mo>,</mo><msub><mi>σ</mi><msub><mi>R</mi><mi>t</mi></msub></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\tag{3}
+\begin{aligned}
+R_t &amp;\sim \frac{Lognormal(\mu_t,\sigma_t)}
+{Lognormal( \mu_{Z}, \sigma_{Z})} \\
+\mu_{R_t} &amp;= \mu_t - \mu_{Z} = \mu_t - \log S_+ + \frac{1}{2}\sigma_{Z}^2\\
+\sigma_{R_t} &amp;= \sqrt{\sigma_t^2+\sigma_{Z}^2 - 2 \Sigma_{0Z}} \\
+\Sigma_{0Z} &amp;= \frac{\sum_{\tau=1}^k m_\tau \Sigma_{0\tau}}{\sum_{\tau=1}^k m_\tau} = \frac{1}{S_+}\sum_{\tau=1}^k m_\tau \Sigma_{0\tau}\\
+R_t &amp;\sim Lognormal(\mu_{R_t}, \sigma_{R_t})
+\end{aligned}
+\end{eqnarray}
+</annotation></semantics></math></p>
+<p>This formulation of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
+from (3) assumes knowledge of the posterior or prediction covariance of
+the incidence estimates
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>Σ</mi><mi>i</mi></msub><mi>j</mi></mrow><annotation encoding="application/x-tex">\Sigma_ij</annotation></semantics></math>).
+This is typical in modern frameworks , but in other situations may not
+be available. In this case we could assume the individual estimates of
+the incidence are independent, however this increases the uncertainty of
+our
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
+estimate and in certain circumstances introduces a potential
+underestimation bias, influenced by the true off-diagonal correlation
+mass and the certainty of the incidence estimates. An alternative
+approach is to assume weak stationarity and estimate a parametric
+correlation model from the data used to build the incidence model, using
+Pearson residuals to parameterise an exponential decay function based on
+time difference (see supporting software package for implementation).
+The degree of the bias is investigated further in the supplementary
+materials, and heuristics for assessing the significance of this bias
+proposed.</p>
+<p>The method for estimating
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
+from modelled incidence has been described assuming a non-negative
+component to the infectivity profile, as it is implicit that infector
+and infectee are necessarily sequential in time. In the situation where
+symptomatic case counts are used as a proxy for incidence and the serial
+interval as a proxy for the infectivity profile, negative times between
+serial cases may be observed due to variation in delay in observation of
+the transmission chain. There is nothing in this framework to stop the
+use of a negative time for the infectivity profile, and we can directly
+support
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
+estimates in these cases.</p>
+<div class="section level3">
+<h3 id="numerical-stability">Numerical stability<a class="anchor" aria-label="anchor" href="#numerical-stability"></a>
+</h3>
+<p>In (3)
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\mu_t</annotation></semantics></math>
+is the log-scale mean of the incidence estimate at time
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>t</mi><annotation encoding="application/x-tex">t</annotation></semantics></math>,
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mi>t</mi></msub><annotation encoding="application/x-tex">\sigma_t</annotation></semantics></math>
+its standard deviation. These can be large, leading to numerical
+instability in terms involving
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mo>exp</mo><mrow><mo stretchy="true" form="prefix">(</mo><mi>μ</mi><mo>+</mo><msup><mi>σ</mi><mn>2</mn></msup><mo stretchy="true" form="postfix">)</mo></mrow></mrow><annotation encoding="application/x-tex">\exp(\mu + \sigma^2)</annotation></semantics></math>.
+However, assuming non-negative correlations and using log-space
+computation with optimized log-sum-exp functions , the expressions
+remain computationally tractable:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><msub><mi>m</mi><mi>τ</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow></msub><mo>+</mo><mo>log</mo><msub><mi>ω</mi><mi>τ</mi></msub><mo>+</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><mi>t</mi><mo>−</mo><mi>τ</mi></mrow><mn>2</mn></msubsup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><msub><mi>S</mi><mo>+</mo></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mtext mathvariant="normal">logsumexp</mtext><mi>τ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><msub><mi>m</mi><mi>τ</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><msubsup><mi>σ</mi><mi>Z</mi><mn>2</mn></msubsup></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mtext mathvariant="normal">logsumexp</mtext><mrow><mi>i</mi><mo>,</mo><mi>j</mi></mrow></msub><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><msub><mi>m</mi><mi>i</mi></msub><mo>+</mo><mo>log</mo><msub><mi>m</mi><mi>j</mi></msub><mo>+</mo><mo>log</mo><msub><mi>Σ</mi><mrow><mi>i</mi><mi>j</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mn>2</mn><mo>log</mo><msub><mi>S</mi><mo>+</mo></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mo>log</mo><msub><mi>Σ</mi><mrow><mn>0</mn><mi>Z</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mtext mathvariant="normal">logsumexp</mtext><mi>τ</mi></msub><mrow><mo stretchy="true" form="prefix">(</mo><mo>log</mo><msub><mi>m</mi><mi>τ</mi></msub><mo>+</mo><mo>log</mo><msub><mi>Σ</mi><mrow><mn>0</mn><mi>τ</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><mo>log</mo><msub><mi>S</mi><mo>+</mo></msub></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
+\log m_\tau &amp;= \mu_{t-\tau} + \log \omega_\tau + \frac{1}{2} \sigma_{t-\tau}^2 \\
+\log S_+ &amp;= \text{logsumexp}_\tau(\log m_\tau) \\
+\log \sigma_Z^2 &amp;= \text{logsumexp}_{i,j} \left( \log m_i + \log m_j + \log \Sigma_{ij} \right) - 2 \log S_+ \\
+\log \Sigma_{0Z} &amp;= \text{logsumexp}_\tau \left( \log m_\tau + \log \Sigma_{0\tau} \right) - \log S_+
+\end{aligned}
+\tag{4}
+\end{eqnarray}
+</annotation></semantics></math></p>
+<p>Other relations may be implemented directly as in (3).</p>
+</div>
+<div class="section level3">
+<h3 id="infectivity-profile-uncertainty">Infectivity profile uncertainty<a class="anchor" aria-label="anchor" href="#infectivity-profile-uncertainty"></a>
+</h3>
+<p>This estimate of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
+is conditioned on a single known infectivity profile. In reality there
+is also uncertainty in the infectivity profile
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ω</mi><annotation encoding="application/x-tex">\omega</annotation></semantics></math>)
+which plays a role in the definition of
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>μ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\mu_{Z,t}</annotation></semantics></math>
 and
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\sigma_{Z,t}</annotation></semantics></math>
-we are left with the final derivation of
-<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>,
-giving us a distributional form of
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub><annotation encoding="application/x-tex">\sigma_{Z,t}</annotation></semantics></math>.
+We cannot assume any particular distributional form for the infectivity
+profile, but we can use a range of empirical estimates of the
+infectivity profile to calculate multiple distributional estimates for
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
-incorporating uncertainty from modelled incidence estimates:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mrow><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>,</mo><msub><mi>σ</mi><mi>t</mi></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow><mrow><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub><mo>,</mo><msub><mi>σ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mrow></mfrac></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><msub><mi>R</mi><mi>t</mi></msub></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msub><mi>μ</mi><mi>t</mi></msub><mo>−</mo><msub><mi>μ</mi><mrow><mi>Z</mi><mo>,</mo><mi>t</mi></mrow></msub></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>σ</mi><msub><mi>R</mi><mi>t</mi></msub></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msqrt><mrow><msubsup><mi>σ</mi><mi>t</mi><mn>2</mn></msubsup><mo>+</mo><msubsup><mi>σ</mi><mrow><mi>z</mi><mo>,</mo><mi>t</mi></mrow><mn>2</mn></msubsup></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>R</mi><mi>t</mi></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><msub><mi>R</mi><mi>t</mi></msub></msub><mo>,</mo><msub><mi>σ</mi><msub><mi>R</mi><mi>t</mi></msub></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-R_t &amp;= \frac{Lognormal(\mu_t,\sigma_t)}
-{Lognormal( \mu_{Z,t}, \sigma_{Z,t})} \\
-\mu_{R_t} &amp;= \mu_t - \mu_{Z,t} \\
-\sigma_{R_t} &amp;= \sqrt{\sigma_t^2+\sigma_{z,t}^2} \\
-R_t &amp;= Lognormal(\mu_{R_t}, \sigma_{R_t})
-\end{align}
-</annotation></semantics></math></p>
-<p>This is conditioned on a single known infectivity profile
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>ω</mi><annotation encoding="application/x-tex">\omega</annotation></semantics></math>).
-In reality there is also uncertainty in the infectivity profile, however
-we cannot assume any particular distributional form for this. We can use
-a set of empirical estimates of the infectivity profile
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Ω</mi><annotation encoding="application/x-tex">\Omega</annotation></semantics></math>)
-to calculate multiple distributional estimates for the reproduction
-number
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mrow><mi>t</mi><mo>,</mo><mi>ω</mi></mrow></msub><annotation encoding="application/x-tex">R_{t,\omega}</annotation></semantics></math>)
 and then combine these as a mixture distribution.</p>
-<p>There is not much we can say about this mixture distribution, as it
-will depend on the nature of the various empirical infectivity profile
-distributions. However, we can use general properties of mixture
-distributions to generate estimates for the mean and variance of the
-reproduction number including uncertainty arising from multiple
-infection profile estimates
-(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><annotation encoding="application/x-tex">R_t^*</annotation></semantics></math>):</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msup><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><msup><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><mn>1</mn><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><msup><mi>e</mi><mrow><mn>2</mn><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub><mo>+</mo><msubsup><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow><mn>2</mn></msubsup></mrow></msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mrow><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>+</mo><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo><mo>−</mo><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
+<p>The nature of this mixture distribution will depend on the various
+empirical infectivity profile distributions. However, we can use general
+properties of mixture distributions to create estimates for the mean and
+variance of the reproduction number estimate
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><annotation encoding="application/x-tex">R_t^*</annotation></semantics></math>)
+combining the uncertainty arising from multiple infection profile
+estimates
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Ω</mi><annotation encoding="application/x-tex">\Omega</annotation></semantics></math>)
+and from the incidence estimate model itself:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msup><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub><mo>−</mo><mfrac><mn>1</mn><mn>2</mn></mfrac><msubsup><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><msup><mi>e</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow><mn>2</mn></msubsup><mo stretchy="true" form="postfix">)</mo></mrow></msup><mo>−</mo><mn>1</mn><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo><mo minsize="1.2" maxsize="1.2" stretchy="false" form="prefix">[</mo><msup><mi>e</mi><mrow><mn>2</mn><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub><mo>+</mo><msubsup><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow><mn>2</mn></msubsup></mrow></msup><mo minsize="1.2" maxsize="1.2" stretchy="false" form="postfix">]</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">[</mo><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mrow><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow><mo>+</mo><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msub><mi>R</mi><mi>t</mi></msub><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">]</mo><mo>−</mo><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
 E[R_t|\omega] &amp;= e^{(\mu_{R_t,\omega} - \frac{1}{2}\sigma_{R_t,\omega}^2)} \\
-V[R_t|\omega] &amp;= \big[
-  e^{(\sigma_{R_t,\omega}^2)} - 1
-\big] \big[
-  e^{2 \mu_{R_t,\omega} + \sigma_{R_t,\omega}^2}
-\big] \\
+V[R_t|\omega] &amp;= \big[e^{(\sigma_{R_t,\omega}^2)} - 1\big] \big[e^{2 \mu_{R_t,\omega} + \sigma_{R_t,\omega}^2}\big] \\
 E[R_t^*] &amp;= \frac{1}{|\Omega|}\sum_{\omega \in \Omega} E[{R_t|\omega}] \\
-V[R_t^*] &amp;= \frac{1}{|\Omega|} \bigg(\sum_{\omega \in \Omega}{V[R_t|\omega]+E[R_t|\omega]^2}\bigg) - E[R_t^*]^2 \\
-\end{align}
+V[R_t^*] &amp;= \frac{1}{|\Omega|} \bigg[\sum_{\omega \in \Omega}{V[R_t|\omega]+E[R_t|\omega]^2}\bigg] - E[R_t^*]^2 \\
+\end{aligned}
+\end{eqnarray}
 </annotation></semantics></math></p>
 <p>The cumulative distribution function of the mixture is simply the
 arithmetic mean of the component cumulative distribution functions
@@ -283,23 +338,31 @@ arithmetic mean of the component cumulative distribution functions
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mi>Φ</mi><annotation encoding="application/x-tex">\Phi</annotation></semantics></math>
 is the cumulative distribution function of the standard normal
 distribution:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>F</mi><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><msub><mi>F</mi><msub><mi>R</mi><mi>t</mi></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo>≤</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mrow><mi>t</mi><mo>,</mo><mi>ω</mi></mrow></msub><mo>≤</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo>≤</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>F</mi><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><msub><mi>F</mi><msub><mi>R</mi><mi>t</mi></msub></msub><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="false" form="prefix">|</mo><mi>ω</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo>≤</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>R</mi><mrow><mi>t</mi><mo>,</mo><mi>ω</mi></mrow></msub><mo>≤</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mi>P</mi><mrow><mo stretchy="true" form="prefix">(</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo>≤</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><mi>x</mi><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
 F_{R_t^*}(x) &amp;= \frac{1}{|\Omega|}\sum_{\omega \in \Omega}F_{R_t}(x|\omega) \\
 P(R_t^* \le x) &amp;= \frac{1}{|\Omega|}\sum_{\omega \in \Omega} P(R_{t,\omega} \le x) \\
 P(R_t^* \le x) &amp;= \frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(x) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg)
-\end{align}
+\end{aligned}
+\end{eqnarray}
 </annotation></semantics></math></p>
 <p>As the cumulative density function of this mixture distribution is a
-strictly increasing function specific solutions for median and 95%
-confidence intervals can be calculated numerically by solving the
-following equations:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mn>0.025</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo><mo>−</mo><mn>0.025</mn></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mn>0.5</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo><mo>−</mo><mn>0.5</mn></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mn>0.975</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo><mo>−</mo><mn>0.975</mn></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
+strictly increasing function, specific solutions for median
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mn>0.5</mn></msub><annotation encoding="application/x-tex">q_{0.5}</annotation></semantics></math>)
+and 95% confidence intervals
+(<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mn>0.025</mn></msub><annotation encoding="application/x-tex">q_{0.025}</annotation></semantics></math>
+and
+<math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>q</mi><mn>0.975</mn></msub><annotation encoding="application/x-tex">q_{0.975}</annotation></semantics></math>)
+can be calculated numerically by solving the following equations:</p>
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mn>0.025</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo><mo>−</mo><mn>0.025</mn></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mn>0.5</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo><mo>−</mo><mn>0.5</mn></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mfrac><mn>1</mn><mrow><mo stretchy="true" form="prefix">|</mo><mi>Ω</mi><mo stretchy="true" form="postfix">|</mo></mrow></mfrac><munder><mo>∑</mo><mrow><mi>ω</mi><mo>∈</mo><mi>Ω</mi></mrow></munder><mi>Φ</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>l</mi><mi>n</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>q</mi><mn>0.975</mn></msub><mo stretchy="true" form="postfix">)</mo></mrow><mo>−</mo><msub><mi>μ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mrow><msub><mi>σ</mi><mrow><msub><mi>R</mi><mi>t</mi></msub><mo>,</mo><mi>ω</mi></mrow></msub></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo><mo>−</mo><mn>0.975</mn></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mn>0</mn></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
 \frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(q_{0.025}) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg) - 0.025 &amp;= 0 \\
 \frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(q_{0.5}) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg) - 0.5 &amp;= 0 \\
 \frac{1}{|\Omega|}\sum_{\omega \in \Omega} \Phi\bigg(\frac{ln(q_{0.975}) - \mu_{R_t,\omega}}{\sigma_{R_t,\omega}}\bigg) - 0.975 &amp;= 0
-\end{align}
+\end{aligned}
+\end{eqnarray}
 </annotation></semantics></math></p>
 <p>Numerical solutions to this are moderately expensive to perform. A
 reasonable approximation can be expected by matching moments of a log
@@ -307,19 +370,29 @@ normal distribution to the mean
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>E</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">E[R_t^*]</annotation></semantics></math>
 and variance
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><annotation encoding="application/x-tex">V[R_t^*]</annotation></semantics></math>
-of the mixture. This gives us a final very lightweight closed form
-estimator for the reproduction number given a set of infectivity
-profiles,
+of the mixture. This gives us the final closed form estimator for the
+reproduction number given a set of infectivity profiles,
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mover><msub><mi>R</mi><mrow><mi>t</mi><mo>,</mo><mi>Ω</mi></mrow></msub><mo accent="true">¯</mo></mover><annotation encoding="application/x-tex">\overline{R_{t,\Omega}}</annotation></semantics></math>,
 as:</p>
-<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>l</mi><mi>o</mi><mi>g</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow><msqrt><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msqrt></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>σ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msqrt><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mrow><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mover><msub><mi>R</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo accent="true">¯</mo></mover></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo>,</mo><msub><mi>σ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable><annotation encoding="application/x-tex">
-\begin{align}
-\mu_{t|\Omega} &amp;= log\bigg(\frac{E[R_t^*]^2}{\sqrt{E[R_t^*]^2 + V[R_t^*]}}\bigg)
-        \\
+<p><math display="block" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mtable><mtr><mtd columnalign="right" style="text-align: right"><mtable><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>μ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><mi>l</mi><mi>o</mi><mi>g</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mfrac><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow><msqrt><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup><mo>+</mo><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow></msqrt></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><msub><mi>σ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub></mtd><mtd columnalign="left" style="text-align: left"><mo>=</mo><msqrt><mrow><mi>l</mi><mi>o</mi><mi>g</mi><mo minsize="2.4" maxsize="2.4" stretchy="false" form="prefix">(</mo><mn>1</mn><mo>+</mo><mfrac><mrow><mi>V</mi><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow></mrow><mrow><mi>E</mi><msup><mrow><mo stretchy="true" form="prefix">[</mo><msubsup><mi>R</mi><mi>t</mi><mo>*</mo></msubsup><mo stretchy="true" form="postfix">]</mo></mrow><mn>2</mn></msup></mrow></mfrac><mo minsize="2.4" maxsize="2.4" stretchy="false" form="postfix">)</mo></mrow></msqrt></mtd></mtr><mtr><mtd columnalign="right" style="text-align: right"><mover><msub><mi>R</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo accent="true">¯</mo></mover></mtd><mtd columnalign="left" style="text-align: left"><mo>∼</mo><mi>L</mi><mi>o</mi><mi>g</mi><mi>n</mi><mi>o</mi><mi>r</mi><mi>m</mi><mi>a</mi><mi>l</mi><mrow><mo stretchy="true" form="prefix">(</mo><msub><mi>μ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo>,</mo><msub><mi>σ</mi><mrow><mi>t</mi><mo stretchy="false" form="prefix">|</mo><mi>Ω</mi></mrow></msub><mo stretchy="true" form="postfix">)</mo></mrow></mtd></mtr></mtable></mtd></mtr></mtable><annotation encoding="application/x-tex">
+\begin{eqnarray}
+\begin{aligned}
+\mu_{t|\Omega} &amp;= log\bigg(\frac{E[R_t^*]^2}{\sqrt{E[R_t^*]^2 + V[R_t^*]}}\bigg) \\
 \sigma_{t|\Omega} &amp;= \sqrt{log\bigg(1 + \frac{V[R_t^*]}{E[R_t^*]^2}\bigg)}\\
 \overline{R_{t|\Omega}} &amp;\sim Lognormal(\mu_{t|\Omega},\sigma_{t|\Omega})
-\end{align}
+\end{aligned}
+\end{eqnarray}
 </annotation></semantics></math></p>
+<p>In summary we present a method for retrieving the distributional form
+of the reproduction number from log normally distributed probabilistic
+estimates of incidence arising from simple statistical count models.
+This includes uncertainty arising from both count models and from
+infectivity profile distributions. It is fully deterministic and
+computationally inexpensive. It does not place any particular
+constraints on the nature of the infectivity profile distribution and
+can handle distributions that have a negative component, as is sometimes
+seen in serial interval estimates.</p>
+</div>
 </div>
 <div class="section level2">
 <h2 id="implementation">Implementation<a class="anchor" aria-label="anchor" href="#implementation"></a>
@@ -329,56 +402,52 @@ designed for numerical stability and speed. Generating
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
 estimates given modelled incidence typically occurring in a matter of
 seconds:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/print.html" class="external-link">print</a></span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">:::</span><span class="va">.internal_r_t_estim</span><span class="op">)</span></span>
-<span><span class="co">#&gt; function (mu, sigma, omega, mu_t, sigma_t, cor_ij = NULL, approx = TRUE) </span></span>
+<pre><code><span><span class="co">#&gt; function (mu_t, vcov_ij = diag(sigma_t^2), omega, sigma_t = NULL, </span></span>
+<span><span class="co">#&gt;     tau_offset = 0) </span></span>
 <span><span class="co">#&gt; {</span></span>
 <span><span class="co">#&gt;     omega_m = as.matrix(omega)</span></span>
+<span><span class="co">#&gt;     k = nrow(omega_m)</span></span>
+<span><span class="co">#&gt;     if (k != length(mu_t)) {</span></span>
+<span><span class="co">#&gt;         stop("omega must have the same number of rows as length of mu_t.")</span></span>
+<span><span class="co">#&gt;     }</span></span>
+<span><span class="co">#&gt;     if (!all(dim(vcov_ij) == k)) {</span></span>
+<span><span class="co">#&gt;         stop("vcov_ij must be a square matrix with the same dimensions as mu_t, and nrow(omega)")</span></span>
+<span><span class="co">#&gt;     }</span></span>
 <span><span class="co">#&gt;     omega_m = apply(omega_m, MARGIN = 2, rev)</span></span>
+<span><span class="co">#&gt;     sigma_t = sqrt(diag(vcov_ij))</span></span>
+<span><span class="co">#&gt;     time_Rt = length(mu_t) - tau_offset</span></span>
+<span><span class="co">#&gt;     mu = mu_t[time_Rt]</span></span>
+<span><span class="co">#&gt;     sigma = sigma_t[time_Rt]</span></span>
 <span><span class="co">#&gt;     tmp = apply(omega_m, MARGIN = 2, function(omega) {</span></span>
-<span><span class="co">#&gt;         log_S_t = .logsumexp(mu_t + sigma_t^2/2 + log(omega))</span></span>
-<span><span class="co">#&gt;         log_T_t_tau = mu_t + sigma_t^2/2 + log(omega) + log(sigma_t)</span></span>
-<span><span class="co">#&gt;         if (!is.null(cor_ij)) {</span></span>
-<span><span class="co">#&gt;             log_T_t_matrix = outer(log_T_t_tau, log_T_t_tau, </span></span>
-<span><span class="co">#&gt;                 FUN = "+")</span></span>
-<span><span class="co">#&gt;             log_var_Zt_ij = log_T_t_matrix + log(pmax(cor_ij, </span></span>
-<span><span class="co">#&gt;                 0))</span></span>
-<span><span class="co">#&gt;         }</span></span>
-<span><span class="co">#&gt;         else {</span></span>
-<span><span class="co">#&gt;             log_var_Zt_ij = 2 * log_T_t_tau</span></span>
-<span><span class="co">#&gt;         }</span></span>
-<span><span class="co">#&gt;         log_var_Zt = .logsumexp(log_var_Zt_ij) - 2 * log_S_t</span></span>
-<span><span class="co">#&gt;         var_Zt = exp(log_var_Zt)</span></span>
-<span><span class="co">#&gt;         mu_Zt = log_S_t - var_Zt/2</span></span>
-<span><span class="co">#&gt;         mu_Rt = mu - mu_Zt</span></span>
-<span><span class="co">#&gt;         var_Rt = sigma^2 + var_Zt</span></span>
-<span><span class="co">#&gt;         return(c(mu_Rt, var_Rt))</span></span>
+<span><span class="co">#&gt;         log_m_tau = mu_t + sigma_t^2/2 + log(omega)</span></span>
+<span><span class="co">#&gt;         log_S_plus = .logsumexp(log_m_tau)</span></span>
+<span><span class="co">#&gt;         log_Sigma_ij = log(pmax(vcov_ij, 0))</span></span>
+<span><span class="co">#&gt;         log_Sigma_0tau = log_Sigma_ij[time_Rt, ]</span></span>
+<span><span class="co">#&gt;         log_sigma_Z2 = .logsumexp(outer(log_m_tau, log_m_tau, </span></span>
+<span><span class="co">#&gt;             "+") + log_Sigma_ij) - 2 * log_S_plus</span></span>
+<span><span class="co">#&gt;         mu_Z = log_S_plus - 1/2 * exp(log_sigma_Z2)</span></span>
+<span><span class="co">#&gt;         log_Sigma_0Z = .logsumexp(log_m_tau + log_Sigma_0tau) - </span></span>
+<span><span class="co">#&gt;             log_S_plus</span></span>
+<span><span class="co">#&gt;         mu_Rt = mu - mu_Z</span></span>
+<span><span class="co">#&gt;         sigma_Rt2 = sigma^2 + exp(log_sigma_Z2) - 2 * exp(log_Sigma_0Z)</span></span>
+<span><span class="co">#&gt;         return(c(mu_Rt, sigma_Rt2))</span></span>
 <span><span class="co">#&gt;     })</span></span>
 <span><span class="co">#&gt;     mu_Rt = tmp[1, ]</span></span>
-<span><span class="co">#&gt;     var_Rt = tmp[2, ]</span></span>
-<span><span class="co">#&gt;     sigma_Rt = sqrt(var_Rt)</span></span>
-<span><span class="co">#&gt;     means = exp(mu_Rt + var_Rt/2)</span></span>
-<span><span class="co">#&gt;     vars = (exp(var_Rt) - 1) * exp(2 * mu_Rt + var_Rt)</span></span>
+<span><span class="co">#&gt;     sigma_Rt2 = tmp[2, ]</span></span>
+<span><span class="co">#&gt;     means = exp(mu_Rt + sigma_Rt2/2)</span></span>
+<span><span class="co">#&gt;     vars = (exp(sigma_Rt2) - 1) * exp(2 * mu_Rt + sigma_Rt2)</span></span>
 <span><span class="co">#&gt;     mean_star = mean(means)</span></span>
 <span><span class="co">#&gt;     var_star = mean(vars + means^2) - mean_star^2</span></span>
-<span><span class="co">#&gt;     out = tibble::tibble(rt.fit = log(mean_star) - log(var_star/mean_star^2 + </span></span>
-<span><span class="co">#&gt;         1)/2, rt.se.fit = sqrt(log(1 + var_star/mean_star^2)))</span></span>
-<span><span class="co">#&gt;     if (approx) {</span></span>
-<span><span class="co">#&gt;         out = out %&gt;% .result_from_fit(type = "rt", qfn = function(p) stats::qlnorm(p, </span></span>
-<span><span class="co">#&gt;             .$rt.fit, .$rt.se.fit)) %&gt;% .keep_cdf(type = "rt", </span></span>
-<span><span class="co">#&gt;             meanlog = .$rt.fit, sdlog = .$rt.se.fit, link = "log")</span></span>
-<span><span class="co">#&gt;     }</span></span>
-<span><span class="co">#&gt;     else {</span></span>
-<span><span class="co">#&gt;         out = out %&gt;% .result_from_fit(type = "rt", qfn = function(p) {</span></span>
-<span><span class="co">#&gt;             .qmixlnorm(p, meanlogs = mu_Rt, sdlogs = sigma_Rt, </span></span>
-<span><span class="co">#&gt;                 method = "exact")</span></span>
-<span><span class="co">#&gt;         }) %&gt;% .keep_cdf(type = "rt", meanlog = list(mu_Rt), </span></span>
-<span><span class="co">#&gt;             sdlog = list(sigma_Rt), link = "log")</span></span>
-<span><span class="co">#&gt;     }</span></span>
-<span><span class="co">#&gt;     return(out)</span></span>
+<span><span class="co">#&gt;     mu_star = log(mean_star) - log(var_star/mean_star^2 + 1)/2</span></span>
+<span><span class="co">#&gt;     sigma_star = sqrt(log(1 + var_star/mean_star^2))</span></span>
+<span><span class="co">#&gt;     return(list(time_Rt = time_Rt, mean_Rt_star = mean_star, </span></span>
+<span><span class="co">#&gt;         var_Rt_star = var_star, meanlog_Rt_star = mu_star, sdlog_Rt_star = sigma_star, </span></span>
+<span><span class="co">#&gt;         mu_Rt_mix = mu_Rt, sigma_Rt_mix = sqrt(sigma_Rt2), quantile_Rt_fn = function(p) {</span></span>
+<span><span class="co">#&gt;             .qmixlnorm(p, mu_Rt, sqrt(sigma_Rt2))</span></span>
+<span><span class="co">#&gt;         }))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x596933350ca0&gt;</span></span>
-<span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; &lt;bytecode: 0x5d137b3cd6f8&gt;</span></span>
+<span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
 <h2 id="results">Results<a class="anchor" aria-label="anchor" href="#results"></a>
@@ -393,17 +462,8 @@ series with 1410 time points , which opens up the possibility of
 performing
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
 estimates in fine grained geographical or demographic subgroups.</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span></span>
-<span>  <span class="va">rt_fit</span> <span class="op">=</span> <span class="va">fit</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="../reference/rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">covid_ip</span>, approx <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   4.823   0.007   4.831</span></span>
-<span></span>
-<span><span class="fu"><a href="../reference/plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">rt_fit</span>, events <span class="op">=</span> <span class="va">england_events</span>, colour<span class="op">=</span><span class="st">"blue"</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian</a></span><span class="op">(</span>xlim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-01"</span>,<span class="st">"2023-01-01"</span><span class="op">)</span><span class="op">)</span>, ylim<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.6</span>,<span class="fl">1.6</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
-<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_linerange.html" class="external-link">geom_errorbar</a></span><span class="op">(</span>data<span class="op">=</span><span class="va">england_consensus_rt</span>,<span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">date</span><span class="op">-</span><span class="fl">14</span>,ymin<span class="op">=</span><span class="va">low</span>,ymax<span class="op">=</span><span class="va">high</span><span class="op">)</span>,colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></code></pre></div>
+<pre><code><span><span class="co">#&gt;    user  system elapsed </span></span>
+<span><span class="co">#&gt;   8.570   0.162   8.733</span></span></code></pre>
 <p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
 </div>
 <div class="section level2">

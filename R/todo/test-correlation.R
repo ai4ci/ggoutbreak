@@ -3,7 +3,7 @@
 means = seq(0.1,10.1,0.5)
 sds = seq(0.1,5.1,0.5)
 
-out = tibble::tibble(
+out = dplyr::tibble(
   mean = numeric(),
   sd = numeric(),
   correlation = numeric()
@@ -16,14 +16,14 @@ for(mean in means) {
     rate = mean/sd^2
 
     samples = rgamma(100,shape,rate = rate)
-    data = tibble::tibble(left = floor(samples), right=ceiling(samples))
+    data = dplyr::tibble(left = floor(samples), right=ceiling(samples))
     try({
       # browser()
       tmp = fitdistrplus::fitdistcens(as.data.frame(data),distr = "gamma")
       tmp2 = fitdistrplus::bootdistcens(tmp,niter = 100)
       params = tmp2$estim
       params = params %>% mutate(mean = shape/rate, sd = sqrt(shape/rate^2))
-      out.row = tibble::tibble(
+      out.row = dplyr::tibble(
         mean = mean,
         sd = sd,
         mu = log(mean),

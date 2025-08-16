@@ -265,9 +265,9 @@ plot_growth_phase.risk_ratio = function(
   ]
 
   plot_data = modelled %>%
-    dplyr::cross_join(tibble::tibble(
+    dplyr::cross_join(dplyr::tibble(
       end = timepoints,
-      labels = forcats::as_factor(labels(
+      labels = .as_factor(labels(
         timepoints,
         ifmt = "{start}",
         dfmt = "%d %b %Y"

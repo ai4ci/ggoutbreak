@@ -15,7 +15,7 @@ error of input and estimated based on different lag offsets."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.7</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -35,8 +35,8 @@ error of input and estimated based on different lag offsets."><meta property="og
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
     <li><a class="dropdown-item" href="../articles/time-periods.html">Data wrangling and working with `ggoutbreak`</a></li>
-    <li><a class="dropdown-item" href="../articles/time-units.html">Estimating the reproduction number from weekly data</a></li>
     <li><a class="dropdown-item" href="../articles/variant-proportions.html">Multinomial proportions models for genomic variants</a></li>
+    <li><a class="dropdown-item" href="../articles/weekly-incidence.html">Estimating the reproduction number from weekly data</a></li>
   </ul></li>
       </ul><ul class="navbar-nav"><li class="nav-item"><form class="form-inline" role="search">
  <input class="form-control" type="search" name="search-input" id="search-input" autocomplete="off" aria-label="Search site" placeholder="Search for" data-search-index="../search.json"></form></li>
@@ -103,6 +103,8 @@ in days that the estimate is behind the actual observation</p>
 <span class="r-in"><span><span class="co"># This model has no estimator lag:</span></span></span>
 <span class="r-in"><span><span class="va">pipeline</span> <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline</span>, ip <span class="op">=</span> <span class="va">test_ip</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Rt from incidence: assuming independence and approximating quantiles. </span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> (N.B. this message will only be displayed once.)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   estimate [3]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate    lag</span>

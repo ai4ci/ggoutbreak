@@ -5,7 +5,7 @@
 \title{SEIR model with time-varying transmission parameter}
 \usage{
 sim_seir_model(
-  changes = tibble::tibble(t = c(0, 30), dBeta = c(1, 0.5)),
+  changes = dplyr::tibble(t = c(0, 30), dBeta = c(1, 0.5)),
   mean_latent_period,
   mean_gen_time,
   R0 = 2.5,
