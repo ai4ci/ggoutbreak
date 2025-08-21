@@ -155,7 +155,7 @@
   rval = NULL
   file = withr::local_connection(textConnection("rval", "w", local = TRUE))
   withr::with_output_sink(file, try(print(env), silent = TRUE))
-  return(rval)
+  return(paste0(rval, collapse = ""))
 }
 
 # .callid = function() {
@@ -217,8 +217,9 @@
   return(tmp)
 }
 
-cache_env <- new.env(parent = emptyenv())
-cache_env$map = list()
+cache_env = rlang::new_environment(
+  data = list(map = list())
+)
 
 .messaged = function(msg, id) {
   sent = cache_env$map[[id]]

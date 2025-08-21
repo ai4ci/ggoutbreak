@@ -78,22 +78,25 @@ the \code{ip} distribution, and that this is daily, if this is not the case then
 \code{\link[=rescale_model]{rescale_model()}} may be able to fix it.
 }
 \details{
-N.B. for certain estimators (e.g. \code{\link[=poisson_gam_model]{poisson_gam_model()}}) a version of this
-function will be called automatically with a full covariance matrix if the
-infectivity profile is supplied. The inbuilt version is preferred over this
-function for \code{\link[=poisson_gam_model]{poisson_gam_model()}}, as the full covariance matrix is not
-externalised in \code{ggoutbreak}. If you are rolling your own incidence estimates
-and want an Rt estimate then \code{\link[=rt_incidence_timeseries_implementation]{rt_incidence_timeseries_implementation()}} maybe
-better suited to your task.
+N.B. for certain estimators (e.g. \code{\link[=poisson_gam_model]{poisson_gam_model()}},
+\code{\link[=poisson_locfit_model]{poisson_locfit_model()}}) a version of this function will be called
+automatically if the infectivity profile is supplied. The inbuilt version is
+preferred over this function for these estimators, as the full covariance
+matrix may be used and the initial part of the outbreak can be predicted more
+accurately. This function is for supporting the other count models in
+\code{ggoutbreak}. If you are rolling your own incidence estimates and want an Rt
+estimate then \code{\link[=rt_incidence_timeseries_implementation]{rt_incidence_timeseries_implementation()}} maybe better suited
+to your task.
 }
 \examples{
+
 tmp = ggoutbreak::test_poisson_rt_smooth \%>\%
   poisson_locfit_model() \%>\%
-  rt_from_incidence(approx=FALSE)
+  rt_from_incidence(ip = test_ip, approx=FALSE)
 
 tmp2 = ggoutbreak::test_poisson_rt_smooth \%>\%
   poisson_locfit_model() \%>\%
-  rt_from_incidence(approx=TRUE)
+  rt_from_incidence(ip = test_ip, approx=TRUE)
 
 plot_data = dplyr::bind_rows(
   tmp \%>\% dplyr::mutate(class = "exact"),

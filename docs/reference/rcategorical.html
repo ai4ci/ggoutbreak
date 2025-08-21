@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/estimators-example.html">Simulation tests for growth rate estimators</a></li>
     <li><a class="dropdown-item" href="../articles/incidence-trends.html">Population comparisons and incidence</a></li>
     <li><a class="dropdown-item" href="../articles/infectivity-profile-discretisation.html">Infectivity profile discretisation</a></li>
+    <li><a class="dropdown-item" href="../articles/right-censoring.html">Estimating the reproduction number from right censored data</a></li>
     <li><a class="dropdown-item" href="../articles/rt-from-incidence.html">Estimating the reproduction number from modelled incidence</a></li>
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
@@ -85,12 +86,12 @@ of <code>prob</code> or from a character vector in <code>factor</code>.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="fu">rcategorical</span><span class="op">(</span><span class="fl">1000</span>,<span class="va">prob</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   one seven   two </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   104   694   202 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   104   693   203 </span>
 <span class="r-in"><span><span class="fu">rcategorical</span><span class="op">(</span><span class="fl">10</span>,<span class="va">prob</span>,factor<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] seven two   seven seven seven seven two   one   seven seven</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] seven seven seven two   one   seven seven two   two   two  </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: one two seven</span>
 <span class="r-in"><span><span class="fu">rcategorical</span><span class="op">(</span><span class="fl">10</span>,<span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>,<span class="fl">26</span><span class="op">)</span>,factor<span class="op">=</span><span class="va">letters</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] d f f d v h n l u q</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] d v h n l u q s p h</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Levels: a b c d e f g h i j k l m n o p q r s t u v w x y z</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>

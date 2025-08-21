@@ -11,6 +11,7 @@ poisson_gam_model.censored(
   frequency = "1 day",
   predict = gam_delayed_reporting(...)$predict,
   ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 )
 }

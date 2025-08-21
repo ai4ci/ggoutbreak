@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/estimators-example.html">Simulation tests for growth rate estimators</a></li>
     <li><a class="dropdown-item" href="../articles/incidence-trends.html">Population comparisons and incidence</a></li>
     <li><a class="dropdown-item" href="../articles/infectivity-profile-discretisation.html">Infectivity profile discretisation</a></li>
+    <li><a class="dropdown-item" href="../articles/right-censoring.html">Estimating the reproduction number from right censored data</a></li>
     <li><a class="dropdown-item" href="../articles/rt-from-incidence.html">Estimating the reproduction number from modelled incidence</a></li>
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
@@ -106,26 +107,26 @@ parameters.</p>
 <span class="r-in"><span><span class="va">fit</span> <span class="op">=</span> <span class="fu">model_fn</span><span class="op">(</span><span class="va">test_poisson_rt</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">ungroup</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">fit</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> Family: Negative Binomial(56.499) </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Family: quasipoisson </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Link function: log </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Formula:</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> count ~ s(time, bs = "cr", k = length(kts))</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Parametric coefficients:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error z value Pr(&gt;|z|)    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)  7.08122    0.01796   394.3   &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>             Estimate Std. Error t value Pr(&gt;|t|)    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> (Intercept)   7.0884     0.1017    69.7   &lt;2e-16 ***</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Approximate significance of smooth terms:</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>           edf Ref.df Chi.sq p-value    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> s(time) 6.812  6.986   8940  &lt;2e-16 ***</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>           edf Ref.df     F p-value    </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> s(time) 6.512  6.908 133.9  &lt;2e-16 ***</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> ---</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> R-sq.(adj) =  0.882   Deviance explained = 98.8%</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> -REML = 566.17  Scale est. = 1         n = 81</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> R-sq.(adj) =  0.892   Deviance explained = 96.6%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> -REML =  249.2  Scale est. = 127.45    n = 81</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -11,6 +11,8 @@ poisson_locfit_model(
   deg = 2,
   frequency = "1 day",
   predict = TRUE,
+  ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 )
 }
@@ -41,6 +43,23 @@ a linear model piece wise. - default \code{2}}
 
 \item{predict}{result is a prediction dataframe. If false we return the
 \code{locfit} models (advanced). - default \code{TRUE}}
+
+\item{ip}{An infectivity profile (optional) if not given (the default) the
+Rt value will not be estimated - a dataframe with columns:
+\itemize{
+\item boot (anything + default(1)) - a bootstrap identifier
+\item probability (proportion) - the probability of new event during this period.
+\item tau (integer + complete) - the days since the index event.
+}
+
+Minimally grouped by: boot (and other groupings allowed).
+
+A default value is defined.
+}
+
+\item{quick}{if \code{ip} is provided, and quick is \code{TRUE} Rt estimation will be
+done assuming independence which is quicker but less accurate. Setting this
+to false will use a full variance-covariance matrix.}
 
 \item{.progress}{show a CLI progress bar}
 }
@@ -73,14 +92,21 @@ growth rate estimate both based on the time unit of the input data (e.g. for
 daily data the rate will be cases per day and the growth rate will be daily).
 }
 \examples{
-data = test_poisson_growth_rate
 
-tmp2 = data \%>\% ggoutbreak::poisson_locfit_model(window=7,deg=2)
-tmp3 = data \%>\% ggoutbreak::poisson_locfit_model(window=14,deg=1)
+
+data = test_poisson_rt
+tmp = data \%>\% ggoutbreak::poisson_locfit_model(window=14,deg=2, ip=test_ip, quick=TRUE)
+plot_rt(tmp)+sim_geom_function(data,colour="red")
+
+data = test_poisson_growth_rate
+tmp2 = data \%>\% ggoutbreak::poisson_locfit_model(window=7,deg=1)
+tmp3 = data \%>\% ggoutbreak::poisson_locfit_model(window=14,deg=2)
+
+
 
 comp = dplyr::bind_rows(
-  tmp2 \%>\% dplyr::mutate(class="7:2"),
-  tmp3 \%>\% dplyr::mutate(class="14:1"),
+  tmp2 \%>\% dplyr::mutate(class="7:1"),
+  tmp3 \%>\% dplyr::mutate(class="14:2"),
 ) \%>\% dplyr::group_by(class)
 
 if (interactive()) {

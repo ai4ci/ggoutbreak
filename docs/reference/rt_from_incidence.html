@@ -17,7 +17,7 @@ rescale_model() may be able to fix it.'><meta property="og:image" content="https
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -33,6 +33,7 @@ rescale_model() may be able to fix it.'><meta property="og:image" content="https
     <li><a class="dropdown-item" href="../articles/estimators-example.html">Simulation tests for growth rate estimators</a></li>
     <li><a class="dropdown-item" href="../articles/incidence-trends.html">Population comparisons and incidence</a></li>
     <li><a class="dropdown-item" href="../articles/infectivity-profile-discretisation.html">Infectivity profile discretisation</a></li>
+    <li><a class="dropdown-item" href="../articles/right-censoring.html">Estimating the reproduction number from right censored data</a></li>
     <li><a class="dropdown-item" href="../articles/rt-from-incidence.html">Estimating the reproduction number from modelled incidence</a></li>
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
@@ -128,26 +129,34 @@ need to be supplied. - a dataframe with columns:</p><ul><li><p>count (positive_i
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>N.B. for certain estimators (e.g. <code><a href="poisson_gam_model.html">poisson_gam_model()</a></code>) a version of this
-function will be called automatically with a full covariance matrix if the
-infectivity profile is supplied. The inbuilt version is preferred over this
-function for <code><a href="poisson_gam_model.html">poisson_gam_model()</a></code>, as the full covariance matrix is not
-externalised in <code>ggoutbreak</code>. If you are rolling your own incidence estimates
-and want an Rt estimate then <code><a href="rt_incidence_timeseries_implementation.html">rt_incidence_timeseries_implementation()</a></code> maybe
-better suited to your task.</p>
+    <p>N.B. for certain estimators (e.g. <code><a href="poisson_gam_model.html">poisson_gam_model()</a></code>,
+<code><a href="poisson_locfit_model.html">poisson_locfit_model()</a></code>) a version of this function will be called
+automatically if the infectivity profile is supplied. The inbuilt version is
+preferred over this function for these estimators, as the full covariance
+matrix may be used and the initial part of the outbreak can be predicted more
+accurately. This function is for supporting the other count models in
+<code>ggoutbreak</code>. If you are rolling your own incidence estimates and want an Rt
+estimate then <code><a href="rt_incidence_timeseries_implementation.html">rt_incidence_timeseries_implementation()</a></code> maybe better suited
+to your task.</p>
     </div>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt_smooth.html">test_poisson_rt_smooth</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt_smooth.html">test_poisson_rt_smooth</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">rt_from_incidence</span><span class="op">(</span>approx<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">rt_from_incidence</span><span class="op">(</span>ip <span class="op">=</span> <span class="va">test_ip</span>, approx<span class="op">=</span><span class="cn">FALSE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rt from incidence: assuming independence. </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> (N.B. this message will only be displayed once.)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Estimates were assumed to be independent, but more that 1% of estimates</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> are at risk of Rt underestimation by more that 0.05 (absolute).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> We advise re-running supplying a full variance-covariance matrix, or</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> a value to the `raw` parameter, or setting `quick=FALSE`. </span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> (N.B. this warning will only be displayed once.)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tmp2</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt_smooth.html">test_poisson_rt_smooth</a></span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">rt_from_incidence</span><span class="op">(</span>approx<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">rt_from_incidence</span><span class="op">(</span>ip <span class="op">=</span> <span class="va">test_ip</span>, approx<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">plot_data</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>  <span class="va">tmp</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>class <span class="op">=</span> <span class="st">"exact"</span><span class="op">)</span>,</span></span>

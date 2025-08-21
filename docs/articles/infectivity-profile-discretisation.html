@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
     <li><a class="dropdown-item" href="../articles/estimators-example.html">Simulation tests for growth rate estimators</a></li>
     <li><a class="dropdown-item" href="../articles/incidence-trends.html">Population comparisons and incidence</a></li>
     <li><a class="dropdown-item" href="../articles/infectivity-profile-discretisation.html">Infectivity profile discretisation</a></li>
+    <li><a class="dropdown-item" href="../articles/right-censoring.html">Estimating the reproduction number from right censored data</a></li>
     <li><a class="dropdown-item" href="../articles/rt-from-incidence.html">Estimating the reproduction number from modelled incidence</a></li>
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
@@ -93,27 +94,27 @@ Rotavirus dataset from <code>EpiEstim</code>:</p>
 <span>  verbose <span class="op">=</span> <span class="fl">10000</span><span class="op">)</span></span></code></pre></div>
 <pre><code><span><span class="co">## Running 6000 MCMC iterations </span></span>
 <span><span class="co">## MCMCmetrop1R iteration 1 of 6000 </span></span>
-<span><span class="co">## function value =  -31.60075</span></span>
+<span><span class="co">## function value =  -31.69133</span></span>
 <span><span class="co">## theta = </span></span>
-<span><span class="co">##    0.32393</span></span>
-<span><span class="co">##    0.09508</span></span>
+<span><span class="co">##    0.01685</span></span>
+<span><span class="co">##    0.27435</span></span>
 <span><span class="co">## Metropolis acceptance rate = 1.00000</span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## </span></span>
 <span><span class="co">## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span></span>
-<span><span class="co">## The Metropolis acceptance rate was 0.55150</span></span>
+<span><span class="co">## The Metropolis acceptance rate was 0.55950</span></span>
 <span><span class="co">## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@</span></span></code></pre>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">SI_fit_clever</span></span></code></pre></div>
 <pre><code><span><span class="co">## Coarse Data Model Parameter and Quantile Estimates: </span></span>
 <span><span class="co">##         est CIlow CIhigh</span></span>
-<span><span class="co">## shape 1.072 0.443  2.466</span></span>
-<span><span class="co">## scale 1.343 0.621  3.708</span></span>
-<span><span class="co">## p5    0.090 0.003  0.375</span></span>
-<span><span class="co">## p50   1.054 0.436  1.729</span></span>
-<span><span class="co">## p95   4.216 2.797  7.831</span></span>
-<span><span class="co">## p99   6.447 4.118 12.978</span></span>
+<span><span class="co">## shape 1.050 0.440  2.282</span></span>
+<span><span class="co">## scale 1.390 0.626  3.497</span></span>
+<span><span class="co">## p5    0.087 0.003  0.329</span></span>
+<span><span class="co">## p50   1.037 0.450  1.682</span></span>
+<span><span class="co">## p95   4.241 2.835  7.217</span></span>
+<span><span class="co">## p99   6.455 4.110 11.871</span></span>
 <span><span class="co">## Note: please check that the MCMC converged on the target distribution by running multiple chains. MCMC samples are available in the mcmc slot (e.g. my.fit@mcmc)</span></span></code></pre>
 <p>The median estimate and confidence intervals are quantiles of the
 posterior samples each of which define a candidate gamma distribution.
@@ -287,15 +288,15 @@ strategy is also included.</p>
 <span><span class="co">## $ r                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.40<span style="color: #949494;">, </span>0.20<span style="color: #949494;">, </span>0.10<span style="color: #949494;">, </span>0.05<span style="color: #949494;">, </span>0.00<span style="color: #949494;">, </span>-0.05<span style="color: #949494;">, </span>-0.10</span></span>
 <span><span class="co">## $ t_start             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2</span></span>
 <span><span class="co">## $ t_end               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 30<span style="color: #949494;">, </span>30<span style="color: #949494;">, </span>30<span style="color: #949494;">, </span>30<span style="color: #949494;">, </span>30<span style="color: #949494;">, </span>30<span style="color: #949494;">, </span>30</span></span>
-<span><span class="co">## $ `Mean(R)`           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.7560738<span style="color: #949494;">, </span>1.3492398<span style="color: #949494;">, </span>1.1732585<span style="color: #949494;">, </span>1.0943101<span style="color: #949494;">, </span>1.0240…</span></span>
-<span><span class="co">## $ `Std(R)`            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.19001344<span style="color: #949494;">, </span>0.08703997<span style="color: #949494;">, </span>0.04583650<span style="color: #949494;">, </span>0.03132544<span style="color: #949494;">, </span>0.…</span></span>
-<span><span class="co">## $ `Quantile.0.025(R)` <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.5010292<span style="color: #949494;">, </span>1.2267270<span style="color: #949494;">, </span>1.1041581<span style="color: #949494;">, </span>1.0422651<span style="color: #949494;">, </span>0.9779…</span></span>
-<span><span class="co">## $ `Quantile.0.05(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.5074141<span style="color: #949494;">, </span>1.2296381<span style="color: #949494;">, </span>1.1090446<span style="color: #949494;">, </span>1.0484954<span style="color: #949494;">, </span>0.9849…</span></span>
-<span><span class="co">## $ `Quantile.0.25(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.6055201<span style="color: #949494;">, </span>1.2833615<span style="color: #949494;">, </span>1.1390247<span style="color: #949494;">, </span>1.0713704<span style="color: #949494;">, </span>1.0069…</span></span>
-<span><span class="co">## $ `Median(R)`         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.7318414<span style="color: #949494;">, </span>1.3383405<span style="color: #949494;">, </span>1.1667559<span style="color: #949494;">, </span>1.0908640<span style="color: #949494;">, </span>1.0232…</span></span>
-<span><span class="co">## $ `Quantile.0.75(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.8684026<span style="color: #949494;">, </span>1.4000557<span style="color: #949494;">, </span>1.2011651<span style="color: #949494;">, </span>1.1144944<span style="color: #949494;">, </span>1.0401…</span></span>
-<span><span class="co">## $ `Quantile.0.95(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.1091960<span style="color: #949494;">, </span>1.5026338<span style="color: #949494;">, </span>1.2551524<span style="color: #949494;">, </span>1.1512564<span style="color: #949494;">, </span>1.0667…</span></span>
-<span><span class="co">## $ `Quantile.0.975(R)` <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.1673202<span style="color: #949494;">, </span>1.5550979<span style="color: #949494;">, </span>1.2786507<span style="color: #949494;">, </span>1.1620613<span style="color: #949494;">, </span>1.0752…</span></span></code></pre>
+<span><span class="co">## $ `Mean(R)`           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.6363498<span style="color: #949494;">, </span>1.2949879<span style="color: #949494;">, </span>1.1457269<span style="color: #949494;">, </span>1.0774336<span style="color: #949494;">, </span>1.0150…</span></span>
+<span><span class="co">## $ `Std(R)`            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.10195961<span style="color: #949494;">, </span>0.04921553<span style="color: #949494;">, </span>0.02719525<span style="color: #949494;">, </span>0.02103467<span style="color: #949494;">, </span>0.…</span></span>
+<span><span class="co">## $ `Quantile.0.025(R)` <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.5007664<span style="color: #949494;">, </span>1.2260638<span style="color: #949494;">, </span>1.1043343<span style="color: #949494;">, </span>1.0408866<span style="color: #949494;">, </span>0.9747…</span></span>
+<span><span class="co">## $ `Quantile.0.05(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.5064687<span style="color: #949494;">, </span>1.2302699<span style="color: #949494;">, </span>1.1086677<span style="color: #949494;">, </span>1.0455470<span style="color: #949494;">, </span>0.9816…</span></span>
+<span><span class="co">## $ `Quantile.0.25(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.5565440<span style="color: #949494;">, </span>1.2569643<span style="color: #949494;">, </span>1.1255241<span style="color: #949494;">, </span>1.0626820<span style="color: #949494;">, </span>1.0007…</span></span>
+<span><span class="co">## $ `Median(R)`         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.6157056<span style="color: #949494;">, </span>1.2844996<span style="color: #949494;">, </span>1.1412058<span style="color: #949494;">, </span>1.0758253<span style="color: #949494;">, </span>1.0150…</span></span>
+<span><span class="co">## $ `Quantile.0.75(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.6981159<span style="color: #949494;">, </span>1.3255942<span style="color: #949494;">, </span>1.1623163<span style="color: #949494;">, </span>1.0908515<span style="color: #949494;">, </span>1.0287…</span></span>
+<span><span class="co">## $ `Quantile.0.95(R)`  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.8527005<span style="color: #949494;">, </span>1.3977839<span style="color: #949494;">, </span>1.1977958<span style="color: #949494;">, </span>1.1145056<span style="color: #949494;">, </span>1.0496…</span></span>
+<span><span class="co">## $ `Quantile.0.975(R)` <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.863476<span style="color: #949494;">, </span>1.404513<span style="color: #949494;">, </span>1.206322<span style="color: #949494;">, </span>1.122649<span style="color: #949494;">, </span>1.056783<span style="color: #949494;">, </span>…</span></span></code></pre>
 <div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">R_t_summ</span> <span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_point.html" class="external-link">geom_point</a></span><span class="op">(</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>y<span class="op">=</span><span class="va">median</span>, x <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html" class="external-link">factor</a></span><span class="op">(</span><span class="va">r</span><span class="op">)</span>, colour <span class="op">=</span> <span class="va">source</span><span class="op">)</span>, position<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/position_dodge.html" class="external-link">position_dodge</a></span><span class="op">(</span>width<span class="op">=</span><span class="fl">0.4</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>

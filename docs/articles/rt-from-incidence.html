@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -43,6 +43,7 @@
     <li><a class="dropdown-item" href="../articles/estimators-example.html">Simulation tests for growth rate estimators</a></li>
     <li><a class="dropdown-item" href="../articles/incidence-trends.html">Population comparisons and incidence</a></li>
     <li><a class="dropdown-item" href="../articles/infectivity-profile-discretisation.html">Infectivity profile discretisation</a></li>
+    <li><a class="dropdown-item" href="../articles/right-censoring.html">Estimating the reproduction number from right censored data</a></li>
     <li><a class="dropdown-item" href="../articles/rt-from-incidence.html">Estimating the reproduction number from modelled incidence</a></li>
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
@@ -446,7 +447,7 @@ seconds:</p>
 <span><span class="co">#&gt;             .qmixlnorm(p, mu_Rt, sqrt(sigma_Rt2))</span></span>
 <span><span class="co">#&gt;         }))</span></span>
 <span><span class="co">#&gt; }</span></span>
-<span><span class="co">#&gt; &lt;bytecode: 0x5d137b3cd6f8&gt;</span></span>
+<span><span class="co">#&gt; &lt;bytecode: 0x58b456392eb0&gt;</span></span>
 <span><span class="co">#&gt; &lt;environment: namespace:ggoutbreak&gt;</span></span></code></pre>
 </div>
 <div class="section level2">
@@ -463,7 +464,7 @@ performing
 <math display="inline" xmlns="http://www.w3.org/1998/Math/MathML"><semantics><msub><mi>R</mi><mi>t</mi></msub><annotation encoding="application/x-tex">R_t</annotation></semantics></math>
 estimates in fine grained geographical or demographic subgroups.</p>
 <pre><code><span><span class="co">#&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;   8.570   0.162   8.733</span></span></code></pre>
+<span><span class="co">#&gt;  10.691   1.273  12.015</span></span></code></pre>
 <p><img src="rt-from-incidence_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
 </div>
 <div class="section level2">

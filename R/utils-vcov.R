@@ -9,7 +9,7 @@
 # Correlation decays exponentially with distance
 # correlation_matrix <- exp(-time_matrix / bandwidth)
 
-# GAM and GLMs
+# GAMs
 predict_derivative = function(model, newdata, dimension = "time") {
   dimension = rlang::ensym(dimension)
   eps = 1e-7 ## finite difference interval
@@ -27,7 +27,7 @@ predict_derivative = function(model, newdata, dimension = "time") {
   fit = Xp %*% stats::coef(model)
   # this is doing a Xp %*% vcov(model) %*% t(Xp) where we only need sequential
   # values (i.e. the diagonals)
-  se.fit = rowSums(Xp %*% stats::vcov(model) * Xp)^.5
+  se.fit = sqrt(rowSums(Xp %*% stats::vcov(model) * Xp))
 
   return(list(
     fit = as.numeric(fit),
@@ -117,10 +117,10 @@ vcov_from_residuals = function(
   if (!all(c(length(data), length(mu), length(sigma)) == length(data))) {
     stop("All inputs must have the same length.")
   }
-  if (any(data < 0)) {
+  if (any(stats::na.omit(data) < 0)) {
     stop("Data must be non-negative counts.")
   }
-  if (any(sigma <= 0)) {
+  if (any(stats::na.omit(sigma) <= 0)) {
     stop("sigma must be positive.")
   }
   if (max_lag >= length(data)) {
@@ -139,7 +139,7 @@ vcov_from_residuals = function(
   # Remove any NaNs (e.g., if lambda_hat = 0)
   valid <- !is.na(residuals) & is.finite(residuals)
   if (!all(valid)) {
-    warning("Some residuals are NaN/Inf; using only valid time points for ACF.")
+    #warning("Some residuals are NaN/Inf; using only valid time points for ACF.")
     residuals <- residuals[valid]
   }
 

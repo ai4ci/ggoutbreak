@@ -7,7 +7,7 @@
 rt_incidence_timeseries_implementation(
   time,
   mu,
-  vcov = sigma^2,
+  vcov = NULL,
   sigma = NULL,
   ip = i_discrete_ip,
   tidy = FALSE,
@@ -25,9 +25,11 @@ optional but if not given and \code{sigma_t} is given then this will be inferred
 assuming independence between estimates. This should be a matrix with
 dimensions \code{k * k}}
 
-\item{sigma}{if \code{vcov} is not given then this must be supplied as the
-sdlog of the log normal incidence estimate. If this is the case the
-estimates will be made assuming estimate independence. A vector of length \code{k}}
+\item{sigma}{if \code{vcov} is not given then this must be supplied as the sdlog
+of the log normal incidence estimate. If this is the case the estimates
+will be made assuming estimate independence. A vector of length \code{k}. Checks
+will be made that determine if there is risk of bias, and this can make
+this slower than using the full covariance matrix.}
 
 \item{ip}{a long format infectivity profile dataframe. - a dataframe with columns:
 \itemize{
@@ -81,7 +83,8 @@ Any grouping allowed.
 This function estimates the reproduction number for a while time series
 given log-normally distributed incidence estimates, and a set of
 infectivity profiles. This version of the algorithm is optimised for running
-over all of a single time series.
+over all of a single time series. The algorithm will not produce Rt estimates
+until there is at least the
 }
 \details{
 N.B. the description of this algorithm is given here:
@@ -95,7 +98,8 @@ ip = ggoutbreak::test_ip
 # first we need a set of incidence estimates
 # we fit a poisson model to counts using a GAM:
 model = mgcv::gam(count ~ s(time), family = "poisson", data=data)
-newdata = dplyr::tibble(time = 1:100)
+ip_len = max(ip$tau)
+newdata = dplyr::tibble(time = -ip_len:100)
 
 pred = stats::predict(model, newdata, se.fit = TRUE)
 
@@ -125,12 +129,16 @@ withr::with_seed(100, {
 })
 
 ggplot2::ggplot()+
-  ggplot2::geom_line(data=data, ggplot2::aes(x=time,y=rt), colour="black")+
-  ggplot2::geom_line(data = rt_est, ggplot2::aes(x=time, y=mean_Rt_star, colour="gam+rt"))+
-  ggplot2::geom_line(data = epi$R, ggplot2::aes(x=t_end, y=`Mean(R)`, colour="epiestim"))
+  ggplot2::geom_line(
+    data=data \%>\% dplyr::filter(time<100),
+    ggplot2::aes(x=time,y=rt), colour="black")+
+  ggplot2::geom_line(
+    data = rt_est, ggplot2::aes(x=time, y=mean_Rt_star, colour="gam+rt"))+
+  ggplot2::geom_line(
+    data = epi$R, ggplot2::aes(x=t_end, y=`Mean(R)`, colour="epiestim"))
 
 # mean bias of GAM+rt estimate:
-mean(data$rt[1:100] - rt_est$mean_Rt_star)
+mean(data$rt[seq_along(rt_est$mean_Rt_star)] - rt_est$mean_Rt_star)
 
 }
 \concept{models}

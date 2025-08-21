@@ -84,7 +84,7 @@ infer_prevalence = function(
         length = window,
         time = df$time,
         mu = df$incidence.fit,
-        vcov = df$incidence.se.fit^2,
+        sigma = df$incidence.se.fit,
         spread = 1.1
       )
 

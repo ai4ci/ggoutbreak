@@ -167,6 +167,21 @@ smoothing, lower values result in more smoothing. A degree of 1 is fitting
 a linear model piece wise. - default \code{2}}
 \item{\code{frequency}}{the density of the output estimates as a time period such as
 \verb{7 days} or \verb{2 weeks}. - default \code{1 day}}
+\item{\code{ip}}{An infectivity profile (optional) if not given (the default) the
+Rt value will not be estimated - a dataframe with columns:
+\itemize{
+\item boot (anything + default(1)) - a bootstrap identifier
+\item probability (proportion) - the probability of new event during this period.
+\item tau (integer + complete) - the days since the index event.
+}
+
+Minimally grouped by: boot (and other groupings allowed).
+
+A default value is defined.
+}
+\item{\code{quick}}{if \code{ip} is provided, and quick is \code{TRUE} Rt estimation will be
+done assuming independence which is quicker but less accurate. Setting this
+to false will use a full variance-covariance matrix.}
 \item{\code{predict}}{result is a prediction dataframe. If false we return the
 \code{locfit} models (advanced). - default \code{TRUE}}
 \item{\code{.progress}}{show a CLI progress bar}

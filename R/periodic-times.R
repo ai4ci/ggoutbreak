@@ -694,15 +694,15 @@ time_to_date = function(
 # as an ordered sequence of one day intervals. this is used during conversions
 # of irregular line lists to ordered time series, but mostly as an output for
 # incidence / growth rate estimates.
-.daily_times = function(times) {
+.daily_times = function(times, extend_start = 0, extend_end = 0) {
   start_time = min(times, na.rm = TRUE)
   end_time = max(times, na.rm = TRUE)
   start_date = attributes(times)$start_date
   orig_unit = attributes(times)$unit
   dates = as.Date(
     seq(
-      time_to_date(start_time, orig_unit, start_date),
-      time_to_date(end_time, orig_unit, start_date),
+      time_to_date(start_time, orig_unit, start_date) - extend_start,
+      time_to_date(end_time, orig_unit, start_date) + extend_end,
       by = 1
     ),
     "1970-01-01"

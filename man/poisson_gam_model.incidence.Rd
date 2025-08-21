@@ -11,6 +11,7 @@ poisson_gam_model.incidence(
   frequency = "1 day",
   predict = list(),
   ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 )
 }

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.4.8</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -23,6 +23,7 @@
     <li><a class="dropdown-item" href="../articles/estimators-example.html">Simulation tests for growth rate estimators</a></li>
     <li><a class="dropdown-item" href="../articles/incidence-trends.html">Population comparisons and incidence</a></li>
     <li><a class="dropdown-item" href="../articles/infectivity-profile-discretisation.html">Infectivity profile discretisation</a></li>
+    <li><a class="dropdown-item" href="../articles/right-censoring.html">Estimating the reproduction number from right censored data</a></li>
     <li><a class="dropdown-item" href="../articles/rt-from-incidence.html">Estimating the reproduction number from modelled incidence</a></li>
     <li><a class="dropdown-item" href="../articles/sampling-serial-interval.html">Sampling the infectivity profile from published serial interval estimates</a></li>
     <li><a class="dropdown-item" href="../articles/simulation-test-models.html">Simulations and test harnesses</a></li>
@@ -243,6 +244,19 @@ a linear model piece wise. - default <code>2</code></p></dd>
 <dt><code>frequency</code></dt>
 <dd><p>the density of the output estimates as a time period such as
 <code>7 days</code> or <code>2 weeks</code>. - default <code>1 day</code></p></dd>
+
+<dt><code>ip</code></dt>
+<dd><p>An infectivity profile (optional) if not given (the default) the
+Rt value will not be estimated - a dataframe with columns:</p><ul><li><p>boot (anything + default(1)) - a bootstrap identifier</p></li>
+<li><p>probability (proportion) - the probability of new event during this period.</p></li>
+<li><p>tau (integer + complete) - the days since the index event.</p></li>
+</ul><p>Minimally grouped by: boot (and other groupings allowed).</p>
+<p>A default value is defined.</p></dd>
+
+<dt><code>quick</code></dt>
+<dd><p>if <code>ip</code> is provided, and quick is <code>TRUE</code> Rt estimation will be
+done assuming independence which is quicker but less accurate. Setting this
+to false will use a full variance-covariance matrix.</p></dd>
 
 <dt><code>predict</code></dt>
 <dd><p>result is a prediction dataframe. If false we return the

@@ -1897,7 +1897,7 @@ sim_summarise_linelist = function(
   }
 
   if (!"obs_time" %in% colnames(out)) {
-    out = out %>% dplyr::mutate(obs_time = max(time))
+    out = out %>% dplyr::mutate(obs_time = max_time)
   }
 
   out = out %>%
@@ -1919,8 +1919,13 @@ sim_summarise_linelist = function(
     dplyr::mutate(
       time = ggoutbreak::as.time_period(time, df$time),
       obs_time = ggoutbreak::as.time_period(obs_time, df$time),
-    ) %>%
-    dplyr::group_by(obs_time, statistic, !!!grps)
+    )
+
+  if (length(unique(out$obs_time)) > 1) {
+    out = out %>% dplyr::group_by(obs_time, statistic, !!!grps)
+  } else {
+    out = out %>% dplyr::group_by(statistic, !!!grps)
+  }
 
   attr(out, "events") = events
   interfacer::ireturn(out, i_sim_count_data)

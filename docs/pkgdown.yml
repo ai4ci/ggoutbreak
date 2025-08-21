@@ -7,13 +7,14 @@ articles:
   ggoutbreak: ggoutbreak.html
   incidence-trends: incidence-trends.html
   infectivity-profile-discretisation: infectivity-profile-discretisation.html
+  right-censoring: right-censoring.html
   rt-from-incidence: rt-from-incidence.html
   sampling-serial-interval: sampling-serial-interval.html
   simulation-test-models: simulation-test-models.html
   time-periods: time-periods.html
   variant-proportions: variant-proportions.html
   weekly-incidence: weekly-incidence.html
-last_built: 2025-08-16T22:50Z
+last_built: 2025-08-21T17:27Z
 urls:
   reference: https://ai4ci.github.io/ggoutbreak/reference
   article: https://ai4ci.github.io/ggoutbreak/articles

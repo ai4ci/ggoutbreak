@@ -202,7 +202,7 @@
 }
 
 .trans_fn = function(link) {
-  link = unique(link)
+  link = unique(stats::na.omit(link))
   if (length(link) != 1) {
     stop("mixture of link functions found: ", paste0(link, collapse = ", "))
   }
@@ -210,7 +210,7 @@
 }
 
 .inv_fn = function(link) {
-  link = unique(link)
+  link = unique(stats::na.omit(link))
   if (length(link) != 1) {
     stop("mixture of link functions found: ", paste0(link, collapse = ", "))
   }

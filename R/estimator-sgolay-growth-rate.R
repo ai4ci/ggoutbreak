@@ -4,14 +4,16 @@
 #' exponential growth rate is the first derivative of the mu parameters of this
 #' log-normal. On the link scale these are normally distributed. This function
 #' assumes that the time series incidence estimates are uncorrelated to estimate
-#' the error in the growth rate. This is all based on Savitsky-Golay filters.
+#' the error in the growth rate, which is a conservative approach resulting in
+#' more uncertainty in growth rate than might be possible through other methods.
+#' This is all based on Savitsky-Golay filters applied to the normally
+#' distributed log-incidence estimates.
 #'
 #' @iparam d a modelled incidence estimate
 #' @param window the width of the Savitsky-Golay filter - must be odd
 #' @param deg the polynomial degree of the filter
 #'
-#' @returns the timeseries with growth rate columns:
-#' `r i_growth_rate`
+#' @returns the timeseries with growth rate columns: `r i_growth_rate`
 #' @export
 #' @concept models
 #'
@@ -19,14 +21,14 @@
 #' data = test_poisson_growth_rate
 #' tmp2 = data %>%
 #'   poisson_glm_model(window=7,deg=1) %>%
-#'   growth_rate_from_incidence(window = 7, deg=1)
+#'   growth_rate_from_incidence(window = 13, deg=1)
 #'
 #' if(interactive()) {
 #'   plot_growth_rate(
 #'       tmp2,
 #'       date_labels="%b %y"
 #'     )+
-#'     sim_geom_function(data,colour="black")
+#'     sim_geom_function(data,colour="red")
 #' }
 growth_rate_from_incidence = function(
   d = i_incidence_model,

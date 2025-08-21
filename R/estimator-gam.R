@@ -15,6 +15,9 @@
 #'   `7 days` or `2 weeks`.
 #' @iparam ip An infectivity profile (optional) if not given (the default) the
 #'   Rt value will not be estimated
+#' @param quick if `ip` is provided, and quick is `TRUE` Rt estimation will be
+#'   done assuming independence which is quicker but less accurate. Setting this
+#'   to false will use a full variance-covariance matrix.
 #' @param .progress show a CLI progress bar
 #'
 #' @returns `r i_incidence_rate`
@@ -27,7 +30,7 @@
 #'
 #' # Simple poisson model
 #' data = test_poisson_rt_smooth
-#' tmp2 = data %>% poisson_gam_model(window=7,ip=test_ip)
+#' tmp2 = poisson_gam_model(data,window=7,ip=test_ip,quick=TRUE)
 #'
 #' if (interactive()) {
 #'   plot_incidence(
@@ -43,6 +46,8 @@
 #'   sim_geom_function(data,colour="red")
 #' }
 #'
+#'
+#'
 #' # example with delayed observation model.
 #' # This data is all the day by day observations of the whole timeseries from
 #' # the beginning of the outbreak.
@@ -50,7 +55,8 @@
 #' model = gam_delayed_reporting(window = 14)
 #' tmp3 = data2 %>% poisson_gam_model(
 #'   model_fn = model$model_fn,
-#'   predict = model$predict)
+#'   predict = model$predict,
+#'   ip=test_ip)
 #'
 #' if (interactive()) {
 #'   plot_incidence(tmp3)+
@@ -58,14 +64,19 @@
 #'       data=data2 %>% dplyr::filter(obs_time %% 10 == 0),
 #'       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
 #'       )
+#'
+#'   plot_rt(tmp3)
 #' }
 poisson_gam_model = function(
   d,
   ...,
   frequency = "1 day",
   ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 ) {
+  #TODO: slow example
+
   .message_context()
   interfacer::idispatch(
     d,
@@ -95,6 +106,7 @@ poisson_gam_model.censored = function(
   frequency = "1 day",
   predict = gam_delayed_reporting(...)$predict,
   ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 ) {
   env = rlang::current_env()
@@ -109,7 +121,15 @@ poisson_gam_model.censored = function(
   modelled = interfacer::igroup_process(
     df = d,
     fn = function(d, .groupdata, ...) {
-      incid = .do_one_gam_fit(d, .groupdata, model_fn, predict, ip, frequency)
+      incid = .do_one_gam_fit(
+        d,
+        .groupdata,
+        model_fn,
+        predict,
+        ip,
+        frequency,
+        quick
+      )
       if (.progress) {
         cli::cli_progress_update(.envir = env)
       }
@@ -144,6 +164,7 @@ poisson_gam_model.incidence = function(
   frequency = "1 day",
   predict = list(),
   ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 ) {
   env = rlang::current_env()
@@ -158,7 +179,15 @@ poisson_gam_model.incidence = function(
   modelled = interfacer::igroup_process(
     df = d,
     fn = function(d, .groupdata, ...) {
-      incid = .do_one_gam_fit(d, .groupdata, model_fn, predict, ip, frequency)
+      incid = .do_one_gam_fit(
+        d,
+        .groupdata,
+        model_fn,
+        predict,
+        ip,
+        frequency,
+        quick
+      )
       if (.progress) {
         cli::cli_progress_update(.envir = env)
       }
@@ -172,9 +201,35 @@ poisson_gam_model.incidence = function(
   return(modelled %>% .normalise_from_raw(d))
 }
 
-.do_one_gam_fit = function(d, .groupdata, model_fn, predict, ip, frequency) {
+.do_one_gam_fit = function(
+  d,
+  .groupdata,
+  model_fn,
+  predict,
+  ip,
+  frequency,
+  quick
+) {
+  cutoff = min(d$time)
+  if (interfacer::itest(ip, i_discrete_ip)) {
+    max_tau = max(ip$tau)
+    min_tau = min(ip$tau)
+    do_rt = TRUE
+    frequency = "1 day"
+    pred_time = .daily_times(d$time, max_tau, -min_tau)
+  } else {
+    max_tau = 0
+    do_rt = FALSE
+    pred_time = date_seq.time_period(d$time, period = frequency)
+  }
   # what are the prediction times
-  output_times = date_seq.time_period(d$time, period = frequency)
+
+  if ("time" %in% names(predict)) {
+    output_times = as.time_period(predict$time, d$time)
+    predict$time = NULL
+  } else {
+    output_times = pred_time
+  }
 
   # fit the GAM model
   fit = model_fn(d)
@@ -219,28 +274,38 @@ poisson_gam_model.incidence = function(
     )
   }
 
-  if (interfacer::itest(ip, i_discrete_ip)) {
-    .message_once(
-      "Rt estimation using GAM + `rt_from_incidence(approx = FALSE)`"
-    )
-
-    # get prediction vcov from GAM fit:
-    Xp <- stats::predict(fit, newdata, type = "lpmatrix")
-    pred_vcov <- Xp %*% stats::vcov(fit) %*% t(Xp)
+  if (do_rt) {
+    if (quick) {
+      .message_once(
+        "Rt estimation using GAM (approx and assuming independence)"
+      )
+      pred_vcov = NULL
+    } else {
+      .message_once(
+        "Rt estimation using GAM (exact with modelled covariance)"
+      )
+      # get prediction vcov from GAM fit:
+      Xp <- stats::predict(fit, newdata, type = "lpmatrix")
+      pred_vcov <- Xp %*% stats::vcov(fit) %*% t(Xp)
+    }
 
     tmp_ip = .select_ip(ip, .groupdata)
 
     rt = rt_incidence_timeseries_implementation(
       time = incid$time,
       mu = pred$fit,
+      sigma = pred$se.fit,
       vcov = pred_vcov,
       ip = tmp_ip,
       tidy = TRUE,
-      approx = FALSE
+      approx = quick
     )
 
     incid = incid %>% dplyr::left_join(rt, by = "time")
   }
+
+  incid = incid %>% dplyr::filter(time >= cutoff)
+
   return(incid)
 }
 
@@ -282,13 +347,56 @@ gam_poisson_model_fn = function(
         data = data,
         knots = list(time = kts),
         method = "REML",
-        # mgcv::cpois()
-        mgcv::nb()
+        stats::quasipoisson()
       )
     )
   }
 }
 
+
+#' Default GAM count negative binomial model.
+#'
+#' This function configures a very simple negative binomial count model and using:
+#'
+#' `count ~ s(time, bs = "cr", k = length(kts))`
+#'
+#' The control of knot positions is defined by the `knots_fn` and `window`
+#' parameters.
+#'
+#' @inheritParams gam_delayed_reporting
+#' @inheritDotParams gam_knots k
+#'
+#' @returns a function suitable as the input for
+#'   `poisson_gam_model(model_fn = ...)`.
+#' @export
+#' @concept models
+#'
+#' @examples
+#' model_fn = gam_nb_model_fn(14)
+#' fit = model_fn(test_poisson_rt %>% dplyr::ungroup())
+#' summary(fit)
+#'
+gam_nb_model_fn = function(
+  window,
+  ...,
+  knots_fn = ~ gam_knots(.x, window, ...)
+) {
+  knots_fn = rlang::as_function(knots_fn)
+
+  function(data = i_incidence_input) {
+    data = interfacer::ivalidate(data)
+    kts = knots_fn(data)
+    return(
+      mgcv::gam(
+        count ~ s(time, bs = "cr", k = length(kts)),
+        data = data,
+        knots = list(time = kts),
+        method = "REML",
+        mgcv::nb()
+      )
+    )
+  }
+}
 
 #' Delayed GAM reporting model function generator
 #'

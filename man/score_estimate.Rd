@@ -109,11 +109,11 @@ intervals for summary statistics, which are presented as median +/1 95\% CI.
 \examples{
 data = test_poisson_rt_smooth
 
-pipeline = ~ .x \%>\% poisson_locfit_model() \%>\% rt_from_incidence(ip = .y)
+pipeline = ~ .x \%>\% poisson_locfit_model(ip = .y)
 lags = quantify_lag(pipeline, ip = test_ip)
 
 withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-   est = data \%>\% poisson_locfit_model() \%>\% rt_from_incidence()
+   est = data \%>\% poisson_locfit_model(ip = test_ip)
 })
 
 if (interactive()) plot_rt(est)+sim_geom_function(data, colour="red")

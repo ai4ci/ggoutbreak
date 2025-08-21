@@ -7,13 +7,15 @@
 #' the `ip` distribution, and that this is daily, if this is not the case then
 #' [rescale_model()] may be able to fix it.
 #'
-#' N.B. for certain estimators (e.g. [poisson_gam_model()]) a version of this
-#' function will be called automatically with a full covariance matrix if the
-#' infectivity profile is supplied. The inbuilt version is preferred over this
-#' function for [poisson_gam_model()], as the full covariance matrix is not
-#' externalised in `ggoutbreak`. If you are rolling your own incidence estimates
-#' and want an Rt estimate then [rt_incidence_timeseries_implementation()] maybe
-#' better suited to your task.
+#' N.B. for certain estimators (e.g. [poisson_gam_model()],
+#' [poisson_locfit_model()]) a version of this function will be called
+#' automatically if the infectivity profile is supplied. The inbuilt version is
+#' preferred over this function for these estimators, as the full covariance
+#' matrix may be used and the initial part of the outbreak can be predicted more
+#' accurately. This function is for supporting the other count models in
+#' `ggoutbreak`. If you are rolling your own incidence estimates and want an Rt
+#' estimate then [rt_incidence_timeseries_implementation()] maybe better suited
+#' to your task.
 #'
 #' @iparam df modelled incidence estimate
 #' @iparam ip an infectivity profile (aka generation time distribution)
@@ -30,13 +32,14 @@
 #' @export
 #' @concept models
 #' @examples
+#'
 #' tmp = ggoutbreak::test_poisson_rt_smooth %>%
 #'   poisson_locfit_model() %>%
-#'   rt_from_incidence(approx=FALSE)
+#'   rt_from_incidence(ip = test_ip, approx=FALSE)
 #'
 #' tmp2 = ggoutbreak::test_poisson_rt_smooth %>%
 #'   poisson_locfit_model() %>%
-#'   rt_from_incidence(approx=TRUE)
+#'   rt_from_incidence(ip = test_ip, approx=TRUE)
 #'
 #' plot_data = dplyr::bind_rows(
 #'   tmp %>% dplyr::mutate(class = "exact"),
@@ -57,7 +60,7 @@ rt_from_incidence = function(
   approx = TRUE,
   .progress = interactive()
 ) {
-  #, assume_start = TRUE) {
+  #TODO: slow example
 
   ip = interfacer::ivalidate(ip)
 
@@ -108,16 +111,31 @@ rt_from_incidence = function(
         linked$incidence.se.fit
       )
       vcov = tmp$vcov_matrix
+      sigma = linked$incidence.se.fit
     } else {
       # just use variance as input to estimate function.
       # This will signify that the algorithm is to assume independence
-      vcov = df$incidence.se.fit^2
+      sigma = df$incidence.se.fit
+      vcov = NULL
     }
 
-    rt = rt_incidence_timeseries_implementation(
+    # extend the data set backwards in time by the size of the infectivity profile
+    # using a log scale linear model of the first few data points, plus increased
+    # uncertainty.
+    pad = .ln_pad(
+      length = max(ip$tau),
+      # time = 1:length(mu),
       time = df$time,
       mu = mu,
-      vcov = vcov,
+      sigma = sigma,
+      vcov = vcov
+    )
+
+    rt = rt_incidence_timeseries_implementation(
+      time = pad$time,
+      mu = pad$mu,
+      vcov = pad$vcov,
+      sigma = pad$sigma,
       ip = tmp_ip,
       tidy = TRUE,
       approx = approx
@@ -159,18 +177,19 @@ rt_from_incidence = function(
 # front of a time series.
 # mu = 1:10
 # sigma2 = rep(0.2,10)
-# tmp = .ln_pad(5, 1:10, mu, sigma2)
+# tmp = .ln_pad(5, 1:10, mu, sigma = sqrt(sigma2))
 # exp(tmp$mu + tmp$vcov/2)
 # exp(mu + sigma2/2)
 .ln_pad = function(
   length,
   time,
   mu,
-  vcov,
-  spread = 1.1
+  sigma = NULL,
+  vcov = NULL,
+  spread = 1.05
 ) {
-  covariances = is.matrix(vcov)
-  sigma2 = if (covariances) diag(vcov) else vcov
+  covariances = !is.null(vcov)
+  sigma2 = if (covariances) diag(vcov) else sigma^2
 
   old_length = length(mu)
   if (length(sigma2) != old_length) {
@@ -181,7 +200,7 @@ rt_from_incidence = function(
   sd0 = sqrt((exp(sigma2[1]) - 1) * exp(2 * mu[1] + sigma2[1]))
 
   if (old_length > 1) {
-    l = min(c(old_length, 5))
+    l = min(c(old_length, length))
     means = stats::lm(
       y ~ x,
       dplyr::tibble(y = log(rev(mean[1:l])), x = -(l - 1):0)
@@ -207,10 +226,10 @@ rt_from_incidence = function(
     if (!all(dim(vcov) == old_length)) {
       stop("vcov must be a square matrix the same dimensions as mu")
     }
-    new_cor_ij = diag(sigmas^2)
+    new_cor_ij = unname(diag(sigmas^2))
     new_cor_ij[(length + 1):new_length, (length + 1):new_length] = vcov
   } else {
-    new_cor_ij = sigmas^2
+    new_cor_ij = NULL
   }
 
   return(list(
@@ -229,7 +248,8 @@ rt_from_incidence = function(
 #' This function estimates the reproduction number for a while time series
 #' given log-normally distributed incidence estimates, and a set of
 #' infectivity profiles. This version of the algorithm is optimised for running
-#' over all of a single time series.
+#' over all of a single time series. The algorithm will not produce Rt estimates
+#' until there is at least the
 #'
 #' N.B. the description of this algorithm is given here:
 #' https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
@@ -241,9 +261,11 @@ rt_from_incidence = function(
 #'   optional but if not given and `sigma_t` is given then this will be inferred
 #'   assuming independence between estimates. This should be a matrix with
 #'   dimensions `k * k`
-#' @param sigma if `vcov` is not given then this must be supplied as the
-#'   sdlog of the log normal incidence estimate. If this is the case the
-#'   estimates will be made assuming estimate independence. A vector of length `k`
+#' @param sigma if `vcov` is not given then this must be supplied as the sdlog
+#'   of the log normal incidence estimate. If this is the case the estimates
+#'   will be made assuming estimate independence. A vector of length `k`. Checks
+#'   will be made that determine if there is risk of bias, and this can make
+#'   this slower than using the full covariance matrix.
 #' @iparam ip a long format infectivity profile dataframe.
 #' @param tidy do you want detailed raw output (`FALSE` - default) or summary output
 #'   with quantiles predicted.
@@ -280,7 +302,8 @@ rt_from_incidence = function(
 #' # first we need a set of incidence estimates
 #' # we fit a poisson model to counts using a GAM:
 #' model = mgcv::gam(count ~ s(time), family = "poisson", data=data)
-#' newdata = dplyr::tibble(time = 1:100)
+#' ip_len = max(ip$tau)
+#' newdata = dplyr::tibble(time = -ip_len:100)
 #'
 #' pred = stats::predict(model, newdata, se.fit = TRUE)
 #'
@@ -310,55 +333,52 @@ rt_from_incidence = function(
 #' })
 #'
 #' ggplot2::ggplot()+
-#'   ggplot2::geom_line(data=data, ggplot2::aes(x=time,y=rt), colour="black")+
-#'   ggplot2::geom_line(data = rt_est, ggplot2::aes(x=time, y=mean_Rt_star, colour="gam+rt"))+
-#'   ggplot2::geom_line(data = epi$R, ggplot2::aes(x=t_end, y=`Mean(R)`, colour="epiestim"))
+#'   ggplot2::geom_line(
+#'     data=data %>% dplyr::filter(time<100),
+#'     ggplot2::aes(x=time,y=rt), colour="black")+
+#'   ggplot2::geom_line(
+#'     data = rt_est, ggplot2::aes(x=time, y=mean_Rt_star, colour="gam+rt"))+
+#'   ggplot2::geom_line(
+#'     data = epi$R, ggplot2::aes(x=t_end, y=`Mean(R)`, colour="epiestim"))
 #'
 #' # mean bias of GAM+rt estimate:
-#' mean(data$rt[1:100] - rt_est$mean_Rt_star)
+#' mean(data$rt[seq_along(rt_est$mean_Rt_star)] - rt_est$mean_Rt_star)
 #'
 rt_incidence_timeseries_implementation = function(
   time,
   mu,
-  vcov = sigma^2,
+  vcov = NULL,
   sigma = NULL,
   ip = i_discrete_ip,
   tidy = FALSE,
   ...
 ) {
+  if (length(time) != length(mu)) {
+    stop("time and mu must be the same length")
+  }
+
   window = length(unique(ip$tau))
+  max_tau = max(ip$tau)
 
   # the user has supplied a sigma vector rather than a vcov matrix. This
   # forces us to assume independence between estimates. This is sometimes OK
   # depending on the mass of the off diagonal, and is very quick.
-  assume_indep = !is.matrix(vcov)
-
-  # extend the data set backwards in time by the size of the infectivity profile
-  # using a log scale linear model of the first few data points, plus increased
-  # uncertainty.
-  pad = .ln_pad(
-    length = max(ip$tau),
-    # time = 1:length(mu),
-    time = as.numeric(time),
-    mu = mu,
-    vcov = vcov,
-    spread = 1.1
-  )
+  assume_indep = is.null(vcov)
 
   if (assume_indep) {
     # vcov is a vector of variances, we have no diagonal terms.
     long_vcov = dplyr::tibble(
-      i = pad$time,
-      j = pad$time,
-      Sigma_ij = pad$sigma^2
+      i = as.numeric(time),
+      j = as.numeric(time),
+      Sigma_ij = sigma^2
     )
   } else {
     # vcov is a variance covariance matrix. make it into a long format dataframe
-    tmp = matrix(pad$time, length(pad$time), length(pad$time))
+    tmp = matrix(as.numeric(time), length(time), length(time))
     long_vcov = dplyr::tibble(
       i = as.numeric(tmp),
       j = as.numeric(t(tmp)),
-      Sigma_ij = as.numeric(pad$vcov)
+      Sigma_ij = as.numeric(vcov)
     ) %>%
       dplyr::filter(
         # all covariances are assumed positive.
@@ -366,6 +386,7 @@ rt_incidence_timeseries_implementation = function(
           # we are only interested in the covariance matrix around the diagonal
           abs(i - j) <= window
       )
+    sigma = sqrt(diag(vcov))
   }
 
   # A note on naming in this function:
@@ -377,10 +398,9 @@ rt_incidence_timeseries_implementation = function(
   tmp = ip %>%
     dplyr::select(boot, tau, omega_tau = probability) %>%
     dplyr::cross_join(dplyr::tibble(
-      time_minus_tau = pad$time,
-      mu = pad$mu,
-      sigma = pad$sigma,
-      imputed = pad$imputed
+      time_minus_tau = as.numeric(time),
+      mu = as.numeric(mu),
+      sigma = as.numeric(sigma)
     )) %>% # grouped by ip boot
     dplyr::mutate(
       # by using this as the summarising time we perform a convolution
@@ -394,7 +414,7 @@ rt_incidence_timeseries_implementation = function(
   # value and we need something with bootstrap only.
   tmp_mu_t = tmp %>%
     dplyr::group_by(boot, time) %>%
-    dplyr::filter(tau == 0 & !imputed) %>%
+    dplyr::filter(tau == 0) %>%
     dplyr::select(boot, time, mu_t = mu, sigma_t = sigma)
 
   tmp_S = tmp %>%
@@ -407,35 +427,53 @@ rt_incidence_timeseries_implementation = function(
     ) %>%
     # make sure that we are dealing with full windows of data.
     # this prevents estimates for negative serial intervals
-    # based on not enough input at end of time-series TODO: test
-    # it would also prevent estimates at the start of the time-series if it
-    # had not been padded.
+    # based on not enough input at end of time-series and beginning
+    # of data where the window is incomplete. This
     dplyr::filter(n == window) %>%
     dplyr::select(-n)
 
-  # slow step.
-  tmp2 = long_vcov %>%
-    dplyr::inner_join(
-      tmp %>% dplyr::select(boot, time, time_minus_tau, log_m_i = log_m_tau),
-      by = c("i" = "time_minus_tau"),
-      relationship = "many-to-many"
-    ) %>%
-    dplyr::inner_join(
-      tmp %>% dplyr::select(boot, time, time_minus_tau, log_m_j = log_m_tau),
-      by = c("j" = "time_minus_tau", "boot", "time")
-    ) %>%
+  tmp = tmp %>%
     dplyr::inner_join(
       tmp_S %>% dplyr::select(boot, time, log_S_plus),
       by = c("boot", "time")
+    )
+
+  xtmp = tmp %>%
+    dplyr::select(
+      boot,
+      time,
+      i = time_minus_tau,
+      log_m_i = log_m_tau,
+      log_S_plus
     ) %>%
-    dplyr::group_by(boot, time)
+    dplyr::inner_join(
+      tmp %>%
+        dplyr::select(boot, time, j = time_minus_tau, log_m_j = log_m_tau),
+      by = c("boot", "time"),
+      relationship = "many-to-many"
+    )
+
+  # next slowest step:
+  # merge is slower than inner_join
+  # tmp2 = merge(xtmp, long_vcov, by = c("i", "j"))
+
+  tmp2 = xtmp %>%
+    dplyr::inner_join(
+      long_vcov,
+      by = c("i", "j")
+    )
+
+  tmp2 = tmp2 %>%
+    dplyr::group_by(boot, time, log_S_plus)
 
   tmp_sigma_Z2 = tmp2 %>%
     dplyr::summarise(
-      log_sigma_z2 = .logsumexp(
-        log_m_i + log_m_j + log(Sigma_ij) - 2 * log_S_plus
-      )
-    )
+      log_sigma_Z2 = .logsumexp(log_m_i + log_m_j + log(Sigma_ij))
+    ) %>%
+    dplyr::mutate(
+      log_sigma_Z2 = log_sigma_Z2 - 2 * log_S_plus
+    ) %>%
+    dplyr::select(-log_S_plus)
 
   tmp_sigma_0Z = tmp2 %>%
     # This filter selects the subset of covariances related to the estimate
@@ -443,10 +481,14 @@ rt_incidence_timeseries_implementation = function(
     # matrix.
     dplyr::filter(time == i) %>%
     dplyr::rename(tau = j, log_m_tau = log_m_j, Sigma_0tau = Sigma_ij) %>%
-    dplyr::group_by(boot, time) %>%
+    # dplyr::group_by(boot, time, log_S_plus) %>% already grouped
     dplyr::summarise(
-      log_Sigma_0Z = .logsumexp(log_m_tau + log(Sigma_0tau) - log_S_plus)
-    )
+      log_Sigma_0Z = .logsumexp(log_m_tau + log(Sigma_0tau))
+    ) %>%
+    dplyr::mutate(
+      log_Sigma_0Z = log_Sigma_0Z - log_S_plus
+    ) %>%
+    dplyr::select(-log_S_plus)
 
   tmp_Rt =
     tmp_mu_t %>%
@@ -454,8 +496,8 @@ rt_incidence_timeseries_implementation = function(
     dplyr::inner_join(tmp_sigma_Z2, by = c("boot", "time")) %>%
     dplyr::inner_join(tmp_sigma_0Z, by = c("boot", "time")) %>%
     dplyr::mutate(
-      mu_Rt = mu_t - log_S_plus + exp(log_sigma_z2) / 2,
-      sigma_Rt2 = sigma_t^2 + exp(log_sigma_z2) - 2 * exp(log_Sigma_0Z),
+      mu_Rt = mu_t - log_S_plus + exp(log_sigma_Z2) / 2,
+      sigma_Rt2 = sigma_t^2 + exp(log_sigma_Z2) - 2 * exp(log_Sigma_0Z),
       mean_Rt = exp(mu_Rt + sigma_Rt2 / 2),
       var_Rt = (exp(sigma_Rt2) - 1) * exp(2 * mu_Rt + sigma_Rt2),
     )
@@ -463,13 +505,13 @@ rt_incidence_timeseries_implementation = function(
   if (assume_indep) {
     tmp_Rt = tmp_Rt %>%
       dplyr::mutate(
-        log_risk_bias = log_V_plus - log_sigma_z2,
+        log_risk_bias = log_V_plus - log_sigma_Z2,
         log_scale_bias = c_max * exp(log_V_plus) / 2,
-        max_Rt_bias = (mean_Rt * exp(log_scale_bias) - mean_Rt),
+        max_Rt_bias = exp(mu_Rt) * (exp(log_scale_bias) - 1),
         bias_flag = max_Rt_bias > 0.05 & log_risk_bias > log(5)
       )
 
-    if (mean(tmp_Rt$bias_flag) > 0.01) {
+    if (mean(tmp_Rt$bias_flag[-(1:max_tau)]) > 0.01) {
       .warn_once(
         "Estimates were assumed to be independent, but more that 1% of estimates\n",
         "are at risk of Rt underestimation by more that 0.05 (absolute).\n",
@@ -557,89 +599,6 @@ rt_incidence_timeseries_implementation = function(
 
   return(out)
 }
-
-# mu the incidence on the log scale
-# vcov the prediction variance covariance matrix on the log scale
-# omega a matrix style infectivity profile, each column is a single infectivity profile
-# min_tau the smallest value of the tau column in the infectivity profile
-# rt_incidence_timeseries_implementation_old = function(
-#   mu,
-#   vcov,
-#   omega,
-#   min_tau,
-#   cor_ij = NULL,
-#   approx = TRUE
-# ) {
-#   window = nrow(omega)
-#   sigma = sqrt(diag(vcov))
-#   padding = .ln_pad(window, mu[1:5], sigma[1], 1.1)
-#
-#   pad = .ln_pad(
-#     length = window,
-#     time = df$time,
-#     mu = df$incidence.fit,
-#     sigma = df$incidence.se.fit,
-#     spread = 1.1
-#   )
-#
-#   tmp = withr::with_seed(seed, {
-#     dplyr::tibble(
-#       time = pad$time,
-#       incidence.fit = pad$mu,
-#       incidence.se.fit = pad$sigma,
-#       imputed = pad$imputed
-#     )
-#
-#   # relax assumption that time in infectivity profile starts at 1.
-#   # negative serial intervals should be OK
-#   end_offset = -min_tau # offset from index of start of data window, if tau is negative this will be positive
-#   start_offset = end_offset - window + 1 # smaller than end offset
-#   end = length(mu) - max(c(end_offset, 0)) # the end is the last index value for which we can derive a window
-#   cor_ij_pad = matrix(0, window, window)
-#   diag(cor_ij_pad) = 1
-#
-#   rt = lapply(1:end, function(i) {
-#     #i=78
-#     w = start_offset:end_offset + i + window
-#     mu_t = c(padding$mu, mu)[w]
-#     sigma_t = c(padding$sigma, sigma)[w]
-#     mu_i = mu[i]
-#     sigma_i = sigma[i]
-#
-#     if (is.null(cor_ij)) {
-#       # disable the correlation matrix and assume independence
-#       tmp_cor_ij = NULL
-#     } else if (all(dim(cor_ij) == window)) {
-#       tmp_cor_ij = cor_ij
-#     } else if (all(dim(cor_ij) == length(mu))) {
-#       # The correlation matrix is the same size as the data because it was
-#       # extracted from the vcov of the prediction.
-#       # we need to select the correct part of the matrix for each time window
-#       # and pad out the bits that are before the data,
-#       w2 = max(c(1, i + start_offset)):(i + end_offset)
-#       w3 = window + 1 - length(w2):1
-#       tmp_cor_ij = cor_ij_pad
-#       tmp_cor_ij[w3, w3] = cor_ij[w2, w2]
-#     }
-#
-#     .internal_r_t_estim(
-#       mu_i,
-#       sigma_i,
-#       omega,
-#       mu_t,
-#       sigma_t,
-#       tmp_cor_ij,
-#       approx = approx
-#     )
-#   })
-#
-#   if (length(rt) < length(mu)) {
-#     # If there are negative serial intervals then there is
-#     rt = c(rt, rep(list(NULL), length(mu) - length(rt)))
-#   }
-#
-#   return(rt)
-# }
 
 ## Reference implementation (matrix) ----
 

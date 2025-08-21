@@ -9,6 +9,7 @@ poisson_gam_model(
   ...,
   frequency = "1 day",
   ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 )
 }
@@ -76,6 +77,10 @@ Minimally grouped by: boot (and other groupings allowed).
 A default value is defined.
 }
 
+\item{quick}{if \code{ip} is provided, and quick is \code{TRUE} Rt estimation will be
+done assuming independence which is quicker but less accurate. Setting this
+to false will use a full variance-covariance matrix.}
+
 \item{.progress}{show a CLI progress bar}
 }
 \value{
@@ -120,7 +125,7 @@ the option to bring your own model.
 
 # Simple poisson model
 data = test_poisson_rt_smooth
-tmp2 = data \%>\% ggoutbreak::poisson_gam_model(window=7,ip=test_ip)
+tmp2 = poisson_gam_model(data,window=7,ip=test_ip,quick=TRUE)
 
 if (interactive()) {
   plot_incidence(
@@ -136,15 +141,17 @@ if (interactive()) {
   sim_geom_function(data,colour="red")
 }
 
+
+
 # example with delayed observation model.
 # This data is all the day by day observations of the whole timeseries from
 # the beginning of the outbreak.
 data2 = test_delayed_observation
 model = gam_delayed_reporting(window = 14)
-tmp3 = data2 \%>\% ggoutbreak::poisson_gam_model(
-  ip=test_ip,
+tmp3 = data2 \%>\% poisson_gam_model(
   model_fn = model$model_fn,
-  predict = model$predict)
+  predict = model$predict,
+  ip=test_ip)
 
 if (interactive()) {
   plot_incidence(tmp3)+
@@ -152,8 +159,8 @@ if (interactive()) {
       data=data2 \%>\% dplyr::filter(obs_time \%\% 10 == 0),
       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
       )
-  tmp3 \%>\% plot_rt(events = attr(data2,"events"))+
-    sim_geom_function(data2,colour="red")
+
+  plot_rt(tmp3)
 }
 }
 \concept{models}

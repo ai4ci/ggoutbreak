@@ -207,6 +207,10 @@
   # rewrite the functions formals to match expected (needed for R CMD check)
   # if the function is overwritten in `zz_onload` and autocomplete in RStudio.
   formals(`_mem_fn`) = `_fn_formals`
+  # This makes sure the memoised function does not have a srcref and hence
+  # triggers a profvis issue.
+  attr(`_mem_fn`, "srcref") = NULL
+  attr(body(`_mem_fn`), "srcref") = NULL
   # cache the original and memoised version so we can find it again.
   .memoise_cache$fns[[length(.memoise_cache$fns) + 1]] = fn
   .memoise_cache$memoised[[length(.memoise_cache$memoised) + 1]] = `_mem_fn`

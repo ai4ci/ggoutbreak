@@ -212,7 +212,7 @@ utils::globalVariables(c(
   "log_m_tau",
   "log_risk_bias",
   "log_scale_bias",
-  "log_sigma_z2",
+  "log_sigma_Z2",
   "max_Rt_bias",
   "mean_Rt",
   "mean_Rt_star",

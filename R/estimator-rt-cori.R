@@ -77,6 +77,8 @@ rt_cori = function(
   approx = FALSE,
   .progress = interactive()
 ) {
+  #TODO: slow example
+
   if (any(window < 2)) {
     stop("Minimum value for `window` parameter is 2.")
   }

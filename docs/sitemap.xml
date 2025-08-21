@@ -8,6 +8,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/incidence-trends.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/index.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/infectivity-profile-discretisation.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/articles/right-censoring.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/sampling-serial-interval.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/articles/simulation-test-models.html</loc></url>
@@ -72,6 +73,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/format_ip.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/gam_delayed_reporting.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/gam_knots.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/gam_nb_model_fn.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/gam_poisson_model_fn.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/ganyani_ip.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/ganyani_ip_2.html</loc></url>

@@ -245,11 +245,11 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #' @examples
 #' data = test_poisson_rt_smooth
 #'
-#' pipeline = ~ .x %>% poisson_locfit_model() %>% rt_from_incidence(ip = .y)
+#' pipeline = ~ .x %>% poisson_locfit_model(ip = .y)
 #' lags = quantify_lag(pipeline, ip = test_ip)
 #'
 #' withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#'    est = data %>% poisson_locfit_model() %>% rt_from_incidence()
+#'    est = data %>% poisson_locfit_model(ip = test_ip)
 #' })
 #'
 #' if (interactive()) plot_rt(est)+sim_geom_function(data, colour="red")
@@ -267,6 +267,8 @@ score_estimate = function(
   seed = 100
   # cores = NULL
 ) {
+  #TODO: slow example
+
   .message_context()
 
   if (is.null(lags)) {
@@ -349,6 +351,7 @@ score_estimate = function(
       by = c(join_cols, ".type")
     ) %>%
     # dplyr::group_by(!!!summarise_by, .type) %>%
+    dplyr::filter(!is.na(link)) %>%
     dplyr::group_by(link) %>%
     dplyr::group_modify(function(d, g, ...) {
       # d=crps_data %>% filter(statistic=="infections" & .type=="rt") %>% ungroup() %>% select(-.type,-statistic)
@@ -390,9 +393,9 @@ score_estimate = function(
   }
 
   crps_summary = crps_data %>%
-    dplyr::group_by(!!!summarise_by, .type) %>%
+    dplyr::group_by(link, !!!summarise_by, .type) %>%
     dplyr::group_modify(function(d, g, ...) {
-      link = unique(d$link)
+      link = unique(g$link)
       trans = .trans_fn(link)
       inv = .inv_fn(link)
       low = .min_domain(link)
@@ -475,8 +478,6 @@ score_estimate = function(
             )
           )
       }
-
-      boots = boots %>% dplyr::mutate(link = link)
 
       return(boots)
     })

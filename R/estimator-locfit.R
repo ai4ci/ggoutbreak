@@ -171,7 +171,7 @@ proportion_locfit_model = function(
       )
       t2 = function(x) x
 
-      new_data = dplyr::tibble(
+      prop = dplyr::tibble(
         time = output_times
       ) %>%
         .result_from_fit(type = "proportion", tmp$fit, tmp$se.fit, t) %>%
@@ -193,7 +193,7 @@ proportion_locfit_model = function(
         cli::cli_progress_update(.envir = env)
       }
 
-      return(new_data)
+      return(prop)
     }
   )
 
@@ -227,6 +227,11 @@ proportion_locfit_model = function(
 #'   a linear model piece wise.
 #' @iparam frequency the density of the output estimates as a time period such as
 #'   `7 days` or `2 weeks`.
+#' @iparam ip An infectivity profile (optional) if not given (the default) the
+#'   Rt value will not be estimated
+#' @param quick if `ip` is provided, and quick is `TRUE` Rt estimation will be
+#'   done assuming independence which is quicker but less accurate. Setting this
+#'   to false will use a full variance-covariance matrix.
 #' @iparam predict result is a prediction dataframe. If false we return the
 #'   `locfit` models (advanced).
 #' @param .progress show a CLI progress bar
@@ -237,14 +242,21 @@ proportion_locfit_model = function(
 #' @concept models
 #'
 #' @examples
-#' data = test_poisson_growth_rate
 #'
-#' tmp2 = data %>% ggoutbreak::poisson_locfit_model(window=7,deg=2)
-#' tmp3 = data %>% ggoutbreak::poisson_locfit_model(window=14,deg=1)
+#'
+#' data = test_poisson_rt
+#' tmp = data %>% ggoutbreak::poisson_locfit_model(window=14,deg=2, ip=test_ip, quick=TRUE)
+#' plot_rt(tmp)+sim_geom_function(data,colour="red")
+#'
+#' data = test_poisson_growth_rate
+#' tmp2 = data %>% ggoutbreak::poisson_locfit_model(window=7,deg=1)
+#' tmp3 = data %>% ggoutbreak::poisson_locfit_model(window=14,deg=2)
+#'
+#'
 #'
 #' comp = dplyr::bind_rows(
-#'   tmp2 %>% dplyr::mutate(class="7:2"),
-#'   tmp3 %>% dplyr::mutate(class="14:1"),
+#'   tmp2 %>% dplyr::mutate(class="7:1"),
+#'   tmp3 %>% dplyr::mutate(class="14:2"),
 #' ) %>% dplyr::group_by(class)
 #'
 #' if (interactive()) {
@@ -273,6 +285,8 @@ poisson_locfit_model = function(
   deg = 2,
   frequency = "1 day",
   predict = TRUE,
+  ip = i_discrete_ip,
+  quick = FALSE,
   .progress = interactive()
 ) {
   env = rlang::current_env()
@@ -287,11 +301,22 @@ poisson_locfit_model = function(
 
   modelled = interfacer::igroup_process(
     d,
-    function(d, ..., window, deg, frequency, predict) {
-      # d = interfacer::ivalidate(d, .prune = TRUE, ...)
+    function(d, .groupdata, ..., window, deg, frequency, predict) {
+      cutoff = min(d$time)
+      if (interfacer::itest(ip, i_discrete_ip)) {
+        max_tau = max(ip$tau)
+        min_tau = min(ip$tau)
+        do_rt = TRUE
+        frequency = "1 day"
+        pred_time = .daily_times(d$time, max_tau, -min_tau)
+      } else {
+        max_tau = 0
+        do_rt = FALSE
+        pred_time = date_seq.time_period(d$time, period = frequency)
+      }
 
       nn = .nn_from_window(window, d)
-      output_times = date_seq.time_period(d$time, period = frequency)
+      output_times = pred_time
 
       # Not enough non zero results
       if (sum(stats::na.omit(d$count) != 0) < deg) {
@@ -331,7 +356,7 @@ poisson_locfit_model = function(
         return(dplyr::tibble(incidence = list(fit), growth = list(deriv)))
       }
 
-      tmp = stats::preplot(
+      pred = stats::preplot(
         fit,
         newdata = output_times,
         se.fit = TRUE,
@@ -340,9 +365,9 @@ poisson_locfit_model = function(
         maxk = 5000
       )
       # transformer function:
-      t = tmp$tr
+      t = pred$tr
 
-      tmp2 = stats::preplot(
+      pred2 = stats::preplot(
         deriv,
         newdata = output_times,
         se.fit = TRUE,
@@ -352,26 +377,65 @@ poisson_locfit_model = function(
       )
       t2 = function(x) x
 
-      new_data = dplyr::tibble(
+      incid = dplyr::tibble(
         time = output_times
       ) %>%
-        .result_from_fit(type = "incidence", tmp$fit, tmp$se.fit, t) %>%
+        .result_from_fit(type = "incidence", pred$fit, pred$se.fit, t) %>%
         .keep_cdf(
           type = "incidence",
-          meanlog = tmp$fit,
-          sdlog = tmp$se.fit,
+          meanlog = pred$fit,
+          sdlog = pred$se.fit,
           link = "log"
         ) %>%
-        .result_from_fit(type = "growth", tmp2$fit, tmp2$se.fit, t2) %>%
-        .keep_cdf(type = "growth", mean = tmp2$fit, sd = tmp2$se.fit) %>%
-        .tidy_fit("incidence", incidence.se.fit > 4) %>%
-        .tidy_fit("growth", growth.se.fit > 0.25)
+        .result_from_fit(type = "growth", pred2$fit, pred2$se.fit, t2) %>%
+        .keep_cdf(type = "growth", mean = pred2$fit, sd = pred2$se.fit)
 
       if (.progress) {
         cli::cli_progress_update(.envir = env)
       }
 
-      return(new_data)
+      if (do_rt) {
+        if (quick) {
+          .message_once(
+            "Rt estimation using Locfit (approx and assuming independence)"
+          )
+          pred_vcov = NULL
+        } else {
+          .message_once(
+            "Rt estimation using Locfit (exact with inferred covariance)"
+          )
+          # TODO: infer covariance
+          linked = incid %>% dplyr::left_join(d, by = "time")
+          pred_vcov = vcov_from_residuals(
+            linked$count,
+            linked$incidence.fit,
+            linked$incidence.se.fit
+          )$vcov_matrix
+          sigma = linked$incidence.se.fit
+        }
+
+        tmp_ip = .select_ip(ip, .groupdata)
+
+        rt = rt_incidence_timeseries_implementation(
+          time = incid$time,
+          mu = pred$fit,
+          sigma = pred$se.fit,
+          vcov = pred_vcov,
+          ip = tmp_ip,
+          tidy = TRUE,
+          approx = quick
+        )
+
+        incid = incid %>%
+          dplyr::left_join(rt, by = "time") %>%
+          .tidy_fit("rt", rt.se.fit > 0.5)
+      }
+
+      incid = incid %>%
+        dplyr::filter(time >= cutoff) %>%
+        .tidy_fit("incidence", incidence.se.fit > 4) %>%
+        .tidy_fit("growth", growth.se.fit > 0.25)
+      return(incid)
     }
   )
 
