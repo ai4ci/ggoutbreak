@@ -20,17 +20,6 @@ poisson_gam_model.incidence(
 (e.g. the input data \code{d} on a group by group basis) and returns a fitted
 GAM. The default creates a simple poisson model based on count alone (\code{\link[=gam_poisson_model_fn]{gam_poisson_model_fn()}}).}
 
-\item{...}{
-  Named arguments passed on to \code{\link[=gam_poisson_model_fn]{gam_poisson_model_fn}}\describe{
-    \item{\code{window}}{controls the knot spacing in the GAM (if the default)}
-\item{\code{knots_fn}}{a function that takes the data as an input and returns
-a set of integers as time points for GAM knots, for \code{s(time)} term. The
-default here provides a roughly equally spaced grid determined by \code{window},
-by a user supplied function could do anything. The input this function is
-the raw dataframe of data that will be considered for one model fit. It is
-guaranteed to have at least a \code{time} and \code{count} column. It is possible to}
-}}
-
 \item{predict}{if the GAM model in \code{model_fn} introduces other variables we
 need to know what their values should be fixed at for prediction.
 This is a named list of defaults for variables in the model supplied by

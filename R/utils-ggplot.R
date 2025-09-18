@@ -65,6 +65,48 @@ logit_trans = function(n = 5, ...) {
 }
 
 
+#' A logit x scale
+#'
+#' @inheritParams ggplot2::scale_x_continuous
+#'
+#' @return a ggplot scale
+#' @concept vis
+#' @export
+scale_x_logit = function(...) {
+  return(ggplot2::scale_x_continuous(trans = "logit", ...))
+}
+
+#' A logit y scale
+#'
+#' @inheritParams ggplot2::scale_y_continuous
+#'
+#' @return a ggplot scale
+#' @concept vis
+#' @export
+scale_y_logit = function(...) {
+  return(ggplot2::scale_y_continuous(trans = "logit", ...))
+}
+
+
+#' A log1p x scale
+#'
+#' @inheritParams ggplot2::scale_x_continuous
+#' @param dp decimal points
+#' @param base the base for the logarithm
+#' @param n  the number of major breaks
+#' @concept vis
+#'
+#' @return a ggplot scale
+#' @export
+scale_x_log1p = function(..., n = 5, base = 10, dp = 0) {
+  return(ggplot2::scale_y_continuous(
+    trans = "log1p",
+    breaks = breaks_log1p(n, base),
+    labels = ~ sprintf("%.*f", dp, .x),
+    ...
+  ))
+}
+
 #' A log1p y scale
 #'
 #' @inheritParams ggplot2::scale_y_continuous
@@ -82,50 +124,6 @@ scale_y_log1p = function(..., n = 5, base = 10, dp = 0) {
     labels = ~ sprintf("%.*f", dp, .x),
     ...
   ))
-}
-
-#' A logit y scale
-#'
-#' @inheritParams ggplot2::scale_y_continuous
-#'
-#' @return a ggplot scale
-#' @concept vis
-#' @export
-scale_y_logit = function(...) {
-  return(ggplot2::scale_y_continuous(trans = "logit", ...))
-}
-
-
-# `%under%` <- function(plot, layer) {
-#   if (missing(layer)) {
-#     stop("Cannot use `-.gg()` with a single argument. Did you accidentally put - on a new line?")
-#   }
-#   if (!is.ggplot(plot)) {
-#     stop('Need a plot on the left side')
-#   }
-#   plot$layers = c(head(plot$layers,-1), layer, tail(plot$layers,1))
-#   plot
-# }
-
-#' Insert a layer at the bottom of a `ggplot`
-#'
-#' @param plot the plot to add the layer to
-#' @param layer the layer to insert underneath the plot
-#' @concept vis
-#'
-#' @return a `ggplot`
-#' @export
-`%above%` = function(plot, layer) {
-  if (missing(layer)) {
-    stop(
-      "Cannot use `-.gg()` with a single argument. Did you accidentally put - on a new line?"
-    )
-  }
-  if (!ggplot2::is.ggplot(plot)) {
-    stop('Need a plot on the left side')
-  }
-  plot$layers = c(layer, plot$layers)
-  plot
 }
 
 #' Strictly integer breaks for continuous scale

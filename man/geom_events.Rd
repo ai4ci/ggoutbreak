@@ -121,7 +121,6 @@ bounds values with \code{NA}.
 \code{\link[ggplot2:guides]{guides()}} for more information.}
 \item{\code{position}}{For position scales, The position of the axis.
 \code{left} or \code{right} for y axes, \code{top} or \code{bottom} for x axes.}
-\item{\code{sec.axis}}{\code{\link[ggplot2:sec_axis]{sec_axis()}} is used to specify a secondary axis.}
 \item{\code{timezone}}{The timezone to use for display on the axes. The default
 (\code{NULL}) uses the timezone encoded in the data.}
 \item{\code{na.value}}{Missing values will be replaced with this value.}

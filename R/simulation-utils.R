@@ -2251,3 +2251,36 @@ sim_summarise_linelist = function(
 }
 # tbl = iris %>% tidyr::nest(-Species)
 #iris %>% tidyr::nest(-Species) %>% .unnest_dt("data") %>% dplyr::glimpse()
+
+# Discrete gamma ----
+# A hacky solution for under-dispersion this uses a gamma distribution rounded
+# to integer values. It is parameterised with mean and sd (or a dispersion
+# parameter where 1 is poisson dispersion, i.e. sd = sqrt(mean) and )
+
+#' Random count data from a discrete gamma distribution
+#'
+#' For count data that is under-dispersed we can use a gamma distribution rounded
+#' to the nearest whole number. This is the same as the method of discretisation
+#' in `make_gamma_ip`, and suits delay distributions where there is less variability
+#' than can be represented with a Poisson or negative binomial distribution.
+#'
+#' @returns an integer valued vector from a gamma distribution.
+#' @seealso [stats::rgamma()]
+#' @inheritParams reparam-dist
+#'
+#' @export
+#' @concept distributions
+#'
+#' @examples
+#' rdiscgamma(10, 2, 1)
+rdiscgamma = function(n, mean, sd, kappa) {
+  interfacer::resolve_missing(
+    kappa = sd / mean,
+    mean = sd / kappa,
+    sd = mean * kappa
+  )
+  params = .reparam_gamma(mean, sd, convex = FALSE)
+  return(
+    floor(stats::rgamma(n, params$shape, params$rate) + 0.5)
+  )
+}

@@ -29,6 +29,38 @@ sim_apply_delay.linelist(
 Any grouping allowed.
 }
 
+\item{...}{
+  Named arguments passed on to \code{\link[=sim_apply_delay.linelist]{sim_apply_delay.linelist}}\describe{
+    \item{\code{fn_symptom_delay,fn_admission_delay,fn_death_delay}}{a function that
+calculates the time to event onset from infection. This will be called with
+a vector of infection times as the first parameter (\code{time}) but all other
+columns of \code{df} are also available as well as the \code{symptomatic},\code{died},and
+\code{admitted} flags. The function must be vectorised on its inputs (and
+consume additional inputs with \code{...}). A \code{purrr} style lambda is OK e.g. \code{~ stats::rgamma(.x, shape = 3)}, and the first parameter will be infection
+time. if you have an discrete probability profile for this then you can use
+\code{cfg_ip_sampler_rng(ip_symptoms)}.}
+\item{\code{fn_sample_delay}}{This function returns the time from either symptom
+onset (symptomatic) or from infection (asymptomatic) until a sample is
+taken. (N.B. this might be better to do a screening test probability plus
+screening test frequency rather than overloading this.)}
+\item{\code{fn_result_delay}}{Identical to other functions except the first
+parameter will be \code{sample_time} rather than time of infection. This is the
+time from sampling to the result being available.}
+}
+  Named arguments passed on to \code{\link[=sim_apply_delay.count_data]{sim_apply_delay.count_data}}\describe{
+    \item{\code{fn_symptom_profile,fn_admission_profile,fn_death_profile}}{a function
+that takes time and returns the probability density of symptoms,
+admissions, or deaths over time since infection (i.e. \code{tau}) as an ip
+delay distribution. If possible it is a very good idea to pre-compute these
+distributions as they need to be assigned to every line in the input and
+this can be very slow.}
+\item{\code{fn_sample_profile}}{a function that takes time and returns the
+probability density of test sample being taken over time since symptoms.}
+\item{\code{fn_result_profile}}{a function that takes time and returns the
+probability density of test result being available over time since test
+sampling.}
+}}
+
 \item{fn_p_symptomatic, fn_p_admitted, fn_p_died, fn_p_tested}{Function that
 returns a probability between 0 and 1 for each row of the input dataframe.
 A \code{purrr} style lambda is OK (e.g. \code{~ 1} for always true) the first

@@ -287,7 +287,7 @@
 #' tmp %>% dplyr::mutate(
 #'   pX = .pmix(pnorm, x, param1, param2),
 #'   qX = .qmixnorm(pX, param1,param2)
-#' ) %>% glimpse()
+#' ) %>% dplyr::glimpse()
 #'
 #' # same as last row above
 #' .pmix("norm", c(3,5,10), param1=c(6,7,8,9), param2=3)

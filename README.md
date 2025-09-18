@@ -4,7 +4,7 @@
 [![R-CMD-check](https://github.com/ai4ci/ggoutbreak/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/ai4ci/ggoutbreak/actions/workflows/R-CMD-check.yaml)
 [![DOI](https://zenodo.org/badge/836807064.svg)](https://zenodo.org/doi/10.5281/zenodo.13165560)
 [![ggoutbreak status badge](https://ai4ci.r-universe.dev/badges/ggoutbreak)](https://ai4ci.r-universe.dev)
-[![EPSRC badge](https://img.shields.io/badge/EPSRC%20grant-EP%2FY028392%2F1-05acb5)](https://gow.epsrc.ukri.org/NGBOViewGrant.aspx?GrantRef=EP/Y028392/1)
+[![EPSRC badge](https://img.shields.io/badge/EPSRC%20grant-EP%2FY028392%2F1-05acb5)](https://gtr.ukri.org/projects?ref=EP%2FY028392%2F1)
 
 <!-- badges: end -->
 
@@ -40,4 +40,4 @@ devtools::install_github("ai4ci/ggoutbreak")
 
 The authors gratefully acknowledge the support of the UK Research and Innovation
 AI programme of the Engineering and Physical Sciences Research Council [EPSRC
-grant EP/Y028392/1](https://gow.epsrc.ukri.org/NGBOViewGrant.aspx?GrantRef=EP/Y028392/1).
+grant EP/Y028392/1](https://gtr.ukri.org/projects?ref=EP%2FY028392%2F1).

@@ -229,8 +229,11 @@ plot_growth_phase.risk_ratio = function(
     cis = cis
   )
 
-  p = p %above%
-    ggplot2::geom_hline(yintercept = 1, colour = "grey50")
+  # insert layer below
+  p$layers = c(
+    ggplot2::geom_hline(yintercept = 1, colour = "grey50"),
+    plot$layers
+  )
 
   p +
     ggplot2::scale_y_log10(labels = ~ sprintf("%1.3g", .x)) +

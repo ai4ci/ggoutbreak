@@ -11,17 +11,8 @@ gam_nb_model_fn(window, ..., knots_fn = ~gam_knots(.x, window, ...))
 
 \item{...}{
   Named arguments passed on to \code{\link[=gam_knots]{gam_knots}}\describe{
-    \item{\code{data}}{the function will be called with incidence data - a dataframe with columns:
-\itemize{
-\item count (positive_integer) - Positive case counts associated with the specified time frame
-\item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
-}
-
-Any grouping allowed.
-}
-\item{\code{k}}{alternative to \code{window}, if \code{k} is given then the behaviour of the
+    \item{\code{k}}{alternative to \code{window}, if \code{k} is given then the behaviour of the
 knots will be similar to the default \code{mgcv::s(...,k=...)} parameter.}
-\item{\code{...}}{currently not used}
 }}
 
 \item{knots_fn}{a function that takes the data as an input and returns
