@@ -1,0 +1,10 @@
+file: test_poisson_rt.rds
+file_size: 144791
+pin_hash: 895585242c413842
+type: rds
+title: 'test_poisson_rt: a pinned 81 x 6 data frame'
+description: ~
+tags: ~
+urls: ~
+created: 20250918T155807Z
+api_version: 1

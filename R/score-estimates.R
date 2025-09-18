@@ -200,39 +200,39 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #' @return a dataframe of scoring metrics, with one row per group. This includes
 #'   the following columns:
 #'
-#' * mean_quantile_bias - the average of the universal residuals. Lower values
+#' * `mean_quantile_bias` - the average of the universal residuals. Lower values
 #'   are better.
-#' * mean_trans_bias - the bias on the link function scale.
+#' * `mean_trans_bias` - the bias on the link function scale.
 #' * link - the link function
-#' * mean_bias - the bias on the natural scale (which may be interpreted as
+#' * `mean_bias` - the bias on the natural scale (which may be interpreted as
 #'   additive or multiplicative depending on the link)
-#' * pit_was - an unadjusted probability integral transform histogram
+#' * `pit_was` - an unadjusted probability integral transform histogram
 #'   Wasserstein distance from the uniform (lower values are better).
-#' * unbiased_pit_was - an PIT Wasserstein distance from the uniform, adjusted
+#' * `unbiased_pit_was` - an PIT Wasserstein distance from the uniform, adjusted
 #'   for estimator bias (lower values are better). This is a measure of
 #'   calibration.
-#' * directed_pit_was - a PIT Wasserstein distance from the uniform, directed
+#' * `directed_pit_was` - a PIT Wasserstein distance from the uniform, directed
 #'   away from the centre, adjusted for estimator bias (values closer to zero
 #'   are better, positive values indicate overconfidence, and negative values
 #'   excessively conservative estimates).
-#' * percent_iqr_coverage - the percentage of estimators that include the true
+#' * `percent_iqr_coverage` - the percentage of estimators that include the true
 #'   value in their IQR. For a perfectly calibrated estimate this should be 0.5.
 #'   Lower values reflect overconfidence, higher values reflect excessively
 #'   conservative estimates. This is a measure of calibration but is influenced
 #'   by bias.
-#' * unbiased_percent_iqr_coverage - the percentage of estimators that include
+#' * `unbiased_percent_iqr_coverage` - the percentage of estimators that include
 #'   the true value in their IQR once adjusted for bias. This should be 0.5. This
 #'   is a measure of calibration, and tells you which direction (smaller numbers
 #'   are over-confident, larger values excessively conservative).
-#' * mean_prediction_interval_width_50 - the prediction interval width is a
+#' * `mean_prediction_interval_width_50` - the prediction interval width is a
 #'   measure of sharpness (smaller values are sharper). Sharper estimators are
 #'   superior if they are unbiased and well calibrated.
-#' * mean_crps - the mean value of the continuous rank probability score for
+#' * `mean_crps` - the mean value of the continuous rank probability score for
 #'   each point estimate (lower values are better)
-#' * mean_unbiased_crps - the mean value of the continuous rank probability
+#' * `mean_unbiased_crps` - the mean value of the continuous rank probability
 #'   score for each point estimate assessed after adjustment for bias (lower
 #'   values are better)
-#' * threshold_misclassification_probability - if a metric has a natural threshold
+#' * `threshold_misclassification_probability` - if a metric has a natural threshold
 #'   like 1 for Rt then this measures how probable it is that the estimate will
 #'   propose the epidemic is shrinking when it is growing and vice versa. Lower is
 #'   better
