@@ -17,7 +17,7 @@
 #' @export
 #' @concept vis
 #' @examples
-#' tmp = ggoutbreak::england_covid_proportion_age_stratified %>%
+#' tmp = ggoutbreak::england_covid_proportion_age_stratified() %>%
 #'   dplyr::glimpse()
 #'
 #' if(interactive()) {

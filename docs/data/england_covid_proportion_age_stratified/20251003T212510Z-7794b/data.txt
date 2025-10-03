@@ -1,0 +1,10 @@
+file: england_covid_proportion_age_stratified.rds
+file_size: 3706202
+pin_hash: 7794b1c18976551e
+type: rds
+title: 'england_covid_proportion_age_stratified: a pinned 26790 x 20 data frame'
+description: ~
+tags: ~
+urls: ~
+created: 20251003T212510Z
+api_version: 1

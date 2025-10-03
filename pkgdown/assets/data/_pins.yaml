@@ -1,4 +1,6 @@
 england_covid_poisson_age_stratified:
 - england_covid_poisson_age_stratified/20251003T210821Z-e2ce9/
+england_covid_proportion_age_stratified:
+- england_covid_proportion_age_stratified/20251003T212510Z-7794b/
 test_poisson_rt:
 - test_poisson_rt/20250919T131057Z-89558/

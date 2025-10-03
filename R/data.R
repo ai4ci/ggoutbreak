@@ -925,7 +925,7 @@ NULL
 NULL
 
 ## england_covid_poisson definition ends
-## england_covid_proportion_age_stratified definition ----
+## ggoutbreak::england_covid_proportion_age_stratified() definition ----
 
 #' The England COVID-19 age stratified proportion model dataset
 #'
@@ -974,7 +974,7 @@ NULL
 #' @name england_covid_proportion_age_stratified
 NULL
 
-## england_covid_proportion_age_stratified definition ends
+## ggoutbreak::england_covid_proportion_age_stratified() definition ends
 
 ## england_covid_test_positives definition ----
 
