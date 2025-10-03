@@ -71,8 +71,8 @@ geom_events = function(
         ggplot2::theme(
           axis.text.x.top = ggplot2::element_text(
             angle = event_label_angle,
-            vjust = event_label_angle > 0,
-            hjust = event_label_angle < 0,
+            vjust = as.numeric(event_label_angle > 0),
+            hjust = as.numeric(event_label_angle < 0),
             colour = event_label_colour,
             size = event_label_size
           )

@@ -94,7 +94,7 @@ daily data the rate will be cases per day and the growth rate will be daily).
 \examples{
 
 
-data = test_poisson_rt
+data = ggoutbreak::test_poisson_rt()
 tmp = data \%>\% ggoutbreak::poisson_locfit_model(window=14,deg=2, ip=test_ip, quick=TRUE)
 plot_rt(tmp)+sim_geom_function(data,colour="red")
 

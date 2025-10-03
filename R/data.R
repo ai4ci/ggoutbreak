@@ -645,7 +645,7 @@ NULL
 NULL
 
 ## test_ts definition ends
-## test_poisson_rt definition ----
+## ggoutbreak::test_poisson_rt() definition ----
 
 #' An example of the linelist output of the poisson model simulation with defined
 #' $R_t$
@@ -672,7 +672,7 @@ NULL
 #' @name test_poisson_rt
 NULL
 
-## test_poisson_rt definition ends
+## ggoutbreak::test_poisson_rt() definition ends
 ## test_bpm definition ----
 
 #' An example of the linelist output of the branching process model simulation

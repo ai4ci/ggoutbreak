@@ -58,7 +58,8 @@ Imports:
     PDQutils,
     signal,
     mgcv,
-    deSolve
+    deSolve,
+    pins
 Remotes: github::ai4ci/interfacer
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,
