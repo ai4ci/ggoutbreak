@@ -6,7 +6,7 @@
 # ---
 # repo: terminological/ggrrr
 # file: standalone-singleton.R
-# last-updated: '2025-09-18'
+# last-updated: 2025-09-23
 # license: https://unlicense.org
 # imports: rlang
 # ---
@@ -27,14 +27,11 @@
 #' @keywords internal
 #' @concept cache
 #'
-#' @doctest
-#'
+#' @unit
 #' fixed_rnorm = .singleton(rnorm(10))
 #' a = fixed_rnorm()
-#'
-#' @expect equal(a)
 #' b = fixed_rnorm()
-#'
+#' testthat::expect_equal(a,b)
 .singleton = function(
   expr,
   on_error = function(e) {

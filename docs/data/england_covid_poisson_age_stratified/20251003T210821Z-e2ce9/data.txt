@@ -1,0 +1,10 @@
+file: england_covid_poisson_age_stratified.rds
+file_size: 3720870
+pin_hash: e2ce9809d5793067
+type: rds
+title: 'england_covid_poisson_age_stratified: a pinned 26790 x 20 data frame'
+description: ~
+tags: ~
+urls: ~
+created: 20251003T210821Z
+api_version: 1

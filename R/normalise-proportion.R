@@ -88,7 +88,7 @@ infer_risk_ratio = function(
 #'   dplyr::mutate(baseline_incidence = incidence.0.5)
 #'
 #'
-#' tmp = ggoutbreak::england_covid_poisson_age_stratified %>%
+#' tmp = ggoutbreak::england_covid_poisson_age_stratified() %>%
 #'   ggoutbreak::infer_rate_ratio(baseline) %>%
 #'   dplyr::glimpse()
 #'

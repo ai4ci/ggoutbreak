@@ -13,4 +13,8 @@
 
 
 #' @export
+england_covid_poisson_age_stratified = function() {pins::pin_read(.pin_board(),"england_covid_poisson_age_stratified")}
+
+
+#' @export
 test_poisson_rt = function() {pins::pin_read(.pin_board(),"test_poisson_rt")}

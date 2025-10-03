@@ -830,7 +830,7 @@ NULL
 
 ## test_poisson_rt_2class definition ends
 
-## england_covid_poisson_age_stratified definition ----
+## ggoutbreak::england_covid_poisson_age_stratified() definition ----
 
 #' The England COVID-19 age stratified poisson model dataset
 #'
@@ -877,7 +877,7 @@ NULL
 #' @name england_covid_poisson_age_stratified
 NULL
 
-## england_covid_poisson_age_stratified definition ends
+## ggoutbreak::england_covid_poisson_age_stratified() definition ends
 ## england_covid_poisson definition ----
 
 #' The England COVID-19 poisson model dataset
