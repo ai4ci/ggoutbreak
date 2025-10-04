@@ -51,6 +51,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-qmixgamma.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-qmixlnorm.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-qmixnorm.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-singleton.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/dot-ts_evaluate.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/doubling_time.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/du_serial_interval_ip.html</loc></url>
@@ -155,6 +156,8 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/rt_incidence_reference_implementation.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/rt_incidence_timeseries_implementation.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/rwedge.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/scale_x_log1p.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/scale_x_logit.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/scale_y_log1p.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/scale_y_logit.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/score_estimate.html</loc></url>

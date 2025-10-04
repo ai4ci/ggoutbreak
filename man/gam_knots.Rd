@@ -33,7 +33,7 @@ future this could look at the number of observations or areas where there is
 a lot of change to add in more knots.
 }
 \examples{
-gam_knots(ggoutbreak::test_poisson_rt, 14)
-gam_knots(ggoutbreak::test_poisson_rt, k=10)
+gam_knots(ggoutbreak::test_poisson_rt(), 14)
+gam_knots(ggoutbreak::test_poisson_rt(), k=10)
 }
 \concept{models}

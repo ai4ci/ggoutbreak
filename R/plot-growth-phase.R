@@ -232,7 +232,7 @@ plot_growth_phase.risk_ratio = function(
   # insert layer below
   p$layers = c(
     ggplot2::geom_hline(yintercept = 1, colour = "grey50"),
-    plot$layers
+    p$layers
   )
 
   p +
@@ -253,7 +253,7 @@ plot_growth_phase.risk_ratio = function(
   xlab,
   ylab,
   cis,
-  point_size = ggplot2::GeomPoint$default_aes$size,
+  point_size = ggplot2::get_geom_defaults(ggplot2::GeomPoint)[["size"]],
   show_doubling = FALSE,
   strip.position = "top"
 ) {

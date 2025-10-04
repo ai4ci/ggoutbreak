@@ -28,8 +28,14 @@ expression is evaluated in the environment it is first called in.
 }
 \concept{cache}
 \keyword{internal}
-\examples{
+
+\section{Unit tests}{
+\if{html}{\out{<div class="sourceCode">}}\preformatted{
+
 fixed_rnorm = .singleton(rnorm(10))
 a = fixed_rnorm()
 b = fixed_rnorm()
+testthat::expect_equal(a,b)
+}\if{html}{\out{</div>}}
 }
+

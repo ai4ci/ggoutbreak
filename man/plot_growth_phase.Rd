@@ -137,6 +137,12 @@ or a character vector, \code{c("a", "b")}.}
 \item{\code{scales}}{Should scales be fixed (\code{"fixed"}, the default),
 free (\code{"free"}), or free in one dimension (\code{"free_x"},
 \code{"free_y"})?}
+\item{\code{space}}{If \code{"fixed"} (default), all panels have the same size and
+the number of rows and columns in the layout can be arbitrary. If
+\code{"free_x"}, panels have widths proportional to the length of the x-scale,
+but the layout is constrained to one row. If \code{"free_y"}, panels have
+heights proportional to the length of the y-scale, but the layout is
+constrained to one column.}
 \item{\code{shrink}}{If \code{TRUE}, will shrink scales to fit output of
 statistics, not raw data. If \code{FALSE}, will be range of raw data
 before statistical summary.}
@@ -150,9 +156,11 @@ for compatibility with \code{\link[ggplot2:labeller]{labeller()}}. You can use d
 functions for different kind of labels, for example use \code{\link[ggplot2:label_parsed]{label_parsed()}} for
 formatting facet labels. \code{\link[ggplot2:label_value]{label_value()}} is used by default,
 check it for more details and pointers to other options.}
-\item{\code{as.table}}{If \code{TRUE}, the default, the facets are laid out like
-a table with highest values at the bottom-right. If \code{FALSE}, the
-facets are laid out like a plot with the highest value at the top-right.}
+\item{\code{as.table}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}} The \code{as.table} argument
+is now absorbed into the \code{dir} argument via the two letter options.
+If \code{TRUE}, the facets are laid out like a table with highest values at the
+bottom-right. If \code{FALSE}, the facets are laid out like a plot with the
+highest value at the top-right.}
 \item{\code{switch}}{By default, the labels are displayed on the top and
 right of the plot. If \code{"x"}, the top labels will be
 displayed to the bottom. If \code{"y"}, the right-hand side
@@ -162,7 +170,12 @@ labels will be displayed to the left. Can also be set to
 data will automatically be dropped. If \code{FALSE}, all factor levels
 will be shown, regardless of whether or not they appear in the data.}
 \item{\code{dir}}{Direction: either \code{"h"} for horizontal, the default, or \code{"v"},
-for vertical.}
+for vertical. When \code{"h"} or \code{"v"} will be combined with \code{as.table} to
+set final layout. Alternatively, a combination of \code{"t"} (top) or
+\code{"b"} (bottom) with \code{"l"} (left) or \code{"r"} (right) to set a layout directly.
+These two letters give the starting position and the first letter gives
+the growing direction. For example \code{"rt"} will place the first panel in
+the top-right and starts filling in panels right-to-left.}
 \item{\code{strip.position}}{By default, the labels are displayed on the top of
 the plot. Using \code{strip.position} it is possible to place the labels on
 either of the four sides by setting \code{strip.position = c("top",

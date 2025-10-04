@@ -298,8 +298,8 @@ tmp = dplyr::tibble(
   serial_interval = emp_sample_fn(2000)
 )
 
-p3 = p2 %above% ggplot2::geom_histogram(data=tmp,mapping=ggplot2::aes(x=serial_interval, y=ggplot2::after_stat(density)),
-      breaks = c(0,seq(0.5,12)),fill="grey80",colour="grey40")
+p3 = p2 + ggplot2::geom_histogram(data=tmp,mapping=ggplot2::aes(x=serial_interval, y=ggplot2::after_stat(density)),
+      breaks = c(0,seq(0.5,12)),fill="grey80",colour="grey40", alpha=0.5)
 p3
 
 ```

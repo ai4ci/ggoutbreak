@@ -13,7 +13,7 @@ symptom onset and testing."><meta property="og:image" content="https://ai4ci.git
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,6 +84,50 @@ symptom onset and testing.</p>
 <dl><dt id="arg-df">df<a class="anchor" aria-label="anchor" href="#arg-df"></a></dt>
 <dd><p>the output of <code><a href="sim_poisson_model.html">sim_poisson_model()</a></code> or <code><a href="sim_summarise_linelist.html">sim_summarise_linelist()</a></code>,
 including a <code>count</code> column and a <code>time</code> column</p></dd>
+
+
+<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
+<dd><p>Named arguments passed on to <code><a href="sim_apply_delay.linelist.html">sim_apply_delay.linelist</a></code></p><dl><dt><code>fn_symptom_delay,fn_admission_delay,fn_death_delay</code></dt>
+<dd><p>a function that
+calculates the time to event onset from infection. This will be called with
+a vector of infection times as the first parameter (<code>time</code>) but all other
+columns of <code>df</code> are also available as well as the <code>symptomatic</code>,<code>died</code>,and
+<code>admitted</code> flags. The function must be vectorised on its inputs (and
+consume additional inputs with <code>...</code>). A <code>purrr</code> style lambda is OK e.g. <code>~ stats::rgamma(.x, shape = 3)</code>, and the first parameter will be infection
+time. if you have an discrete probability profile for this then you can use
+<code>cfg_ip_sampler_rng(ip_symptoms)</code>.</p></dd>
+
+<dt><code>fn_sample_delay</code></dt>
+<dd><p>This function returns the time from either symptom
+onset (symptomatic) or from infection (asymptomatic) until a sample is
+taken. (N.B. this might be better to do a screening test probability plus
+screening test frequency rather than overloading this.)</p></dd>
+
+<dt><code>fn_result_delay</code></dt>
+<dd><p>Identical to other functions except the first
+parameter will be <code>sample_time</code> rather than time of infection. This is the
+time from sampling to the result being available.</p></dd>
+
+
+</dl><p>Named arguments passed on to <code>sim_apply_delay.count_data</code></p><dl><dt><code>fn_symptom_profile,fn_admission_profile,fn_death_profile</code></dt>
+<dd><p>a function
+that takes time and returns the probability density of symptoms,
+admissions, or deaths over time since infection (i.e. <code>tau</code>) as an ip
+delay distribution. If possible it is a very good idea to pre-compute these
+distributions as they need to be assigned to every line in the input and
+this can be very slow.</p></dd>
+
+<dt><code>fn_sample_profile</code></dt>
+<dd><p>a function that takes time and returns the
+probability density of test sample being taken over time since symptoms.</p></dd>
+
+<dt><code>fn_result_profile</code></dt>
+<dd><p>a function that takes time and returns the
+probability density of test result being available over time since test
+sampling.</p></dd>
+
+
+</dl></dd>
 
 
 <dt id="arg-fn-p-symptomatic-fn-p-admitted-fn-p-died-fn-p-tested">fn_p_symptomatic, fn_p_admitted, fn_p_died, fn_p_tested<a class="anchor" aria-label="anchor" href="#arg-fn-p-symptomatic-fn-p-admitted-fn-p-died-fn-p-tested"></a></dt>

@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,22 +72,6 @@
 <dd><p>a function that takes data relating to one time series
 (e.g. the input data <code>d</code> on a group by group basis) and returns a fitted
 GAM. The default creates a simple poisson model based on count alone (<code><a href="gam_poisson_model_fn.html">gam_poisson_model_fn()</a></code>).</p></dd>
-
-
-<dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Named arguments passed on to <code><a href="gam_poisson_model_fn.html">gam_poisson_model_fn</a></code></p><dl><dt><code>window</code></dt>
-<dd><p>controls the knot spacing in the GAM (if the default)</p></dd>
-
-<dt><code>knots_fn</code></dt>
-<dd><p>a function that takes the data as an input and returns
-a set of integers as time points for GAM knots, for <code>s(time)</code> term. The
-default here provides a roughly equally spaced grid determined by <code>window</code>,
-by a user supplied function could do anything. The input this function is
-the raw dataframe of data that will be considered for one model fit. It is
-guaranteed to have at least a <code>time</code> and <code>count</code> column. It is possible to</p></dd>
-
-
-</dl></dd>
 
 
 <dt id="arg-predict">predict<a class="anchor" aria-label="anchor" href="#arg-predict"></a></dt>

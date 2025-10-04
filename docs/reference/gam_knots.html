@@ -13,7 +13,7 @@ a lot of change to add in more knots."><meta property="og:image" content="https:
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -94,9 +94,9 @@ knots will be similar to the default <code>mgcv::s(...,k=...)</code> parameter.<
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">gam_knots</span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt.html">test_poisson_rt</a></span>, <span class="fl">14</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">gam_knots</span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="test_poisson_rt.html">test_poisson_rt</a></span><span class="op">(</span><span class="op">)</span>, <span class="fl">14</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] 10 20 30 40 50 60 70 75</span>
-<span class="r-in"><span><span class="fu">gam_knots</span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt.html">test_poisson_rt</a></span>, k<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">gam_knots</span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="test_poisson_rt.html">test_poisson_rt</a></span><span class="op">(</span><span class="op">)</span>, k<span class="op">=</span><span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1]  0.000000  8.888889 17.777778 26.666667 35.555556 44.444444 53.333333</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [8] 62.222222 71.111111 80.000000</span>
 </code></pre></div>

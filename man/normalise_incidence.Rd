@@ -69,7 +69,7 @@ groups.
 }
 \examples{
 
-ggoutbreak::england_covid_poisson_age_stratified \%>\%
+ggoutbreak::england_covid_poisson_age_stratified() \%>\%
   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) \%>\%
   dplyr::glimpse()
 

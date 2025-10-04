@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -161,131 +161,6 @@ as facets. If <code>NULL</code> (the default) it will be the last time point in 
 </ul><p>Any grouping allowed.</p>
 <p>A default value is defined.</p></dd>
 
-<dt><code>event_label_size</code></dt>
-<dd><p>how big to make the event label</p></dd>
-
-<dt><code>event_label_colour</code></dt>
-<dd><p>the event label colour</p></dd>
-
-<dt><code>event_label_angle</code></dt>
-<dd><p>the event label colour</p></dd>
-
-<dt><code>event_line_colour</code></dt>
-<dd><p>the event line colour</p></dd>
-
-<dt><code>event_fill_colour</code></dt>
-<dd><p>the event area fill</p></dd>
-
-<dt><code>hide_labels</code></dt>
-<dd><p>do not show labels at all</p></dd>
-
-<dt><code>guide_axis</code></dt>
-<dd><p>a guide axis configuration for the labels
-(see <code><a href="https://ggplot2.tidyverse.org/reference/guide_axis.html" class="external-link">ggplot2::guide_axis</a></code> and <code><a href="https://ggplot2.tidyverse.org/reference/sec_axis.html" class="external-link">ggplot2::dup_axis</a></code>). This can be used to
-specify a position amongst other things.</p></dd>
-
-<dt><code>...</code></dt>
-<dd><p>Named arguments passed on to <code><a href="https://ggplot2.tidyverse.org/reference/scale_date.html" class="external-link">ggplot2::scale_x_date</a></code></p><dl><dt><code>name</code></dt>
-<dd><p>The name of the scale. Used as the axis or legend title. If
-<code>waiver()</code>, the default, the name of the scale is taken from the first
-mapping used for that aesthetic. If <code>NULL</code>, the legend title will be
-omitted.</p></dd>
-
-<dt><code>breaks</code></dt>
-<dd><p>One of:</p><ul><li><p><code>NULL</code> for no breaks</p></li>
-<li><p><code>waiver()</code> for the breaks specified by <code>date_breaks</code></p></li>
-<li><p>A <code>Date</code>/<code>POSIXct</code> vector giving positions of breaks</p></li>
-<li><p>A function that takes the limits as input and returns breaks as output</p></li>
-</ul></dd>
-
-<dt><code>date_breaks</code></dt>
-<dd><p>A string giving the distance between breaks like "2
-weeks", or "10 years". If both <code>breaks</code> and <code>date_breaks</code> are
-specified, <code>date_breaks</code> wins. Valid specifications are 'sec', 'min',
-'hour', 'day', 'week', 'month' or 'year', optionally followed by 's'.</p></dd>
-
-<dt><code>labels</code></dt>
-<dd><p>One of:</p><ul><li><p><code>NULL</code> for no labels</p></li>
-<li><p><code>waiver()</code> for the default labels computed by the
-transformation object</p></li>
-<li><p>A character vector giving labels (must be same length as <code>breaks</code>)</p></li>
-<li><p>An expression vector (must be the same length as breaks). See ?plotmath for details.</p></li>
-<li><p>A function that takes the breaks as input and returns labels
-as output. Also accepts rlang <a href="https://rlang.r-lib.org/reference/as_function.html" class="external-link">lambda</a> function
-notation.</p></li>
-</ul></dd>
-
-<dt><code>date_labels</code></dt>
-<dd><p>A string giving the formatting specification for the
-labels. Codes are defined in <code><a href="https://rdrr.io/r/base/strptime.html" class="external-link">strftime()</a></code>. If both <code>labels</code>
-and <code>date_labels</code> are specified, <code>date_labels</code> wins.</p></dd>
-
-<dt><code>minor_breaks</code></dt>
-<dd><p>One of:</p><ul><li><p><code>NULL</code> for no breaks</p></li>
-<li><p><code>waiver()</code> for the breaks specified by <code>date_minor_breaks</code></p></li>
-<li><p>A <code>Date</code>/<code>POSIXct</code> vector giving positions of minor breaks</p></li>
-<li><p>A function that takes the limits as input and returns minor breaks as
-output</p></li>
-</ul></dd>
-
-<dt><code>date_minor_breaks</code></dt>
-<dd><p>A string giving the distance between minor breaks
-like "2 weeks", or "10 years". If both <code>minor_breaks</code> and
-<code>date_minor_breaks</code> are specified, <code>date_minor_breaks</code> wins. Valid
-specifications are 'sec', 'min', 'hour', 'day', 'week', 'month' or 'year',
-optionally followed by 's'.</p></dd>
-
-<dt><code>limits</code></dt>
-<dd><p>One of:</p><ul><li><p><code>NULL</code> to use the default scale range</p></li>
-<li><p>A numeric vector of length two providing limits of the scale.
-Use <code>NA</code> to refer to the existing minimum or maximum</p></li>
-<li><p>A function that accepts the existing (automatic) limits and returns
-new limits. Also accepts rlang <a href="https://rlang.r-lib.org/reference/as_function.html" class="external-link">lambda</a> function
-notation.
-Note that setting limits on positional scales will <strong>remove</strong> data outside of the limits.
-If the purpose is to zoom, use the limit argument in the coordinate system
-(see <code><a href="https://ggplot2.tidyverse.org/reference/coord_cartesian.html" class="external-link">coord_cartesian()</a></code>).</p></li>
-</ul></dd>
-
-<dt><code>expand</code></dt>
-<dd><p>For position scales, a vector of range expansion constants used to add some
-padding around the data to ensure that they are placed some distance
-away from the axes. Use the convenience function <code><a href="https://ggplot2.tidyverse.org/reference/expansion.html" class="external-link">expansion()</a></code>
-to generate the values for the <code>expand</code> argument. The defaults are to
-expand the scale by 5% on each side for continuous variables, and by
-0.6 units on each side for discrete variables.</p></dd>
-
-<dt><code>oob</code></dt>
-<dd><p>One of:</p><ul><li><p>Function that handles limits outside of the scale limits
-(out of bounds). Also accepts rlang <a href="https://rlang.r-lib.org/reference/as_function.html" class="external-link">lambda</a>
-function notation.</p></li>
-<li><p>The default (<code><a href="https://scales.r-lib.org/reference/oob.html" class="external-link">scales::censor()</a></code>) replaces out of
-bounds values with <code>NA</code>.</p></li>
-<li><p><code><a href="https://scales.r-lib.org/reference/oob.html" class="external-link">scales::squish()</a></code> for squishing out of bounds values into range.</p></li>
-<li><p><code><a href="https://scales.r-lib.org/reference/oob.html" class="external-link">scales::squish_infinite()</a></code> for squishing infinite values into range.</p></li>
-</ul></dd>
-
-<dt><code>guide</code></dt>
-<dd><p>A function used to create a guide or its name. See
-<code><a href="https://ggplot2.tidyverse.org/reference/guides.html" class="external-link">guides()</a></code> for more information.</p></dd>
-
-<dt><code>position</code></dt>
-<dd><p>For position scales, The position of the axis.
-<code>left</code> or <code>right</code> for y axes, <code>top</code> or <code>bottom</code> for x axes.</p></dd>
-
-<dt><code>sec.axis</code></dt>
-<dd><p><code><a href="https://ggplot2.tidyverse.org/reference/sec_axis.html" class="external-link">sec_axis()</a></code> is used to specify a secondary axis.</p></dd>
-
-<dt><code>timezone</code></dt>
-<dd><p>The timezone to use for display on the axes. The default
-(<code>NULL</code>) uses the timezone encoded in the data.</p></dd>
-
-<dt><code>na.value</code></dt>
-<dd><p>Missing values will be replaced with this value.</p></dd>
-
-
-</dl></dd>
-
 
 </dl><p>Named arguments passed on to <code><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">ggplot2::facet_wrap</a></code></p><dl><dt><code>facets</code></dt>
 <dd><p>A set of variables or expressions quoted by <code><a href="https://ggplot2.tidyverse.org/reference/vars.html" class="external-link">vars()</a></code>
@@ -302,6 +177,14 @@ or a character vector, <code>c("a", "b")</code>.</p></dd>
 <dd><p>Should scales be fixed (<code>"fixed"</code>, the default),
 free (<code>"free"</code>), or free in one dimension (<code>"free_x"</code>,
 <code>"free_y"</code>)?</p></dd>
+
+<dt><code>space</code></dt>
+<dd><p>If <code>"fixed"</code> (default), all panels have the same size and
+the number of rows and columns in the layout can be arbitrary. If
+<code>"free_x"</code>, panels have widths proportional to the length of the x-scale,
+but the layout is constrained to one row. If <code>"free_y"</code>, panels have
+heights proportional to the length of the y-scale, but the layout is
+constrained to one column.</p></dd>
 
 <dt><code>shrink</code></dt>
 <dd><p>If <code>TRUE</code>, will shrink scales to fit output of
@@ -321,9 +204,11 @@ formatting facet labels. <code><a href="https://ggplot2.tidyverse.org/reference/
 check it for more details and pointers to other options.</p></dd>
 
 <dt><code>as.table</code></dt>
-<dd><p>If <code>TRUE</code>, the default, the facets are laid out like
-a table with highest values at the bottom-right. If <code>FALSE</code>, the
-facets are laid out like a plot with the highest value at the top-right.</p></dd>
+<dd><p><a href="https://lifecycle.r-lib.org/articles/stages.html#superseded" class="external-link"><img src="figures/lifecycle-superseded.svg" alt="[Superseded]"></a> The <code>as.table</code> argument
+is now absorbed into the <code>dir</code> argument via the two letter options.
+If <code>TRUE</code>, the facets are laid out like a table with highest values at the
+bottom-right. If <code>FALSE</code>, the facets are laid out like a plot with the
+highest value at the top-right.</p></dd>
 
 <dt><code>switch</code></dt>
 <dd><p>By default, the labels are displayed on the top and
@@ -339,7 +224,12 @@ will be shown, regardless of whether or not they appear in the data.</p></dd>
 
 <dt><code>dir</code></dt>
 <dd><p>Direction: either <code>"h"</code> for horizontal, the default, or <code>"v"</code>,
-for vertical.</p></dd>
+for vertical. When <code>"h"</code> or <code>"v"</code> will be combined with <code>as.table</code> to
+set final layout. Alternatively, a combination of <code>"t"</code> (top) or
+<code>"b"</code> (bottom) with <code>"l"</code> (left) or <code>"r"</code> (right) to set a layout directly.
+These two letters give the starting position and the first letter gives
+the growing direction. For example <code>"rt"</code> will place the first panel in
+the top-right and starts filling in panels right-to-left.</p></dd>
 
 <dt><code>strip.position</code></dt>
 <dd><p>By default, the labels are displayed on the top of

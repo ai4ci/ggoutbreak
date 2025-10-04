@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: 
     person(given = "Robert",
            family = "Challen",

@@ -15,7 +15,7 @@ intervals for summary statistics, which are presented as median +/1 95% CI."><me
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -136,39 +136,39 @@ each bootstrap rather than the quantiles of the summary metrics.</p></dd>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>a dataframe of scoring metrics, with one row per group. This includes
-the following columns:</p><ul><li><p>mean_quantile_bias - the average of the universal residuals. Lower values
+the following columns:</p><ul><li><p><code>mean_quantile_bias</code> - the average of the universal residuals. Lower values
 are better.</p></li>
-<li><p>mean_trans_bias - the bias on the link function scale.</p></li>
+<li><p><code>mean_trans_bias</code> - the bias on the link function scale.</p></li>
 <li><p>link - the link function</p></li>
-<li><p>mean_bias - the bias on the natural scale (which may be interpreted as
+<li><p><code>mean_bias</code> - the bias on the natural scale (which may be interpreted as
 additive or multiplicative depending on the link)</p></li>
-<li><p>pit_was - an unadjusted probability integral transform histogram
+<li><p><code>pit_was</code> - an unadjusted probability integral transform histogram
 Wasserstein distance from the uniform (lower values are better).</p></li>
-<li><p>unbiased_pit_was - an PIT Wasserstein distance from the uniform, adjusted
+<li><p><code>unbiased_pit_was</code> - an PIT Wasserstein distance from the uniform, adjusted
 for estimator bias (lower values are better). This is a measure of
 calibration.</p></li>
-<li><p>directed_pit_was - a PIT Wasserstein distance from the uniform, directed
+<li><p><code>directed_pit_was</code> - a PIT Wasserstein distance from the uniform, directed
 away from the centre, adjusted for estimator bias (values closer to zero
 are better, positive values indicate overconfidence, and negative values
 excessively conservative estimates).</p></li>
-<li><p>percent_iqr_coverage - the percentage of estimators that include the true
+<li><p><code>percent_iqr_coverage</code> - the percentage of estimators that include the true
 value in their IQR. For a perfectly calibrated estimate this should be 0.5.
 Lower values reflect overconfidence, higher values reflect excessively
 conservative estimates. This is a measure of calibration but is influenced
 by bias.</p></li>
-<li><p>unbiased_percent_iqr_coverage - the percentage of estimators that include
+<li><p><code>unbiased_percent_iqr_coverage</code> - the percentage of estimators that include
 the true value in their IQR once adjusted for bias. This should be 0.5. This
 is a measure of calibration, and tells you which direction (smaller numbers
 are over-confident, larger values excessively conservative).</p></li>
-<li><p>mean_prediction_interval_width_50 - the prediction interval width is a
+<li><p><code>mean_prediction_interval_width_50</code> - the prediction interval width is a
 measure of sharpness (smaller values are sharper). Sharper estimators are
 superior if they are unbiased and well calibrated.</p></li>
-<li><p>mean_crps - the mean value of the continuous rank probability score for
+<li><p><code>mean_crps</code> - the mean value of the continuous rank probability score for
 each point estimate (lower values are better)</p></li>
-<li><p>mean_unbiased_crps - the mean value of the continuous rank probability
+<li><p><code>mean_unbiased_crps</code> - the mean value of the continuous rank probability
 score for each point estimate assessed after adjustment for bias (lower
 values are better)</p></li>
-<li><p>threshold_misclassification_probability - if a metric has a natural threshold
+<li><p><code>threshold_misclassification_probability</code> - if a metric has a natural threshold
 like 1 for Rt then this measures how probable it is that the estimate will
 propose the epidemic is shrinking when it is growing and vice versa. Lower is
 better</p></li>
@@ -179,14 +179,18 @@ better</p></li>
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="va">test_poisson_rt_smooth</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">pipeline</span> <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">pipeline</span> <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span>, quick<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">lags</span> <span class="op">=</span> <span class="fu"><a href="quantify_lag.html">quantify_lag</a></span><span class="op">(</span><span class="va">pipeline</span>, ip <span class="op">=</span> <span class="va">test_ip</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Rt estimation using Locfit (exact with inferred covariance)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Rt estimation using Locfit (approx and assuming independence)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu">withr</span><span class="fu">::</span><span class="fu"><a href="https://withr.r-lib.org/reference/with_options.html" class="external-link">with_options</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"ggoutbreak.keep_cdf"</span><span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span>,<span class="op">{</span></span></span>
-<span class="r-in"><span>   <span class="va">est</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">test_ip</span><span class="op">)</span></span></span>
+<span class="r-in"><span>   <span class="va">est</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">test_ip</span>, quick<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="op">}</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Rt estimation using Locfit (exact with inferred covariance)</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Rt estimation using Locfit (approx and assuming independence)</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Estimates were assumed to be independent, but more that 1% of estimates</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> are at risk of Rt underestimation by more that 0.05 (absolute).</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> We advise re-running supplying a full variance-covariance matrix, or</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> a value to the `raw` parameter, or setting `quick=FALSE`.</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="fu"><a href="plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">est</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="sim_geom_function.html">sim_geom_function</a></span><span class="op">(</span><span class="va">data</span>, colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
@@ -200,61 +204,61 @@ better</p></li>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ link                                          <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "log"<span style="color: #949494;">, </span>"log"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ statistic                                     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "infections"<span style="color: #949494;">, </span>"infection…</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> $ .type                                         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "incidence"<span style="color: #949494;">, </span>"rt"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.025                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.94219662<span style="color: #949494;">, </span>0.03309095</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.25                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.17239004<span style="color: #949494;">, </span>0.03743459</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.5                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.32341761<span style="color: #949494;">, </span>0.03956198</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.75                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.44710580<span style="color: #949494;">, </span>0.04176993</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.975                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.72600459<span style="color: #949494;">, </span>0.04627801</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.025 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.005489954</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.25  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.00730308</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.5   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.008418191</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.75  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.009628172</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.975 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.01204804</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.025                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.01102948<span style="color: #949494;">, </span>-0.05169073</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.25                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.009583191<span style="color: #949494;">, </span>-0.037295518</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.5                           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.02470395<span style="color: #949494;">, </span>-0.03131416</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.75                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.04446509<span style="color: #949494;">, </span>-0.02505914</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.975                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.08772715<span style="color: #949494;">, </span>-0.01502605</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.025                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.9969904<span style="color: #949494;">, </span>0.9586349</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.25                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.0275367<span style="color: #949494;">, </span>0.9698996</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.5                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.2345378<span style="color: #949494;">, </span>0.9746026</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.75                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.4467341<span style="color: #949494;">, </span>0.9797131</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.975                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.7338368<span style="color: #949494;">, </span>0.9884128</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.025                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.006081356<span style="color: #949494;">, </span>-0.124148079</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.25                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.05655466<span style="color: #949494;">, </span>-0.08135188</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.5                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.08848174<span style="color: #949494;">, </span>-0.05787424</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.75                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.11650725<span style="color: #949494;">, </span>-0.03577158</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.975                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.174005212<span style="color: #949494;">, </span>0.003068056</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.025       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 4.8967019<span style="color: #949494;">, </span>0.1249395</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.25        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 5.3713646<span style="color: #949494;">, </span>0.1367294</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.5         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 5.6461767<span style="color: #949494;">, </span>0.1431578</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.75        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 5.9245636<span style="color: #949494;">, </span>0.1487643</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.975       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 6.4682256<span style="color: #949494;">, </span>0.1609658</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.025                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.03785947<span style="color: #949494;">, </span>0.07516036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.25                                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.05070468<span style="color: #949494;">, </span>0.08939218</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.5                                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.05753087<span style="color: #949494;">, </span>0.09691206</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.75                                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.06561711<span style="color: #949494;">, </span>0.10484936</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.975                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.08753398<span style="color: #949494;">, </span>0.11723792</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.025                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.04669956<span style="color: #949494;">, </span>0.07233882</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.25                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.06033831<span style="color: #949494;">, </span>0.08644211</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.5                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.06824216<span style="color: #949494;">, </span>0.09443587</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.75                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.07842087<span style="color: #949494;">, </span>0.10197989</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.975                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.1041765<span style="color: #949494;">, </span>0.1147653</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.025                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.0527334<span style="color: #949494;">, </span>-0.1115264</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.25                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.03618468<span style="color: #949494;">, </span>-0.09892036</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.5                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.02811997<span style="color: #949494;">, </span>-0.09109671</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.75                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.01863533<span style="color: #949494;">, </span>-0.08383854</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.975                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.001337369<span style="color: #949494;">, </span>-0.0698936…</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.025                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.484472<span style="color: #949494;">, </span>0.662500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.25                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5403727<span style="color: #949494;">, </span>0.7125000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.5                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5652174<span style="color: #949494;">, </span>0.7375000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.75                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5900621<span style="color: #949494;">, </span>0.7625000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.975                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6399068<span style="color: #949494;">, </span>0.8062500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.025           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5279503<span style="color: #949494;">, </span>0.6750000</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.25            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5776398<span style="color: #949494;">, </span>0.7187500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.5             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6024845<span style="color: #949494;">, </span>0.7437500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.75            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6273292<span style="color: #949494;">, </span>0.7687500</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.975           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6770186<span style="color: #949494;">, </span>0.8064062</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.025                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.94219662<span style="color: #949494;">, </span>0.03310769</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.25                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.17239004<span style="color: #949494;">, </span>0.03752556</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.5                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.32341761<span style="color: #949494;">, </span>0.03970468</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.75                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.44710580<span style="color: #949494;">, </span>0.04203138</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_crps.0.975                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 2.72600459<span style="color: #949494;">, </span>0.04665231</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.025 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.005194496</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.25  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.006976495</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.5   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.008053554</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.75  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.009258347</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ threshold_misclassification_probability.0.975 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #BB0000;">NA</span><span style="color: #949494;">, </span>0.01160723</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.025                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.01102948<span style="color: #949494;">, </span>-0.05274525</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.25                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.009583191<span style="color: #949494;">, </span>-0.038174945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.5                           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.02470395<span style="color: #949494;">, </span>-0.03219066</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.75                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.04446509<span style="color: #949494;">, </span>-0.02586515</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_trans_bias.0.975                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.08772715<span style="color: #949494;">, </span>-0.01572738</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.025                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.9969904<span style="color: #949494;">, </span>0.9578061</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.25                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.0275367<span style="color: #949494;">, </span>0.9690985</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.5                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.2345378<span style="color: #949494;">, </span>0.9739418</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.75                                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.4467341<span style="color: #949494;">, </span>0.9790137</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_bias.0.975                               <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1.733837<span style="color: #949494;">, </span>0.987685</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.025                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.006081356<span style="color: #949494;">, </span>-0.126377752</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.25                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.05655466<span style="color: #949494;">, </span>-0.08321926</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.5                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.08848174<span style="color: #949494;">, </span>-0.05922198</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.75                       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.11650725<span style="color: #949494;">, </span>-0.03712558</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_quantile_bias.0.975                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.174005212<span style="color: #949494;">, </span>0.002649273</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.025       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 4.8967019<span style="color: #949494;">, </span>0.1224512</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.25        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 5.3713646<span style="color: #949494;">, </span>0.1341302</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.5         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 5.646177<span style="color: #949494;">, </span>0.140501</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.75        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 5.9245636<span style="color: #949494;">, </span>0.1460532</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ mean_prediction_interval_width_50.0.975       <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 6.4682256<span style="color: #949494;">, </span>0.1577648</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.025                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.03785947<span style="color: #949494;">, </span>0.07260691</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.25                                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.05070468<span style="color: #949494;">, </span>0.08706268</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.5                                   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.05753087<span style="color: #949494;">, </span>0.09475422</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.75                                  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.06561711<span style="color: #949494;">, </span>0.10252945</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ pit_was.0.975                                 <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.08753398<span style="color: #949494;">, </span>0.11518441</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.025                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.04882549<span style="color: #949494;">, </span>0.06913734</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.25                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.06318438<span style="color: #949494;">, </span>0.08340105</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.5                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.07145733<span style="color: #949494;">, </span>0.09122696</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.75                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.08207681<span style="color: #949494;">, </span>0.09897618</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_pit_was.0.975                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.1086903<span style="color: #949494;">, </span>0.1118732</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.025                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.05353149<span style="color: #949494;">, </span>-0.10850851</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.25                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.03731746<span style="color: #949494;">, </span>-0.09597521</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.5                          <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.02899301<span style="color: #949494;">, </span>-0.08819360</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.75                         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.01971303<span style="color: #949494;">, </span>-0.08087673</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ directed_pit_was.0.975                        <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> -0.002143565<span style="color: #949494;">, </span>-0.0664757…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.025                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.484472<span style="color: #949494;">, </span>0.656250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.25                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5403727<span style="color: #949494;">, </span>0.7062500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.5                      <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5652174<span style="color: #949494;">, </span>0.7312500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.75                     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5900621<span style="color: #949494;">, </span>0.7562500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ percent_iqr_coverage.0.975                    <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6399068<span style="color: #949494;">, </span>0.8000000</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.025           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5217391<span style="color: #949494;">, </span>0.6562500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.25            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5714286<span style="color: #949494;">, </span>0.7062500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.5             <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.5962733<span style="color: #949494;">, </span>0.7312500</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.75            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.621118<span style="color: #949494;">, </span>0.756250</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> $ unbiased_percent_iqr_coverage.0.975           <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 0.6708075<span style="color: #949494;">, </span>0.8000000</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

@@ -62,7 +62,9 @@ omitted.}
 weeks", or "10 years". If both \code{breaks} and \code{date_breaks} are
 specified, \code{date_breaks} wins. Valid specifications are 'sec', 'min',
 'hour', 'day', 'week', 'month' or 'year', optionally followed by 's'.}
-\item{\code{labels}}{One of:
+\item{\code{labels}}{One of the options below. Please note that when \code{labels} is a
+vector, it is highly recommended to also set the \code{breaks} argument as a
+vector to protect against unintended mismatches.
 \itemize{
 \item \code{NULL} for no labels
 \item \code{waiver()} for the default labels computed by the

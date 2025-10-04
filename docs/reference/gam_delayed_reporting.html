@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -73,17 +73,9 @@
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
-<dd><p>Named arguments passed on to <code><a href="gam_knots.html">gam_knots</a></code></p><dl><dt><code>data</code></dt>
-<dd><p>the function will be called with incidence data - a dataframe with columns:</p><ul><li><p>count (positive_integer) - Positive case counts associated with the specified time frame</p></li>
-<li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
-</ul><p>Any grouping allowed.</p></dd>
-
-<dt><code>k</code></dt>
+<dd><p>Named arguments passed on to <code><a href="gam_knots.html">gam_knots</a></code></p><dl><dt><code>k</code></dt>
 <dd><p>alternative to <code>window</code>, if <code>k</code> is given then the behaviour of the
 knots will be similar to the default <code>mgcv::s(...,k=...)</code> parameter.</p></dd>
-
-<dt><code>...</code></dt>
-<dd><p>currently not used</p></dd>
 
 
 </dl></dd>

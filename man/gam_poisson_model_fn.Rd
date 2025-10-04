@@ -37,7 +37,7 @@ parameters.
 }
 \examples{
 model_fn = gam_poisson_model_fn(14)
-fit = model_fn(test_poisson_rt \%>\% dplyr::ungroup())
+fit = model_fn(test_poisson_rt() \%>\% dplyr::ungroup())
 summary(fit)
 
 }

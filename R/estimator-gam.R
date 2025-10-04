@@ -328,7 +328,7 @@ poisson_gam_model.incidence = function(
 #'
 #' @examples
 #' model_fn = gam_poisson_model_fn(14)
-#' fit = model_fn(test_poisson_rt %>% dplyr::ungroup())
+#' fit = model_fn(test_poisson_rt() %>% dplyr::ungroup())
 #' summary(fit)
 #'
 gam_poisson_model_fn = function(
@@ -373,7 +373,7 @@ gam_poisson_model_fn = function(
 #'
 #' @examples
 #' model_fn = gam_nb_model_fn(14)
-#' fit = model_fn(test_poisson_rt %>% dplyr::ungroup())
+#' fit = model_fn(test_poisson_rt() %>% dplyr::ungroup())
 #' summary(fit)
 #'
 gam_nb_model_fn = function(
@@ -487,8 +487,8 @@ gam_delayed_reporting = function(
 #' @concept models
 #'
 #' @examples
-#' gam_knots(ggoutbreak::test_poisson_rt, 14)
-#' gam_knots(ggoutbreak::test_poisson_rt, k=10)
+#' gam_knots(ggoutbreak::test_poisson_rt(), 14)
+#' gam_knots(ggoutbreak::test_poisson_rt(), k=10)
 gam_knots = function(data = i_incidence_data, window, ..., k = NULL) {
   range = range(as.numeric(data$time))
   if (!is.null(k)) {
