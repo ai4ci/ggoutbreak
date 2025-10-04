@@ -13,8 +13,7 @@ Description: Simple statistical models and visualisations for calculating the
   the COVID-19 pandemic.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE, roclets = c("collate", "rd", "namespace", 
-              "doctest::dt_roclet"), packages = "doctest") 
+Roxygen: list(markdown = TRUE, roclets = c("collate", "rd", "namespace"), packages = "pkgtools")
 RoxygenNote: 7.3.3.9007
 Suggests: 
     downloader,
@@ -36,8 +35,7 @@ Suggests:
     carrier,
     magrittr,
     ragg,
-    lifecycle,
-    doctest
+    lifecycle
 VignetteBuilder: knitr
 Imports: 
     dplyr,
@@ -70,3 +68,4 @@ Depends:
 LazyData: true
 LazyDataCompression: gzip
 Language: en-GB
+Config/Needs/build: terminological/pkgtools
