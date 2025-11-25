@@ -65,7 +65,8 @@
 #'
 #' @examples
 #' try({
-#' .qmixnorm(p=c(0.025,0.5,0.975), means=c(10,13,14), sds=c(1,1,2))
+#' .qmixnorm(p=c(0.025,0.5,0.975), means=c(10,13,14), sds=c(1,1,2), method="exact")
+#' .qmixnorm(p=c(0.025,0.5,0.975), means=c(10,13,14), sds=c(1,1,2), method="moments")
 #' })
 .qmixnorm = function(
   p,
@@ -153,6 +154,8 @@
 #' @examples
 #' try({
 #'   .pmixgamma(q=c(2,20), shapes=c(10,13,14), rates=c(1,1,1), weights=c(2,2,3))
+#'
+#'
 #' })
 .pmixgamma = function(q, shapes, rates, weights = 1, na.rm = FALSE) {
   return(.pmix("gamma", q, shapes, rates, weights, na.rm))
@@ -176,6 +179,38 @@
 #' try({
 #'   .qmixgamma(p=c(0.025,0.5,0.975), shapes=c(10,13,14), rates=c(1,1,2), method="moments")
 #'   .qmixgamma(p=c(0.025,0.5,0.975), shapes=c(10,13,14), rates=c(1,1,2), method="exact")
+#'
+#'   means = runif(100,5,6)
+#'   sds = runif(100,2,3)
+#'   shapes = means^2/sds^2
+#'   rates = means/sds^2
+#'
+#'   if (sd(means) < mean(sds)) message("mixture moments should be close")
+#'
+#'   qgamma(c(0.025,0.5,0.975), shape =mean(means^2)/mean(sds^2), rate = mean(means)/mean(sds^2))
+#'   system.time(
+#'   .qmixgamma(p=c(0.025,0.5,0.975), shapes=shapes, rates=rates, method="moments")
+#'   )
+#'   system.time(
+#'   .qmixgamma(p=c(0.025,0.5,0.975), shapes=shapes, rates=rates, method="exact")
+#'   )
+#'
+#'   means = runif(100,2,12)
+#'   sds = runif(100,0.5,1)
+#'   shapes = means^2/sds^2
+#'   rates = means/sds^2
+#'
+#'   if (sd(means) < mean(sds)) message("mixture moments should be close")
+#'
+#'   qgamma(c(0.025,0.5,0.975), shape =mean(means^2)/mean(sds^2), rate = mean(means)/mean(sds^2))
+#'   system.time(
+#'   .qmixgamma(p=c(0.025,0.5,0.975), shapes=shapes, rates=rates, method="moments")
+#'   )
+#'   system.time(
+#'   .qmixgamma(p=c(0.025,0.5,0.975), shapes=shapes, rates=rates, method="exact")
+#'   )
+#'   quantile(means, prob=c(0.025,0.5,0.975))
+#'
 #' })
 .qmixgamma = function(
   p,
@@ -396,7 +431,8 @@
   na.rm = FALSE,
   method = c("exact", "samples", "moments"),
   seed = NULL,
-  n_samples = 50000
+  n_samples = 50000,
+  ...
 ) {
   method = match.arg(method)
 
@@ -469,7 +505,7 @@
   } else if (method == "moments") {
     # moment based approach.
     # calculate analytical moments for sum:
-    moments = .mixture_moments_vectorised(dist, param1, param2, weights)
+    moments = .mixture_moments_vectorised(dist, param1, param2, weights, ...)
     skewness = (moments[3] - 3 * moments[1] * moments[2] + 2 * moments[1]^3) /
       (moments[2] - moments[1]^2)^1.5
 
@@ -483,7 +519,7 @@
     #   warn(paste0("falling back to slow quantiles due to excess kurtosis: ",kurtosis))
     #   return(.qmix(dist,p,param1,param2,weights,na.rm,method="samples"))
     # }
-    raw_cumulants = PDQutils::moment2cumulant(moments)
+    raw_cumulants = .raw_moments_to_cumulants(moments)
     out = PDQutils::qapx_cf(
       p,
       raw.cumulants = raw_cumulants,
@@ -529,8 +565,9 @@
   param1,
   param2,
   weights,
-  n = 10
+  order = 15
 ) {
+  n = order
   if (dist_type == "norm") {
     # Normal distribution moments
     mu <- param1
@@ -586,3 +623,171 @@
   arr = apply(arr, MARGIN = 2, function(x) sum(x * weights))
   return(arr)
 }
+
+
+.raw_moments_to_cumulants <- function(mu) {
+  n <- length(mu)
+  if (n == 0) {
+    return(numeric(0))
+  }
+
+  kappa <- numeric(n)
+
+  # First cumulant = first raw moment
+  kappa[1] <- mu[1]
+
+  # Use recursive formula
+  for (r in 2:n) {
+    s <- 0
+    for (k in 1:(r - 1)) {
+      s <- s + choose(r - 1, k - 1) * kappa[k] * mu[r - k]
+    }
+    kappa[r] <- mu[r] - s
+  }
+
+  return(kappa)
+}
+
+
+# ac <- c(0.8, 1.2)  # up to 4th order
+#
+# # Vector of normal deviates
+# x <- qnorm(c(0.01, 0.05, 0.5, 0.95, 0.99))
+# res <- cornish_fisher_nord2(x, ac[[1]], ac[[2]])
+# print(res$x_adjusted)
+# PDQutils::qapx_cf(
+#   c(0.01, 0.05, 0.5, 0.95, 0.99),
+#   raw.cumulants = c(0,1,ac)
+# )
+.cornish_fisher_nord2 <- function(x, skew, ex_kurt) {
+  # skew = κ3 / σ³, ex_kurt = κ4 / σ⁴
+  delta <- (skew / 6) *
+    (x^2 - 1) +
+    (ex_kurt / 24) * (x^3 - 3 * x) -
+    (skew^2 / 36) * (2 * x^3 - 5 * x)
+  list(x = x, adjustment = delta, x_adjusted = x + delta)
+}
+
+# # ac <- c(0.8, 1.2)  # up to 4th order
+# #
+# # # Vector of normal deviates
+# # x <- qnorm(c(0.01, 0.05, 0.5, 0.95, 0.99))
+# # res <- cornish_fisher_as269_vec(x, ac)
+# # print(res$x_adjusted)
+# cornish_fisher_as269_vec <- function(x, ac, nord = length(ac)) {
+#   # x: numeric vector of standard normal deviates
+#   # ac: standardized cumulants (kappa_3, kappa_4, ..., kappa_{nord+2})
+#   # nord: expansion order (default = length(ac))
+#
+#   if (nord > 18) {
+#     stop("nord must be <= 18")
+#   }
+#   if (nord != length(ac)) {
+#     warning("nord != length(ac); using nord = length(ac)")
+#   }
+#   nord <- length(ac)
+#
+#   limit <- 3.719017274
+#   if (any(x < -limit | x > limit)) {
+#     warning(
+#       "Some x outside valid range [-3.719, 3.719]; results may be inaccurate"
+#     )
+#   }
+#
+#   # Pre-allocate output
+#   n_x <- length(x)
+#   adjustments <- numeric(n_x)
+#
+#   # Vectorized loop (fast for moderate n_x)
+#   for (i in seq_len(n_x)) {
+#     xi <- x[i]
+#
+#     # --- Begin AS 269 core (optimized for single x) ---
+#     a <- numeric(nord)
+#     d <- numeric(nord)
+#     h <- numeric(3 * nord)
+#     p_len <- 3 * nord * (nord + 1) %/% 2
+#     p <- numeric(p_len)
+#
+#     # Adjusted cumulants
+#     cc <- -1
+#     for (j in 1:nord) {
+#       a[j] <- cc * ac[j] / ((j + 1) * (j + 2))
+#       cc <- -cc
+#     }
+#
+#     # Hermite polynomials
+#     h[1] <- -xi
+#     if (3 * nord >= 2) {
+#       h[2] <- xi^2 - 1
+#     }
+#     for (j in 3:(3 * nord)) {
+#       h[j] <- xi * h[j - 1] + (j - 1) * h[j - 2]
+#     }
+#
+#     # First term
+#     d[1] <- -a[1] * h[2]
+#     p[1] <- d[1]
+#     if (p_len >= 3) {
+#       p[3] <- a[1]
+#     }
+#
+#     ja <- 0
+#     fac <- 1
+#     del_sum <- d[1] # total adjustment starts with first term
+#
+#     # Main loop for higher orders
+#     if (nord >= 2) {
+#       for (j in 2:nord) {
+#         fac <- fac * j
+#         ja <- ja + 3 * (j - 1)
+#         jb <- ja
+#         bc <- 1
+#
+#         for (k in 1:(j - 1)) {
+#           dd <- bc * d[k]
+#           aa <- bc * a[k]
+#           jb <- jb - 3 * (j - k)
+#
+#           for (l in 1:(3 * (j - k))) {
+#             jbl <- jb + l
+#             jal <- ja + l
+#             if (jal + 1 <= p_len && jbl <= p_len) {
+#               p[jal + 1] <- p[jal + 1] + dd * p[jbl]
+#             }
+#             idx <- jal + k + 2
+#             if (idx <= p_len && jbl <= p_len) {
+#               p[idx] <- p[idx] + aa * p[jbl]
+#             }
+#           }
+#           bc <- bc * (j - k) / k
+#         }
+#
+#         idx_add <- ja + j + 2
+#         if (idx_add <= p_len) {
+#           p[idx_add] <- p[idx_add] + a[j]
+#         }
+#
+#         d[j] <- 0
+#         for (l in 2:(3 * j)) {
+#           p_idx <- ja + l
+#           h_idx <- l - 1
+#           if (p_idx <= p_len && h_idx <= length(h)) {
+#             d[j] <- d[j] - p[p_idx] * h[h_idx]
+#           }
+#         }
+#         p[ja + 1] <- d[j]
+#         del_sum <- del_sum + d[j] / fac
+#       }
+#     }
+#     # --- End core ---
+#
+#     adjustments[i] <- del_sum
+#   }
+#
+#   list(
+#     x = x,
+#     adjustment = adjustments,
+#     x_adjusted = x + adjustments
+#   )
+# }

@@ -772,6 +772,7 @@ sim_branching_process = function(
   imports_df = NULL,
   fn_imports = ~ ifelse(.x == 0, 30, 0),
   fn_list_next_gen = list(),
+  max_size = 10000,
   ...
 ) {
   fn_Rt = .fn_check(fn_Rt)
@@ -897,6 +898,15 @@ sim_branching_process = function(
 
       out = dplyr::bind_rows(out, infected)
       last_gen = infected
+
+      if (nrow(last_gen) > max_size) {
+        warning(
+          "terminating branching process model early
+current generation size: ",
+          nrow(last_gen)
+        )
+        break
+      }
     }
 
     message("complete")

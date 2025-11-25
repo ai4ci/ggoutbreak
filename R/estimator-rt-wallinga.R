@@ -94,6 +94,22 @@ rt_from_growth_rate = function(
             ) %>%
             dplyr::mutate(R = ifelse(r == 0, 1, R))
 
+          # tmp = ip %>%
+          #   dplyr::inner_join(r_samples, by = "boot", relationship="many-to-many") %>%
+          #   dplyr::rename(y = probability) %>%
+          #   dplyr::group_by(boot, r_i, r) %>%
+          #   dplyr::arrange(boot, r_i) %>%
+          #   #TODO: debug this should be a summarise?
+          #   dplyr::summarise(
+          #     wl_denom = sum(
+          #       y *
+          #         (exp(-r * a0) - exp(-r * a1)) /
+          #         (a1 - a0)
+          #     )
+          #   ) %>% dplyr::mutate(
+          #     R = ifelse(r==0, 1, r / wl_denom)
+          #   ) %>% dplyr::select(-wl_denom)
+
           R_summ = tmp %>%
             dplyr::ungroup() %>%
             dplyr::summarise(

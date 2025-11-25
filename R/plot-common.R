@@ -83,3 +83,6 @@ geom_events = function(
 
   return(tmp)
 }
+
+# TODO: look at how this is done with the units package:
+# https://github.com/r-quantities/units/blob/main/R/scale_units.R
