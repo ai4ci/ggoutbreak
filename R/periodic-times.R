@@ -349,8 +349,8 @@ vec_arith.time_period.integer <- function(op, x, y, ...) {
 
 #' @export
 #' @method vec_math time_period
-vec_math.time_period <- function(.fn, x, ...) {
-  unit = attributes(x)$unit
+vec_math.time_period <- function(.fn, .x, ...) {
+  unit = attributes(.x)$unit
   start_date = as.Date(attributes(x)$start_date)
   switch(
     .fn,
@@ -360,11 +360,11 @@ vec_math.time_period <- function(.fn, x, ...) {
     "cummax" = ,
     "cummin" = ,
     "round" = new_time_period(
-      vctrs::vec_math_base(.fn, x),
+      vctrs::vec_math_base(.fn, .x),
       start_date = start_date,
       unit = unit
     ),
-    vctrs::vec_math_base(.fn, x)
+    vctrs::vec_math_base(.fn, .x)
     # cli::cli_abort("function not supported: {fn}() for {.cls {class(x)}}")
   )
 }

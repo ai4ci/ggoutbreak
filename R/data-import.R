@@ -7,6 +7,7 @@
 #'
 #' @returns minimally a time stamped linelist dataframe `r i_timestamped`
 #' @export
+#' @concept models
 #'
 #' @examples
 #' (Sys.Date()+stats::runif(100)*7) %>% linelist()
@@ -64,6 +65,7 @@ linelist.data.frame = function(x, ..., date = NULL) {
 #'
 #' @returns minimally a case count dataframe `r i_incidence_data`
 #' @export
+#' @concept models
 #'
 #' @examples
 #'

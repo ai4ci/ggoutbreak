@@ -79,7 +79,7 @@ infer_population = function(
           "inputs have time columns with different units and are being rescaled to a common value."
         )
       }
-      base$time = vec_cas(base$time, modelled$time)
+      base$time = vec_cast(base$time, modelled$time)
     }
 
     if (all(modelled$time %in% base$time)) {
