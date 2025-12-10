@@ -351,7 +351,7 @@ vec_arith.time_period.integer <- function(op, x, y, ...) {
 #' @method vec_math time_period
 vec_math.time_period <- function(.fn, .x, ...) {
   unit = attributes(.x)$unit
-  start_date = as.Date(attributes(x)$start_date)
+  start_date = as.Date(attributes(.x)$start_date)
   switch(
     .fn,
     "floor" = ,
