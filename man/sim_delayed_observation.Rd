@@ -50,8 +50,8 @@ in case rates apparently dropping as schools broke up. This could have
 affected timing of the 2021 Christmas lockdown.
 }
 \examples{
-weekday_delay = make_gamma_ip(median_of_mean = 5, median_of_sd = 2)
-weekend_delay = make_gamma_ip(median_of_mean = 7, median_of_sd = 2)
+weekday_delay = make_fixed_ip(mean = 5, sd = 2)
+weekend_delay = make_fixed_ip(mean = 7, sd = 2)
 
 delay_fn = ~ ifelse(.x \%\% 7 \%in\% c(6,7), list(weekend_delay), list(weekday_delay))
 

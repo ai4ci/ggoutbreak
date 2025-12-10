@@ -149,7 +149,7 @@ of delays observing a proportion of patients.</p>
 <span><span class="va">tmp3</span> <span class="op">=</span> <span class="va">sim</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/poisson_gam_model.html">poisson_gam_model</a></span><span class="op">(</span></span>
 <span>  model_fn <span class="op">=</span> <span class="va">model</span><span class="op">$</span><span class="va">model_fn</span>,</span>
 <span>  predict <span class="op">=</span> <span class="va">model</span><span class="op">$</span><span class="va">predict</span>,</span>
-<span>  ip<span class="op">=</span><span class="va">test_ip</span><span class="op">)</span></span></code></pre></div>
+<span>  ip<span class="op">=</span><span class="va">example_ip()</span><span class="op">)</span></span></code></pre></div>
 <p>Plot the fitted incidence accounting for non observed cases:</p>
 <div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/plot_incidence.html">plot_incidence</a></span><span class="op">(</span><span class="va">tmp3</span><span class="op">)</span><span class="op">+</span></span>

@@ -21,7 +21,7 @@
 #' @concept vis
 #' @examples
 #'
-#' data = ggoutbreak::test_poisson_rt_2class
+#' data = example_poisson_rt_2class()
 #' tmp2 = data %>% poisson_locfit_model()
 #'
 #' timepoints = as.Date(tmp2$time[c(40,80,120,160)])
@@ -267,6 +267,12 @@ plot_growth_phase.risk_ratio = function(
     names(facet_dots) %in% names(formals(ggplot2::facet_wrap))
   ]
 
+  if (is.null(timepoints)) {
+    timepoints = max(modelled$time)
+  } else {
+    timepoints = as.time_period(timepoints, unit = modelled$time)
+  }
+
   plot_data = modelled %>%
     dplyr::cross_join(dplyr::tibble(
       end = timepoints,
@@ -291,6 +297,10 @@ plot_growth_phase.risk_ratio = function(
     )
 
   mx = .glimit(plot_data$x)
+  my = min(c(
+    max(plot_data$ymax, na.rm = TRUE),
+    1.25 * max(plot_data$y, na.rm = TRUE)
+  ))
 
   out = ggplot2::ggplot(data = plot_data) +
     ggplot2::geom_vline(xintercept = 0, colour = "grey50") +
@@ -358,7 +368,7 @@ plot_growth_phase.risk_ratio = function(
         NULL
       }
     } +
-    ggplot2::coord_cartesian(xlim = c(-mx, mx))
+    ggplot2::coord_cartesian(xlim = c(-mx, mx), ylim = c(0, my))
 
   return(out)
 }

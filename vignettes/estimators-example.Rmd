@@ -21,6 +21,8 @@ knitr::opts_chunk$set(
 library(ggoutbreak)
 here::i_am("vignettes/estimators-example.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
+
+set_default_start("2025-01-01")
 ```
 
 This test data is based around a known time varying exponential growth rate

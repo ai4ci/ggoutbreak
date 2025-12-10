@@ -17,8 +17,6 @@ optional if \code{tau} is given. - a dataframe with columns:
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 }
 \value{
@@ -28,7 +26,7 @@ an infectivity profile description
 Print a summary of an infectivity profile
 }
 \examples{
-format_ip(ganyani_ip)
+format_ip(example_ganyani_ip())
 
 }
 \concept{delay_distribution}

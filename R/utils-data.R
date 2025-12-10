@@ -63,6 +63,36 @@
   return(out)
 }
 
+# Apply a function to a set of quantiles represented in a set of columns
+# the function will take quantiles in order p,q i.e. probability/value
+# and produce a singular output (single item list, or single numeric)
+# if fn returns a single row dataframe then colname can be omitted.
+.quantile_apply = function(new_data, type, fn, colname = NULL) {
+  fn = rlang::as_function(fn)
+  p = name = value = NULL
+  df = new_data %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(id = dplyr::row_number()) %>%
+    dplyr::select(id, dplyr::starts_with(paste0(type, ".0."))) %>%
+    tidyr::pivot_longer(names_prefix = paste0(type, "."), cols = -id) %>%
+    dplyr::transmute(id, p = as.numeric(name), value) %>%
+    dplyr::group_by(id)
+  if (!is.null(colname)) {
+    df = df %>%
+      dplyr::summarise(
+        !!colname := fn(p, value)
+      ) %>%
+      dplyr::select(-id)
+  } else {
+    df = df %>%
+      dplyr::summarise(fn(p, value)) %>%
+      dplyr::select(-id)
+  }
+
+  new_data = dplyr::bind_cols(new_data, df) # retains grouping.
+  return(new_data)
+}
+
 
 .has_time = function(df) {
   return(.has_cols(df, "time") && is.time_period(df$time))
@@ -95,48 +125,6 @@
   }
 }
 
-# preprocess_data = function(df, multinom, ...,  date_col = "date") {
-#
-#   grps = df %>% dplyr::groups()
-#
-#   # Is this a dated line list? i.e. a datafram with a date, or a time, but no count:
-#   if (!.has_cols(df, "count")) {
-#
-#     if (.has_time(df) && !.has_cols(df, "date")) {
-#       # need a date column to summarise
-#       df = df %>% dplyr::mutate(date = as.Date(time))
-#     } else {
-#       dateVar = rlang::ensym(date_col)
-#       df = df %>% dplyr::rename(date = !!dateVar)
-#     }
-#
-#     # this does everything:
-#     df = df %>% time_summarise(...)
-#
-#   } else {
-#
-#     # this is a time series already with a count column
-#     # could check here it is complete and fill it?
-#
-#     # make sure there is a time column.
-#     if (!.has_time(df)) {
-#       dateVar = rlang::ensym(date_col)
-#       df = df %>% dplyr::mutate(time = as.time_period(!!dateVar, ...))
-#     }
-#
-#     if (.has_cols(df, "class") && !.has_cols(df, "denom")) {
-#       df = df %>%
-#         dplyr::group_by(!!!grps, time) %>%
-#         dplyr::mutate(denom = sum(count)) %>%
-#         dplyr::group_by(!!!grps)
-#     }
-#
-#   }
-#
-#   if (!multinom) {df = df %>% dplyr::group_by(class, .add = TRUE)}
-#
-#   return(df)
-# }
 
 .logit = function(x) {
   log(x / (1 - x))
@@ -248,4 +236,70 @@ cache_env = rlang::new_environment(
   }
   levels = unique(s[!is.na(s)])
   return(factor(s, levels = levels))
+}
+
+
+#' Add grouping to ensure a column is groupwise unique
+#'
+#' @param df a dataframe, maybe grouped
+#' @param unique_col a column reference that should be groupwise unique
+#'
+#' @returns a regrouped dataframe in which `unique_col` is indeed unique
+#' @keywords internal
+#' @unit
+#' df = dplyr::tibble(
+#'   original_grp = as.vector(sapply(LETTERS[1:4],rep,20)),
+#'   to_find = as.vector(sapply(letters[1:10],rep,8)),
+#'   to_make_unique = rep(1:10,8),
+#'   distractor = runif(80)
+#' ) %>% dplyr::group_by(original_grp)
+#' unique_col = as.symbol("to_make_unique")
+#' tmp = .infer_grouping(df, to_make_unique)
+#' testthat::expect_equal(
+#'   format(groups(tmp)),
+#'   c("original_grp", "to_find")
+#' )
+.infer_grouping = function(df, unique_col) {
+  unique_col = rlang::ensym(unique_col)
+  grps = df %>% dplyr::groups()
+  summ = df %>%
+    dplyr::group_by(!!!grps, !!unique_col) %>%
+    dplyr::summarise(
+      count = dplyr::n(),
+      dplyr::across(dplyr::everything(), function(.x) {
+        dplyr::n_distinct(.x) == dplyr::n()
+      })
+    )
+  if (all(summ$count == 1)) {
+    return(df)
+  }
+  grp_cols = summ %>%
+    dplyr::ungroup() %>%
+    dplyr::select(dplyr::where(is.logical)) %>%
+    dplyr::select(dplyr::where(~ all(.x))) %>%
+    colnames()
+  candidates = df %>%
+    dplyr::ungroup() %>%
+    dplyr::select(dplyr::where(~ anyDuplicated(.x) != 0)) %>%
+    colnames()
+  extra = intersect(grp_cols, candidates) %>% lapply(as.symbol)
+  if (length(extra) > 0) {
+    message(sprintf(
+      "inferring extra groups to make `%s` unique: %s",
+      format(unique_col),
+      paste0(extra, collapse = ", ")
+    ))
+  }
+  tmp = df %>% dplyr::group_by(!!!grps, !!!extra)
+  remaining_dup = tmp %>%
+    dplyr::summarise(dup = anyDuplicated(!!unique_col) != 0) %>%
+    dplyr::pull(dup) %>%
+    any()
+  if (remaining_dup) {
+    stop(sprintf(
+      "Could not automatically resolve group wise duplicate `%s` items. Please check the grouping structure of your data.",
+      format(unique_col)
+    ))
+  }
+  return(tmp)
 }

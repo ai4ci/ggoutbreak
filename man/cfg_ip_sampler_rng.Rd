@@ -16,8 +16,6 @@ cfg_ip_sampler_rng(ip = i_empirical_ip)
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 }
 \value{
@@ -31,11 +29,11 @@ distribution with negative times but strange things may happen in your
 simulation.
 }
 \examples{
-tmp = cfg_ip_sampler_rng(ganyani_ip_2)(10000)
+tmp = cfg_ip_sampler_rng(example_ganyani_ip())(10000)
 
 # This discretised ganyani distribution is based on these figures:
 # mean: 5.2 (3.78-6.78) and sd: 1.72 (0.91-3.93)
-format_ip(ganyani_ip_2)
+format_ip(example_ganyani_ip())
 
 mean(tmp) # Should be about 5.2
 stats::sd(tmp) # Should be about 1.72

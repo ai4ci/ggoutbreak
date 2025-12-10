@@ -35,9 +35,10 @@ aggregate it into an England wide rate. This is the purpose of `time_aggregate()
 which performs a simple summarisation.
 
 ```{r}
-england_covid %>% dplyr::glimpse()
 
-tmp = ggoutbreak::england_covid %>%
+example_england_covid_by_age() %>% dplyr::glimpse()
+
+data = example_england_covid_by_age() %>%
   time_aggregate(count=sum(count))
 ```
 
@@ -45,10 +46,10 @@ The raw COVID-19 case count on a `log1p` scale is the total detected cases per d
 
 
 ```{r}
-fit = tmp %>%
+fit = data %>%
    poisson_locfit_model() 
 
-plot_incidence(fit,raw = tmp, colour="blue",size=0.025)+
+plot_incidence(fit,raw = data, colour="blue",size=0.025)+
   scale_y_log1p(n=7)
 ```
 
@@ -56,7 +57,7 @@ Major events in the timeseries can be plotted on the axes. We've focussed on the
 years of the pandemic:
 
 ```{r}
-plot_incidence(fit, raw = tmp,events = england_events, colour="blue",size=0.025)+
+plot_incidence(fit, raw = data, events = ukc19::timeline, colour="blue",size=0.025)+
   scale_y_log1p(n=7) + ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")))
 
 ```
@@ -71,16 +72,16 @@ the data points within `window` of the time point being estimated.
 The gradient of the fitted polynomial on the log scale, is the exponential
 growth rate. This is a scale independent view of the rate of growth of the
 epidemic. This estimation methodology is compared to consensus estimates from
-the SPI-M-O UK government advisory group in red, shifted forward in time by 21
+the SPI-M-O UK government advisory group in red, shifted forward in time by 14
 days. The SPI-M-O estimates made during the pandemic were retrospective whereas
 these ones can use information from before and after the time point and now may
 better represent the timing of changes.
 
 ```{r}
 
-plot_growth_rate(fit,events = england_events, colour="blue")+
+plot_growth_rate(fit,events = ukc19::timeline, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(-0.15,0.15))+
-  ggplot2::geom_errorbar(data=england_consensus_growth_rate,ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="red")
+  ggplot2::geom_errorbar(data=ukc19::spim_consensus, ggplot2::aes(x=date-14,ymin=growth.low,ymax=growth.high),colour="red")
 
 ```
 
@@ -110,7 +111,7 @@ that an infectee is infected x days after the infector, and includes a temporal
 dimension rendering the reproduction number a dimensionless quantity reflecting 
 the average number of infectees resulting from each infector.
 
-We also have methods to infer the reproduction unmber from modelled incidence
+We also have methods to infer the reproduction number from modelled incidence
 estimates where logarithmic link functions are used. This is described in
 the vignette: `vignette("rt-from-incidence", package="ggoutbreak")`
 
@@ -121,7 +122,8 @@ is a bootstrapped set of discrete probability distributions. It is truncated at
 
 ```{r}
 
-ggoutbreak::plot_ip(ggoutbreak::covid_ip, alpha=0.1)
+covid_ip = example_ganyani_ip()
+ggoutbreak::plot_ip(ip=covid_ip, alpha=0.1)
 
 
 
@@ -134,23 +136,22 @@ values from the SPI-M-O group (red):
 
 rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_ip)
 
-plot_rt(rt_fit, events = england_events, colour="blue")+
+plot_rt(rt_fit, events = ukc19::timeline, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(0.6,1.6))+
-  ggplot2::geom_errorbar(data=england_consensus_rt,ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="red")
+  ggplot2::geom_errorbar(data=ukc19::spim_consensus, ggplot2::aes(x=date-14,ymin=rt.low,ymax=rt.high),colour="red")
 ```
 
 `EpiEstim` $R_t$ fits for comparison for the same data, and the same infectivity
 profile are much more certain and exhibit some oscillation due to the weekly
-periodicity of the underlying time series. This oscillation is accentuated by
-the truncated infectivity profile we are using here.
+periodicity of the underlying time series.
 
 ```{r}
 
-rt_epi_fit = tmp %>% ggoutbreak::rt_epiestim(ip = covid_ip,window = 14)
+rt_epi_fit = data %>% ggoutbreak::rt_epiestim(ip = covid_ip,window = 14)
 
-plot_rt(rt_epi_fit, events = england_events, colour="blue")+
+plot_rt(rt_epi_fit, events = ukc19::timeline, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(0.6,1.6))+
-  ggplot2::geom_errorbar(data=england_consensus_rt,ggplot2::aes(x=date-7,ymin=low,ymax=high),colour="red")
+  ggplot2::geom_errorbar(data=ukc19::spim_consensus,ggplot2::aes(x=date-14,ymin=rt.low,ymax=rt.high),colour="red")
 
 ```
 
@@ -165,16 +166,20 @@ of its own. For this the data must contain a `denom` column which in this
 case represents the number of tests conducted:
 
 ```{r}
-england_covid_pcr_positivity %>% dplyr::glimpse()
+england_covid_pcr_positivity = ukc19::england_covid_positivity %>% 
+  dplyr::mutate(time = as.time_period(date)) %>%
+  dplyr::group_by(code,name) %>%
+  dplyr::glimpse()
 ```
 
 
 ```{r}
 
 fit2 = england_covid_pcr_positivity %>%
+  dplyr::filter(denom !=0) %>%
   ggoutbreak::proportion_locfit_model()
 
-plot_proportion(fit2, england_covid_pcr_positivity, events = england_events, size=0.25, colour="blue")+
+plot_proportion(fit2, england_covid_pcr_positivity, events = ukc19::timeline, size=0.25, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")))
 
 ```
@@ -185,9 +190,9 @@ effort but in this case produces an answer very similar to the incidence model.
 
 ```{r}
 
-plot_growth_rate(fit2, events = england_events, colour="blue")+
+plot_growth_rate(fit2, events = ukc19::timeline, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2022-01-01")), ylim=c(-0.15,0.15))+
-  ggplot2::geom_errorbar(data=england_consensus_growth_rate,ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="red")
+  ggplot2::geom_errorbar(data=ukc19::spim_consensus, ggplot2::aes(x=date-14,ymin=growth.low,ymax=growth.high),colour="red")
 ```
 
 With similar growth rate estimates this method can also theoretically be used to
@@ -217,20 +222,20 @@ https://www.gov.uk/government/publications/nhs-covid-19-app-statistics)
 
 ```{r fig.height=7}
 
-p1 = plot_incidence(fit,events = england_events, colour="blue", date_breaks="3 months")+
+p1 = plot_incidence(fit,events = ukc19::timeline, colour="blue", date_breaks="3 months")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2023-07-01")))+
   ggplot2::facet_wrap(~"Cases")+
   ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank())+
   scale_y_log1p()
 
-p2 = plot_growth_rate(fit,events = england_events, colour="blue", date_breaks="3 months")+
+p2 = plot_growth_rate(fit,events = ukc19::timeline, colour="blue", date_breaks="3 months")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2023-07-01")), ylim=c(-0.15,0.15))+
-  ggplot2::geom_errorbar(data=england_consensus_growth_rate,ggplot2::aes(x=date-21,ymin=low,ymax=high),colour="red")+
+  ggplot2::geom_errorbar(data=ukc19::spim_consensus,ggplot2::aes(x=date-21,ymin=growth.low,ymax=growth.high),colour="red")+
   ggplot2::facet_wrap(~"Growth rate")+
   ggplot2::theme(axis.text.x.bottom = ggplot2::element_blank(),axis.text.x.top = ggplot2::element_blank())
 
-p3 = ggplot2::ggplot(ggoutbreak::england_nhs_app)+
-  geom_events(events=england_events,hide_labels = TRUE)+
+p3 = ggplot2::ggplot(ukc19::nhs_app)+
+  geom_events(events=ukc19::timeline,hide_labels = TRUE)+
   ggplot2::geom_step(ggplot2::aes(x=date, y=alerts/mean(alerts, na.rm=TRUE),colour="alerts"))+
   ggplot2::geom_step(ggplot2::aes(x=date, y=visits/mean(visits, na.rm=TRUE),colour="venue visits"))+
   ggplot2::geom_rect(ggplot2::aes(xmin=date,xmax=dplyr::lead(date), ymin=0, ymax=alerts/mean(alerts, na.rm=TRUE),fill="alerts"), linewidth=0, alpha=0.2)+
@@ -253,7 +258,8 @@ rate data. With a fully aligned and modelled data set we can test for
 granger causality:
 
 ```{r}
-alerts = ggoutbreak::england_nhs_app %>% 
+alerts = ukc19::nhs_app %>% 
+  dplyr::mutate(time = as.time_period(date)) %>%
   dplyr::rename(count = alerts) %>% 
   poisson_locfit_model() %>% 
   rescale_model("1 day") %>%
@@ -271,4 +277,6 @@ lmtest::grangertest(alert.0.5 ~ incidence.0.5, order = 1, data=alerts)
 ```
 
 The conclusion of this test would be that growth is more predictive of alerts
-rather than vice versa.
+rather than vice versa, but much of this depends on the precise timing of the
+recorded data which may be subject to reporting delays, as well as any time
+delays that result from the modelling.

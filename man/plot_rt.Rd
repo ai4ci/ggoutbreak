@@ -38,6 +38,28 @@ Any grouping allowed.
 
 A default value is defined.
 }
+}
+  Named arguments passed on to \code{\link[=geom_truth]{geom_truth}}\describe{
+    \item{\code{true_df}}{a data frame with a \code{time_period} column called time and a
+value column (name given in \code{true_col}). This is optional and will be picked
+up from the \code{raw} parameter if given.}
+\item{\code{true_col}}{the column name / expression of the true value}
+\item{\code{true_fmt}}{a list of ggplot formatting to apply to the true value timeseries}
+\item{\code{...}}{
+  Named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{unit}}{the length of one unit of time. This will be either a integer
+number of days, or a specification such as "1 week", or another \code{time_period}.
+If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
+this will return a rescaled \code{time_period} using the new units.}
+\item{\code{start_date}}{the zero time date as something that can be coerced to a
+date. If the \code{x} input is already a \code{time_period} and this is different to its
+\code{start_date} then \code{x} will be recalibrated to use the new start date.}
+\item{\code{anchor}}{only relevant if \code{x} is a vector of dates, this is a date, or
+\code{"start"} or \code{"end"} or a weekday name e.g.
+\code{"mon"}. With the vector of dates in \code{x} it will use this anchor to find a reference date for
+the time-series. If not provided then the current defaults will be used.
+(see \code{\link[=set_defaults]{set_defaults()}})}
+}}
 }}
 
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
@@ -65,17 +87,19 @@ Reproduction number timeseries diagram
 # example code
 if (interactive()) {
 
-  tmp2 = england_covid_poisson \%>\%
-    rt_from_incidence()
+tmp2 = example_poisson_locfit() \%>\%
+  dplyr::filter(as.Date(time) >= "2021-01-01" & as.Date(time) < "2022-01-01") \%>\%
+  rt_from_incidence(ip = example_ganyani_ip())
 
-  # comparing RT from growth rates with England consensus Rt
-  # (N.B. offset by 17 days to align with estimates):
+# comparing RT from growth rates with England consensus Rt
+# (N.B. offset by 14 days to align with estimates):
 
-  plot_rt(tmp2,colour="blue")+
-    ggplot2::geom_errorbar(
-      data=england_consensus_rt,
-      mapping=ggplot2::aes(x=date-17,ymin=low,ymax=high),
-      colour="red")
+plot_rt(tmp2,colour="blue")+
+  ggplot2::geom_errorbar(
+    data= ukc19::spim_consensus \%>\%
+      dplyr::filter(date-14 >= "2021-01-01" & date-14 < "2022-01-01"),
+    mapping=ggplot2::aes(x=date-14,ymin=rt.low,ymax=rt.high),
+    colour="red")
 
 }
 }

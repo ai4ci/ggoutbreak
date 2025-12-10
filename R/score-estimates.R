@@ -20,16 +20,18 @@
 #' @concept test
 #'
 #' @examples
+#'
+#' set_default_start("2025-01-01")
 #' # lags from a locfit incidence model with Rt estimation.
 #' # This model has no estimator lag:
 #' pipeline = ~ .x %>% poisson_locfit_model() %>% rt_from_incidence(ip = .y)
-#' quantify_lag(pipeline, ip = test_ip)
+#' quantify_lag(pipeline, ip = example_ip())
 #'
 #' # lags from an epiestim Rt estimation
 #' # this model's lags depend on the infectivity profile.
 #' # In this case it is 8 days
 #' pipeline2 =  ~ .x %>% rt_epiestim(ip = .y)
-#' quantify_lag(pipeline2, ip=test_ip )
+#' quantify_lag(pipeline2, ip=example_ip() )
 #'
 quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
   ip = summarise_ip(ip)
@@ -243,13 +245,13 @@ quantify_lag = function(pipeline, ip = i_empirical_ip, lags = -10:30) {
 #' @concept test
 #'
 #' @examples
-#' data = test_poisson_rt_smooth
+#' data = example_poisson_rt_smooth()
 #'
 #' pipeline = ~ .x %>% poisson_locfit_model(ip = .y, quick=TRUE)
-#' lags = quantify_lag(pipeline, ip = test_ip)
+#' lags = quantify_lag(pipeline, ip = example_ip())
 #'
 #' withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-#'    est = data %>% poisson_locfit_model(ip = test_ip, quick=TRUE)
+#'    est = data %>% poisson_locfit_model(ip = example_ip(), quick=TRUE)
 #' })
 #'
 #' if (interactive()) plot_rt(est)+sim_geom_function(data, colour="red")

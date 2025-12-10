@@ -48,12 +48,15 @@ This is all based on Savitsky-Golay filters applied to the normally
 distributed log-incidence estimates.
 }
 \examples{
-data = test_poisson_growth_rate
+data = example_poisson_growth_rate()
 tmp2 = data \%>\%
   poisson_glm_model(window=7,deg=1) \%>\%
   growth_rate_from_incidence(window = 13, deg=1)
 
 if(interactive()) {
+  plot_incidence(tmp2,
+      date_labels="\%b \%y")
+
   plot_growth_rate(
       tmp2,
       date_labels="\%b \%y"

@@ -17,8 +17,6 @@ optional if \code{tau} is given. - a dataframe with columns:
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 }
 \value{

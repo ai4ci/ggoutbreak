@@ -25,6 +25,8 @@ library(patchwork)
 library(ggoutbreak)
 here::i_am("vignettes/right-censoring.Rmd")
 source(here::here("vignettes/vignette-utils.R"))
+
+set_default_start("2025-01-01")
 ```
 
 Right censoring typically is seen in epidemiological data as a result of delays
@@ -84,8 +86,8 @@ TODO: setup simulation.
 #   glimpse()
 
 
-sim = test_delayed_observation
-plot_counts(sim %>% dplyr::filter(obs_time %% 10==0), mapping = ggplot2::aes(colour=factor(obs_time)))+
+sim = example_delayed_observation()
+plot_counts(sim %>% dplyr::filter(floor(obs_time) %% 5==0), mapping = ggplot2::aes(colour=factor(obs_time)))+
   ggplot2::geom_line()
 
 ```
@@ -94,16 +96,16 @@ Fit a GAM with a delay term in it:
 
 ```{r}
 model = gam_delayed_reporting(knots_fn = ~ c(15,30,40,45,50,60,70,75))
-tmp3 = sim %>% poisson_gam_model(
+poisson_gam = sim %>% poisson_gam_model(
   model_fn = model$model_fn,
   predict = model$predict,
-  ip=test_ip)
+  ip=example_ip())
 ```
 
 Plot the fitted incidence accounting for non observed cases:
 
 ```{r}
-plot_incidence(tmp3)+
+plot_incidence(poisson_gam)+
     ggplot2::geom_line(
        data=sim,
        mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
@@ -114,7 +116,8 @@ plot_incidence(tmp3)+
 Plot the associated $R_t$ estimate:
 
 ```{r}
-plot_rt(tmp3)
+plot_rt(poisson_gam, events = sim_events(sim),
+        ip = example_ip())
 
 ```
 

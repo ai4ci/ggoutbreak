@@ -34,16 +34,14 @@ Any grouping allowed.
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{raw}{the raw data that the modelled incidence is based on. This is
 optional. If not given the algorithm will assume independence, which will
-be faster to estimate, but with more uncertain Rt estimates. In some
-circumstances this assumption of independence can cause underestimation of
-Rt. If this is a risk there will be a warning given, and this parameter may
-need to be supplied. - a dataframe with columns:
+be faster to estimate (much faster for long time-series), but with more
+uncertain Rt estimates. In some circumstances this assumption of
+independence can cause underestimation of Rt. If this is a risk there will
+be a warning given, and this parameter may need to be supplied. - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
@@ -90,13 +88,18 @@ to your task.
 }
 \examples{
 
-tmp = ggoutbreak::test_poisson_rt_smooth \%>\%
+tmp = example_poisson_rt_smooth() \%>\%
   poisson_locfit_model() \%>\%
-  rt_from_incidence(ip = test_ip, approx=FALSE)
+  rt_from_incidence(
+    ip = example_ip(),
+    raw = example_poisson_rt_smooth(),
+    approx=FALSE
+ )
 
-tmp2 = ggoutbreak::test_poisson_rt_smooth \%>\%
+# This will assume independence and
+tmp2 = example_poisson_rt_smooth()\%>\%
   poisson_locfit_model() \%>\%
-  rt_from_incidence(ip = test_ip, approx=TRUE)
+  rt_from_incidence(ip = example_ip(), approx=TRUE)
 
 plot_data = dplyr::bind_rows(
   tmp \%>\% dplyr::mutate(class = "exact"),
@@ -105,7 +108,7 @@ plot_data = dplyr::bind_rows(
 
 if (interactive()) {
   plot_rt(plot_data, date_labels="\%b \%y")+
-   sim_geom_function(ggoutbreak::test_poisson_rt_smooth)+
+   sim_geom_function(example_poisson_rt_smooth())+
    ggplot2::coord_cartesian(ylim=c(0.5,3))+
    ggplot2::facet_wrap(~class)
 }

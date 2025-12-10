@@ -54,9 +54,125 @@ information about the size of the population for each subgroup.
 `ggoutbreak` assumes for the most part that the input data is in the form of
 a set of time series of counts, each of which has a unique set of times, which
 are usually complete. To create datasets like this from line lists `ggoutbreak`
-provides some infrastructure for dealing with time series:
+provides some infrastructure for dealing with time series
 
-# Time periods
+# Coercing data into `ggoutbreak` format
+
+## A simple linelist
+
+At the lowest level a linelist might be the list of timestamps of some 
+observation. This is the easiest input to process and is imported into a single
+column data frame. 
+
+The linelist is timestamped using a S3 `time_period`
+class which is simply a numeric of defined length time units (in this case days)
+from an origin (in this case `2019-12-29`). We can plot the individual cases.
+
+```{r}
+
+# Set the default start date and unit for `ggoutbreak`:
+# This is not absolutely required as will set itself but helps in the long run
+set_defaults("2019-12-29","1 day")
+
+# Timestamps of 100 cases in first 40 days with a exponential growth rate of 0.1.
+lldates = as.Date("2019-12-29")+rexpgrowth(100,0.1,40)
+ll = lldates %>% linelist() 
+ll %>% dplyr::glimpse()
+ll %>% plot_cases(individual=TRUE)
+
+```
+
+Supposing we had a slightly more complex input data. Maybe we also had gender 
+and age as well as a `onset_dates` column in a dataframe. We can let `ggoutbreak`
+guess the structure of the linelist, and time stamp it. If there are multiple date columns we could also have specified the date:
+
+```{r}
+
+lldf = dplyr::tibble(
+  onset_dates = lldates,
+  gender = rcategorical(100, c(male = 0.54, women = 0.46), factor = TRUE),
+  age = rcategorical(100, c(`0-17` = 0.2, `18-64` = 0.6, `65+`=0.2), factor = TRUE)
+)
+
+# in this case we can let `ggoutbreak` guess the structure of this linelist:
+
+ll2 = lldf %>% linelist()
+
+ll2 %>% dplyr::glimpse()
+
+# And we can plot it with the data ordered how we like:
+ll2 %>% 
+  dplyr::arrange(dplyr::desc(age)) %>%
+  plot_cases(mapping = ggplot2::aes(fill=age), individual=TRUE)
+
+ll2 %>% 
+  dplyr::arrange(gender) %>%
+  plot_cases(mapping = ggplot2::aes(fill=gender), individual=TRUE)
+
+```
+
+```{r}
+
+# In this case as it is a different time we can if we like anchor the time
+# series to the `start` so the time column runs from zero. In this case we are
+# also going to make the time stamp count in weeks:
+
+sl2014 = outbreaks::ebola_sierraleone_2014 %>% 
+  linelist(date = date_of_onset, anchor="start", unit="weeks") %>%
+  dplyr::mutate(
+    age_cat = cut(age, c(0,18,65,Inf)),
+    dplyr::across(dplyr::where(is.character),forcats::as_factor)
+  ) %>%
+  dplyr::glimpse()
+
+```
+
+Plotting this is also easy, and in this case it is organised by week:
+
+```{r}
+sl2014 %>%
+  dplyr::arrange(status) %>%
+  plot_cases(mapping = ggplot2::aes(fill=status))
+```
+
+
+## Count data
+
+Count data describes the number of cases in a time period, e.g. a day, a week 
+etc. It may also be associated one or more major grouping, such as age category, gender, geographical region, ethnicity, viral subtype. In all these groups there 
+is potentially a population denominator, but often there is a major grouping 
+that may define a different denominator (e.g. total tested individuals). These categories can be arbitrarily bought into `ggoutbreak` and managed as groups in 
+exactly the same was as you would in a normal `dplyr` pipeline.
+
+Because count data needs to be unique for each group for each time point extra
+checks are carried out to make sure that the count grouping is correct:
+
+```{r}
+
+nhs111 = outbreaks::covid19_england_nhscalls_2020 %>%
+  dplyr::group_by(sex,ccg_code,ccg_name,nhs_region) %>%
+  timeseries(
+    class = age
+  ) %>%
+  dplyr::glimpse()
+
+```
+
+In this case the level of detail may be more than we want to deal with and 
+aggregating groups maybe useful (mre details later):
+
+```{r}
+nhs111combined = nhs111 %>% 
+  dplyr::group_by(sex,class,age) %>%
+  time_aggregate() %>% 
+  dplyr::glimpse()
+
+nhs111combined %>% plot_counts(mapping=ggplot2::aes(colour=class))+
+  ggplot2::facet_wrap(~sex)+
+  scale_y_log1p()
+```
+
+# More detail on time periods
 
 A weekly case rate represents a time slice of seven days with a start and finish
 date. Dates are a continuous quantity, and `cut_dates()` can be used to classify
@@ -78,9 +194,12 @@ tmp = as.time_period(dates)
 tmp
 ```
 
-The `time_period` defaults to using a date at the beginning of the COVID-19 
-pandemic as its origin and calculating a duration unit based on the data (in this
-case weekly).
+The `time_period` defaults to using the start of the first defined `time_period`
+in a session as its origin and calculating a duration unit based on the data (in
+this case weekly). This behaviour can be controlled explicitly with
+`set_default_start()` and `set_default_unit()`, or on an ad-hoc basis by
+providing the `start_date` or `anchor` and `unit` variables to calls to
+`as.time_period()`
 
 A usual set of S3 methods are available such as formatting, printing, labelling,
 and casting `time_period`s to and from dates and `POSIXct` classes:
@@ -114,23 +233,24 @@ as.Date(date_seq(tmp3))
 ```
 
 `time_period`s can also be used with monthly or yearly data but such data are
-not regular. This is approximately handles and irregular date periods are
+not regular. This is approximately handled and irregular date periods are
 generally OK to use with `ggoutbreak`. Some functions like `date_seq` may not
 work as anticipated with irregular dates, and some conversions between weeks and
-months for example are potentially risky.
+months, for example, are potentially lossy.
 
-Two time series can be aligned to make them comparable:
+Two time series can be aligned to make them comparable, although by default the
+creation of time series means they are already comparable:
 
 ```{r}
 
 orig_dates = Sys.Date()+1:10*7
 
 # a 2 daily time series based on weekly dates
-t1 = as.time_period(orig_dates, unit = "2 days", start_date = "2021-01-01")
+t1 = as.time_period(orig_dates, unit = "2 days", anchor = "2021-01-01")
 t1
 
 # a weekly with different start date
-t2 = as.time_period(orig_dates, unit = "1 week", start_date = "2022-01-01")
+t2 = as.time_period(orig_dates, unit = "1 week", anchor = "2022-01-01")
 t2
 
 # rebase t1 into the same format as t2
@@ -138,17 +258,22 @@ t2
 # peridicty as t1 results in an identical set of times
 t3 = as.time_period(t1,t2)
 t3
+
+# This happens automatically when the vectors are concatented
+c(t1,t2)
+
 ```
 
 # Times in `ggoutbreak` and conversion of line-lists
 
 `ggoutbreak` uses the `time_period` class internally extensively. Casting dates
 to and from `time_periods` is all that generally needs to be done before using 
-`ggoutbreak`. Most of the functions in `ggoutbreak` operate on time series data
+`ggoutbreak` and this is done automatically by `linelist()` and `timeseries()` functions. Most of the functions in `ggoutbreak` operate on time series data
 which expect a unique (and usually complete) set of data on a periodic time.
 
 To help prepare line-list data into time series there is the `time_summarise()` 
-function. A minimal line-list will have a date column and nothing else.
+function. A minimal line-list will have a date column and nothing else. From 
+this we can generate a count of cases over a specific time unit:
 
 
 ```{r}
@@ -223,3 +348,5 @@ count_by_gender %>%
 by default `time_aggregate` will sum any of `count`, `denom` and `population`
 columns but any other behaviour can be specified by passing `dplyr::summarise`
 style directives to the function.
+
+

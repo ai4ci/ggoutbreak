@@ -9,7 +9,10 @@ test_that(".singleton unit test", {
 
   # Automatically generated test case from roxygen @unit tag
   # Do not edit here - follow the link to the source file.
+  # or navigate to topic with <F2>
+  F2 = .singleton
   
+
   fixed_rnorm <- .singleton(rnorm(10))
   a <- fixed_rnorm()
   b <- fixed_rnorm()

@@ -39,8 +39,6 @@ this slower than using the full covariance matrix.}
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{tidy}{do you want detailed raw output (\code{FALSE} - default) or summary output
@@ -92,8 +90,8 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
 }
 \examples{
 
-data = ggoutbreak::test_poisson_rt_smooth
-ip = ggoutbreak::test_ip
+data = example_poisson_rt_smooth()
+ip = example_ip()
 
 # first we need a set of incidence estimates
 # we fit a poisson model to counts using a GAM:

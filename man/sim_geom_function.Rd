@@ -120,7 +120,7 @@ does.
 }
 \examples{
 ggplot2::ggplot()+
-  sim_geom_function(test_poisson_rt(), xlim=as.Date("2019-12-29")+c(0,80))+
+  sim_geom_function(example_poisson_rt(), xlim=as.Date("2019-12-29")+c(0,80))+
   ggplot2::scale_x_date()
 }
 \concept{test}

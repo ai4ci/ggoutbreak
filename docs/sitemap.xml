@@ -66,7 +66,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_proportion_age_stratified.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_covid_test_positives.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_demographics.html</loc></url>
-<url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_events.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/ukc19::timeline.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_nhs_app.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_ons_infection_survey.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/england_variants.html</loc></url>
@@ -180,7 +180,7 @@
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/summarise_ip.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_bpm.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_delayed_observation.html</loc></url>
-<url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_ip.html</loc></url>
+<url><loc>https://ai4ci.github.io/ggoutbreak/reference/example_ip().html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_growth_rate.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_rt.html</loc></url>
 <url><loc>https://ai4ci.github.io/ggoutbreak/reference/test_poisson_rt_2class.html</loc></url>

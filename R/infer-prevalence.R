@@ -30,11 +30,11 @@
 #' @concept models
 #'
 #' @examples
-#' tmp = ggoutbreak::test_poisson_rt_smooth %>%
-#'   ggoutbreak::poisson_locfit_model(window=14) %>%
-#'   ggoutbreak::infer_prevalence(
+#' tmp = example_poisson_rt_smooth() %>%
+#'   poisson_locfit_model(window=14) %>%
+#'   infer_prevalence(
 #'      pop = 10000,
-#'      ip = ggoutbreak::test_ip
+#'      ip = example_ip()
 #'   )
 #'
 #' if(interactive()) {

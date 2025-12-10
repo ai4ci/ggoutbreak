@@ -1,8 +1,693 @@
-## Date utility ----
-#
+## VCTRS reimplementation ----
+
+#' S3 time period class
+#'
+#' Time periods are just a zero based numeric representation of dates with a
+#' time unit baked in. This allows variable length periods (e.g. days or weeks),
+#' and fractional days to be represented in a consistent(ish) way
+#'
+#' @inheritParams as.time_period
+#' @param ... used for subtype implementations
+#'
+#' @return a `time_period` class, consisting of a vector of numbers, with
+#'   attributes for time period and `start_date`
+#'
+#' @import vctrs
+#' @concept time_period
+#'
+#' @param x description
+#' @keywords internal
+#' @name S3_time_period
+#' @unit
+#' default = new_time_period(as.numeric(1:10))
+#' shifted = new_time_period(as.numeric(1:10), start_date = as.Date("1970-01-10"))
+#' stretched = new_time_period(as.numeric(1:10), unit = lubridate::weeks(1))
+#'
+#' testthat::expect_equal(
+#'   format(default),
+#'   c("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+#' )
+#'
+#' testthat::expect_equal(
+#'   vec_ptype_full(default),
+#'   "time unit: day, origin: 1970-01-01 (a Thursday)"
+#' )
+#'
+#' testthat::expect_equal(
+#'   vec_ptype_full(shifted),
+#'   "time unit: day, origin: 1970-01-10 (a Saturday)"
+#' )
+#'
+#' testthat::expect_equal(
+#'   vec_ptype_full(stretched),
+#'   "time unit: week, origin: 1970-01-01 (a Thursday)"
+#' )
+#'
+#' testthat::expect_equal(vec_ptype_abbr(default), "t[day]")
+#'
+#' dshifted = vec_cast(default, shifted)
+#' testthat::expect_equal(
+#'   as.Date(dshifted) == as.Date(default),
+#'   c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
+#' )
+#'
+#' dsquashed = vec_cast(default, stretched)
+#' testthat::expect_equal(vec_cast(dsquashed, double()), c(
+#'   0.142857142857143,
+#'   0.285714285714286,
+#'   0.428571428571429,
+#'   0.571428571428571,
+#'   0.714285714285714,
+#'   0.857142857142857,
+#'   1,
+#'   1.14285714285714,
+#'   1.28571428571429,
+#'   1.42857142857143
+#' ))
+#'
+#' testthat::expect_equal(
+#'   diff(vec_cast(stretched, Sys.Date())),
+#'   structure(
+#'     c(7, 7, 7, 7, 7, 7, 7, 7, 7),
+#'     class = "difftime",
+#'     units = "days"
+#'   )
+#' )
+#'
+#' # Cast numeric to time period check equality
+#' testthat::expect_equal(all(c(shifted, vec_cast(11:20, shifted)) == 1:20), TRUE)
+#'
+#' # Different cadence can be matched:
+#' testthat::expect_equal(
+#'   vec_match(default, stretched),
+#'   c(NA, NA, NA, NA, NA, NA, 1L, NA, NA, NA)
+#' )
+#'
+#' # Matching is within tolerance
+#' testthat::expect_equal(all(default == default + 0.0000001), TRUE)
+#'
+#' # comparison
+#' testthat::expect_equal(
+#'   shifted > rev(shifted),
+#'   c(FALSE, FALSE, FALSE, FALSE, FALSE, TRUE, TRUE, TRUE, TRUE, TRUE)
+#' )
+#'
+#' # sorting
+#' testthat::expect_equal(
+#'   as.numeric(sort(sample(shifted, 10))),
+#'   c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+#' )
+#'
+#' # Arithmetic:
+#' tmp = withr::with_seed(100, default + runif(10))
+#' testthat::expect_equal(any(tmp == default), FALSE)
+#' testthat::expect_equal(all(floor(tmp) == default), TRUE)
+#'
+#' # Basic operation returns the time_period
+#' testthat::expect_equal(is.time_period(default - 1), TRUE)
+#'
+#' # modulo works:
+#' testthat::expect_equal(default %% 3, c(1, 2, 0, 1, 2, 0, 1, 2, 0, 1))
+#' # Other operations will work but the result has to be interpreted relative to origin
+#' testthat::expect_equal(sin(default * pi / 2), c(
+#'   1, 0, -1, 0, 1, 0, -1, 0, 1, 0
+#' ))
+#'
+#'
+#'
+NULL
+
+
+#' @describeIn S3_time_period Construct a new time period
+#' @export
+new_time_period = function(
+  x = double(),
+  start_date = as.Date(0),
+  unit = lubridate::days(1)
+) {
+  if (!rlang::is_double(x)) {
+    rlang::abort("`x` must be a double vector.")
+  }
+  if (!is.Date(start_date) || length(start_date) != 1) {
+    rlang::abort("`start_date` must be a single date.")
+  }
+  if (!lubridate::is.period(unit) || length(unit) != 1) {
+    rlang::abort("`unit` must be a single lubridate `period`.")
+  }
+  # make sure that start date's underlying class is a double and not an int.
+  start_date = as.Date(as.numeric(start_date))
+  vctrs::new_vctr(
+    x,
+    start_date = start_date,
+    unit = unit,
+    class = "time_period"
+  )
+}
+
+.proto.time_period = function(original) {
+  new_time_period(
+    double(),
+    start_date = attr(original, "start_date"),
+    unit = attr(original, "unit")
+  )
+}
+
+#' @export
+format.time_period = function(x, ...) {
+  return(formatC(round(vctrs::vec_data(x), digits = 2)))
+}
+
+#' @export
+print.time_period = function(x, ...) {
+  unit = attributes(x)$unit
+  start_date = attributes(x)$start_date
+  cat(vec_ptype_full.time_period(x))
+  cat("\n")
+  cat(format.time_period(x))
+}
+
+#' @export
+vec_ptype_full.time_period = function(x, ...) {
+  unit = attributes(x)$unit
+  start_date = attributes(x)$start_date
+  sprintf(
+    "time unit: %s, origin: %s (a %s)",
+    .fmt_unit(x),
+    start_date,
+    weekdays(start_date)
+  )
+}
+
+#' @export
+vec_ptype_abbr.time_period = function(x, ...) {
+  sprintf("t[%s]", .fmt_unit(.get_meta(x)$unit))
+}
+
+### Casting and coercion ----
+
+#' @export
+vec_ptype2.time_period.time_period <- function(x, y, ...) .proto.time_period(x)
+
+#' @export
+vec_ptype2.time_period.double <- function(x, y, ...) .proto.time_period(x)
+
+#' @export
+vec_ptype2.double.time_period <- function(x, y, ...) double()
+
+#' @export
+vec_ptype2.time_period.integer <- function(x, y, ...) .proto.time_period(x)
+
+#' @export
+vec_ptype2.integer.time_period <- function(x, y, ...) integer()
+
+#' @export
+vec_ptype2.time_period.Date <- function(x, y, ...) .proto.time_period(x)
+
+#' @export
+vec_ptype2.Date.time_period <- function(x, y, ...) as.Date(NULL)
+
+#' @export
+vec_ptype2.POSIXct.time_period <- function(x, y, ...) as.POSIXct(NULL)
+
+#' @export
+vec_ptype2.character.time_period <- function(x, y, ...) character()
+
+
+#' @export
+vec_cast.time_period.time_period <- function(x, to, ...) {
+  orig_unit = attributes(x)$unit
+  orig_start_date = as.Date(attributes(x)$start_date)
+  unit = attributes(to)$unit
+  start_date = as.Date(attributes(to)$start_date)
+
+  if (orig_unit != unit) {
+    # time period needs conversion from one periodicity to another
+    dates = time_to_date(x)
+    new_times = date_to_time(dates, unit, start_date)
+    names(new_times) = names(x)
+    return(new_times)
+  } else if (orig_start_date != start_date) {
+    diff = as.numeric(as.time_period(orig_start_date, to))
+    return(new_time_period(
+      vec_data(x) + diff,
+      start_date = start_date,
+      unit = unit
+    ))
+  } else {
+    return(x)
+  }
+}
+
+# To time period
+
+#' @export
+vec_cast.time_period.double <- function(x, to, ...) {
+  unit = attributes(to)$unit
+  start_date = as.Date(attributes(to)$start_date)
+  new_time_period(x, start_date, unit)
+}
+
+#' @export
+vec_cast.time_period.integer <- function(x, to, ...) {
+  unit = attributes(to)$unit
+  start_date = as.Date(attributes(to)$start_date)
+  new_time_period(as.numeric(x), start_date, unit)
+}
+
+#' @export
+vec_cast.time_period.Date <- function(x, to, ...) {
+  unit = attributes(to)$unit
+  start_date = as.Date(attributes(to)$start_date)
+  date_to_time(x, unit = unit, start_date = start_date)
+}
+
+
+# From time period
+
+#' @export
+vec_cast.double.time_period <- function(x, to, ...) {
+  vctrs::vec_data(x)
+}
+
+#' @export
+vec_cast.integer.time_period <- function(x, to, ...) {
+  as.integer(round(vctrs::vec_data(x)))
+}
+
+#' @export
+vec_cast.Date.time_period <- function(x, to, ...) {
+  time_to_date(x)
+}
+
+#' @export
+vec_cast.POSIXct.time_period = function(x, to, ...) {
+  unit = attributes(x)$unit
+  start_date = attributes(x)$start_date
+  return(as.POSIXct.numeric(
+    as.numeric(x) * as.numeric(unit),
+    origin = start_date
+  ))
+}
+
+#' @export
+vec_cast.character.time_period <- function(x, to, ...) {
+  return(labels(x, ...))
+}
+
+### Equality and comparison ----
+
+#' @export
+vec_proxy_equal.time_period = function(x, ...) {
+  round(vec_data(x), digits = 5)
+}
+
+#' @export
+vec_proxy_compare.time_period = function(x, ...) {
+  round(vec_data(x), digits = 5)
+}
+
+### Arithmetic ----
+
+#' @export
+#' @method vec_arith time_period
+vec_arith.time_period <- function(op, x, y, ...) {
+  UseMethod("vec_arith.time_period", y)
+}
+
+#' @export
+#' @method vec_arith.time_period time_period
+vec_arith.time_period.time_period <- function(op, x, y, ...) {
+  y = vec_cast(y, x)
+  switch(
+    op,
+    "-" = vctrs::vec_arith_base(op, x, y),
+    stop_incompatible_op(op, x, y)
+  )
+}
+
+#' @export
+#' @method vec_arith.time_period double
+vec_arith.time_period.double <- function(op, x, y, ...) {
+  unit = attributes(x)$unit
+  start_date = as.Date(attributes(x)$start_date)
+  switch(
+    op,
+    "+" = ,
+    "-" = new_time_period(
+      vctrs::vec_arith_base(op, x, y),
+      start_date = start_date,
+      unit = unit
+    ),
+    vctrs::vec_arith_base(op, x, y)
+  )
+}
+
+#' @export
+#' @method vec_arith.time_period integer
+vec_arith.time_period.integer <- function(op, x, y, ...) {
+  vec_arith.time_period.double(op, x, as.numeric(y))
+}
+
+#' @export
+#' @method vec_math time_period
+vec_math.time_period <- function(fn, x, ...) {
+  unit = attributes(x)$unit
+  start_date = as.Date(attributes(x)$start_date)
+  switch(
+    fn,
+    "floor" = ,
+    "trunc" = ,
+    "ceiling" = ,
+    "cummax" = ,
+    "cummin" = ,
+    "round" = new_time_period(
+      vctrs::vec_math_base(fn, x),
+      start_date = start_date,
+      unit = unit
+    ),
+    vctrs::vec_math_base(fn, x)
+    # cli::cli_abort("function not supported: {fn}() for {.cls {class(x)}}")
+  )
+}
+
+
+## Defaults & cache ----
+
+.time_period_defaults = new.env(parent = emptyenv())
+
+#' Set or reset the default origin and unit for time periods
+#'
+#' This function is generally not needed, and will be called automatically
+#' when the first date conversion is performed. If no other information is
+#' given then the default origin will be decided by the start of the first use of the
+#' `time_period` class in a session. This helps to keep defaults consistent
+#' during a single run, if they are not specified.
+#'
+#' @inheritParams as.time_period
+#'
+#' @returns depending on the methods the original default start date / the
+#'   original default unit, a list of both or the result of evaluating the
+#'   expression `expr`
+#' @concept time_period
+#' @export
+#'
+#' @examples
+#' # set default origin and cadence:
+#' old = set_defaults("2025-01-01", "1 week")
+#'
+#' # this sets the default for interpreting underqualified time_periods:
+#' print(as.time_period(1:10))
+#'
+#' # The default can always be overridden on a case by case basis:
+#' print(as.time_period(1:10, unit="1 day"))
+#'
+#' # or for a whole expression:
+#' with_defaults("2020-01-01", "1 day", {
+#'   print(as.time_period(1:10))
+#' })
+#'
+#' # components can be changed individually, firstly origin:
+#' set_default_start("2025-01-01")
+#' print(as.time_period(1:10))
+#'
+#' # now cadence:
+#' set_default_unit("1 day")
+#' print(as.time_period(1:10))
+#'
+#' # clear the values:
+#' set_defaults(NULL,NULL)
+#'
+#' # A sufficiently qualified call will set the defaults:
+#' defined = as.time_period(as.Date("2024-01-01")+0:10*7, anchor="start")
+#' inherit = as.time_period(0:10)
+#'
+#' all(defined == inherit)
+#'
+#' # restoring the original values (which might be null)
+#' set_defaults(old)
+#'
+set_defaults = function(start_date, unit) {
+  if (is.list(start_date)) {
+    unit = start_date$unit
+    start_date = start_date$start_date
+  }
+  invisible(list(
+    start_date = set_default_start(start_date),
+    unit = set_default_unit(unit)
+  ))
+}
+
+#' @describeIn set_defaults Set defaults temporarily and execute expression
+#' @concept time_period
+#' @param expr an expression to evaluate with the defaults set to the provided
+#'   values.
+#' @export
+with_defaults = function(start_date, unit, expr) {
+  oldstart = .time_period_defaults$start
+  oldunit = .time_period_defaults$unit
+  on.exit(set_defaults(oldstart, oldunit), add = TRUE)
+  set_defaults(start_date, unit)
+  invisible(eval(expr, envir = rlang::caller_env()))
+}
+
+### Start date defaults ----
+
+#' @rdname set_defaults
+#' @concept time_period
+#' @export
+set_default_start = function(date) {
+  old = .time_period_defaults$start
+  date = try(as.Date(date), silent = TRUE)
+  if (!is.Date(date)) {
+    stop("Default start date must be a valid date.")
+  }
+  # Make sure it is always a numeric date and not integer
+  .time_period_defaults$start = as.Date(as.numeric(date))
+  return(old)
+}
+
+# sets the default start date if it is not already there.
+.create_default_start = function(date) {
+  if (is.null(.time_period_defaults$start)) {
+    set_default_start(date)
+  }
+  return(.time_period_defaults$start)
+}
+
+# gets the start date of the current set of dates. Uses specified start date,
+# or combination of dates and anchor, or if these are not specified a cached
+# value, based on previous conversions. Sets the cached value is if it is not
+# already set.
+.get_start_date = function(dates, anchor = NULL, start_date = NULL, ...) {
+  if (is.time_period(dates)) {
+    return(attr(dates, "start_date"))
+  }
+
+  if (length(.time_period_defaults$start) != 1) {
+    # No default set yet
+    if (is.null(start_date)) {
+      if (is.null(anchor)) {
+        # fallback use unset default:
+        default_anchor = getOption("day_zero", "start")
+        start_date = .start_from_anchor(dates, default_anchor)
+        .message_once(sprintf(
+          "No `start_date` or `anchor` specified. Inferring default from dates: %s (use `set_default_start(...)` to change)",
+          format(start_date)
+        ))
+        set_default_start(start_date)
+        return(start_date)
+      } else {
+        # if anchor given use it to get a start date
+        start_date = .start_from_anchor(dates, anchor)
+      }
+    }
+    set_default_start(start_date)
+    return(.time_period_defaults$start)
+  } else {
+    # default already set
+    if (is.null(start_date) && is.null(anchor)) {
+      # .message_once(
+      #   "No `start_date` or `anchor` specified. Using cached value (N.b. use `set_default_start(...)` to change): ",
+      #   .time_period_defaults$start
+      # )
+      return(.time_period_defaults$start)
+    }
+    if (!is.null(anchor)) {
+      # if anchor given use it to get a start date
+      start_date = .start_from_anchor(dates, anchor)
+    }
+    # don't set this as the default
+    return(as.Date(start_date))
+  }
+}
+
+# Get the start date from data
+.start_from_anchor = function(dates, anchor) {
+  start_date = try(as.Date(anchor), silent = TRUE)
+  if (!is.Date(start_date)) {
+    if (!is.Date(dates)) {
+      stop(
+        "Cannot determine a date for `",
+        anchor,
+        "` for an input of type: ",
+        class(dates)[1],
+        "\n",
+        "Do you need to specify a `start_date` or set `options(day_zero = ... DATE ...)`?",
+        call. = FALSE
+      )
+    }
+    anchor = anchor %>% tolower() %>% substr(1, 3)
+    start_date = if (anchor == "sta") {
+      min_date(dates)
+    } else if (anchor == "end") {
+      max_date(dates) + 1
+    } else {
+      min_date(dates) -
+        7 +
+        which(
+          substr(tolower(weekdays(min_date(dates) - 6 + 0:6)), 1, 3) == anchor
+        )
+    }
+    if (length(start_date) != 1) {
+      stop(
+        "`anchor` was not valid (a date or one of 'start', 'end', or a weekday name)."
+      )
+    }
+  }
+  return(start_date)
+}
+
+
+### Unit defaults ----
+
+#' @describeIn set_defaults Set the default unit only
+#' @export
+set_default_unit = function(unit) {
+  old = .time_period_defaults$unit
+  if (is.null(unit)) {
+    .time_period_defaults$unit = NULL
+  } else {
+    unit = .make_unit(unit)
+    .time_period_defaults$unit = unit
+  }
+  return(old)
+}
+
+.make_unit = function(unit) {
+  if (lubridate::is.period(unit)) {
+    return(unit)
+  }
+  if (is.numeric(unit) && unit >= 1) {
+    return(lubridate::days(unit))
+  }
+  if (is.numeric(unit) && unit < 1) {
+    return(lubridate::seconds(floor(unit * 24 * 60 * 60)))
+  }
+  return(lubridate::period(unit))
+}
+
+# sets the default unit if it is not already there.
+.create_default_unit = function(unit) {
+  if (is.null(.time_period_defaults$unit)) {
+    set_default_start(unit)
+  }
+  return(.time_period_defaults$unit)
+}
+
+# gets the natural unit of the current set of dates. Uses specified unit or if
+# this is not specified a cached value, based on previous conversions.
+# Sets the cached value is if it is not already set.
+# e.g.
+# .get_unit(Sys.Date()+1:10*7) # should set to 1 week if not already
+# .get_unit(Sys.Date()+10:20) # should be the same value
+# .get_unit(Sys.Date()+10:20, unit="1 day") # should be different value
+# set_default_unit("1 day")
+.get_unit = function(dates, unit = NULL, ...) {
+  if (length(unit) > 1) {
+    stop("Multiple units given when one is expected")
+  }
+  if (length(.time_period_defaults$unit) != 1) {
+    # No default defined
+    if (is.null(unit)) {
+      unit = .make_unit(.day_interval(dates))
+      .message_once(sprintf(
+        "No `unit` specified. Inferring default from input: %s (N.B. use `set_default_unit(...)` to change)",
+        .fmt_unit(unit)
+      ))
+    }
+    set_default_unit(unit)
+    return(.time_period_defaults$unit)
+  } else {
+    # default already defined
+    if (is.null(unit)) {
+      unit = .time_period_defaults$unit
+    }
+    return(.make_unit(unit))
+  }
+}
+
+
+#' Guess the intervals between a sequence of dates:
+#' @param dates a set of dates
+#' @returns a natural number of days between ordering
+#' @keywords internal
+#' @unit
+#' r = c(1,rpois(10, 3)+1)
+#' interval = 2
+#' dates = as.Date("2025-01-01")+r*interval
+#' testthat::expect_equal(.day_interval(dates) == interval, TRUE)
+#'
+#' interval = 0.5
+#' dates = as.Date("2025-01-01")+r*interval
+#' testthat::expect_equal(.day_interval(dates) == interval, TRUE)
+#'
+.day_interval = function(dates) {
+  dates = sort(unique(dates))
+  if (length(dates) < 4) {
+    return(1)
+  }
+  lags = stats::na.omit(as.numeric(abs(dates - dplyr::lag(dates))))
+  lags = round(lags, digits = 5)
+  if (any(lags < 1)) {
+    denom = min(lags)
+    lags = lags / min(lags)
+    lags = round(lags)
+    interval = .gcd(lags) * denom
+    return(interval)
+  }
+  lags = round(lags)
+  interval = .gcd(lags)
+  return(interval)
+}
+
+# greatest common denominator
+.gcd2 = function(a, b) {
+  if (b == 0) a else Recall(b, a %% b)
+}
+
+.gcd <- function(...) {
+  Reduce(.gcd2, c(...))
+}
+
+.step = function(x) {
+  y = sort(unique(x))
+  dy = stats::na.omit(y[-1] - utils::head(y, -1))
+  return(.gcd(dy))
+}
+
+## Date utility functions ----
+
 # rlang::on_load({
 #   requireNamespace("lubridate",quietly = TRUE)
 # })
+
+as_Date = function(x, ...) {
+  x = as.Date(x, ...)
+  if (typeof(unclass(x)) == "integer") {
+    x = as.Date(as.numeric(x))
+  }
+  return(x)
+}
 
 #' Check whether vector is a date
 #'
@@ -16,7 +701,7 @@
 #' @examples
 #' is.Date(Sys.Date())
 is.Date = function(x) {
-  class(x) == "Date"
+  inherits(x, "Date")
 }
 
 #' The minimum of a set of dates
@@ -83,47 +768,149 @@ fdmy = function(date) {
 
 ## Time_period ----
 
+# new_time_period = function(x, start_date, unit) {
+#   return(
+#     structure(
+#       as.numeric(x),
+#       start_date = as_Date(start_date),
+#       unit = .make_unit(unit),
+#       class = unique(c("time_period", class(as.numeric(x))))
+#     )
+#   )
+# }
+
+### Convert from a time period ----
+
 #' @export
 as.numeric.time_period = function(x, ...) {
-  class(x) = "numeric"
-  attr(x, "start_date") = NULL
-  attr(x, "unit") = NULL
-  return(x)
+  vctrs::vec_cast(x, double())
 }
 
-#' Convert to a time period class
+#' @export
+as.integer.time_period = function(x, ...) {
+  vctrs::vec_cast(x, integer())
+}
+
+#' @export
+as.Date.time_period = function(x, ...) {
+  return(vec_cast.Date.time_period(x))
+}
+
+#' @export
+as.POSIXct.time_period = function(x, ...) {
+  return(vec_cast.POSIXct.time_period(x))
+}
+
+### Convert to a time period class ----
+
+#' Time period S3 class methods
 #'
 #' Time periods are just a zero based numeric representation of dates with a
 #' time unit baked in. This allows variable length periods (e.g. days or weeks),
-#' and fractional days to be represented in a consistent(ish) way
+#' and fractional days to be represented in a consistent(ish) way between
+#' things that want to deal in dates (like ggplot) and things that want to deal
+#' in numbers (like model fitting)
 #'
-#' @param x a vector of numbers (may be integer or real) or a time_period
+#' @param x a vector of dates, numbers (may be integer or real) or a `time_period`
+#'   to convert to a `time_period`
 #' @param unit the length of one unit of time. This will be either a integer
 #'   number of days, or a specification such as "1 week", or another `time_period`.
-#'   If `x` is a `time_period`, and the unit is different then from that of `x`
-#'   this will return a new `time_period` using the new units.
+#'   If `x` is a `time_period`, and the unit is different to that of `x`
+#'   this will return a rescaled `time_period` using the new units.
 #' @param start_date the zero time date as something that can be coerced to a
 #'   date. If the `x` input is already a `time_period` and this is different to its
-#'   `start_date` then it will be recalibrated to use the new start date.
-#' @param anchor only relevant is `x` is a vector of dates and `start_date` is
-#'   not specified, this is a date, or "start" or "end" or a weekday name e.g.
-#'   "mon". With the vector of dates in `x` it will find a reference date for
-#'   the time-series. If this is `NULL` and `start_date` is also `NULL` it will
-#'   fall back to `getOption("day_zero","2019-12-29")`
-#' @param ... used for subtype implementations
-#'
-#' @return a `time_period` class, consisting of a vector of numbers, with
-#'   attributes for time period and `start_date`
-#' @export
+#'   `start_date` then `x` will be recalibrated to use the new start date.
+#' @param anchor only relevant if `x` is a vector of dates, this is a date, or
+#'   `"start"` or `"end"` or a weekday name e.g.
+#'   `"mon"`. With the vector of dates in `x` it will use this anchor to find a reference date for
+#'   the time-series. If not provided then the current defaults will be used.
+#'   (see [set_defaults()])
+#' @param dates a vector of dates to convert to a `time_period`
+#' @param timepoints a `time_period` vector to convert to a set of dates.
 #'
 #' @concept time_period
+#' @export
 #'
-#' @example inst/examples/time-period-example.R
+#' @examples
+#'
+#' #' # 100 weeks from 2020-01-01
+#'
+#' tmp = as.time_period(0:100, 7, "2020-01-01")
+#' as.Date(tmp)
+#'
+#' range(tmp)
+#' min(tmp)
+#' tmp2 = as.integer(as.Date(tmp))
+#' # testthat::expect_true(all(na.omit(tmp2-lag(tmp2)) == 7))
+#'
+#' tmp2 = as.time_period(0:23, 1/24, "2020-01-01")
+#' as.POSIXct(tmp2)
+#'
+#' # convert timeseries to new "unit"
+#' tmp = as.time_period(0:100, 7, "2020-01-01")
+#' tmp2 = as.time_period(tmp,1)
+#' testthat::expect_equal(as.numeric(tmp2), 0:100*7)
+#'
+#' # 100 weeks from 2020-01-01
+#'
+#' tmp = as.time_period(0:100, 7, "2020-01-01")
+#' as.Date(tmp)
+#'
+#' range(tmp)
+#' min(tmp)
+#' tmp2 = as.integer(as.Date(tmp))
+#' # testthat::expect_true(all(na.omit(tmp2-lag(tmp2)) == 7))
+#'
+#' tmp2 = as.time_period(0:23, 1/24, "2020-01-01")
+#' as.POSIXct(tmp2)
+#'
+#' # convert timeseries to new "unit"
+#' tmp = as.time_period(0:100, 7, "2020-01-01")
+#' tmp2 = as.time_period(tmp,1)
+#' testthat::expect_equal(as.numeric(tmp2), 0:100*7)
+#'
+#' # Time to date
+#' times = date_to_time(as.Date("2019-12-29")+0:100, "1 week")
+#' dates = time_to_date(times)
+#'
+#' # Date to time
+#' times = date_to_time(as.Date("2019-12-29")+0:100, "1 week")
+#' dates = time_to_date(times)
+#'
+#' @unit
+#' tmp = as.time_period(grates::as_epiweek("2019-W12", format = "yearweek")+0:2)
+#' testthat::expect_equal(
+#'   lubridate::epiweek(as.Date(tmp)),
+#'   c(12, 13, 14)
+#' )
+#'
+#' tmp = as.time_period(grates::as_isoweek("2019-W12", format = "yearweek")+0:2)
+#' testthat::expect_equal(
+#'   lubridate::isoweek(as.Date(tmp)),
+#'   c(12, 13, 14)
+#' )
+#'
+#' x = as.time_period(as.Date("2025-01-01")+0:2, anchor="start", unit="1 day")
+#' y = as.time_period(as.Date("2025-01-07")+0:2, anchor="start", unit="1 day")
+#' testthat::expect_equal(as.numeric(c(x, y)), c(0, 1, 2, 6, 7, 8))
+#' testthat::expect_equal(as.numeric(c(y, x)), c(0, 1, 2, -6, -5, -4))
+#'
+#' z = as.time_period(as.Date("2025-01-01")+0:2*7, anchor="start", unit="1 week")
+#' testthat::expect_equal(as.numeric(c(x, z)), c(0, 1, 2, 0, 7, 14))
+#' testthat::expect_equal(
+#'   as.numeric(c(z, x)),
+#'   c(0, 1, 2, 0, 0.142857142857143, 0.285714285714286)
+#' )
+#'
+#' testthat::expect_equal(
+#'   as.Date(c(y, z)),
+#'   structure(c(20095, 20096, 20097, 20089, 20096, 20103), class = "Date")
+#' )
+#'
+#' seq(x[[1]], y[[1]])
+#'
 as.time_period = function(
   x,
-  unit = NULL,
-  start_date = NULL,
-  anchor = NULL,
   ...
 ) {
   UseMethod("as.time_period")
@@ -131,10 +918,14 @@ as.time_period = function(
 
 #' @export
 as.time_period.default = function(x, ...) {
-  stop("Cannot convert a ", class(x)[[1]], " to a `time_period`")
+  x = try(as.Date(x))
+  if (inherits(x, "try_error")) {
+    stop("Cannot convert a ", class(x)[[1]], " to a `time_period`")
+  }
+  as.time_period(x, ...)
 }
 
-# Converting a time_period to another one
+#' @rdname as.time_period
 #' @export
 as.time_period.time_period = function(x, unit = NULL, start_date = NULL, ...) {
   # TODO: a bit of redundancy between this and .convert_units?
@@ -171,96 +962,116 @@ as.time_period.time_period = function(x, unit = NULL, start_date = NULL, ...) {
   }
 }
 
-.make_unit = function(unit) {
-  if (lubridate::is.period(unit)) {
-    return(unit)
-  }
-  if (is.numeric(unit) && unit >= 1) {
-    return(lubridate::days(unit))
-  }
-  if (is.numeric(unit) && unit < 1) {
-    return(lubridate::seconds(floor(unit * 24 * 60 * 60)))
-  }
-  return(lubridate::period(unit))
-}
-
-# conversion of date will guess units and use default start date
+#' @rdname as.time_period
 #' @export
 as.time_period.Date = function(
   x,
   unit = NULL,
-  start_date = NULL,
   anchor = NULL,
-  ...
-) {
-  dates = x
-  if (is.null(start_date)) {
-    start_date = .start_from_anchor(dates, anchor)
-  }
-  if (is.null(unit)) {
-    unit = .day_interval(dates) %>% .make_unit()
-    .message_once(
-      "No unit given. Guessing a sensible value from the dates gives: ",
-      unit
-    )
-  }
-
-  tmp = date_to_time(dates, unit = unit, start_date = start_date)
-  names(tmp) = names(x)
-  return(tmp)
-}
-
-# numerics need a start date and unit.
-#' @export
-as.time_period.numeric = function(
-  x,
-  unit,
-  start_date = getOption("day_zero", "2019-12-29"),
   ...
 ) {
   if (is.time_period(unit)) {
     start_date = .get_meta(unit)$start_date
     unit = .get_meta(unit)$unit
   } else {
-    start_date = as.Date(start_date)
-    unit = unit %>% .make_unit()
+    start_date = .get_start_date(
+      x,
+      anchor = anchor
+    )
+    unit = .get_unit(x, unit)
+  }
+
+  tmp = date_to_time(x, unit = unit, start_date = start_date)
+  names(tmp) = names(x)
+  return(tmp)
+}
+
+#' @rdname as.time_period
+#' @export
+as.time_period.numeric = function(
+  x,
+  unit = NULL,
+  start_date = NULL,
+  ...
+) {
+  if (is.time_period(unit)) {
+    start_date = .get_meta(unit)$start_date
+    unit = .get_meta(unit)$unit
+  } else {
+    start_date = .get_start_date(
+      x,
+      start_date = start_date
+    )
+    unit = .get_unit(x, unit)
   }
   times = as.numeric(x)
 
-  tmp = structure(
+  tmp = new_time_period(
     times,
     start_date = start_date,
-    unit = unit,
-    class = unique(c("time_period", class(times)))
+    unit = unit
   )
   names(tmp) = names(x)
   return(tmp)
 }
 
-#' Convert time period to dates
-#'
-#' @param x a time_period
-#' @param ... not used
-#'
-#' @return a vector of dates representing the start of each of the input
-#'   `time_period` entries
-#'
-#' @concept time_period
-#'
+#' @rdname as.time_period
 #' @export
-as.Date.time_period = function(x, ...) {
-  return(time_to_date(x))
+as.time_period.grates_epiweek = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1970-01-04", unit = "1 week")
 }
 
-#' @describeIn as.Date.time_period Convert to a vector of POSIXct
+#' @rdname as.time_period
 #' @export
-as.POSIXct.time_period = function(x, ...) {
-  unit = attributes(x)$unit
-  start_date = attributes(x)$start_date
-  return(as.POSIXct.numeric(
-    as.numeric(x) * as.numeric(unit),
-    origin = start_date
-  ))
+as.time_period.grates_isoweek = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1969-12-29", unit = "1 week")
+}
+
+#' @export
+as.time_period.grates_yearweek_monday = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1969-12-29", unit = "1 week")
+}
+
+#' @export
+as.time_period.grates_yearweek_tuesday = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1969-12-30", unit = "1 week")
+}
+
+#' @export
+as.time_period.grates_yearweek_wednesday = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1969-12-31", unit = "1 week")
+}
+
+#' @export
+as.time_period.grates_yearweek_thursday = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1970-01-01", unit = "1 week")
+}
+
+#' @export
+as.time_period.grates_yearweek_friday = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1970-01-02", unit = "1 week")
+}
+
+#' @export
+as.time_period.grates_yearweek_saturday = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1970-01-03", unit = "1 week")
+}
+
+#' @export
+as.time_period.grates_yearweek_sunday = function(x, ...) {
+  as.time_period(as.numeric(x), start_date = "1970-01-04", unit = "1 week")
+}
+
+#' @rdname as.time_period
+#' @export
+as.time_period.grates_period = function(x, ...) {
+  unit = .make_unit(attr(x, "n"))
+  start_date = min_date(x)
+  as.time_period(
+    as.Date(x) + attr(x, "offset"),
+    start_date = start_date,
+    unit = unit
+  )
 }
 
 
@@ -285,61 +1096,6 @@ type.time_period = function(x) {
   )
 }
 
-#' @describeIn as.time_period Combine `time_period`
-#' @param recursive concatenate recursively
-#' @export
-c.time_period = function(..., recursive = F) {
-  inputs = list(...)
-  if (!all(sapply(inputs, function(t) is.time_period(t) || is.numeric(t)))) {
-    return(unlist(lapply(inputs, as.numeric)))
-  }
-  inputs = inputs[sapply(inputs, is.time_period)]
-  unit = lapply(inputs, function(x) attributes(x)$unit) %>% unique()
-  start_date = sapply(inputs, function(x) attributes(x)$start_date) %>%
-    unique() %>%
-    as.Date("1970-01-01")
-  if (length(unit) > 1) {
-    stop("Cannot join time_periods with differing units.")
-  }
-  if (length(start_date) > 1) {
-    stop("Cannot join time_periods with differing start dates.")
-  }
-
-  tmp = c(unlist(lapply(list(...), unclass)))
-  as.time_period.numeric(tmp, unit[[1]], start_date)
-}
-
-# Subsetting functions ----
-
-#' @describeIn as.time_period Subset a `time_period`
-#' @export
-`[.time_period` = function(x, ...) {
-  y = `[`(as.numeric(x), ...)
-  return(.clone_time_period(y, x))
-}
-
-#' @describeIn as.time_period Assign values to a subset of a `time_period`
-#' @param value the value
-#' @export
-`[<-.time_period` = function(x, ..., value) {
-  y = `[<-`(as.numeric(x), ..., as.numeric(value))
-  return(.clone_time_period(y, x))
-}
-
-#' @describeIn as.time_period Get a value in a `time_period`
-#' @export
-`[[.time_period` = function(x, ...) {
-  y = `[[`(as.numeric(x), ...)
-  return(.clone_time_period(y, x))
-}
-
-#' @describeIn as.time_period Assign a value in a `time_period`
-#' @param value the value
-#' @export
-`[[<-.time_period` = function(x, ..., value) {
-  y = `[[<-`(as.numeric(x), ..., as.numeric(value))
-  return(.clone_time_period(y, x))
-}
 
 #' @describeIn as.time_period Create a sequence using `time_period`s
 #' @inheritParams base::seq
@@ -349,87 +1105,31 @@ seq.time_period = function(
   to = from,
   ...
 ) {
-  y = seq.default(from = as.numeric(from), to = as.numeric(to), ...)
-  return(.clone_time_period(y, from))
-}
-
-## Mathematical functions ----
-
-#' @export
-`Ops.time_period` = function(e1, e2) {
-  # e2 is a numeric not an time series...
-  if (is.time_period(e2)) {
-    e2 = .convert_units(e2, e1)
-  }
-  y = get(.Generic)(as.numeric(e1), as.numeric(e2))
-  if (!is.numeric(y)) {
-    return(y)
-  }
-  return(.clone_time_period(y, e1))
-}
-
-#' @export
-`Math.time_period` = function(x, ...) {
-  y = get(.Generic)(as.numeric(x), ...)
-  return(.clone_time_period(y, x))
-}
-
-#' @export
-`Summary.time_period` = function(..., na.rm = FALSE) {
-  inputs = c(...)
-
-  # Lubridate periods cannot be made unique
-  unit = attributes(inputs)$unit
-  start_date = attributes(inputs)$start_date
-
-  tmp = c(unlist(lapply(list(...), unclass)))
-  y = get(.Generic)(tmp, na.rm = na.rm)
-  if (!is.numeric(y)) {
-    return(y)
-  }
-  return(as.time_period(y, unit[[1]], start_date))
-}
-
-.convert_units = function(x, original) {
-  orig_unit = attributes(original)$unit
-  orig_start_date = attributes(original)$start_date
-  as.time_period.time_period(x, orig_unit, orig_start_date)
-}
-
-.clone_time_period = function(x, original) {
-  orig_unit = attributes(original)$unit
-  orig_start_date = attributes(original)$start_date
-  # If for some reason this has broken fall back to a numeric.
-  if (is.null(orig_unit) || is.null(orig_start_date)) {
-    return(as.numeric(x))
-  }
-  return(structure(
+  to = vec_cast(to, from)
+  orig_unit = attributes(from)$unit
+  orig_start_date = attributes(from)$start_date
+  x = seq.default(from = as.numeric(from), to = as.numeric(to), ...)
+  return(new_time_period(
     as.numeric(x),
     start_date = orig_start_date,
-    unit = orig_unit,
-    class = unique(c("time_period", class(original), class(x)))
+    unit = orig_unit
   ))
 }
+
+
+# .convert_units = function(x, original) {
+#   orig_unit = attributes(original)$unit
+#   orig_start_date = attributes(original)$start_date
+#   as.time_period.time_period(x, orig_unit, orig_start_date)
+# }
+#
 
 #' @describeIn as.time_period Check is a `time_period`
 #' @export
 is.time_period = function(x) {
-  return("time_period" %in% class(x))
+  return(inherits(x, "time_period"))
 }
 
-#' @describeIn as.time_period Print a time_period
-#' @export
-print.time_period = function(x, ...) {
-  unit = attributes(x)$unit
-  start_date = attributes(x)$start_date
-  cat(sprintf(
-    "time unit: %s, origin: %s (a %s)\n",
-    .fmt_unit(x),
-    start_date,
-    weekdays(start_date)
-  ))
-  print(as.numeric(x), ...)
-}
 
 #' Label a time period
 #'
@@ -451,7 +1151,8 @@ print.time_period = function(x, ...) {
 #' @concept time_period
 #'
 #' @examples
-#' eg = as.time_period(Sys.Date()+0:10*7, anchor="start")
+#' eg = as.time_period(Sys.Date()+0:10*7, unit="1 week", anchor="start")
+#'
 #' labels(eg)
 #' labels(eg, ifmt="{start}", dfmt="%d/%b/%y")
 #' labels(eg, ifmt="until {end}", dfmt="%d %b %Y")
@@ -543,72 +1244,42 @@ labels.time_period = function(
   sprintf("%.0f", x)
 }
 
-#' Convert a set of dates to numeric timepoints
-#'
-#' Using a start_date and a unit specification
+#' @describeIn as.time_period Convert a set of dates to numeric timepoints
 #'
 #' @importMethodsFrom lubridate /
 #' @importMethodsFrom lubridate *
 #' @importMethodsFrom lubridate +
 #' @importMethodsFrom lubridate -
 #'
-#' @param dates a vector of dates to convert
-#' @param unit a specification of the unit of the resulting time series.
-#'   Will be determined from periodicity of dates if not specified. If another
-#'   `time_period` is given as the unit then the
-#' @param start_date the origin of the conversion. Defaults to the beginning of the COVID pandemic
-#'
 #' @return a vector of class `time_period`
 #' @export
 #'
 #' @concept time_period
-#'
-#' @examples
-#' times = date_to_time(as.Date("2019-12-29")+0:100, "1 week")
-#' dates = time_to_date(times)
 date_to_time = function(
   dates,
-  unit = .day_interval(dates),
-  start_date = getOption("day_zero", "2019-12-29")
+  unit = NULL,
+  start_date = NULL
 ) {
-  #TODO: do we want to either allow anchor as a parameter or export .start_from_anchor?
-
   if (is.time_period(unit)) {
     start_date = .get_meta(unit)$start_date
     unit = .get_meta(unit)$unit
   } else {
-    if (!lubridate::is.period(unit)) {
-      if (is.numeric(unit)) {
-        unit = lubridate::period(sprintf("%1.0f days", unit))
-      } else {
-        unit = lubridate::period(unit)
-      }
-    }
-
-    start_date = as.Date(start_date)
+    unit = .get_unit(dates, unit)
+    start_date = .get_start_date(dates, start_date = start_date)
   }
 
-  return(as.time_period.numeric(
-    lubridate::interval(start_date, dates) / unit,
+  ival = lubridate::interval(start_date, dates) / unit
+  return(new_time_period(
+    as.numeric(ival),
     start_date = start_date,
     unit = unit
   ))
 }
 
-#' Convert a set of time points to dates
-#'
-#' @param timepoints a set of numeric time points
-#' @param unit the period / unit of the time points, which will be extracted from time points if possible
-#' @param start_date the zero day of the time series, will be extracted from time points if possible
-#'
-#' @return a vector of dates
+#' @describeIn as.time_period Convert a set of time points to dates
 #' @export
-#'
 #' @concept time_period
 #'
-#' @examples
-#' times = date_to_time(as.Date("2019-12-29")+0:100, "1 week")
-#' dates = time_to_date(times)
 time_to_date = function(
   timepoints,
   unit = attr(timepoints, "unit"),
@@ -631,8 +1302,8 @@ time_to_date = function(
   start_date = as.Date(start_date)
 
   timepoints = as.numeric(timepoints)
-  if (all(timepoints == floor(timepoints), na.rm = TRUE)) {
-    return(start_date + unit * as.numeric(timepoints))
+  if (rlang::is_integerish(timepoints)) {
+    return(start_date + unit * round(timepoints))
   }
 
   # Interpolate fractional time periods.
@@ -642,51 +1313,50 @@ time_to_date = function(
   as.Date(stats::approx(x, y, xout = timepoints)$y, "1970-01-01")
 }
 
-# Suppose the metadata has been stripped off a time_period. Here we can reconstruct it
-# from a numeric vector of times and a date vector.
-.infer_units = function(times, dates) {
-  if (is.time_period(times)) {
-    return(times)
-  }
-  dates = unique(sort(dates))
-  times = unique(sort(times))
-  interval = as.numeric(stats::na.omit(dates - dplyr::lag(dates))) /
-    as.numeric(stats::na.omit(times - dplyr::lag(times)))
-  if (all(interval %% 7 == 0)) {
-    n = .gcd(interval %/% 7)
-    unit = lubridate::as.period(n, unit = "week")
-  } else if (round(min(interval, na.rm = TRUE)) >= 365) {
-    n = .gcd(interval %/% 365)
-    unit = lubridate::as.period(n, unit = "year")
-  } else if (round(min(interval, na.rm = TRUE)) >= 28) {
-    n = .gcd(round(interval / 30))
-    unit = lubridate::as.period(sprintf("%d month", n))
-  } else {
-    n = .gcd(interval)
-    unit = lubridate::as.period(n, unit = "day")
-  }
-
-  ends = dates - floor(times) * unit
-  starts = dates - ceiling(times) * unit
-  possible_start_dates = stats::na.omit(
-    starts + round(as.numeric(ends - starts) * (1 + floor(times) - times))
-  )
-
-  if (length(unique(possible_start_dates)) != 1) {
-    stop(
-      "Could not infer start date from dates and times, having units of: ",
-      unit,
-      ", possibilities are ",
-      paste0(sort(unique(possible_start_dates)), collapse = ", ")
-    )
-  }
-  return(as.time_period.numeric(
-    times,
-    start_date = unique(possible_start_dates),
-    unit = unit
-  ))
-}
-
+# # Suppose the metadata has been stripped off a time_period. Here we can reconstruct it
+# # from a numeric vector of times and a date vector.
+# .infer_units = function(times, dates) {
+#   if (is.time_period(times)) {
+#     return(times)
+#   }
+#   dates = unique(sort(dates))
+#   times = unique(sort(times))
+#   interval = as.numeric(stats::na.omit(dates - dplyr::lag(dates))) /
+#     as.numeric(stats::na.omit(times - dplyr::lag(times)))
+#   if (all(interval %% 7 == 0)) {
+#     n = .gcd(interval %/% 7)
+#     unit = lubridate::as.period(n, unit = "week")
+#   } else if (round(min(interval, na.rm = TRUE)) >= 365) {
+#     n = .gcd(interval %/% 365)
+#     unit = lubridate::as.period(n, unit = "year")
+#   } else if (round(min(interval, na.rm = TRUE)) >= 28) {
+#     n = .gcd(round(interval / 30))
+#     unit = lubridate::as.period(sprintf("%d month", n))
+#   } else {
+#     n = .gcd(interval)
+#     unit = lubridate::as.period(n, unit = "day")
+#   }
+#
+#   ends = dates - floor(times) * unit
+#   starts = dates - ceiling(times) * unit
+#   possible_start_dates = stats::na.omit(
+#     starts + round(as.numeric(ends - starts) * (1 + floor(times) - times))
+#   )
+#
+#   if (length(unique(possible_start_dates)) != 1) {
+#     stop(
+#       "Could not infer start date from dates and times, having units of: ",
+#       unit,
+#       ", possibilities are ",
+#       paste0(sort(unique(possible_start_dates)), collapse = ", ")
+#     )
+#   }
+#   return(as.time_period.numeric(
+#     times,
+#     start_date = unique(possible_start_dates),
+#     unit = unit
+#   ))
+# }
 
 ## Date cutting functions ----
 
@@ -718,10 +1388,13 @@ time_to_date = function(
 
 #' Create the full sequence of values in a vector
 #'
-#' This is useful if you want to fill in missing values that should have been observed but weren't. For example, date_seq(c(1, 2, 4, 6), 1) will return 1:6.
+#' This is useful if you want to fill in missing values that should have been
+#' observed but weren't. For example, date_seq(c(1, 2, 4, 6), 1) will return
+#' 1:6.
 #'
 #' @param x a numeric or date vector
-#' @param period Gap between each observation. The existing data will be checked to ensure that it is actually of this periodicity.
+#' @param period Gap between each observation. The existing data will be checked
+#'   to ensure that it is actually of this periodicity.
 #' @param ... for subtype methods
 #'
 #' @return a vector of the same type as the input
@@ -806,7 +1479,7 @@ date_seq.Date = function(
     browser()
     stop("No non-NA dates provided to date_seq")
   }
-  start_date = .start_from_anchor(dates, anchor)
+  start_date = .get_start_date(dates, anchor = anchor)
   period = .make_unit(period)
   start_date = as.Date(start_date)
   dates = trunc(as.Date(dates))
@@ -867,17 +1540,18 @@ date_seq.time_period = function(
     stop("No non-NA times provided to date_seq")
   }
 
-  period = .make_unit(period)
-  if (period == attributes(x)$unit) {
-    # no change of unit.
-
-    new_times = date_seq.numeric(as.numeric(x), .step(as.numeric(x)))
-    return(.clone_time_period(new_times, x))
-  }
-
   times = x
   start_date = attributes(times)$start_date
   orig_unit = attributes(times)$unit
+
+  period = .make_unit(period)
+
+  if (period == attributes(x)$unit) {
+    # no change of unit.
+    new_times = date_seq.numeric(as.numeric(x), .step(as.numeric(x)))
+    return(new_time_period(new_times, start_date = start_date, unit = period))
+  }
+
   dates = date_seq.Date(
     time_to_date(range(x, na.rm = TRUE)),
     period = period,
@@ -888,31 +1562,6 @@ date_seq.time_period = function(
   date_to_time(dates, unit = orig_unit, start_date = start_date)
 }
 
-
-# guess the intervals between dates in a vector
-.day_interval = function(dates) {
-  dates = sort(unique(dates))
-  if (length(dates) < 4) {
-    return(1)
-  }
-  interval = .gcd(stats::na.omit(as.numeric(abs(dates - dplyr::lag(dates)))))
-  return(interval)
-}
-
-# greatest common denominator
-.gcd2 = function(a, b) {
-  if (b == 0) a else Recall(b, a %% b)
-}
-
-.gcd <- function(...) {
-  Reduce(.gcd2, c(...))
-}
-
-.step = function(x) {
-  y = sort(unique(x))
-  dy = stats::na.omit(y[-1] - utils::head(y, -1))
-  return(.gcd(dy))
-}
 
 # lubridate period round trip to string
 # .period_to_string = function(p) {
@@ -954,7 +1603,7 @@ date_seq.time_period = function(
 #'
 #' @examples
 #' dates = as.Date(c("2020-01-01","2020-02-01","2020-01-15","2020-02-03",NA))
-#' fs = ggoutbreak::date_seq(dates, "2 days")
+#' fs = date_seq(dates, "2 days")
 #' dates - cut_date(dates, "2 days")
 #' cut_date(dates,unit="2 days", output="time_period")
 #'
@@ -976,7 +1625,7 @@ cut_date = function(
   ...
 ) {
   output = match.arg(output)
-  start_date = .start_from_anchor(dates, anchor)
+  start_date = .get_start_date(dates, anchor = anchor)
 
   times = floor(date_to_time(dates, unit, start_date))
   out = .labelled_date_from_times(times, dfmt, ifmt)
@@ -1010,44 +1659,6 @@ cut_date = function(
   stop("output format not known")
 }
 
-.start_from_anchor = function(dates, anchor) {
-  default_set = !is.null(getOption("day_zero"))
-  default_start_date = as.Date(getOption("day_zero", "2019-12-29"))
-  if (is.null(anchor)) {
-    if (!default_set) {
-      .message_once(
-        "No `start_date` (or `anchor`) specified. Using default (N.b. set `options('day_zero'=XXX)` to change): ",
-        default_start_date
-      )
-    }
-    return(default_start_date)
-  }
-  start_date = try(as.Date(anchor), silent = TRUE)
-  if (!is.Date(start_date)) {
-    anchor = anchor %>% tolower() %>% substr(1, 3)
-    start_date = if (anchor == "sta") {
-      min_date(dates)
-    } else if (anchor == "end") {
-      max_date(dates) + 1
-    } else {
-      min_date(dates) -
-        7 +
-        which(
-          substr(tolower(weekdays(min_date(dates) - 6 + 0:6)), 1, 3) == anchor
-        )
-    }
-    if (length(start_date) != 1) {
-      if (!default_set) {
-        .message_once(
-          "`anchor` was not valid (a date or one of 'start', 'end', or a weekday name). Using default (N.b. set `options('day_zero'=XXX)` to change): ",
-          default_start_date
-        )
-      }
-      return(default_start_date)
-    }
-  }
-  return(start_date)
-}
 
 .labelled_date_from_times = function(
   times,
@@ -1072,7 +1683,8 @@ cut_date = function(
   times,
   dfmt = "%d/%b",
   ifmt = "{start} \u2014 {end}",
-  na.value = "Unknown"
+  na.value = "Unknown",
+  ...
 ) {
   if (any(stats::na.omit(abs(floor(times) - times)) > 0.01)) {
     diff = 0

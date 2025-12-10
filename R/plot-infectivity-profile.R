@@ -10,7 +10,7 @@
 #'
 #' @examples
 #' if(interactive()) {
-#'   plot_ip(ganyani_ip)
+#'   plot_ip(example_ganyani_ip())
 #' }
 plot_ip = function(ip = i_empirical_ip, alpha = NULL, ...) {
   ip = interfacer::ivalidate(

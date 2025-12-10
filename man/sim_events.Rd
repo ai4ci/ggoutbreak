@@ -18,6 +18,6 @@ input parameters, particularly for step functions. This set of events can be
 directly represented on a \code{ggoutbreak} plot using the \code{events} parameter
 }
 \examples{
-sim_events(test_poisson_rt)
+sim_events(example_poisson_rt())
 }
 \concept{test}

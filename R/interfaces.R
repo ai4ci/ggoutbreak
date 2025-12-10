@@ -108,17 +108,6 @@ i_proportion_model = interfacer::iface(
     "upper confidence limit of proportion (true scale)"
 )
 
-i_proportion_rate = interfacer::iface(
-  i_proportion_model,
-  relative.growth.fit = double ~ "an estimate of the relative growth rate",
-  relative.growth.se.fit = positive_double ~
-    "the standard error the relative growth rate",
-  relative.growth.0.025 = double ~
-    "lower confidence limit of the relative growth rate",
-  relative.growth.0.5 = double ~ "median estimate of the relative growth rate",
-  relative.growth.0.975 = double ~
-    "upper confidence limit of the relative growth rate"
-)
 
 i_prevalence_model = interfacer::iface(
   i_timeseries,
@@ -221,11 +210,18 @@ i_growth_rate = interfacer::iface(
   growth.0.975 = double ~ "upper confidence limit of the growth rate"
 )
 
-#TODO: needs renaming
-i_risk_ratio_rate = interfacer::iface(
-  i_risk_ratio_model,
-  i_proportion_rate
+i_relative_growth_rate = interfacer::iface(
+  i_timeseries,
+  relative.growth.fit = double ~ "an estimate of the relative growth rate",
+  relative.growth.se.fit = positive_double ~
+    "the standard error the relative growth rate",
+  relative.growth.0.025 = double ~
+    "lower confidence limit of the relative growth rate",
+  relative.growth.0.5 = double ~ "median estimate of the relative growth rate",
+  relative.growth.0.975 = double ~
+    "upper confidence limit of the relative growth rate"
 )
+
 
 i_incidence_rate = interfacer::iface(
   i_incidence_model,
@@ -235,6 +231,22 @@ i_incidence_rate = interfacer::iface(
 i_incidence_per_capita_rate = interfacer::iface(
   i_incidence_per_capita_model,
   i_growth_rate
+)
+
+i_proportion_rate = interfacer::iface(
+  i_proportion_model,
+  i_relative_growth_rate
+)
+
+i_prevalence_rate = interfacer::iface(
+  i_prevalence_model,
+  i_growth_rate
+)
+
+#TODO: needs renaming
+i_risk_ratio_rate = interfacer::iface(
+  i_risk_ratio_model,
+  i_proportion_rate
 )
 
 i_reproduction_number = interfacer::iface(
@@ -265,16 +277,14 @@ i_ip_base = interfacer::iface(
 i_discrete_ip = interfacer::iface(
   i_ip_base,
   tau = integer + complete ~ "the days since the index event.",
-  .groups = ~ . + boot,
-  .default = ggoutbreak::covid_ip
+  .groups = ~ . + boot
 )
 
 i_empirical_ip = interfacer::iface(
   i_ip_base,
   a0 = double ~ "the beginning of the time period (in days)",
   a1 = double ~ "the end of the time period (in days)",
-  .groups = ~ . + boot,
-  .default = ggoutbreak::covid_ip
+  .groups = ~ . + boot
 )
 
 ## Simulation formats ----

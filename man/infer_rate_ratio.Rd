@@ -61,12 +61,13 @@ checked.
 }
 \examples{
 
-baseline = ggoutbreak::england_covid_poisson \%>\%
+# not age stratified
+baseline = example_poisson_locfit() \%>\%
   dplyr::mutate(baseline_incidence = incidence.0.5)
 
-
-tmp = ggoutbreak::england_covid_poisson_age_stratified() \%>\%
-  ggoutbreak::infer_rate_ratio(baseline) \%>\%
+# age stratified rate ratios:
+tmp = example_poisson_age_stratified() \%>\%
+  infer_rate_ratio(baseline) \%>\%
   dplyr::glimpse()
 
 

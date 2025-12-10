@@ -44,10 +44,10 @@
 #'
 #' @examples
 #'
-#' data = test_poisson_rt_2class
+#' data = example_poisson_rt_2class()
 #'
-#' tmp2 = data %>% ggoutbreak::proportion_locfit_model(window=7,deg=2)
-#' tmp3 = data %>% ggoutbreak::proportion_locfit_model(window=14,deg=1)
+#' tmp2 = data %>% proportion_locfit_model(window=7,deg=2)
+#' tmp3 = data %>% proportion_locfit_model(window=14,deg=1)
 #'
 #' comp = dplyr::bind_rows(
 #'   tmp2 %>% dplyr::mutate(model="7:2"),
@@ -244,13 +244,15 @@ proportion_locfit_model = function(
 #' @examples
 #'
 #'
-#' data = ggoutbreak::test_poisson_rt()
-#' tmp = data %>% ggoutbreak::poisson_locfit_model(window=14,deg=2, ip=test_ip, quick=TRUE)
-#' plot_rt(tmp)+sim_geom_function(data,colour="red")
+#' data = example_poisson_rt()
+#' tmp = data %>% poisson_locfit_model(window=14,deg=2, ip=example_ip(), quick=TRUE)
+#' plot_rt(tmp,
+#'     raw=data,
+#'     true_col = rt)
 #'
-#' data = test_poisson_growth_rate
-#' tmp2 = data %>% ggoutbreak::poisson_locfit_model(window=7,deg=1)
-#' tmp3 = data %>% ggoutbreak::poisson_locfit_model(window=14,deg=2)
+#' data = example_poisson_growth_rate()
+#' tmp2 = data %>% poisson_locfit_model(window=7,deg=1)
+#' tmp3 = data %>% poisson_locfit_model(window=14,deg=2)
 #'
 #'
 #'
@@ -263,19 +265,17 @@ proportion_locfit_model = function(
 #'   plot_incidence(
 #'     comp,
 #'     date_labels="%b %y",
-#'     raw=data
-#'   )+
-#'   ggplot2::geom_line(
-#'     data=data,
-#'     mapping=ggplot2::aes(x=as.Date(time),y=rate),
-#'     colour="grey40"
+#'     raw=data,
+#'     true_col = rate
 #'   )
 #'
 #'   plot_growth_rate(
 #'     comp,
-#'     date_labels="%b %y"
-#'   )+
-#'   sim_geom_function(data,colour="black")
+#'     date_labels="%b %y",
+#'     raw = data,
+#'     true_col = growth
+#'   )
+#'   # sim_geom_function(data,colour="black")
 #' }
 #'
 poisson_locfit_model = function(
@@ -451,7 +451,7 @@ poisson_locfit_model = function(
 .rewrite_lfproc = function(w) {
   if (stringr::str_ends(w$message, "parameters out of bounds")) {
     .message_once(
-      "not enough info to fit locfit model - try decreasing `deg` or increasing `window`."
+      "incomplete fit locfit model - try decreasing `deg` or increasing `window`."
     )
     rlang::cnd_muffle(w)
   } else if (stringr::str_ends(w$message, "perfect fit")) {
@@ -466,10 +466,35 @@ poisson_locfit_model = function(
 # value - the columns to change to NA - e.g. "incidence"
 # rule - the trigger to change the columns
 .tidy_fit = function(df, value, rule) {
-  rule = dplyr::enexpr(rule)
-  df %>%
-    dplyr::mutate(dplyr::across(
-      dplyr::starts_with(value),
-      ~ ifelse(!!rule, NA_real_, .x)
-    ))
+  # Disabled:
+  return(df)
+  # rule = dplyr::enexpr(rule)
+  #
+  # # When does this trigger?
+  # # if (
+  # #   any(
+  # #     df %>%
+  # #       dplyr::summarise(dplyr::across(
+  # #         dplyr::starts_with(value),
+  # #         ~ any(!!rule)
+  # #       ))
+  # #   )
+  # # ) {
+  # #   browser()
+  # # }
+  #
+  # df %>%
+  #   dplyr::mutate(dplyr::across(
+  #     dplyr::starts_with(value),
+  #     function(.x) {
+  #       if (any(!!rule, na.rm = TRUE)) {
+  #         .message_once(sprintf(
+  #           "removed some anomalous %s estimates (%s)",
+  #           value,
+  #           rlang::as_label(rule)
+  #         ))
+  #       }
+  #       ifelse(!!rule, NA_real_, .x)
+  #     }
+  #   ))
 }

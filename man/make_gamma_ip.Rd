@@ -15,7 +15,8 @@ make_gamma_ip(
   n_boots = 100,
   epiestim_compat = FALSE,
   epiestim_sampler = epiestim_compat,
-  z_crit = 0.95
+  z_crit = 0.95,
+  seed = Sys.time()
 )
 }
 \arguments{
@@ -41,6 +42,8 @@ parameters above. If \code{FALSE} then it will use a log normal distributions
 with correlation.}
 
 \item{z_crit}{the width of the confidence intervals (defaults to 95\%).}
+
+\item{seed}{a RNG seed}
 }
 \value{
 a long format infectivity profile data frame, or a list of dataframes

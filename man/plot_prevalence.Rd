@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-prevalence-ts.R
 \name{plot_prevalence}
 \alias{plot_prevalence}
-\title{Plot a proportions timeseries}
+\title{Plot a timeseries of disease prevalence}
 \usage{
 plot_prevalence(
   modelled = i_prevalence_model,
@@ -13,7 +13,7 @@ plot_prevalence(
 )
 }
 \arguments{
-\item{modelled}{Proportion model estimates - a dataframe with columns:
+\item{modelled}{Prevalence estimates - a dataframe with columns:
 \itemize{
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
 \item prevalence.0.025 (proportion) - lower confidence limit of prevalence (true scale)
@@ -24,7 +24,7 @@ plot_prevalence(
 Any grouping allowed.
 }
 
-\item{raw}{Raw count data - a dataframe with columns:
+\item{raw}{Raw proportion data - a dataframe with columns:
 \itemize{
 \item denom (positive_integer) - Total test counts associated with the specified time frame
 \item count (positive_integer) - Positive case counts associated with the specified time frame
@@ -68,13 +68,16 @@ A default value is defined.
 a ggplot object
 }
 \description{
-Plot a proportions timeseries
+\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#experimental}{\figure{lifecycle-experimental.svg}{options: alt='[Experimental]'}}}{\strong{[Experimental]}}
 }
 \examples{
+
 if(interactive()) {
+
   plot_prevalence(
-    ggoutbreak::england_ons_infection_survey,
-    mapping = ggplot2::aes(colour=geography))
+    ukc19::ons_infection_survey \%>\%
+      dplyr::mutate(time = as.time_period(date,"1 day")),
+    mapping = ggplot2::aes(colour=name))
 }
 }
 \concept{vis}

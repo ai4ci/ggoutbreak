@@ -59,8 +59,12 @@ during that time period. Normalising by population size allows us to compare
 groups.
 }
 \examples{
-tmp = ggoutbreak::england_covid \%>\%
-  ggoutbreak::normalise_count(ggoutbreak::england_demographics) \%>\%
+
+data = example_england_covid_by_age()
+demog = ukc19::uk_population_2019_by_5yr_age
+
+data \%>\%
+  normalise_count(demog) \%>\%
   dplyr::glimpse()
 
 }

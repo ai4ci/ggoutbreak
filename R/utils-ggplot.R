@@ -7,6 +7,13 @@
   return(x)
 }
 
+.ifnotnull = function(x, fn) {
+  if (is.null(x)) {
+    return(NULL)
+  }
+  return(fn(x))
+}
+
 #' A scales breaks generator for log1p scales
 #'
 #' @param n the number of breaks
@@ -168,7 +175,7 @@ integer_breaks = function(n = 5, ...) {
   .default = list(),
   .switch_fill = inherits(geom, "GeomRibbon")
 ) {
-  dots = rlang::list2(...)
+  dots = rlang::enexprs(...)
   if (.switch_fill) {
     mapping = .fill_col(mapping)
     dots$fill = dots$colour
@@ -212,7 +219,7 @@ integer_breaks = function(n = 5, ...) {
 # checks a ggplot::aes is not given in the dots, before
 .check_for_aes = function(df, ..., class_aes = c("colour", "fill")) {
   class_aes = match.arg(class_aes)
-  dots = rlang::list2(...)
+  dots = rlang::enexprs(...)
   if (length(dots) > 0 && any(sapply(dots, class) == "uneval")) {
     stop(
       "Unnamed `ggplot2::aes` mapping provided. Ggplot aesthetic parameters must be named `mapping=aes(...)`",

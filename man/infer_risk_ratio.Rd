@@ -61,8 +61,12 @@ any uncertainty.
 }
 \examples{
 
-tmp = ggoutbreak::england_covid_proportion_age_stratified()  \%>\%
-  ggoutbreak::infer_risk_ratio(ggoutbreak::england_demographics) \%>\%
+demog = ukc19::uk_population_2019_by_5yr_age \%>\%
+  dplyr::filter(name == "England")
+
+
+tmp = example_proportion_age_stratified() \%>\%
+  infer_risk_ratio(demog) \%>\%
   dplyr::glimpse()
 
 if(interactive()) {

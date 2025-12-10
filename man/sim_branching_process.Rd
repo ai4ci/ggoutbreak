@@ -6,15 +6,16 @@
 reproduction number}
 \usage{
 sim_branching_process(
-  changes = dplyr::tibble(t = c(0, 40), rt = c(2.5, 0.8)),
+  changes = dplyr::tibble(t = c(0, 40), rt = c(2, 0.8)),
   max_time = 80,
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
-  fn_ip = ~ggoutbreak::test_ip,
+  fn_ip = ~example_ip(),
   fn_kappa = ~1,
   imports_df = NULL,
   fn_imports = ~ifelse(.x == 0, 30, 0),
   fn_list_next_gen = list(),
+  max_size = 10000,
   ...
 )
 }
@@ -80,7 +81,7 @@ tmp = sim_branching_process(
 )
 
 if(interactive()) {
-  plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1)
+  plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1, colour="white")
 }
 
 # imports can also be specified as a dataframe, which allows additional

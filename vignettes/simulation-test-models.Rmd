@@ -29,10 +29,13 @@ knitr::opts_chunk$set(
   fig.height = 4
 )
 
-here::i_am("vignettes/simulation-test-models.Rmd")
-source(here::here("vignettes/vignette-utils.R"))
 library(ggoutbreak)
 library(patchwork)
+
+here::i_am("vignettes/simulation-test-models.Rmd")
+source(here::here("vignettes/vignette-utils.R"))#
+set_default_start("2025-01-01")
+
 
 plot_changes = function(sim, name, max_y = NA, mapping = ggplot2::aes(), case=FALSE, fn = attr(sim,"fn"), changes = NULL, ...) {
   
@@ -278,7 +281,7 @@ for a simulation:
 
 ```{r}
 
-gamma_ip = make_gamma_ip(median_of_mean = 5, median_of_sd = 1)
+gamma_ip = make_fixed_ip(mean = 5, sd = 1)
 emp_ip = make_empirical_ip(omega = c(0,0,0,1,1,2,3,3,2,1,0,0))
 
 p1=gamma_ip %>% plot_ip() + ggplot2::facet_wrap(~"gamma")
@@ -322,7 +325,7 @@ delay_mean_fn = cfg_linear_fn(dplyr::tribble(
 
 # We wrap this in a a function to calculate a IP for each time point
 delay_fn = function(t) purrr::map( delay_mean_fn(t), function(mean) {
-  make_gamma_ip(median_of_mean = mean, median_of_sd = sqrt(mean))
+  make_fixed_ip(mean = mean, sd = sqrt(mean))
 })
 
 # Within the simulation this delay function will be evaluated for each day
@@ -534,7 +537,7 @@ p_detection_fn = cfg_linear_fn(dplyr::tribble(
   120,0.3
 ))
 
-delay_detection_fn = ~ make_gamma_ip(median_of_mean = ip_mean_fn(.x))
+delay_detection_fn = ~ make_fixed_ip(mean = ip_mean_fn(.x))
 
 sim3 = sim %>% sim_convolution(
   p_fn = p_detection_fn,
@@ -542,7 +545,7 @@ sim3 = sim %>% sim_convolution(
   output = "detected"
 ) %>% sim_delayed_observation(
   input = "detected",
-  delay_fn = ~ make_gamma_ip(7,median_of_sd = 10)
+  delay_fn = ~ make_fixed_ip(mean = 7,sd = 10)
 )
 
 p1=plot_changes(sim3,name = "delays (days)", fn = ip_mean_fn)+ggplot2::ylim(0,NA)
@@ -581,7 +584,7 @@ seasonal_sim = sim_poisson_Rt_model(
     max_time = 365*3,
     fn_Rt = seasonal_rt_fn,
     fn_imports = seasonal_imports,
-    fn_ip = ~ make_gamma_ip(6)
+    fn_ip = ~ make_fixed_ip(6)
   )
 
 # profvis::profvis(
@@ -598,7 +601,7 @@ p1=plot_changes(
 
 p2=plot_counts(
         seasonal_sim, 
-        events = attr(seasonal_sim,"events"),
+        events = sim_events(seasonal_sim) %>% dplyr::ungroup() %>% dplyr::select(-statistic),
         mapping=ggplot2::aes(colour=statistic),size=0.25)+
       ggplot2::geom_line()+
       ggplot2::facet_wrap(~ statistic,ncol=1,scales = "free_y")
@@ -645,7 +648,7 @@ linelist = sim_branching_process(
    fn_imports = ~ ifelse(.x<10,8,0)
 )
 
-plot_cases(linelist, events = attr(linelist,"events"))+ggplot2::coord_cartesian()
+plot_cases(linelist, events = sim_events(linelist))+ggplot2::coord_cartesian()
 
 ```
 
@@ -686,7 +689,7 @@ summary = linelist2 %>% sim_summarise_linelist(
 
 # plot the counts for comparison.
 p1=plot_changes(summary,"Rt",max_y = 2.0, case = TRUE)
-p2=plot_counts(summary,events = attr(summary,"events"), mapping=ggplot2::aes(colour=statistic),size=0.5)+ggplot2::geom_line()
+p2=plot_counts(summary,events = sim_events(summary), mapping=ggplot2::aes(colour=statistic),size=0.5)+ggplot2::geom_line()
 patchwork::wrap_plots(p1,p2,ncol=1,axes="collect")
 
 ```
@@ -746,7 +749,7 @@ variant_Rt_fn = \(t,variant) dplyr::case_when(
 scenario2 = sim_branching_process(
   max_time = 120,
   fn_Rt = variant_Rt_fn, 
-  fn_ip = ~ make_gamma_ip(8), # Both variants have the same fixed ip with mean 8
+  fn_ip = ~ make_fixed_ip(8), # Both variants have the same fixed ip with mean 8
   imports_df = variant_imports_df,
   seed=100
 )
@@ -787,7 +790,7 @@ variant_Rt_fn = \(t,variant) dplyr::case_when(
 scenario = sim_branching_process(
   max_time = 120,
   fn_Rt = variant_Rt_fn, 
-  fn_ip = ~ make_gamma_ip(8), # Both variants have the same fixed ip with mean 8
+  fn_ip = ~ make_fixed_ip(8), # Both variants have the same fixed ip with mean 8
   imports_df = variant_imports_df,
   seed=100
 )
@@ -831,7 +834,7 @@ population have a high super-spreading potential.
 ```{r}
 
 kappa = c(1,1.5,2,3,4)
-ip = make_gamma_ip(8)
+ip = make_fixed_ip(8)
 
 comparison = dplyr::bind_rows(lapply(kappa, function(k) {
   
@@ -889,7 +892,7 @@ strat_fn_Rt = \(age_cat) dplyr::case_when(
 strat_bpm = sim_branching_process(
     max_time = 80,
     fn_Rt = strat_fn_Rt,
-    fn_ip = ~ make_gamma_ip(8),
+    fn_ip = ~ make_fixed_ip(8),
     imports_df = strat_imports_df,
     fn_list_next_gen = strat_fn_list_next_gen,
     seed=101

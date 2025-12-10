@@ -6,5 +6,5 @@
 
 .onLoad <- function(libname, pkgname) {
   # make_gamma_ip <<- .memoise(make_gamma_ip)
-  make_gamma_ip <<- .memoise(make_gamma_ip)
+  make_fixed_ip <<- .memoise(make_fixed_ip)
 }

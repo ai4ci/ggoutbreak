@@ -69,8 +69,11 @@ groups.
 }
 \examples{
 
-ggoutbreak::england_covid_poisson_age_stratified() \%>\%
-  ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) \%>\%
+model = example_poisson_age_stratified()
+demog = ukc19::uk_population_2019_by_5yr_age
+
+model \%>\%
+  normalise_incidence(demog) \%>\%
   dplyr::glimpse()
 
 }

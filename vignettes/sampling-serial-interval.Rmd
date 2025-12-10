@@ -29,6 +29,8 @@ utils::data("MockRotavirus",package="EpiEstim")
 si_data = MockRotavirus$si_data
 si_distr = MockRotavirus$si_distr
 source(here::here("vignettes/vignette-utils.R"))
+
+set_default_start("2025-01-01")
 ```
 
 Estimation of the infectivity profile is usually done by fitting a 
@@ -356,7 +358,7 @@ less skewed discretised infectivity profile distribution than either the
 original data derived (`raw mcmc`) or log-normally resampled with correlation
 (`corr log normal`). The result of this can be examined by looking at `EpiEstim`
 estimates of the reproduction number using each of the different infectivity
-profiles. We simulate an artificial incidence timeseries for each of a set of
+profiles. We simulate an artificial incidence time series for each of a set of
 growth rates and use `EpiEstim` to produce reproduction number estimates for
 each of these synthetic timeseries using either the data-derived infectivity
 profiles (`raw mcmc`), `EpiEstim` resampled infectivity profiles (`epiestim`), and

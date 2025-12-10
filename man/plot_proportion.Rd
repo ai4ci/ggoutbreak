@@ -73,8 +73,8 @@ a ggplot object
 Plot a proportions timeseries
 }
 \examples{
-tmp = ggoutbreak::test_poisson_rt_2class \%>\%
-  ggoutbreak::proportion_locfit_model(window=21) \%>\%
+tmp = example_poisson_rt_2class() \%>\%
+  proportion_locfit_model(window=21) \%>\%
   dplyr::glimpse()
 
 if(interactive()) {

@@ -14,6 +14,8 @@ utils::data("MockRotavirus",package = "EpiEstim")
 si_data = MockRotavirus$si_data
 si_distr = MockRotavirus$si_distr
 source(here::here("vignettes/vignette-utils.R"))
+
+set_default_start("2025-01-01")
 ```
 
 Estimation of the infectivity profile is usually done by fitting a 

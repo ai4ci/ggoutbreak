@@ -39,12 +39,12 @@ scale, for the COVID-19 epidemic in England:
 
 ```{r}
 
-raw = ggoutbreak::england_covid %>%
+raw = example_england_covid_by_age() %>%
   time_aggregate(count=sum(count))
 
 fit = raw %>% poisson_locfit_model()
 
-plot_incidence(fit,raw, colour="blue",size=0.025,events = england_events)+
+plot_incidence(fit,raw, colour="blue",size=0.025,events = ukc19::timeline)+
   scale_y_log1p()+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2023-01-01")))
 ```
@@ -235,12 +235,12 @@ $R_t$ estimates in fine grained geographical or demographic subgroups.
 ```{r}
 
 system.time({
-  rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = covid_ip, approx = TRUE)
+  rt_fit = fit %>% ggoutbreak::rt_from_incidence(ip = example_ganyani_ip(), approx = TRUE)
 })
 
-plot_rt(rt_fit, events = england_events, colour="blue")+
+plot_rt(rt_fit, events = ukc19::timeline, colour="blue")+
   ggplot2::coord_cartesian(xlim=as.Date(c("2020-01-01","2023-01-01")), ylim=c(0.6,1.6))+
-  ggplot2::geom_errorbar(data=england_consensus_rt,ggplot2::aes(x=date-14,ymin=low,ymax=high),colour="red")
+  ggplot2::geom_errorbar(data=ukc19::spim_consensus, ggplot2::aes(x=date-14,ymin=rt.low,ymax=rt.high),colour="red")
 
 ```
 

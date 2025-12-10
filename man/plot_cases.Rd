@@ -2,7 +2,7 @@
 % Please edit documentation in R/plot-raw-ts.R
 \name{plot_cases}
 \alias{plot_cases}
-\title{Plot a raw case counts as a histogram}
+\title{Plot a line-list of cases as a histogram}
 \usage{
 plot_cases(
   raw,
@@ -64,18 +64,19 @@ A default value is defined.
 a ggplot object
 }
 \description{
-Plot a raw case counts as a histogram
+Plot a line-list of cases as a histogram
 }
 \examples{
 
-# 50 random times:
-tmp = dplyr::tibble(
-  time = as.time_period( sample.int(10,50,replace=TRUE) ,"1 day"),
-  class = rep(c("one","two","three"), length.out=50)
-)
+with_defaults("2025-01-01" ,"1 day", {
+  tmp = dplyr::tibble(
+    time = as.time_period( rexpgrowth(100,0.05,40)),
+    class = rep(c("one","two","three"), length.out=100)
+  )
+})
 
 if(interactive()) {
-  plot_cases(tmp)
+  plot_cases(tmp, mapping=ggplot2::aes(fill = class),linewidth=0.1,colour="white")
 }
 }
 \concept{vis}

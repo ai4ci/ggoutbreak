@@ -23,8 +23,7 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Minimally grouped by: boot (and other groupings allowed).
-A default value is defined.}
+Minimally grouped by: boot (and other groupings allowed).}
 
 \item{a1}{the end time of the infectivity profile probability estimate (defaults to 0.5,1.5,2.5,...).}
 
@@ -44,7 +43,7 @@ value is chosen (i.e. this does not propagate uncertainty in infectivity profile
 wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
 
 # using an infectivity profile
-wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=test_ip)
+wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=example_ip())
 
 }
 \concept{models}

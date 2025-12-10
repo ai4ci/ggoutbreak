@@ -35,8 +35,6 @@ Any grouping allowed.
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{bootstraps}{\itemize{
@@ -75,11 +73,11 @@ This method is quite slow compared to some others and the default is non
 deterministic.
 }
 \examples{
-data = ggoutbreak::test_poisson_rt_smooth
+data = example_poisson_rt_smooth()
 
 tmp = data \%>\%
   poisson_locfit_model() \%>\%
-  rt_from_growth_rate(ip=ggoutbreak::test_ip)
+  rt_from_growth_rate(ip=example_ip())
 
 if (interactive()) {
   plot_rt(tmp, date_labels="\%b \%y")+sim_geom_function(data,colour="red")

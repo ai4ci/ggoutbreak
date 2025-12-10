@@ -51,10 +51,10 @@
 #' @concept models
 #' @examples
 #'
-#' data = ggoutbreak::test_poisson_rt_smooth
+#' data = example_poisson_rt_smooth()
 #'
-#' tmp2 = data %>% rt_cori(ip=ggoutbreak::test_ip, epiestim_compat = TRUE)
-#' tmp3 = data %>% rt_cori(ip=ggoutbreak::test_ip, window=c(5:14), approx=TRUE)
+#' tmp2 = data %>% rt_cori(ip=example_ip(), epiestim_compat = TRUE)
+#' tmp3 = data %>% rt_cori(ip=example_ip(), window=c(5:14), approx=TRUE)
 #'
 #' comp = dplyr::bind_rows(
 #'   tmp2 %>% dplyr::mutate(class = "EpiEstim"),
@@ -212,7 +212,7 @@ rt_cori = function(
           ) %>%
           .result_from_fit(
             type = "rt",
-            qfn = \(p) qgamma2(p, .$rt.fit, .$rt.se.fit, convex = FALSE)
+            qfn = \(p) qgamma2(p, .$rt.fit, .$rt.se.fit)
           ) %>%
           .keep_cdf(
             type = "rt",

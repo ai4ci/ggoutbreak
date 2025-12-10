@@ -16,8 +16,6 @@ plot_ip(ip = i_empirical_ip, alpha = NULL, ...)
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{alpha}{the alpha value of the bootstrap lines}
@@ -32,7 +30,7 @@ Plot an infectivity profile
 }
 \examples{
 if(interactive()) {
-  plot_ip(ganyani_ip)
+  plot_ip(example_ganyani_ip())
 }
 }
 \concept{vis}

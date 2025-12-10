@@ -200,7 +200,7 @@ Plot an incidence or proportion versus growth phase diagram
 }
 \examples{
 
-data = ggoutbreak::test_poisson_rt_2class
+data = example_poisson_rt_2class()
 tmp2 = data \%>\% poisson_locfit_model()
 
 timepoints = as.Date(tmp2$time[c(40,80,120,160)])

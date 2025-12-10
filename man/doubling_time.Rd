@@ -53,9 +53,10 @@ or relative doubling time plus confidence intervals.
 The unit of doubling times is always days.
 }
 \examples{
-ggoutbreak::test_poisson_rt_smooth \%>\%
-  ggoutbreak::poisson_locfit_model(window=21) \%>\%
-  ggoutbreak::doubling_time() \%>\%
+
+example_poisson_rt_smooth() \%>\%
+  poisson_locfit_model(window=21) \%>\%
+  doubling_time() \%>\%
   dplyr::glimpse()
 
 

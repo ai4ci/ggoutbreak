@@ -33,10 +33,14 @@ include ascertainment bias.
 Apply a ascertainment bias to the observed case counts.
 }
 \examples{
-dplyr::tibble(
-  statistic = "incidence",
-  time=as.time_period(1:10,"1 day"),
-  count=rep(100,10)
-) \%>\% dplyr::group_by(statistic) \%>\% sim_apply_ascertainment(~ ifelse(.x<=5,0.1,0.9))
+with_defaults("2025-01-01" ,"1 day", {
+  dplyr::tibble(
+    statistic = "incidence",
+    time=as.time_period(1:10,"1 day"),
+    count=rep(100,10)
+  ) \%>\%
+  dplyr::group_by(statistic) \%>\%
+  sim_apply_ascertainment(~ ifelse(.x<=5,0.1,0.9))
+})
 }
 \concept{test}

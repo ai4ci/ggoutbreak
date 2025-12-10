@@ -38,7 +38,7 @@ A default value is defined.
 }}
 
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
-to something if there are multiple incidence timeseries in the plot}
+to something if there are multiple count timeseries in the data}
 
 \item{events}{Significant events or time spans - a dataframe with columns:
 \itemize{
@@ -59,17 +59,12 @@ a ggplot object
 Plot a raw case count proportion timeseries
 }
 \examples{
-# example code
 
-tmp = dplyr::tibble(
-  time = as.time_period(1:10, "1 day"),
-  count = 101:110
-) \%>\% dplyr::mutate(
-  denom = count*time
-)
+tmp = example_england_covid_by_age() \%>\%
+  dplyr::filter(class \%in\% c("50_54","80_84"))
 
 if(interactive()) {
-  plot_proportions_data(tmp)+ggplot2::geom_line()
+  plot_proportions_data(tmp, mapping= ggplot2::aes(colour=class))+ggplot2::geom_line()
 }
 
 }

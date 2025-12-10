@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{a numeric or date vector}
 
-\item{period}{Gap between each observation. The existing data will be checked to ensure that it is actually of this periodicity.}
+\item{period}{Gap between each observation. The existing data will be checked
+to ensure that it is actually of this periodicity.}
 
 \item{tol}{Numerical tolerance for checking periodicity.}
 
@@ -19,7 +20,9 @@
 a vector of the same type as the input
 }
 \description{
-This is useful if you want to fill in missing values that should have been observed but weren't. For example, date_seq(c(1, 2, 4, 6), 1) will return 1:6.
+This is useful if you want to fill in missing values that should have been
+observed but weren't. For example, date_seq(c(1, 2, 4, 6), 1) will return
+1:6.
 }
 \examples{
 date_seq(c(1, 2, 4, 5, 10), 1)

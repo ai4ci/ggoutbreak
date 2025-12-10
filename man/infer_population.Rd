@@ -37,8 +37,15 @@ The two inputs must have compatible grouping (i.e. all the groups in
 the population data must be present in the timeseries).
 }
 \examples{
-ggoutbreak::england_covid \%>\%
-  ggoutbreak::infer_population(ggoutbreak::england_demographics) \%>\%
+
+# The COVID data already has a population column so we are just double checking:
+data = example_england_covid_by_age() \%>\%
+  dplyr::rename(pop_old = population)
+
+demog = ukc19::uk_population_2019_by_5yr_age \%>\% dplyr::group_by(code, name, class)
+
+data \%>\%
+  infer_population(demog) \%>\%
   dplyr::glimpse()
 }
 \concept{models}

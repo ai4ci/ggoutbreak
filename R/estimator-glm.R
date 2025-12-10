@@ -34,10 +34,10 @@
 #' @concept models
 #' @examples
 #'
-#' data = test_poisson_rt_2class
+#' data = example_poisson_rt_2class()
 #'
-#' tmp2 = data %>% ggoutbreak::proportion_glm_model(window=7,deg=2)
-#' tmp3 = data %>% ggoutbreak::proportion_glm_model(window=14,deg=1)
+#' tmp2 = data %>% proportion_glm_model(window=7,deg=2)
+#' tmp3 = data %>% proportion_glm_model(window=14,deg=1)
 #'
 #' comp = dplyr::bind_rows(
 #'   tmp2 %>% dplyr::mutate(model="7:2"),
@@ -143,10 +143,10 @@ proportion_glm_model = function(
 #' @export
 #' @concept models
 #' @examples
-#' data = test_poisson_growth_rate
+#' data = example_poisson_growth_rate()
 #'
-#' tmp2 = data %>% ggoutbreak::poisson_glm_model(window=7,deg=2)
-#' tmp3 = data %>% ggoutbreak::poisson_glm_model(window=14,deg=1)
+#' tmp2 = data %>% poisson_glm_model(window=7,deg=2)
+#' tmp3 = data %>% poisson_glm_model(window=14,deg=1)
 #'
 #' comp = dplyr::bind_rows(
 #'   tmp2 %>% dplyr::mutate(class="7:2"),
@@ -154,12 +154,7 @@ proportion_glm_model = function(
 #' ) %>% dplyr::group_by(class)
 #'
 #' if (interactive()) {
-#'   plot_incidence(comp, date_labels="%b %y", raw=data)+
-#'     ggplot2::geom_line(
-#'       data=data,
-#'       mapping=ggplot2::aes(x=as.Date(time),y=rate),
-#'       colour="grey40"
-#'     )
+#'   plot_incidence(comp, date_labels="%b %y", raw=data, true_col=rate)
 #' }
 poisson_glm_model = function(
   d = i_incidence_input,

@@ -148,7 +148,7 @@ utils::globalVariables(c(
   "t_tau",
   "tau",
   "test",
-  "test_ip",
+  "example_ip()",
   "time",
   "time_unit",
   "timeseries",

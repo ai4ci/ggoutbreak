@@ -1,3 +1,5 @@
+covid_ip:
+- covid_ip/20251125T134148Z-541e6/
 england_covid_poisson_age_stratified:
 - england_covid_poisson_age_stratified/20251003T210821Z-e2ce9/
 england_covid_proportion_age_stratified:

@@ -23,7 +23,10 @@ for \code{.fns}}
 
 \item{.groups}{as per \code{dplyr::summarise}}
 
-\item{.cols}{Optional dplyr column specification for \code{dplyr::across}. if
+\item{.cols}{Optional dplyr column specification for the data that will be
+summarised. This is useful if there are lots of columns you want to
+summarise using the same function (e.g. \code{sum} usually). \code{.cols} is passed to
+a \code{dplyr::across} call. if
 \code{.fns} is given and the \code{.cols} parameter is not specified then the columns
 to summarise are automatically identified. In doing this any \code{Date} columns
 are dropped. If this in not what you want then \code{.cols} or \code{...} must be given}
@@ -35,14 +38,16 @@ the summarised time series preserving the \code{time} column, and with the group
 structure involving one fewer levels than the input
 }
 \description{
-Aggregate time series data preserving the time series
+This function operates on timeseries data not linelists (see \code{\link[=time_summarise]{time_summarise()}})
+for line lists. If a very granular timeseries is regrouped and this function
+is applied the resulting dataframe will be
 }
 \examples{
-ggoutbreak::england_covid \%>\%
+example_england_covid_by_age() \%>\%
   time_aggregate(count = sum(count), denom = sum(denom)) \%>\%
   dplyr::glimpse()
 
-ggoutbreak::england_covid \%>\%
+example_england_covid_by_age() \%>\%
   time_aggregate(.fns=mean) \%>\%
   dplyr::glimpse()
 }

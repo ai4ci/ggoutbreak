@@ -4,7 +4,7 @@
 \alias{rgamma2}
 \title{The Gamma Distribution}
 \usage{
-rgamma2(n, mean, sd = sqrt(mean), convex = TRUE)
+rgamma2(n, mean, sd = sqrt(mean))
 }
 \arguments{
 \item{n}{number of observations}
@@ -12,9 +12,6 @@ rgamma2(n, mean, sd = sqrt(mean), convex = TRUE)
 \item{mean}{the mean value on the true scale (vectorised)}
 
 \item{sd}{the standard deviation on the true scale (vectorised)}
-
-\item{convex}{Show a warning if the distribution selected is not a convex
-function}
 }
 \value{
 \code{dgamma} gives the density,

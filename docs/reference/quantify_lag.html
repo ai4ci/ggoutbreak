@@ -103,7 +103,7 @@ in days that the estimate is behind the actual observation</p>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># lags from a locfit incidence model with Rt estimation.</span></span></span>
 <span class="r-in"><span><span class="co"># This model has no estimator lag:</span></span></span>
 <span class="r-in"><span><span class="va">pipeline</span> <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline</span>, ip <span class="op">=</span> <span class="va">test_ip</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline</span>, ip <span class="op">=</span> <span class="va">example_ip()</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rt from incidence: assuming independence and approximating quantiles. </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> (N.B. this message will only be displayed once.)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 2</span></span>
@@ -118,7 +118,7 @@ in days that the estimate is behind the actual observation</p>
 <span class="r-in"><span><span class="co"># this model's lags depend on the infectivity profile.</span></span></span>
 <span class="r-in"><span><span class="co"># In this case it is 8 days</span></span></span>
 <span class="r-in"><span><span class="va">pipeline2</span> <span class="op">=</span>  <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_epiestim.html">rt_epiestim</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline2</span>, ip<span class="op">=</span><span class="va">test_ip</span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline2</span>, ip<span class="op">=</span><span class="va">example_ip()</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   estimate [1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate   lag</span>

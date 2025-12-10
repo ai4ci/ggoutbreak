@@ -22,8 +22,6 @@ style function, in which case the \code{.x} variable is the input dataset and
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{lags}{a vector with the delays to test. Defaults to -10 to +30 days}
@@ -40,16 +38,18 @@ synthetic input and estimate is assessed by minimising the root mean square
 error of input and estimated based on different lag offsets.
 }
 \examples{
+
+set_default_start("2025-01-01")
 # lags from a locfit incidence model with Rt estimation.
 # This model has no estimator lag:
 pipeline = ~ .x \%>\% poisson_locfit_model() \%>\% rt_from_incidence(ip = .y)
-quantify_lag(pipeline, ip = test_ip)
+quantify_lag(pipeline, ip = example_ip())
 
 # lags from an epiestim Rt estimation
 # this model's lags depend on the infectivity profile.
 # In this case it is 8 days
 pipeline2 =  ~ .x \%>\% rt_epiestim(ip = .y)
-quantify_lag(pipeline2, ip=test_ip )
+quantify_lag(pipeline2, ip=example_ip() )
 
 }
 \concept{test}

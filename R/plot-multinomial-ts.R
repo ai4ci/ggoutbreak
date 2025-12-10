@@ -17,7 +17,8 @@
 #' @export
 #' @concept vis
 #' @examples
-#' tmp = ggoutbreak::england_covid_proportion_age_stratified() %>%
+#' tmp = example_proportion_age_stratified() %>%
+#'   dplyr::group_by(class) %>%
 #'   dplyr::glimpse()
 #'
 #' if(interactive()) {
@@ -46,7 +47,7 @@ plot_multinomial = function(
       ggplot2::GeomArea,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         y = proportion.0.5 * 100,
         !!!mapping
       ),
@@ -54,9 +55,8 @@ plot_multinomial = function(
       ...,
       .default = list(colour = "black", linewidth = 0.1)
     ) +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = modelled$time) +
     ggplot2::ylab("proportion (%)") +
-    ggplot2::xlab(NULL) +
     ggplot2::theme(
       legend.title = ggplot2::element_blank()
     ) +

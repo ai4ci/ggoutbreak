@@ -48,8 +48,14 @@ spline to the cumulative distribution (including the upper and lower limits)
 and interpolating using that spline to the new cut points.
 }
 \examples{
+
+england_demographics = ukc19::uk_population_2019_by_10yr_age \%>\%
+  dplyr::filter(name=="England")
+
 ul = stringr::str_extract(england_demographics$class, "_([0-9]+)",group = 1) \%>\%
   as.numeric()
+# ul is currently inclusive so add 1:
+ul = ul + 1
 
 tmp = reband_discrete(
   ul, england_demographics$population,

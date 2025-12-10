@@ -12,8 +12,8 @@
 #' @export
 #' @concept vis
 #' @examples
-#' tmp = ggoutbreak::test_poisson_rt_2class %>%
-#'   ggoutbreak::proportion_locfit_model(window=21) %>%
+#' tmp = example_poisson_rt_2class() %>%
+#'   proportion_locfit_model(window=21) %>%
 #'   dplyr::glimpse()
 #'
 #' if(interactive()) {
@@ -39,12 +39,12 @@ plot_proportion = function(
   modelled = interfacer::ivalidate(modelled)
 
   ggplot2::ggplot() +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = modelled$time) +
     .layer(
       ggplot2::GeomLine,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         y = proportion.0.5 * 100,
         !!!mapping
       ),
@@ -54,7 +54,7 @@ plot_proportion = function(
       ggplot2::GeomRibbon,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         ymin = proportion.0.025 * 100,
         ymax = proportion.0.975 * 100,
         !!!mapping
@@ -68,7 +68,7 @@ plot_proportion = function(
           ggplot2::GeomPoint,
           data = raw,
           mapping = ggplot2::aes(
-            x = as.Date(time),
+            x = .x_axis(time, ...),
             y = count / denom * 100,
             !!!mapping
           ),
@@ -79,6 +79,5 @@ plot_proportion = function(
       }
     } +
     ggplot2::ylab("proportion (%)") +
-    ggplot2::xlab(NULL) +
     ggplot2::theme(legend.title = ggplot2::element_blank())
 }

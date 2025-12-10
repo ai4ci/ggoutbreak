@@ -24,8 +24,12 @@
 #'
 #' @examples
 #'
-#' tmp = ggoutbreak::england_covid_proportion_age_stratified()  %>%
-#'   ggoutbreak::infer_risk_ratio(ggoutbreak::england_demographics) %>%
+#' demog = ukc19::uk_population_2019_by_5yr_age %>%
+#'   dplyr::filter(name == "England")
+#'
+#'
+#' tmp = example_proportion_age_stratified() %>%
+#'   infer_risk_ratio(demog) %>%
 #'   dplyr::glimpse()
 #'
 #' if(interactive()) {
@@ -84,12 +88,13 @@ infer_risk_ratio = function(
 #'
 #' @examples
 #'
-#' baseline = ggoutbreak::england_covid_poisson %>%
+#' # not age stratified
+#' baseline = example_poisson_locfit() %>%
 #'   dplyr::mutate(baseline_incidence = incidence.0.5)
 #'
-#'
-#' tmp = ggoutbreak::england_covid_poisson_age_stratified() %>%
-#'   ggoutbreak::infer_rate_ratio(baseline) %>%
+#' # age stratified rate ratios:
+#' tmp = example_poisson_age_stratified() %>%
+#'   infer_rate_ratio(baseline) %>%
 #'   dplyr::glimpse()
 #'
 #'

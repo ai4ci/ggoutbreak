@@ -29,10 +29,10 @@
 #' @concept models
 #' @examples
 #'
-#' data = test_poisson_rt_smooth
+#' data = example_poisson_rt_smooth()
 #'
 #' tmp2 = data %>%
-#'    ggoutbreak::rt_epiestim(test_ip)
+#'    rt_epiestim(ip=example_ip())
 #'
 #' if (interactive()) {
 #'   plot_rt(tmp2, date_labels="%b %y")+sim_geom_function(data,colour="red")
@@ -101,9 +101,12 @@ rt_epiestim = function(
           }
         )
 
+      t_offset = min(df$time)
+
       new_data = tmp4$R %>%
         dplyr::transmute(
-          time = as.time_period(t_end, meta$unit, meta$start_date),
+          # time = as.time_period(t_end+t_offset, meta$unit, meta$start_date),
+          time = t_offset + t_end, # will stay in units of t_offset
           rt.fit = `Mean(R)`,
           rt.se.fit = `Std(R)`,
           rt.0.025 = `Quantile.0.025(R)`,

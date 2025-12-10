@@ -2,7 +2,8 @@
 
 #' Plot an incidence timeseries
 #'
-#' @iparam raw The raw count data
+#' @iparam raw The raw count data (optional - if given overlaid as points on
+#'   top of modelled estimate)
 #' @iparam modelled An optional estimate of the incidence time series. If `modelled` is
 #'   missing then it is estimated from `raw` using a `poisson_locfit_model`.
 #'   In this case parameters `window` and `deg` may be supplied to control the
@@ -13,6 +14,7 @@
 #' @inheritParams geom_events
 #' @inheritDotParams geom_events events
 #' @inheritDotParams poisson_locfit_model window deg frequency
+#' @inheritDotParams geom_truth
 #'
 #' @return a ggplot object
 #' @export
@@ -20,7 +22,7 @@
 #' @examples
 #' # example code
 #'
-#' tmp = test_poisson_rt_2class
+#' tmp = example_poisson_rt_2class()
 #' tmp2 = tmp %>% poisson_locfit_model()
 #'
 #' if(interactive()) {
@@ -61,19 +63,28 @@ plot_incidence.default = function(
     plot_points = FALSE
   }
 
+  ul = min(c(
+    max(modelled$`incidence.0.975`, na.rm = TRUE),
+    1.25 * max(modelled$`incidence.0.5`, na.rm = TRUE)
+  ))
+
   ggplot2::ggplot() +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = modelled$time) +
     .layer(
       geom = ggplot2::GeomLine,
       data = modelled,
-      mapping = ggplot2::aes(x = as.Date(time), y = incidence.0.5, !!!mapping),
+      mapping = ggplot2::aes(
+        x = .x_axis(time, ...),
+        y = incidence.0.5,
+        !!!mapping
+      ),
       ...
     ) +
     .layer(
       geom = ggplot2::GeomRibbon,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         ymin = incidence.0.025,
         ymax = incidence.0.975,
         !!!.fill_col(mapping)
@@ -88,7 +99,7 @@ plot_incidence.default = function(
             ggplot2::GeomPoint,
             data = raw,
             mapping = ggplot2::aes(
-              x = as.Date(time),
+              x = .x_axis(time, ...),
               y = count * timefrac,
               !!!mapping
             ),
@@ -99,8 +110,8 @@ plot_incidence.default = function(
             ggplot2::GeomSegment,
             data = raw,
             mapping = ggplot2::aes(
-              x = as.Date(time - 0.5),
-              xend = as.Date(time + 0.5),
+              x = .x_axis(time - 0.5, ...),
+              xend = .x_axis(time + 0.5, ...),
               y = count * timefrac,
               yend = count * timefrac,
               !!!mapping
@@ -114,8 +125,10 @@ plot_incidence.default = function(
     } +
     ggplot2::scale_y_continuous(breaks = integer_breaks()) +
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(modelled$time))) +
-    ggplot2::xlab(NULL) +
-    ggplot2::theme(legend.title = ggplot2::element_blank())
+    ggplot2::theme(legend.title = ggplot2::element_blank()) +
+    ggplot2::coord_cartesian(ylim = c(NA, ul)) +
+    geom_truth(..., raw = raw)
+  # .gdefaultcoords(modelled$incidence.0.95, 10)
 }
 
 plot_incidence.per_capita = function(
@@ -149,14 +162,18 @@ plot_incidence.per_capita = function(
   }
 
   # modelled = interfacer::ivalidate(modelled)
+  ul = min(c(
+    max(modelled$`incidence.per_capita.0.975`, na.rm = TRUE),
+    1.25 * max(modelled$`incidence.per_capita.0.5`, na.rm = TRUE)
+  ))
 
   ggplot2::ggplot() +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = modelled$time) +
     .layer(
       geom = ggplot2::GeomLine,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         y = incidence.per_capita.0.5,
         !!!mapping
       ),
@@ -166,7 +183,7 @@ plot_incidence.per_capita = function(
       geom = ggplot2::GeomRibbon,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         ymin = incidence.per_capita.0.025,
         ymax = incidence.per_capita.0.975,
         !!!.fill_col(mapping)
@@ -180,7 +197,7 @@ plot_incidence.per_capita = function(
           ggplot2::GeomPoint,
           data = raw,
           mapping = ggplot2::aes(
-            x = as.Date(time),
+            x = .x_axis(time, ...),
             y = count.per_capita,
             !!!mapping
           ),
@@ -197,5 +214,8 @@ plot_incidence.per_capita = function(
       .fmt_unit(time_unit)
     )) +
     ggplot2::xlab(NULL) +
-    ggplot2::theme(legend.title = ggplot2::element_blank())
+    ggplot2::theme(legend.title = ggplot2::element_blank()) +
+    geom_truth(..., raw = raw) +
+    ggplot2::coord_cartesian(ylim = c(NA, ul))
+  #.gdefaultcoords(modelled$incidence.per_capita.0.95, 10)
 }

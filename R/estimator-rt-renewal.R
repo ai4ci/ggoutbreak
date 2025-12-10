@@ -31,11 +31,11 @@
 #' @export
 #' @concept models
 #' @examples
-#' data = test_poisson_rt_smooth
+#' data = example_poisson_rt_smooth()
 #'
 #' tmp2 = data %>%
-#'    ggoutbreak::poisson_locfit_model() %>%
-#'    ggoutbreak::rt_from_renewal(test_ip)
+#'    poisson_locfit_model() %>%
+#'    rt_from_renewal(ip=example_ip())
 #'
 #' if (interactive()) {
 #'   plot_rt(tmp2, date_labels="%b %y")+sim_geom_function(data,colour="red")

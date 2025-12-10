@@ -15,7 +15,7 @@
 #' @examples
 #' # example code
 #'
-#' tmp = ggoutbreak::england_covid %>%
+#' tmp = example_england_covid_by_age() %>%
 #'   time_aggregate(count=sum(count)) %>%
 #'   normalise_count(pop=56489700, population_unit=1000, normalise_time=TRUE)
 #'
@@ -51,16 +51,20 @@ plot_counts.default = function(
 
   ggplot2::ggplot(
     data = raw,
-    mapping = ggplot2::aes(x = as.Date(time), y = count, !!!mapping)
+    mapping = ggplot2::aes(
+      x = .x_axis(time, ...),
+      y = count,
+      !!!mapping
+    )
   ) +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = raw$time) +
     .layer(
       # ggplot2::GeomSegment,
       # data = raw,
       # mapping=ggplot2::aes(x=as.Date(time-0.5),xend=as.Date(time+0.5), y=count,yend=count, !!!mapping),
       ggplot2::GeomPoint,
       data = raw,
-      mapping = ggplot2::aes(x = as.Date(time), y = count, !!!mapping),
+      mapping = ggplot2::aes(x = .x_axis(time, ...), y = count, !!!mapping),
       ...
     ) +
     ggplot2::scale_y_continuous(breaks = integer_breaks()) +
@@ -89,14 +93,18 @@ plot_counts.per_capita = function(
 
   ggplot2::ggplot(
     data = raw,
-    mapping = ggplot2::aes(x = as.Date(time), y = count.per_capita, !!!mapping),
+    mapping = ggplot2::aes(
+      x = .x_axis(time, ...),
+      y = count.per_capita,
+      !!!mapping
+    ),
   ) +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = raw$time) +
     .layer(
       ggplot2::GeomPoint,
       data = raw,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         y = count.per_capita,
         !!!mapping
       ),
@@ -108,7 +116,6 @@ plot_counts.per_capita = function(
       .fmt_pop(population_unit),
       .fmt_unit(time_unit)
     )) +
-    ggplot2::xlab(NULL) +
     ggplot2::theme(legend.title = ggplot2::element_blank())
 }
 
@@ -116,7 +123,7 @@ plot_counts.per_capita = function(
 #'
 #' @iparam raw The raw count and denominator data
 #' @param mapping a `ggplot2::aes` mapping. Most importantly setting the `colour`
-#'   to something if there are multiple incidence timeseries in the plot
+#'   to something if there are multiple count timeseries in the data
 #' @inheritParams geom_events
 #' @inheritDotParams geom_events events
 #'
@@ -124,17 +131,12 @@ plot_counts.per_capita = function(
 #' @export
 #' @concept vis
 #' @examples
-#' # example code
 #'
-#' tmp = dplyr::tibble(
-#'   time = as.time_period(1:10, "1 day"),
-#'   count = 101:110
-#' ) %>% dplyr::mutate(
-#'   denom = count*time
-#' )
+#' tmp = example_england_covid_by_age() %>%
+#'   dplyr::filter(class %in% c("50_54","80_84"))
 #'
 #' if(interactive()) {
-#'   plot_proportions_data(tmp)+ggplot2::geom_line()
+#'   plot_proportions_data(tmp, mapping= ggplot2::aes(colour=class))+ggplot2::geom_line()
 #' }
 #'
 plot_proportions_data = function(
@@ -148,13 +150,21 @@ plot_proportions_data = function(
 
   ggplot2::ggplot(
     data = raw,
-    mapping = ggplot2::aes(x = as.Date(time), y = count.percent, !!!mapping)
+    mapping = ggplot2::aes(
+      x = .x_axis(time, ...),
+      y = count.percent,
+      !!!mapping
+    )
   ) +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = raw$time) +
     .layer(
       ggplot2::GeomPoint,
       data = raw,
-      mapping = ggplot2::aes(x = as.Date(time), y = count.percent, !!!mapping),
+      mapping = ggplot2::aes(
+        x = .x_axis(time, ...),
+        y = count.percent,
+        !!!mapping
+      ),
       ...,
       .default = list(size = 1)
     ) +
@@ -166,7 +176,7 @@ plot_proportions_data = function(
 
 ## Plot linelist
 
-#' Plot a raw case counts as a histogram
+#' Plot a line-list of cases as a histogram
 #'
 #' @iparam raw The raw case data either as a summarised count or as a line-list
 #' @param mapping a `ggplot2::aes` mapping. Most importantly setting the `fill`
@@ -180,14 +190,15 @@ plot_proportions_data = function(
 #' @concept vis
 #' @examples
 #'
-#' # 50 random times:
-#' tmp = dplyr::tibble(
-#'   time = as.time_period( sample.int(10,50,replace=TRUE) ,"1 day"),
-#'   class = rep(c("one","two","three"), length.out=50)
-#' )
+#' with_defaults("2025-01-01" ,"1 day", {
+#'   tmp = dplyr::tibble(
+#'     time = as.time_period( rexpgrowth(100,0.05,40)),
+#'     class = rep(c("one","two","three"), length.out=100)
+#'   )
+#' })
 #'
 #' if(interactive()) {
-#'   plot_cases(tmp)
+#'   plot_cases(tmp, mapping=ggplot2::aes(fill = class),linewidth=0.1,colour="white")
 #' }
 plot_cases = function(
   raw,
@@ -208,13 +219,14 @@ plot_cases.summarised = function(
   mapping = .check_for_aes(raw, ..., class_aes = "fill"),
   events = i_events
 ) {
+  events = interfacer::ivalidate(events)
   raw = raw %>%
     dplyr::mutate(
       count = purrr::map(count, ~ rep(1, .x))
     ) %>%
     tidyr::unnest(count)
 
-  plot_cases.default(raw, ..., mapping = mapping, events = events)
+  plot_cases.default(raw, ..., mapping = mapping, events = force(events))
 }
 
 plot_cases.default = function(
@@ -224,25 +236,29 @@ plot_cases.default = function(
   events = i_events,
   individual = nrow(raw) < 100
 ) {
-  raw = interfacer::ivalidate(raw)
+  events = interfacer::ivalidate(events)
   raw = raw %>%
+    dplyr::mutate(time = floor(time)) %>%
     dplyr::arrange(time, .by_group = TRUE) %>%
     dplyr::group_by(time) %>%
     dplyr::mutate(y = dplyr::row_number())
   unit = attr(raw$time, "unit")
   days = as.integer(unit) / (24 * 60 * 60)
 
+  # TODO: support faceting in plot_cases with a stat:
+  # https://ggplot2-book.org/extensions.html#sec-new-stats
+
   ggplot2::ggplot(
     data = raw,
-    mapping = ggplot2::aes(x = as.Date(time), y = 1, !!!mapping)
+    mapping = ggplot2::aes(x = .x_axis(time, ...), y = 1, !!!mapping)
   ) +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = raw$time) +
     .layer(
       ggplot2::GeomRect,
       data = raw,
       mapping = ggplot2::aes(
-        xmin = as.Date(time - 0.5),
-        xmax = as.Date(time + 0.5),
+        xmin = .x_axis(time - 0.5, ...),
+        xmax = .x_axis(time + 0.5, ...),
         ymin = y - 1,
         ymax = y,
         !!!mapping
@@ -257,7 +273,6 @@ plot_cases.default = function(
       ...
     ) +
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(raw$time))) +
-    ggplot2::xlab(NULL) +
     ggplot2::theme(legend.title = ggplot2::element_blank()) +
     ggplot2::scale_y_continuous(breaks = integer_breaks()) +
     {

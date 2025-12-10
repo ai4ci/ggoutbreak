@@ -43,7 +43,9 @@ bias and it should not be regarded as definitive:
 ```{r}  
 
 # tidy copy of the sanger weekly variants count data aggregated to England level
-ggoutbreak::england_variants %>% dplyr::glimpse()
+england_variants = ukc19::covid_variants %>% 
+  dplyr::mutate(time = as.time_period(date, "1 day")) %>%
+  dplyr::glimpse()
 
 ```
 

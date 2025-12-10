@@ -31,6 +31,9 @@ in either absolute or proportional terms. Based on the 2021 census we have some
 demo data for the demographics of England:
 
 ```{r}
+england_demographics = ukc19::uk_population_2019_by_5yr_age %>% 
+  dplyr::filter(name == "England") %>%
+  dplyr::group_by(code,name)
 dplyr::glimpse(england_demographics)
 ```
 
@@ -49,14 +52,14 @@ periods, or if multiple episodes per year can be observed.
 
 ```{r}
 
-tmp = ggoutbreak::england_covid %>%
+poisson_model = example_england_covid_by_age() %>%
    ggoutbreak::poisson_locfit_model(window=21) %>%
-   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics, population_unit=1000, normalise_time="1 year")
+   ggoutbreak::normalise_incidence(england_demographics, population_unit=1000, normalise_time="1 year")
 
-raw_pop = ggoutbreak::england_covid %>% 
-  ggoutbreak::normalise_count(ggoutbreak::england_demographics, population_unit=1000, normalise_time="1 year")
+raw_pop = example_england_covid_by_age() %>% 
+  ggoutbreak::normalise_count(england_demographics, population_unit=1000, normalise_time="1 year")
 
-plot_incidence(tmp,raw = raw_pop, size=0.25)+scale_y_log1p(n=7)+
+plot_incidence(poisson_model, raw = raw_pop, size=0.25)+scale_y_log1p(n=7)+
   ggplot2::scale_colour_viridis_d(aesthetics = c("fill","colour"))
   
 ```
@@ -76,7 +79,7 @@ and this would be easy to over-interpret.
 ```{r}
 
 
-plot_growth_rate(tmp)+
+plot_growth_rate(poisson_model)+
   ggplot2::scale_fill_viridis_d(aesthetics = c("fill","colour"))+
   ggplot2::coord_cartesian(ylim=c(-0.15,0.15))
 
@@ -90,7 +93,7 @@ epidemic state at different time points, in this case Christmas day in 2020,
 
 ```{r}
 
-plot_growth_phase(tmp,
+plot_growth_phase(poisson_model,
     timepoints = as.Date(c("Xmas 2020"="2020-12-25","Xmas 2021"="2021-12-25","Xmas 2022"="2022-12-25")),
     duration = 70, 
     interval = 7
@@ -105,11 +108,13 @@ plot_growth_phase(tmp,
 There are two possible proportions models which would be of interest here. As
 mentioned about the proportion of positive tests in each age group would give
 us a clearer picture of whether the differences between age groups are down to 
-differential testing, but unfortunately not available in this data set.
+differential testing, but unfortunately testing denominator are not available in this data set.
 
 The second potential use is the distribution of ages in the test positive age
 group. This age distribution gives us some information about where the burden of 
-disease is in the population but is also biased by test prioritisation.
+disease is in the population but is also biased by test prioritisation. In this 
+case the denominator is the number of cases in all age groups, and the 
+proportions model tells us about the relative frequency of cases in each age group.
 
 A multinomial proportion shows similar patterns as the normalised incidence plot
 above:
@@ -117,10 +122,11 @@ above:
 ```{r}
 
 
-tmp2 = ggoutbreak::england_covid %>%
-   ggoutbreak::proportion_locfit_model(window=21)
+binomial_model = example_england_covid_by_age() %>%
+    ggoutbreak::proportion_locfit_model(window=21) %>%
+    dplyr::group_by(class)
 
-p1 = plot_multinomial(tmp2,normalise = TRUE)+
+p1 = plot_multinomial(binomial_model, normalise = TRUE)+
   ggplot2::scale_fill_viridis_d()
 
 p2 = ggplot2::ggplot(england_demographics)+
@@ -153,9 +159,9 @@ were acting to preserve that separation.
 
 ```{r}
 
-tmp3 = tmp2 %>% infer_risk_ratio(england_demographics)
+risk_ratio_model = binomial_model %>% infer_risk_ratio(england_demographics %>% dplyr::group_by(class))
 
-plot_growth_phase(tmp3,
+plot_growth_phase(risk_ratio_model,
     timepoints = as.Date(c("Xmas 2020"="2020-12-25","Xmas 2021"="2021-12-25","Xmas 2022"="2022-12-25")),
     duration = 70, 
     interval = 7
@@ -180,9 +186,14 @@ population. This is shown in panel B, and it also can be interpreted as how
 biased the sample that is tested for symptoms is.
 
 ```{r}
+
+england_ons_infection_survey = ukc19::ons_infection_survey %>% 
+  dplyr::filter(name == "England") %>%
+  dplyr::mutate(time = as.time_period(date))
+
 p1 = ggoutbreak::plot_prevalence(
-    ggoutbreak::england_ons_infection_survey %>% dplyr::filter(geography == "England"),
-    events = ggoutbreak::england_events
+    england_ons_infection_survey,
+    events = ukc19::timeline
   )+
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(), 
@@ -192,17 +203,18 @@ p1 = ggoutbreak::plot_prevalence(
   ggplot2::ylab("ONS prevalence (%)")
 
 
-p2 = ggoutbreak::england_covid_pcr_positivity %>%
+p2 = ukc19::england_covid_positivity %>% 
+  dplyr::filter(name == "England") %>%
+  dplyr::mutate(time = as.time_period(date, england_ons_infection_survey$time)) %>%
   proportion_locfit_model() %>%
-  dplyr::inner_join(ggoutbreak::england_ons_infection_survey %>% 
-                      dplyr::filter(geography=="England") %>% 
+  dplyr::inner_join(england_ons_infection_survey %>% 
                       dplyr::rename_with(.cols = dplyr::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
   ) %>%
   dplyr::transmute(date=date, pre_test_odds = proportion.0.5 / ons.0.5) %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=pre_test_odds)) + ggplot2::geom_line() +
   ggplot2::geom_hline(yintercept=1, colour="grey40",linetype="dashed") +
   ggplot2::ylab("Pre-test odds ratio") +
-  ggoutbreak::geom_events(events = ggoutbreak::england_events,hide_labels = TRUE)+
+  ggoutbreak::geom_events(events = ukc19::timeline,hide_labels = TRUE)+
   ggplot2::theme(
     axis.title.x = ggplot2::element_blank(), 
     axis.text.x = ggplot2::element_blank(), 
@@ -231,11 +243,13 @@ and demonstrates that case ascertainment fell abruptly during the omicron wave
 
 
 ```{r fig.height=6, fig.width=8}
-england_pop = ggoutbreak::england_demographics %>% 
+england_pop = england_demographics %>% 
   dplyr::ungroup() %>% 
   dplyr::summarise(population = sum(population))
 
-p3 = ggoutbreak::england_covid_pcr_positivity %>% 
+p3 = ukc19::england_covid_positivity %>% 
+  dplyr::mutate(time = as.time_period(date)) %>%
+  dplyr::filter(name == "England") %>%
   ggoutbreak::poisson_locfit_model() %>%
   # N.B. `covid_viral_shedding` is technically from symptom onset not infection.
   # We could argue that this is a good thing as case positivity is closer in time
@@ -244,17 +258,17 @@ p3 = ggoutbreak::england_covid_pcr_positivity %>%
   # to use `covid_test_sensitivity` which looks at probability of detection from 
   # time of infection but it is only in cases with proven infection so a biased 
   # prior.
-  ggoutbreak::infer_prevalence(pop = england_pop, ip = covid_viral_shedding) %>%
+  ggoutbreak::infer_prevalence(pop = england_pop, ip = ukc19::viral_shedding$resampled ) %>%
   dplyr::inner_join(
     england_ons_infection_survey %>% 
-      dplyr::filter(geography=="England") %>% 
+      dplyr::filter(name=="England") %>% 
       dplyr::rename_with(.cols = dplyr::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
   ) %>%
   dplyr::transmute(date=date, ascertainment = prevalence.0.5 / ons.0.5 * 100) %>%
   ggplot2::ggplot(ggplot2::aes(x=date,y=ascertainment)) + 
   ggplot2::geom_line() + 
   ggplot2::ylab("Ascertainment rate (%)") +
-  ggoutbreak::geom_events(events = ggoutbreak::england_events,hide_labels = TRUE)
+  ggoutbreak::geom_events(events = ukc19::timeline, hide_labels = TRUE)
 
 
 p1+p2+p3+patchwork::plot_layout(ncol=1)+patchwork::plot_annotation(tag_levels="A")

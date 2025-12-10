@@ -4,14 +4,7 @@
 \alias{qgamma2}
 \title{The Gamma Distribution}
 \usage{
-qgamma2(
-  p,
-  mean,
-  sd = sqrt(mean),
-  lower.tail = TRUE,
-  log.p = FALSE,
-  convex = TRUE
-)
+qgamma2(p, mean, sd = sqrt(mean), lower.tail = TRUE, log.p = FALSE)
 }
 \arguments{
 \item{p}{vector of probabilities}
@@ -24,9 +17,6 @@ qgamma2(
 otherwise \code{P[X>x]}.}
 
 \item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
-
-\item{convex}{Show a warning if the distribution selected is not a convex
-function}
 }
 \value{
 \code{dgamma} gives the density,

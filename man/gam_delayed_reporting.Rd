@@ -49,7 +49,7 @@ the maximum expected delay
 }
 \examples{
 
-data = test_delayed_observation \%>\% dplyr::group_by(obs_time)
+data = example_delayed_observation() \%>\% dplyr::group_by(obs_time)
 cfg = gam_delayed_reporting(14,40)
 fit = cfg$model_fn(data)
 summary(fit)

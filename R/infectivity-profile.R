@@ -38,6 +38,7 @@
 #'   for day 0. If false the infectivity profile may include density at zero or
 #'   even negative values.
 #' @param z_crit the width of the confidence intervals (defaults to 95%).
+#' @param seed a RNG seed
 #'
 #' @return a long format infectivity profile data frame, or a list of dataframes
 #'   if input is a vector.
@@ -90,7 +91,8 @@ make_gamma_ip = function(
   n_boots = 100,
   epiestim_compat = FALSE,
   epiestim_sampler = epiestim_compat,
-  z_crit = 0.95
+  z_crit = 0.95,
+  seed = Sys.time()
 ) {
   interfacer::recycle(
     median_of_mean,
@@ -145,14 +147,11 @@ make_gamma_ip = function(
         lower_ci_of_sd == median_of_sd &&
         upper_ci_of_sd == median_of_sd)
   ) {
-    tmp = dplyr::tibble(
+    return(make_fixed_ip(
       mean = median_of_mean,
-      sd = median_of_sd
-    ) %>%
-      dplyr::mutate(
-        shape = (mean^2) / (sd^2),
-        rate = mean / (sd^2)
-      )
+      sd = median_of_sd,
+      epiestim_compat = epiestim_compat
+    ))
   } else {
     quantiles = dplyr::tibble(
       lmean = log(c(median_of_mean, lower_ci_of_mean, upper_ci_of_mean)),
@@ -186,7 +185,8 @@ make_gamma_ip = function(
         mean_si = mean_of_mean,
         std_mean_si = sd_of_mean,
         std_si = mean_of_sd,
-        std_std_si = sd_of_sd
+        std_std_si = sd_of_sd,
+        seed = seed
       )
     } else {
       tmp = .ggoutbreak_sampler(
@@ -195,10 +195,70 @@ make_gamma_ip = function(
         mean_of_sigma = mean_of_sigma,
         sd_of_mu = sd_of_mu,
         sd_of_sigma = sd_of_sigma,
-        correlation = correlation
+        correlation = correlation,
+        seed = seed
       )
     }
   }
+
+  if (epiestim_compat) {
+    tmp2 = tmp %>% .epiestim_discretise()
+  } else {
+    tmp2 = tmp %>% .ggoutbreak_discretise()
+  }
+
+  return(
+    tmp2 %>%
+      dplyr::select(tau, a0, a1, probability, boot) %>%
+      dplyr::group_by(boot)
+  )
+}
+
+
+#' Generate a simple discrete infectivity profile from a gamma distribution
+#'
+#' @param mean The mean of a gamma distribution
+#' @param sd The sd of a gamma distribution
+#' @param epiestim_compat Should the discretisation support EpiEstim
+#'   (i.e. `Pr(x<1) = 0`)
+#'
+#' @returns a discrete infectivity profile with 1 bootstrap
+#' @export
+#' @concept delay_distribution
+#'
+#' @examples
+#' tmp = make_fixed_ip(5,2)
+#'
+#' if(interactive()) {
+#'   plot_ip(tmp, alpha=1)
+#' }
+make_fixed_ip = function(mean, sd = sqrt(mean), epiestim_compat = FALSE) {
+  n = interfacer::recycle(
+    mean,
+    sd
+  )
+
+  if (n > 1) {
+    return(lapply(
+      seq_len(n),
+      function(i) {
+        make_fixed_ip(
+          mean[i],
+          sd[i],
+          epiestim_compat
+        )
+      }
+    ))
+  }
+
+  tmp = dplyr::tibble(
+    mean = mean,
+    sd = sd
+  ) %>%
+    dplyr::mutate(
+      shape = (mean^2) / (sd^2),
+      rate = mean / (sd^2)
+    )
 
   if (epiestim_compat) {
     tmp2 = tmp %>% .epiestim_discretise()
@@ -463,7 +523,7 @@ summarise_ip = function(ip = i_empirical_ip) {
 #' @export
 #' @concept delay_distribution
 #' @examples
-#' format_ip(ganyani_ip)
+#' format_ip(example_ganyani_ip())
 #'
 format_ip = function(ip = i_empirical_ip) {
   ip = interfacer::ivalidate(
@@ -565,7 +625,7 @@ format_ip = function(ip = i_empirical_ip) {
 }
 
 .select_group = function(df, .groupdata) {
-  joincols = intersect(colnames(.groupdata), colnames(ip))
+  joincols = intersect(colnames(.groupdata), colnames(df))
   if (length(joincols) > 0) {
     suppressMessages({
       # will not touch grouping.
@@ -594,7 +654,7 @@ format_ip = function(ip = i_empirical_ip) {
 #' @export
 #'
 #' @examples
-#' omega_matrix(ggoutbreak::covid_ip)
+#' omega_matrix(example_ip())
 omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
   ip = interfacer::ivalidate(ip, .prune = TRUE)
 
@@ -630,6 +690,7 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
 #' @param n1 number of samples needed
 #' @param mean_si,std_mean_si,min_mean_si,max_mean_si Mean SI params
 #' @param std_si,std_std_si,min_std_si,max_std_si SD SI params
+#' @param seed a RNG seed
 #' @noRd
 #'
 #' @return a data frame with mean and sd columns
@@ -652,25 +713,28 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
   std_si,
   std_std_si,
   min_std_si = 0,
-  max_std_si = std_si + 3 * std_std_si
+  max_std_si = std_si + 3 * std_std_si,
+  seed = Sys.time()
 ) {
   mean_si_sample <- rep(-1, n1)
   std_si_sample <- rep(-1, n1)
 
-  for (k in seq_len(n1)) {
-    while (
-      mean_si_sample[k] < min_mean_si ||
-        mean_si_sample[k] > max_mean_si
-    ) {
-      mean_si_sample[k] <- stats::rnorm(1, mean = mean_si, sd = std_mean_si)
+  withr::with_seed(seed, {
+    for (k in seq_len(n1)) {
+      while (
+        mean_si_sample[k] < min_mean_si ||
+          mean_si_sample[k] > max_mean_si
+      ) {
+        mean_si_sample[k] <- stats::rnorm(1, mean = mean_si, sd = std_mean_si)
+      }
+      while (
+        std_si_sample[k] < min_std_si ||
+          std_si_sample[k] > max_std_si
+      ) {
+        std_si_sample[k] <- stats::rnorm(1, mean = std_si, sd = std_std_si)
+      }
     }
-    while (
-      std_si_sample[k] < min_std_si ||
-        std_si_sample[k] > max_std_si
-    ) {
-      std_si_sample[k] <- stats::rnorm(1, mean = std_si, sd = std_std_si)
-    }
-  }
+  })
 
   return(
     dplyr::tibble(
@@ -691,6 +755,7 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
 #' @param mean_of_mu,std_of_mu Log scaled mean SI params,
 #' @param mean_of_sigma,std_of_sigma Log scaled SD SI params
 #' @param correlation The correlation between log(mean) and log(sd) for the SI estimates
+#' @param seed a RNG seed
 #' @noRd
 #'
 #' @return a data frame with mean and sd columns
@@ -710,7 +775,8 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
   sd_of_mu,
   mean_of_sigma,
   sd_of_sigma,
-  correlation = NA
+  correlation = NA,
+  seed = Sys.time()
 ) {
   if (is.na(correlation)) {
     # This heuristic is the result of a linear model on a test data set.
@@ -734,8 +800,10 @@ omega_matrix = function(ip = i_discrete_ip, epiestim_compat = TRUE) {
   colnames(covMatrix) = names(sds)
   rownames(covMatrix) = names(sds)
 
-  simulated = MASS::mvrnorm(n = n1, mu = means, Sigma = covMatrix) %>%
-    as.data.frame()
+  simulated = withr::with_seed(seed, {
+    MASS::mvrnorm(n = n1, mu = means, Sigma = covMatrix) %>%
+      as.data.frame()
+  })
   simulated = simulated %>%
     dplyr::mutate(
       mean = exp(lmean),

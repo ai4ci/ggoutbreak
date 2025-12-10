@@ -51,8 +51,8 @@ Additional groupings are treated as distinct proportions models.
 }
 \examples{
 
-data = test_poisson_rt_2class
-tmp = data \%>\% ggoutbreak::multinomial_nnet_model(window=14)
+data = example_poisson_rt_2class()
+tmp = data \%>\% multinomial_nnet_model(window=14)
 
 if (interactive()) {
   plot_multinomial(tmp, date_labels="\%b \%y")

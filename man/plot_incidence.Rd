@@ -45,7 +45,8 @@ Any grouping allowed.
 
 }
 
-\item{raw}{The raw count data - a dataframe with columns:
+\item{raw}{The raw count data (optional - if given overlaid as points on
+top of modelled estimate) - a dataframe with columns:
 \itemize{
 \item count (positive_integer) - Positive case counts associated with the specified time frame
 \item time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`
@@ -78,6 +79,28 @@ smoothing, lower values result in more smoothing. A degree of 1 is fitting
 a linear model piece wise. - default \code{2}}
 \item{\code{frequency}}{the density of the output estimates as a time period such as
 \verb{7 days} or \verb{2 weeks}. - default \code{1 day}}
+}
+  Named arguments passed on to \code{\link[=geom_truth]{geom_truth}}\describe{
+    \item{\code{true_df}}{a data frame with a \code{time_period} column called time and a
+value column (name given in \code{true_col}). This is optional and will be picked
+up from the \code{raw} parameter if given.}
+\item{\code{true_col}}{the column name / expression of the true value}
+\item{\code{true_fmt}}{a list of ggplot formatting to apply to the true value timeseries}
+\item{\code{...}}{
+  Named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{unit}}{the length of one unit of time. This will be either a integer
+number of days, or a specification such as "1 week", or another \code{time_period}.
+If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
+this will return a rescaled \code{time_period} using the new units.}
+\item{\code{start_date}}{the zero time date as something that can be coerced to a
+date. If the \code{x} input is already a \code{time_period} and this is different to its
+\code{start_date} then \code{x} will be recalibrated to use the new start date.}
+\item{\code{anchor}}{only relevant if \code{x} is a vector of dates, this is a date, or
+\code{"start"} or \code{"end"} or a weekday name e.g.
+\code{"mon"}. With the vector of dates in \code{x} it will use this anchor to find a reference date for
+the time-series. If not provided then the current defaults will be used.
+(see \code{\link[=set_defaults]{set_defaults()}})}
+}}
 }}
 
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
@@ -104,7 +127,7 @@ Plot an incidence timeseries
 \examples{
 # example code
 
-tmp = test_poisson_rt_2class
+tmp = example_poisson_rt_2class()
 tmp2 = tmp \%>\% poisson_locfit_model()
 
 if(interactive()) {

@@ -22,11 +22,11 @@
 #' @export
 #' @concept models
 #' @examples
-#' data = ggoutbreak::test_poisson_rt_smooth
+#' data = example_poisson_rt_smooth()
 #'
 #' tmp = data %>%
 #'   poisson_locfit_model() %>%
-#'   rt_from_growth_rate(ip=ggoutbreak::test_ip)
+#'   rt_from_growth_rate(ip=example_ip())
 #'
 #' if (interactive()) {
 #'   plot_rt(tmp, date_labels="%b %y")+sim_geom_function(data,colour="red")
@@ -164,7 +164,7 @@ rt_from_growth_rate = function(
 #' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=stats::dgamma(1:50, 5,2))
 #'
 #' # using an infectivity profile
-#' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=test_ip)
+#' wallinga_lipsitch(r=seq(-0.1,0.1,length.out=9), y=example_ip())
 #'
 wallinga_lipsitch = function(
   r,
@@ -219,7 +219,7 @@ wallinga_lipsitch = function(
 #' @concept models
 #'
 #' @examples
-#' inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=test_ip)
+#' inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=example_ip())
 #'
 inv_wallinga_lipsitch = function(
   Rt,

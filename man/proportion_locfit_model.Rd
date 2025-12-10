@@ -91,10 +91,10 @@ testing effort is variable, or capacity saturated.
 }
 \examples{
 
-data = test_poisson_rt_2class
+data = example_poisson_rt_2class()
 
-tmp2 = data \%>\% ggoutbreak::proportion_locfit_model(window=7,deg=2)
-tmp3 = data \%>\% ggoutbreak::proportion_locfit_model(window=14,deg=1)
+tmp2 = data \%>\% proportion_locfit_model(window=7,deg=2)
+tmp3 = data \%>\% proportion_locfit_model(window=14,deg=1)
 
 comp = dplyr::bind_rows(
   tmp2 \%>\% dplyr::mutate(model="7:2"),

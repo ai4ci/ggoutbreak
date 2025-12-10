@@ -34,7 +34,8 @@ the period. The format is configurable using the start and end dates and the
 are used in preference.
 }
 \examples{
-eg = as.time_period(Sys.Date()+0:10*7, anchor="start")
+eg = as.time_period(Sys.Date()+0:10*7, unit="1 week", anchor="start")
+
 labels(eg)
 labels(eg, ifmt="{start}", dfmt="\%d/\%b/\%y")
 labels(eg, ifmt="until {end}", dfmt="\%d \%b \%Y")

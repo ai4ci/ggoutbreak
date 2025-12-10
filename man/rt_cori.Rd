@@ -34,8 +34,6 @@ Any grouping allowed.
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{window}{\itemize{
@@ -103,10 +101,10 @@ This will calculate a reproduction number for each group in the input dataframe.
 }
 \examples{
 
-data = ggoutbreak::test_poisson_rt_smooth
+data = example_poisson_rt_smooth()
 
-tmp2 = data \%>\% rt_cori(ip=ggoutbreak::test_ip, epiestim_compat = TRUE)
-tmp3 = data \%>\% rt_cori(ip=ggoutbreak::test_ip, window=c(5:14), approx=TRUE)
+tmp2 = data \%>\% rt_cori(ip=example_ip(), epiestim_compat = TRUE)
+tmp3 = data \%>\% rt_cori(ip=example_ip(), window=c(5:14), approx=TRUE)
 
 comp = dplyr::bind_rows(
   tmp2 \%>\% dplyr::mutate(class = "EpiEstim"),

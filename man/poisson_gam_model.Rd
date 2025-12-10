@@ -73,8 +73,6 @@ Rt value will not be estimated - a dataframe with columns:
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{quick}{if \code{ip} is provided, and quick is \code{TRUE} Rt estimation will be
@@ -124,8 +122,8 @@ the option to bring your own model.
 \examples{
 
 # Simple poisson model
-data = test_poisson_rt_smooth
-tmp2 = poisson_gam_model(data,window=7,ip=test_ip,quick=TRUE)
+data = example_poisson_rt_smooth()
+tmp2 = poisson_gam_model(data,window=7,ip=example_ip(),quick=TRUE)
 
 if (interactive()) {
   plot_incidence(
@@ -146,19 +144,19 @@ if (interactive()) {
 # example with delayed observation model.
 # This data is all the day by day observations of the whole timeseries from
 # the beginning of the outbreak.
-data2 = test_delayed_observation
+data2 = example_delayed_observation()
 model = gam_delayed_reporting(window = 14)
 tmp3 = data2 \%>\% poisson_gam_model(
   model_fn = model$model_fn,
   predict = model$predict,
-  ip=test_ip)
+  ip=example_ip())
 
 if (interactive()) {
   plot_incidence(tmp3)+
     ggplot2::geom_line(
       data=data2 \%>\% dplyr::filter(obs_time \%\% 10 == 0),
       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
-      )
+    )
 
   plot_rt(tmp3)
 }

@@ -67,7 +67,8 @@ versus others in the data set. In this case the denominator is the total
 count across across all classes.
 }
 \examples{
-tmp = ggoutbreak::england_covid_proportion_age_stratified() \%>\%
+tmp = example_proportion_age_stratified() \%>\%
+  dplyr::group_by(class) \%>\%
   dplyr::glimpse()
 
 if(interactive()) {

@@ -68,8 +68,8 @@ of anything in the input dataframe). The convolution is then sampled using
 a poisson or negative binomial
 }
 \examples{
-weekday_delay = make_gamma_ip(median_of_mean = 5, median_of_sd = 2)
-weekend_delay = make_gamma_ip(median_of_mean = 6, median_of_sd = 2)
+weekday_delay = make_fixed_ip(mean = 5, sd = 2)
+weekend_delay = make_fixed_ip(mean = 6, sd = 2)
 
 delay_fn = ~ ifelse(.x \%\% 7 \%in\% c(6,7), list(weekend_delay), list(weekday_delay))
 p_fn = ~ ifelse(.x < 20, 0.5, 0.75)

@@ -181,7 +181,7 @@ ggplot(
 Xp <- stats::predict(best_model, newdata, type = "lpmatrix")
 pred_vcov <- Xp %*% stats::vcov(best_model) %*% t(Xp)
 
-tmp_ip = ggoutbreak::test_ip
+tmp_ip = example_ip()
 mu = pred$fit
 sigma = pred$se.fit
 min_tau = min(tmp_ip$tau)

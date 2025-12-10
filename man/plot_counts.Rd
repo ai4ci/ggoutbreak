@@ -68,7 +68,7 @@ Plot a raw case count timeseries
 \examples{
 # example code
 
-tmp = ggoutbreak::england_covid \%>\%
+tmp = example_england_covid_by_age() \%>\%
   time_aggregate(count=sum(count)) \%>\%
   normalise_count(pop=56489700, population_unit=1000, normalise_time=TRUE)
 

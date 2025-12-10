@@ -21,10 +21,10 @@
 #' @iparam ip an infectivity profile (aka generation time distribution)
 #' @iparam raw the raw data that the modelled incidence is based on. This is
 #'   optional. If not given the algorithm will assume independence, which will
-#'   be faster to estimate, but with more uncertain Rt estimates. In some
-#'   circumstances this assumption of independence can cause underestimation of
-#'   Rt. If this is a risk there will be a warning given, and this parameter may
-#'   need to be supplied.
+#'   be faster to estimate (much faster for long time-series), but with more
+#'   uncertain Rt estimates. In some circumstances this assumption of
+#'   independence can cause underestimation of Rt. If this is a risk there will
+#'   be a warning given, and this parameter may need to be supplied.
 #' @param approx use a faster, but approximate, estimate of quantiles
 #' @param .progress show a CLI progress bar
 #'
@@ -33,13 +33,18 @@
 #' @concept models
 #' @examples
 #'
-#' tmp = ggoutbreak::test_poisson_rt_smooth %>%
+#' tmp = example_poisson_rt_smooth() %>%
 #'   poisson_locfit_model() %>%
-#'   rt_from_incidence(ip = test_ip, approx=FALSE)
+#'   rt_from_incidence(
+#'     ip = example_ip(),
+#'     raw = example_poisson_rt_smooth(),
+#'     approx=FALSE
+#'  )
 #'
-#' tmp2 = ggoutbreak::test_poisson_rt_smooth %>%
+#' # This will assume independence and
+#' tmp2 = example_poisson_rt_smooth()%>%
 #'   poisson_locfit_model() %>%
-#'   rt_from_incidence(ip = test_ip, approx=TRUE)
+#'   rt_from_incidence(ip = example_ip(), approx=TRUE)
 #'
 #' plot_data = dplyr::bind_rows(
 #'   tmp %>% dplyr::mutate(class = "exact"),
@@ -48,7 +53,7 @@
 #'
 #' if (interactive()) {
 #'   plot_rt(plot_data, date_labels="%b %y")+
-#'    sim_geom_function(ggoutbreak::test_poisson_rt_smooth)+
+#'    sim_geom_function(example_poisson_rt_smooth())+
 #'    ggplot2::coord_cartesian(ylim=c(0.5,3))+
 #'    ggplot2::facet_wrap(~class)
 #' }
@@ -141,13 +146,17 @@ rt_from_incidence = function(
       approx = approx
     )
 
-    df = df %>% dplyr::left_join(rt, by = "time")
+    df2 = df %>% dplyr::left_join(rt, by = "time")
+
+    if (anyNA(df2)) {
+      browser()
+    }
 
     if (.progress) {
       cli::cli_progress_update(.envir = env)
     }
 
-    return(df)
+    return(df2)
   })
 
   if (.progress) {
@@ -296,8 +305,8 @@ rt_from_incidence = function(
 #'
 #' @examples
 #'
-#' data = ggoutbreak::test_poisson_rt_smooth
-#' ip = ggoutbreak::test_ip
+#' data = example_poisson_rt_smooth()
+#' ip = example_ip()
 #'
 #' # first we need a set of incidence estimates
 #' # we fit a poisson model to counts using a GAM:
@@ -353,9 +362,12 @@ rt_incidence_timeseries_implementation = function(
   tidy = FALSE,
   ...
 ) {
+  # browser()
   if (length(time) != length(mu)) {
     stop("time and mu must be the same length")
   }
+  orig_time = time
+  time = as.integer(time)
 
   window = length(unique(ip$tau))
   max_tau = max(ip$tau)
@@ -368,16 +380,17 @@ rt_incidence_timeseries_implementation = function(
   if (assume_indep) {
     # vcov is a vector of variances, we have no diagonal terms.
     long_vcov = dplyr::tibble(
-      i = as.numeric(time),
-      j = as.numeric(time),
+      i = time,
+      j = time,
       Sigma_ij = sigma^2
     )
+    vcov = diag(sigma^2)
   } else {
     # vcov is a variance covariance matrix. make it into a long format dataframe
-    tmp = matrix(as.numeric(time), length(time), length(time))
+    tmp = matrix(time, length(time), length(time))
     long_vcov = dplyr::tibble(
-      i = as.numeric(tmp),
-      j = as.numeric(t(tmp)),
+      i = as.vector(tmp),
+      j = as.vector(t(tmp)),
       Sigma_ij = as.numeric(vcov)
     ) %>%
       dplyr::filter(
@@ -395,10 +408,13 @@ rt_incidence_timeseries_implementation = function(
   # small sigma are log normal sdlog parameters. sigma2 will be a squared version
   # of that. omega are infectivity profile probabilities.
 
+  # nrow(tmp) = nrow(ip) * length(time)
+
   tmp = ip %>%
     dplyr::select(boot, tau, omega_tau = probability) %>%
+    dplyr::ungroup() %>%
     dplyr::cross_join(dplyr::tibble(
-      time_minus_tau = as.numeric(time),
+      time_minus_tau = time,
       mu = as.numeric(mu),
       sigma = as.numeric(sigma)
     )) %>% # grouped by ip boot
@@ -406,16 +422,24 @@ rt_incidence_timeseries_implementation = function(
       # by using this as the summarising time we perform a convolution
       # of tau and time-tau items. time column is going to be the time(s) at
       # which we are estimating R_t
-      time = time_minus_tau + tau,
+      time = time_minus_tau + as.integer(tau),
       log_m_tau = mu + log(omega_tau) + 0.5 * sigma^2
     )
+
+  # table(tmp$time)
+  # setdiff(as.integer(orig_time), tmp$time)
+  # nrow(tmp_mu_t) = dplyr::n_distinct(ip$boot) * length(time)
 
   # The cross join copies a mu and sigma for each bootstrap and tau
   # value and we need something with bootstrap only.
   tmp_mu_t = tmp %>%
-    dplyr::group_by(boot, time) %>%
+    # dplyr::group_by(boot, time) %>%
     dplyr::filter(tau == 0) %>%
     dplyr::select(boot, time, mu_t = mu, sigma_t = sigma)
+
+  # setdiff(as.integer(orig_time), tmp_mu_t$time)
+
+  # nrow(tmp_S) = dplyr::n_distinct(ip$boot) * (length(time)-(window-1))
 
   tmp_S = tmp %>%
     dplyr::group_by(boot, time) %>%
@@ -423,7 +447,8 @@ rt_incidence_timeseries_implementation = function(
       log_S_plus = .logsumexp(log_m_tau),
       c_max = 1 - sum(exp(2 * (log_m_tau - log_S_plus))),
       log_V_plus = .logsumexp(log_m_tau + 2 * log(sigma)) - log_S_plus,
-      n = dplyr::n()
+      n = dplyr::n() #,
+      # .by = c(boot, time)
     ) %>%
     # make sure that we are dealing with full windows of data.
     # this prevents estimates for negative serial intervals
@@ -432,43 +457,86 @@ rt_incidence_timeseries_implementation = function(
     dplyr::filter(n == window) %>%
     dplyr::select(-n)
 
+  # setdiff(as.integer(orig_time), tmp_S$time)
+
+  # nrow(tmp) = nrow(tmp_S) * window
+
   tmp = tmp %>%
     dplyr::inner_join(
       tmp_S %>% dplyr::select(boot, time, log_S_plus),
-      by = c("boot", "time")
+      by = dplyr::join_by(boot, time)
+    ) %>%
+    dplyr::arrange(
+      time_minus_tau,
+      time,
+      boot
     )
 
-  xtmp = tmp %>%
-    dplyr::select(
-      boot,
-      time,
-      i = time_minus_tau,
-      log_m_i = log_m_tau,
-      log_S_plus
+  # browser()
+  # typeof(tmp$time)
+  # typeof(long_vcov$i)
+  # typeof(long_vcov$j)
+
+  # nrow(tmp2) = nrow(tmp_S) * window
+
+  tmp2 = long_vcov %>%
+    dplyr::inner_join(
+      tmp %>%
+        dplyr::select(
+          boot,
+          time,
+          i = time_minus_tau,
+          # i2 = i - window,
+          log_m_i = log_m_tau,
+          log_S_plus
+        ),
+      by = c("i")
     ) %>%
     dplyr::inner_join(
       tmp %>%
-        dplyr::select(boot, time, j = time_minus_tau, log_m_j = log_m_tau),
-      by = c("boot", "time"),
-      relationship = "many-to-many"
+        dplyr::transmute(
+          boot,
+          time,
+          j = time_minus_tau,
+          # j2 = j - window,
+          log_m_j = log_m_tau
+        ),
+      by = dplyr::join_by(j, time, boot),
     )
 
-  # next slowest step:
-  # merge is slower than inner_join
-  # tmp2 = merge(xtmp, long_vcov, by = c("i", "j"))
+  # xtmp = tmp %>%
+  #   dplyr::select(
+  #     boot,
+  #     time,
+  #     i = time_minus_tau,
+  #     # i2 = i - window,
+  #     log_m_i = log_m_tau,
+  #     log_S_plus
+  #   ) %>%
+  #   dplyr::inner_join(
+  #     tmp %>%
+  #       dplyr::transmute(
+  #         boot,
+  #         time,
+  #         j = time_minus_tau,
+  #         # j2 = j - window,
+  #         log_m_j = log_m_tau
+  #       ),
+  #     by = dplyr::join_by(boot, time),
+  #     relationship = "many-to-many",
+  #   )
 
-  tmp2 = xtmp %>%
-    dplyr::inner_join(
-      long_vcov,
-      by = c("i", "j")
-    )
-
-  tmp2 = tmp2 %>%
-    dplyr::group_by(boot, time, log_S_plus)
+  # tmp2 = xtmp %>%
+  #   dplyr::ungroup() %>%
+  #   dplyr::inner_join(
+  #     long_vcov,
+  #     by = c("i", "j")
+  #   )
 
   tmp_sigma_Z2 = tmp2 %>%
     dplyr::summarise(
-      log_sigma_Z2 = .logsumexp(log_m_i + log_m_j + log(Sigma_ij))
+      log_sigma_Z2 = .logsumexp(log_m_i + log_m_j + log(Sigma_ij)),
+      .by = c(boot, time, log_S_plus)
     ) %>%
     dplyr::mutate(
       log_sigma_Z2 = log_sigma_Z2 - 2 * log_S_plus
@@ -483,7 +551,8 @@ rt_incidence_timeseries_implementation = function(
     dplyr::rename(tau = j, log_m_tau = log_m_j, Sigma_0tau = Sigma_ij) %>%
     # dplyr::group_by(boot, time, log_S_plus) %>% already grouped
     dplyr::summarise(
-      log_Sigma_0Z = .logsumexp(log_m_tau + log(Sigma_0tau))
+      log_Sigma_0Z = .logsumexp(log_m_tau + log(Sigma_0tau)),
+      .by = c(boot, time, log_S_plus)
     ) %>%
     dplyr::mutate(
       log_Sigma_0Z = log_Sigma_0Z - log_S_plus
@@ -528,6 +597,7 @@ rt_incidence_timeseries_implementation = function(
   # combine the Rt estimates for each infectivity profile bootstrap. This is
   # either done by moments (mean_Rt_star, var_Rt_star, etc) or as a mixture
   # distribution with sets of mu and sigma parameters (mu_Rt_mix, sigma_Rt_mix).
+
   tmp_Rt_mix = tmp_Rt %>%
     dplyr::group_by(time) %>%
     dplyr::summarise(
@@ -542,10 +612,19 @@ rt_incidence_timeseries_implementation = function(
       sdlog_Rt_star = sqrt(log(1 + var_Rt_star / mean_Rt_star^2))
     )
 
+  if (anyNA(tmp_Rt_mix)) {
+    # Does happen in situations where there are negative serial intervals
+    # browser()
+  }
+
   # ggplot() + geom_line(data=data, aes(x=time,y=rt),colour="red") + geom_line(data = tmp_Rt_mix,aes(x=time,y=mean_star))
 
   if (tidy) {
-    return(.process_rt_timeseries(tmp_Rt_mix, time, ...))
+    out = .process_rt_timeseries(tmp_Rt_mix, orig_time, ...)
+    if (anyNA(out)) {
+      # browser()
+    }
+    return(out)
   }
   return(tmp_Rt_mix)
 }
@@ -652,9 +731,9 @@ rt_incidence_timeseries_implementation = function(
 #'
 #' @examples
 #'
-#' data = ggoutbreak::test_poisson_rt_smooth
+#' data = example_poisson_rt_smooth()
 #'
-#' omega = ggoutbreak::omega_matrix(ggoutbreak::test_ip)
+#' omega = omega_matrix(example_ip())
 #' k = nrow(omega)
 #'
 #' pred_time = 50

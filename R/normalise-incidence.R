@@ -23,8 +23,11 @@
 #'
 #' @examples
 #'
-#' ggoutbreak::england_covid_poisson_age_stratified() %>%
-#'   ggoutbreak::normalise_incidence(ggoutbreak::england_demographics) %>%
+#' model = example_poisson_age_stratified()
+#' demog = ukc19::uk_population_2019_by_5yr_age
+#'
+#' model %>%
+#'   normalise_incidence(demog) %>%
 #'   dplyr::glimpse()
 #'
 normalise_incidence = function(
@@ -102,8 +105,12 @@ normalise_incidence = function(
 #' @concept models
 #'
 #' @examples
-#' tmp = ggoutbreak::england_covid %>%
-#'   ggoutbreak::normalise_count(ggoutbreak::england_demographics) %>%
+#'
+#' data = example_england_covid_by_age()
+#' demog = ukc19::uk_population_2019_by_5yr_age
+#'
+#' data %>%
+#'   normalise_count(demog) %>%
 #'   dplyr::glimpse()
 #'
 normalise_count = function(

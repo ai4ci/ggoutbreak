@@ -225,6 +225,7 @@
   return(rep(.inv_fn(link)(Inf), length(link)))
 }
 
+
 # use the quantiles to infer an empirical cdf.
 # assumes the naming convention e.g. `rt.0.025`, `rt.0.05`, etc.
 .infer_cdf = function(new_data, type, trans_fn = ~.x) {
@@ -367,3 +368,56 @@
 #
 # sf2 = .ecdf(rnorm(100))
 # sf2(seq(0.1,0.9,0.1)) - pnorm(seq(0.1,0.9,0.1))
+
+# Link scale normal from quantiles ----
+
+# median preserving:
+# .infer_normal(p=seq(0.1,0.9,0.1), x=qnorm(seq(0.1,0.9,0.1),4,2))
+# .infer_normal(p=seq(0.1,0.9,0.1), x=qlnorm(seq(0.1,0.9,0.1),0.4,0.2), link="log")
+# tmp = .infer_normal(p=seq(0.1,0.9,0.1), x=qbeta2(seq(0.1,0.9,0.1),0.4,0.1), link="logit")
+# .expit(qnorm(seq(0.1,0.9,0.1), tmp$mean, tmp$sd))
+# qbeta2(seq(0.1,0.9,0.1),0.4,0.1)
+.infer_normal = function(p, x, link = "identity") {
+  trans_fn = .trans_fn(link)
+  q = trans_fn(x)
+  q2 = stats::qnorm(p)
+  fit = .fit_lm_1d(q, q2)
+  mean = stats::approx(q2, q, 0)
+  #mean = fit["c"]
+  return(dplyr::tibble(mean = mean$y, sd = unname(fit["m"])))
+}
+
+
+#' Fit a weighted 1D linear model and predict output
+#'
+#' If all the weights are NA they are ignored.
+#'
+#' @param y the y values. At least 2.
+#' @param x the x values. At least 2.
+#'
+#' @returns a vector with intercept (`c`) and gradient (`m`)
+#' @keywords internal
+#' @unit
+#' testthat::expect_equal(.fit_lm_1d(y = 1:10 * 2 + 5, x = 1:10), c(c = 5, m = 2))
+.fit_lm_1d = function(y, x) {
+  if (length(x) != length(y)) {
+    stop("unequal length LM coordinates")
+  }
+  missing = is.na(x) | is.na(y)
+
+  # Handle missing values
+  x = x[!missing]
+  y = y[!missing]
+
+  # Check for sufficient data
+  if (length(unique(x)) < 2 || length(unique(y)) < 2) {
+    stop("not enough data in LM")
+  }
+
+  # Prepare design matrix
+  X = matrix(c(rep(1, length(x)), x), ncol = 2)
+  Y = matrix(y, ncol = 1)
+
+  beta = solve(t(X) %*% X) %*% t(X) %*% Y
+  return(c(c = beta[1, 1], m = beta[2, 1]))
+}

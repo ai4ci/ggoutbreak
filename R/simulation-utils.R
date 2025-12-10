@@ -172,7 +172,7 @@ cfg_weekly_ip_fn = function(
   week_starts = weekdays(as.Date("2024-10-14"))
 ) {
   # TODO: the way this works is repeatedly building gamma based infectivity
-  # profiles. This is mitigated a bit my memoising the make_gamma_ip function
+  # profiles. This is mitigated a bit my memoising the make_fixed_ip function
   # but this is still slow.
 
   idx = which(weekdays(as.time_period(0:6, "1 days")) == week_starts)
@@ -197,7 +197,7 @@ cfg_weekly_ip_fn = function(
     purrr::map2(
       dow_mean,
       dow_sd,
-      ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y)
+      ~ make_fixed_ip(mean = .x, sd = .y)
     )
   })
 }
@@ -240,7 +240,7 @@ cfg_gamma_ip_fn = function(mean_fn = ~2, sd_fn = \(mean) sqrt(mean)) {
     purrr::map2(
       mean,
       sd,
-      ~ make_gamma_ip(median_of_mean = .x, median_of_sd = .y)
+      ~ make_fixed_ip(mean = .x, sd = .y)
     )
   })
 }
@@ -291,11 +291,11 @@ cfg_beta_prob_rng = function(probability_fn = ~0.8, kappa_fn = ~0.1) {
 #' @export
 #' @concept test
 #' @examples
-#' tmp = cfg_ip_sampler_rng(ganyani_ip_2)(10000)
+#' tmp = cfg_ip_sampler_rng(example_ganyani_ip())(10000)
 #'
 #' # This discretised ganyani distribution is based on these figures:
 #' # mean: 5.2 (3.78-6.78) and sd: 1.72 (0.91-3.93)
-#' format_ip(ganyani_ip_2)
+#' format_ip(example_ganyani_ip())
 #'
 #' mean(tmp) # Should be about 5.2
 #' stats::sd(tmp) # Should be about 1.72
@@ -373,7 +373,7 @@ cfg_transition_fn = function(transition) {
 #' @examples
 #' sim_test_data() %>% dplyr::glimpse()
 sim_test_data = function(
-  ip = ggoutbreak::test_ip,
+  ip = example_ip(),
   duration = 500,
   period = 50
 ) {
@@ -469,7 +469,7 @@ sim_poisson_model = function(
     ) %>%
       dplyr::mutate(
         count = .sample_contacts(rate, kappa),
-        time = ggoutbreak::as.time_period(time, unit = time_unit)
+        time = as.time_period(time, unit = time_unit)
       )
 
     tmp = tmp %>%
@@ -527,7 +527,7 @@ sim_poisson_Rt_model = function(
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
   fn_imports = ~ ifelse(.x == 0, 30, 0),
-  fn_ip = ~ ggoutbreak::test_ip,
+  fn_ip = ~ example_ip(),
   time_unit = "1 day"
 ) {
   fn_Rt = .fn_check(fn_Rt)
@@ -559,7 +559,7 @@ sim_poisson_Rt_model = function(
     ) %>%
       dplyr::mutate(
         count = .sample_contacts(rate, kappa),
-        time = ggoutbreak::as.time_period(time, unit = time_unit),
+        time = as.time_period(time, unit = time_unit),
         statistic = "infections"
       ) %>%
       dplyr::group_by(statistic)
@@ -630,7 +630,7 @@ sim_multinomial = function(
   }
 
   out = out %>%
-    dplyr::mutate(time = ggoutbreak::as.time_period(time, unit = time_unit)) %>%
+    dplyr::mutate(time = as.time_period(time, unit = time_unit)) %>%
     dplyr::group_by(time) %>%
     # The relative growth rate of one variant is compared to the weighted average
     # growth rate of the other variants (excluding current one)
@@ -664,46 +664,6 @@ sim_multinomial = function(
 
 #TODO: a multinomial model based on R_t?
 # this would need a serial interval per variant.
-
-# sim_deterministic_sir = function(
-#     changes = dplyr::tibble(
-#       t = c(0,40),
-#       R_t = c(2.5,0.8)
-#     ),
-#     kappa = 1,
-#     gamma = 1/10,
-#     # ip = ggoutbreak::covid_ip,
-#     max_time = 80,
-#     initial = 30,
-#     seed = Sys.time()
-#   ) {
-#
-#   SIR = function(time, current_state, params ){
-#
-#     with(c(as.list(c(current_state, params))),{
-#
-#       R_t = .lookup_rt(time, changes)
-#       beta = R_t * gamma / (S+I+R)
-#
-#       # Change in Susceptibles
-#       dS <- - beta * S * I # + delta * R
-#       # Change in Infecteds
-#       dI <- beta * S * I - gamma * I
-#       # Change in Recovereds
-#       dR <- gamma * I # - delta * R
-#       return(list(c(dS, dI, dR)))
-#     })
-#
-#
-#   }
-#
-#   params <- c(gamma = gamma, changes = changes)
-#   initial_state <- c(S = 10000-initial, I = initial, R = 0)
-#   times <- 0:max_time
-#   model <- deSolve::ode(initial_state, times, SIR, params)
-#   return(model)
-#
-# }
 
 #' Generate a line list from a branching process model parametrised by
 #'    reproduction number
@@ -749,7 +709,7 @@ sim_multinomial = function(
 #' )
 #'
 #' if(interactive()) {
-#'   plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1)
+#'   plot_cases(tmp, mapping=ggplot2::aes(fill=as.factor(generation)),linewidth=0.1, colour="white")
 #' }
 #'
 #' # imports can also be specified as a dataframe, which allows additional
@@ -762,12 +722,12 @@ sim_multinomial = function(
 sim_branching_process = function(
   changes = dplyr::tibble(
     t = c(0, 40),
-    rt = c(2.5, 0.8)
+    rt = c(2.0, 0.8)
   ),
   max_time = 80,
   seed = Sys.time(),
   fn_Rt = cfg_step_fn(changes),
-  fn_ip = ~ ggoutbreak::test_ip,
+  fn_ip = ~ example_ip(),
   fn_kappa = ~1,
   imports_df = NULL,
   fn_imports = ~ ifelse(.x == 0, 30, 0),
@@ -812,6 +772,7 @@ sim_branching_process = function(
     join_by = intersect(colnames(out), colnames(ip_cache))
 
     last_gen = out
+    incomplete = FALSE
 
     while (nrow(last_gen) > 0) {
       message(".", appendLF = FALSE)
@@ -903,13 +864,20 @@ sim_branching_process = function(
         warning(
           "terminating branching process model early
 current generation size: ",
-          nrow(last_gen)
+          nrow(last_gen),
+          immediate. = TRUE,
+          call. = FALSE
         )
+        incomplete = TRUE
         break
       }
     }
 
-    message("complete")
+    if (!incomplete) {
+      message("complete")
+    } else {
+      message("not complete.")
+    }
 
     events = ip_cache %>%
       dplyr::filter(tau == 0) %>%
@@ -1061,7 +1029,7 @@ sim_seir_model <- function(
         imports = ifelse(time == 0, imports, 0)
       )
 
-    ip = ggoutbreak::make_resampled_ip(
+    ip = make_resampled_ip(
       stats::rexp(1000, sigma) + stats::rexp(1000, gamma)
     )
   })
@@ -1087,7 +1055,7 @@ sim_seir_model <- function(
 #' @concept test
 #'
 #' @examples
-#' sim_events(test_poisson_rt)
+#' sim_events(example_poisson_rt())
 sim_events = function(df) {
   tmp = attr(df, "events")
   if (is.null(tmp)) {
@@ -1114,7 +1082,7 @@ sim_events = function(df) {
 #'
 #' @examples
 #' ggplot2::ggplot()+
-#'   sim_geom_function(test_poisson_rt(), xlim=as.Date("2019-12-29")+c(0,80))+
+#'   sim_geom_function(example_poisson_rt(), xlim=as.Date("2019-12-29")+c(0,80))+
 #'   ggplot2::scale_x_date()
 sim_geom_function = function(df, ...) {
   tmp_fn = attr(df, "fn")
@@ -1122,7 +1090,12 @@ sim_geom_function = function(df, ...) {
     return(NULL)
   }
   return(ggplot2::geom_function(
-    fun = \(x) tmp_fn(date_to_time(x, df$time)),
+    fun = \(x) {
+      if (is.Date(x)) {
+        x = date_to_time(x, df$time)
+      }
+      tmp_fn(x)
+    },
     ...
   ))
 }
@@ -1237,11 +1210,15 @@ sim_apply_delay.count_data = function(
 #' @concept test
 #'
 #' @examples
-#' dplyr::tibble(
-#'   statistic = "incidence",
-#'   time=as.time_period(1:10,"1 day"),
-#'   count=rep(100,10)
-#' ) %>% dplyr::group_by(statistic) %>% sim_apply_ascertainment(~ ifelse(.x<=5,0.1,0.9))
+#' with_defaults("2025-01-01" ,"1 day", {
+#'   dplyr::tibble(
+#'     statistic = "incidence",
+#'     time=as.time_period(1:10,"1 day"),
+#'     count=rep(100,10)
+#'   ) %>%
+#'   dplyr::group_by(statistic) %>%
+#'   sim_apply_ascertainment(~ ifelse(.x<=5,0.1,0.9))
+#' })
 sim_apply_ascertainment = function(
   df = i_sim_count_data,
   fn_asc = ~1,
@@ -1302,8 +1279,8 @@ sim_apply_ascertainment = function(
 #' @concept test
 #'
 #' @examples
-#' weekday_delay = make_gamma_ip(median_of_mean = 5, median_of_sd = 2)
-#' weekend_delay = make_gamma_ip(median_of_mean = 6, median_of_sd = 2)
+#' weekday_delay = make_fixed_ip(mean = 5, sd = 2)
+#' weekend_delay = make_fixed_ip(mean = 6, sd = 2)
 #'
 #' delay_fn = ~ ifelse(.x %% 7 %in% c(6,7), list(weekend_delay), list(weekday_delay))
 #' p_fn = ~ ifelse(.x < 20, 0.5, 0.75)
@@ -1432,8 +1409,8 @@ sim_convolution = function(
 #' @concept test
 #'
 #' @examples
-#' weekday_delay = make_gamma_ip(median_of_mean = 5, median_of_sd = 2)
-#' weekend_delay = make_gamma_ip(median_of_mean = 7, median_of_sd = 2)
+#' weekday_delay = make_fixed_ip(mean = 5, sd = 2)
+#' weekend_delay = make_fixed_ip(mean = 7, sd = 2)
 #'
 #' delay_fn = ~ ifelse(.x %% 7 %in% c(6,7), list(weekend_delay), list(weekday_delay))
 #'
@@ -1825,7 +1802,7 @@ sim_summarise_linelist = function(
       dispersion = stats::sd(infectee_n) / mean(infectee_n)
     ) %>%
     tidyr::complete(
-      time = ggoutbreak::date_seq(time, 1),
+      time = date_seq(time, 1),
       fill = list(infections = 0, rt.case = NA_real_, dispersion = NA_real_)
     )
 
@@ -1891,7 +1868,7 @@ sim_summarise_linelist = function(
           .n = dplyr::n()
         ) %>%
         tidyr::complete(
-          time = ggoutbreak::as.time_period(0:mt, time),
+          time = as.time_period(0:mt, time),
           fill = list(.n = 0)
         ) %>%
         dplyr::rename(!!tgt := .n) %>%
@@ -1927,8 +1904,8 @@ sim_summarise_linelist = function(
     ) %>%
     dplyr::mutate(count = as.integer(ifelse(is.na(count), 0, count))) %>%
     dplyr::mutate(
-      time = ggoutbreak::as.time_period(time, df$time),
-      obs_time = ggoutbreak::as.time_period(obs_time, df$time),
+      time = as.time_period(time, df$time),
+      obs_time = as.time_period(obs_time, df$time),
     )
 
   if (length(unique(out$obs_time)) > 1) {
@@ -1957,10 +1934,10 @@ sim_summarise_linelist = function(
 #' @noRd
 #'
 #' @examples
-#' tmp = .ip_quantile_function(covid_ip)(stats::runif(10000))
+#' tmp = .ip_quantile_function(ip=example_ip())(stats::runif(10000))
 #'
 #' if(interactive()) {
-#'   plot_ip(covid_ip, alpha=0.01) +
+#'   plot_ip(ip=example_ip(), alpha=0.01) +
 #'     ggplot2::geom_density(data = dplyr::tibble(x=tmp), mapping = ggplot2::aes(x=x), bounds = c(0.5,13.5))
 #' }
 .ip_quantile_function = function(ip = i_empirical_ip) {
@@ -2289,7 +2266,7 @@ rdiscgamma = function(n, mean, sd, kappa) {
     mean = sd / kappa,
     sd = mean * kappa
   )
-  params = .reparam_gamma(mean, sd, convex = FALSE)
+  params = .reparam_gamma(mean, sd)
   return(
     floor(stats::rgamma(n, params$shape, params$rate) + 0.5)
   )

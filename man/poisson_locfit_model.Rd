@@ -53,8 +53,6 @@ Rt value will not be estimated - a dataframe with columns:
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{quick}{if \code{ip} is provided, and quick is \code{TRUE} Rt estimation will be
@@ -94,13 +92,15 @@ daily data the rate will be cases per day and the growth rate will be daily).
 \examples{
 
 
-data = ggoutbreak::test_poisson_rt()
-tmp = data \%>\% ggoutbreak::poisson_locfit_model(window=14,deg=2, ip=test_ip, quick=TRUE)
-plot_rt(tmp)+sim_geom_function(data,colour="red")
+data = example_poisson_rt()
+tmp = data \%>\% poisson_locfit_model(window=14,deg=2, ip=example_ip(), quick=TRUE)
+plot_rt(tmp,
+    raw=data,
+    true_col = rt)
 
-data = test_poisson_growth_rate
-tmp2 = data \%>\% ggoutbreak::poisson_locfit_model(window=7,deg=1)
-tmp3 = data \%>\% ggoutbreak::poisson_locfit_model(window=14,deg=2)
+data = example_poisson_growth_rate()
+tmp2 = data \%>\% poisson_locfit_model(window=7,deg=1)
+tmp3 = data \%>\% poisson_locfit_model(window=14,deg=2)
 
 
 
@@ -113,19 +113,17 @@ if (interactive()) {
   plot_incidence(
     comp,
     date_labels="\%b \%y",
-    raw=data
-  )+
-  ggplot2::geom_line(
-    data=data,
-    mapping=ggplot2::aes(x=as.Date(time),y=rate),
-    colour="grey40"
+    raw=data,
+    true_col = rate
   )
 
   plot_growth_rate(
     comp,
-    date_labels="\%b \%y"
-  )+
-  sim_geom_function(data,colour="black")
+    date_labels="\%b \%y",
+    raw = data,
+    true_col = growth
+  )
+  # sim_geom_function(data,colour="black")
 }
 
 }

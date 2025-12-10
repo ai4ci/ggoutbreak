@@ -4,7 +4,7 @@
 \alias{dgamma2}
 \title{The Gamma Distribution}
 \usage{
-dgamma2(x, mean, sd = sqrt(mean), log = FALSE, convex = TRUE)
+dgamma2(x, mean, sd = sqrt(mean), log = FALSE)
 }
 \arguments{
 \item{x}{vector of quantiles}
@@ -14,9 +14,6 @@ dgamma2(x, mean, sd = sqrt(mean), log = FALSE, convex = TRUE)
 \item{sd}{the standard deviation on the true scale (vectorised)}
 
 \item{log}{logical; if TRUE, probabilities p are given as log(p).}
-
-\item{convex}{Show a warning if the distribution selected is not a convex
-function}
 }
 \value{
 \code{dgamma} gives the density,

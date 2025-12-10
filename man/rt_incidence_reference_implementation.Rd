@@ -67,9 +67,9 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html
 }
 \examples{
 
-data = ggoutbreak::test_poisson_rt_smooth
+data = example_poisson_rt_smooth()
 
-omega = ggoutbreak::omega_matrix(ggoutbreak::test_ip)
+omega = omega_matrix(example_ip())
 k = nrow(omega)
 
 pred_time = 50

@@ -15,8 +15,8 @@ rwedge(n, a)
 a vector of probabilities, quantiles, densities or samples.
 }
 \description{
-The wedge distribution has a domain of 0 to 1 and has a linear probability
-density function over that domain.
+The wedge distribution has a support of 0 to 1 and has a linear probability
+density function over that support.
 }
 \details{
 The \code{rwedge} can be combined with quantile functions to

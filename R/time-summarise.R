@@ -164,13 +164,20 @@ time_summarise = function(
 
 #' Aggregate time series data preserving the time series
 #'
+#' This function operates on timeseries data not linelists (see [time_summarise()])
+#' for line lists. If a very granular timeseries is regrouped and this function
+#' is applied the resulting dataframe will be
+#'
 #' @param df an optionally grouped time series. Grouping should not include the time
 #'   column. The grouping works differently from `dplyr::summarise` in that the last level
 #'   of non-time groups is lost in this operation, so the subgroup you wish to aggregate
 #'   should be included in the grouping.
 #' @param ... A set of `dplyr::summarise` statements, or additional parameters
 #'   for `.fns`
-#' @param .cols Optional dplyr column specification for `dplyr::across`. if
+#' @param .cols Optional dplyr column specification for the data that will be
+#'   summarised. This is useful if there are lots of columns you want to
+#'   summarise using the same function (e.g. `sum` usually). `.cols` is passed to
+#'   a `dplyr::across` call. if
 #'   `.fns` is given and the `.cols` parameter is not specified then the columns
 #'   to summarise are automatically identified. In doing this any `Date` columns
 #'   are dropped. If this in not what you want then `.cols` or `...` must be given
@@ -183,11 +190,11 @@ time_summarise = function(
 #' @concept time_period
 #'
 #' @examples
-#' ggoutbreak::england_covid %>%
+#' example_england_covid_by_age() %>%
 #'   time_aggregate(count = sum(count), denom = sum(denom)) %>%
 #'   dplyr::glimpse()
 #'
-#' ggoutbreak::england_covid %>%
+#' example_england_covid_by_age() %>%
 #'   time_aggregate(.fns=mean) %>%
 #'   dplyr::glimpse()
 time_aggregate = function(

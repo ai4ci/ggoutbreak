@@ -179,7 +179,7 @@ to false will use a full variance-covariance matrix.</p></dd>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Simple poisson model</span></span></span>
 <span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="va">test_poisson_rt_smooth</span></span></span>
-<span class="r-in"><span><span class="va">tmp2</span> <span class="op">=</span> <span class="fu">poisson_gam_model</span><span class="op">(</span><span class="va">data</span>,window<span class="op">=</span><span class="fl">7</span>,ip<span class="op">=</span><span class="va">test_ip</span>,quick<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tmp2</span> <span class="op">=</span> <span class="fu">poisson_gam_model</span><span class="op">(</span><span class="va">data</span>,window<span class="op">=</span><span class="fl">7</span>,ip<span class="op">=</span><span class="va">example_ip()</span>,quick<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rt estimation using GAM (approx and assuming independence)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -206,7 +206,7 @@ to false will use a full variance-covariance matrix.</p></dd>
 <span class="r-in"><span><span class="va">tmp3</span> <span class="op">=</span> <span class="va">data2</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">poisson_gam_model</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  model_fn <span class="op">=</span> <span class="va">model</span><span class="op">$</span><span class="va">model_fn</span>,</span></span>
 <span class="r-in"><span>  predict <span class="op">=</span> <span class="va">model</span><span class="op">$</span><span class="va">predict</span>,</span></span>
-<span class="r-in"><span>  ip<span class="op">=</span><span class="va">test_ip</span><span class="op">)</span></span></span>
+<span class="r-in"><span>  ip<span class="op">=</span><span class="va">example_ip()</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rt estimation using GAM (exact with modelled covariance)</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>

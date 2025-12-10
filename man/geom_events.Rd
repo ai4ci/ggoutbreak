@@ -13,6 +13,7 @@ geom_events(
   event_fill_colour = "grey50",
   hide_labels = FALSE,
   guide_axis = ggplot2::derive(),
+  x_axis_style = c("date", "time_period"),
   ...
 )
 }
@@ -44,6 +45,10 @@ A default value is defined.
 \item{guide_axis}{a guide axis configuration for the labels
 (see \code{ggplot2::guide_axis} and \code{ggplot2::dup_axis}). This can be used to
 specify a position amongst other things.}
+
+\item{x_axis_style}{should the x-axis be \code{"date"} or a count of
+\code{"time_period"}s since a start date (may be specified in \code{...} or defaults
+from data)}
 
 \item{...}{
   Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
@@ -126,6 +131,20 @@ bounds values with \code{NA}.
 \item{\code{timezone}}{The timezone to use for display on the axes. The default
 (\code{NULL}) uses the timezone encoded in the data.}
 \item{\code{na.value}}{Missing values will be replaced with this value.}
+}
+  Named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{unit}}{the length of one unit of time. This will be either a integer
+number of days, or a specification such as "1 week", or another \code{time_period}.
+If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
+this will return a rescaled \code{time_period} using the new units.}
+\item{\code{start_date}}{the zero time date as something that can be coerced to a
+date. If the \code{x} input is already a \code{time_period} and this is different to its
+\code{start_date} then \code{x} will be recalibrated to use the new start date.}
+\item{\code{anchor}}{only relevant if \code{x} is a vector of dates, this is a date, or
+\code{"start"} or \code{"end"} or a weekday name e.g.
+\code{"mon"}. With the vector of dates in \code{x} it will use this anchor to find a reference date for
+the time-series. If not provided then the current defaults will be used.
+(see \code{\link[=set_defaults]{set_defaults()}})}
 }}
 }
 \value{

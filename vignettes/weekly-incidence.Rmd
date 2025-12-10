@@ -56,6 +56,8 @@ changes = dplyr::tribble(
   35,     -0.05,
   45,     0.1
 )
+
+set_default_start("2025-01-01")
   
 sim = sim_poisson_model(
   changes = changes,
@@ -65,7 +67,8 @@ sim = sim_poisson_model(
   seed=100
 )
 
-events = attr(sim,"events")
+# extract the changes as an events data frame
+events = sim_events(sim)
 
 plot_cases(sim, events = events, colour="grey60")
 
@@ -123,12 +126,12 @@ generation time.
 # and ensure time scales align.
 changes2 = changes %>% dplyr::transmute(
   t = t*7,
-  R = wallinga_lipsitch(r/7, ganyani_ip_2)
+  R = wallinga_lipsitch(r/7, example_ganyani_ip())
 )
 rt_for_date = \(t) cfg_step_fn(changes2)(as.time_period(t, unit="1 day"))
 
 # Calculate the reproduction number from daily incidence estimates
-rt_estim = incidence2 %>% rt_from_incidence(ip = ganyani_ip_2,approx = TRUE)
+rt_estim = incidence2 %>% rt_from_incidence(ip =  example_ganyani_ip(),approx = TRUE)
 
 plot_rt(rt_estim,events = events)+
   ggplot2::geom_function(fun=rt_for_date,colour="red",n=nrow(rt_estim))

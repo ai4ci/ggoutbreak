@@ -29,8 +29,8 @@
 #' @examples
 #'
 #' # Simple poisson model
-#' data = test_poisson_rt_smooth
-#' tmp2 = poisson_gam_model(data,window=7,ip=test_ip,quick=TRUE)
+#' data = example_poisson_rt_smooth()
+#' tmp2 = poisson_gam_model(data,window=7,ip=example_ip(),quick=TRUE)
 #'
 #' if (interactive()) {
 #'   plot_incidence(
@@ -51,19 +51,19 @@
 #' # example with delayed observation model.
 #' # This data is all the day by day observations of the whole timeseries from
 #' # the beginning of the outbreak.
-#' data2 = test_delayed_observation
+#' data2 = example_delayed_observation()
 #' model = gam_delayed_reporting(window = 14)
 #' tmp3 = data2 %>% poisson_gam_model(
 #'   model_fn = model$model_fn,
 #'   predict = model$predict,
-#'   ip=test_ip)
+#'   ip=example_ip())
 #'
 #' if (interactive()) {
 #'   plot_incidence(tmp3)+
 #'     ggplot2::geom_line(
 #'       data=data2 %>% dplyr::filter(obs_time %% 10 == 0),
 #'       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
-#'       )
+#'     )
 #'
 #'   plot_rt(tmp3)
 #' }
@@ -328,7 +328,7 @@ poisson_gam_model.incidence = function(
 #'
 #' @examples
 #' model_fn = gam_poisson_model_fn(14)
-#' fit = model_fn(test_poisson_rt() %>% dplyr::ungroup())
+#' fit = model_fn(example_poisson_rt() %>% dplyr::ungroup())
 #' summary(fit)
 #'
 gam_poisson_model_fn = function(
@@ -373,7 +373,7 @@ gam_poisson_model_fn = function(
 #'
 #' @examples
 #' model_fn = gam_nb_model_fn(14)
-#' fit = model_fn(test_poisson_rt() %>% dplyr::ungroup())
+#' fit = model_fn(example_poisson_rt() %>% dplyr::ungroup())
 #' summary(fit)
 #'
 gam_nb_model_fn = function(
@@ -428,7 +428,7 @@ gam_nb_model_fn = function(
 #'
 #' @examples
 #'
-#' data = test_delayed_observation %>% dplyr::group_by(obs_time)
+#' data = example_delayed_observation() %>% dplyr::group_by(obs_time)
 #' cfg = gam_delayed_reporting(14,40)
 #' fit = cfg$model_fn(data)
 #' summary(fit)
@@ -487,8 +487,8 @@ gam_delayed_reporting = function(
 #' @concept models
 #'
 #' @examples
-#' gam_knots(ggoutbreak::test_poisson_rt(), 14)
-#' gam_knots(ggoutbreak::test_poisson_rt(), k=10)
+#' gam_knots(example_poisson_rt(), 14)
+#' gam_knots(example_poisson_rt(), k=10)
 gam_knots = function(data = i_incidence_data, window, ..., k = NULL) {
   range = range(as.numeric(data$time))
   if (!is.null(k)) {

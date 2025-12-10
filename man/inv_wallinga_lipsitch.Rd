@@ -24,8 +24,7 @@ A dataframe containing the following columns:
 \item a1 (double) - the end of the time period (in days)
 }
 
-Minimally grouped by: boot (and other groupings allowed).
-A default value is defined.}
+Minimally grouped by: boot (and other groupings allowed).}
 
 \item{a1}{the end time of the infectivity profile probability estimate (defaults to 0.5,1.5,2.5,...).}
 
@@ -45,7 +44,7 @@ profile / generation time. If multiple are provided then the average central
 value is chosen (i.e. this does not propagate uncertainty in infectivity profile)
 }
 \examples{
-inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=test_ip)
+inv_wallinga_lipsitch(Rt=seq(0.5,2.5,length.out=9), y=example_ip())
 
 }
 \concept{models}

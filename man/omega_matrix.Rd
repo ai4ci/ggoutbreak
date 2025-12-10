@@ -15,8 +15,6 @@ omega_matrix(ip = i_discrete_ip, epiestim_compat = TRUE)
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{epiestim_compat}{ensure the matrix works with \code{EpiEstim}'s
@@ -31,6 +29,6 @@ with \code{EpiEstim}. In general \code{ggoutbreak} will do the conversion intern
 This is provided as a utility for examples mostly.
 }
 \examples{
-omega_matrix(ggoutbreak::covid_ip)
+omega_matrix(example_ip())
 }
 \concept{delay_distribution}

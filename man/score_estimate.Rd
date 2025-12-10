@@ -107,13 +107,13 @@ Summarisation is performed using bootstrap resampling to generate confidence
 intervals for summary statistics, which are presented as median +/1 95\% CI.
 }
 \examples{
-data = test_poisson_rt_smooth
+data = example_poisson_rt_smooth()
 
 pipeline = ~ .x \%>\% poisson_locfit_model(ip = .y, quick=TRUE)
-lags = quantify_lag(pipeline, ip = test_ip)
+lags = quantify_lag(pipeline, ip = example_ip())
 
 withr::with_options(list("ggoutbreak.keep_cdf"=TRUE),{
-   est = data \%>\% poisson_locfit_model(ip = test_ip, quick=TRUE)
+   est = data \%>\% poisson_locfit_model(ip = example_ip(), quick=TRUE)
 })
 
 if (interactive()) plot_rt(est)+sim_geom_function(data, colour="red")

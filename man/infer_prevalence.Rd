@@ -45,8 +45,6 @@ probability of detection of infection). This will not sum to one. - a dataframe 
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{bootstraps}{the number of samples to take at each time point. This will
@@ -75,11 +73,11 @@ test positives observed may be due to ascertainment bias or test sensitivity
 misspecification.
 }
 \examples{
-tmp = ggoutbreak::test_poisson_rt_smooth \%>\%
-  ggoutbreak::poisson_locfit_model(window=14) \%>\%
-  ggoutbreak::infer_prevalence(
+tmp = example_poisson_rt_smooth() \%>\%
+  poisson_locfit_model(window=14) \%>\%
+  infer_prevalence(
      pop = 10000,
-     ip = ggoutbreak::test_ip
+     ip = example_ip()
   )
 
 if(interactive()) {

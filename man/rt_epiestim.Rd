@@ -33,8 +33,6 @@ Any grouping allowed.
 }
 
 Minimally grouped by: boot (and other groupings allowed).
-
-A default value is defined.
 }
 
 \item{bootstraps}{\itemize{
@@ -83,10 +81,10 @@ This will calculate a reproduction number for each group in the input dataframe.
 }
 \examples{
 
-data = test_poisson_rt_smooth
+data = example_poisson_rt_smooth()
 
 tmp2 = data \%>\%
-   ggoutbreak::rt_epiestim(test_ip)
+   rt_epiestim(ip=example_ip())
 
 if (interactive()) {
   plot_rt(tmp2, date_labels="\%b \%y")+sim_geom_function(data,colour="red")

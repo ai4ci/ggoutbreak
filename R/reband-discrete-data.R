@@ -1,6 +1,3 @@
-
-
-
 #' Reband any discrete distribution
 #'
 #' e.g. age banded population, or a discrete probability distribution e.g.
@@ -28,8 +25,14 @@
 #' @concept wrangling
 #'
 #' @examples
+#'
+#' england_demographics = ukc19::uk_population_2019_by_10yr_age %>%
+#'   dplyr::filter(name=="England")
+#'
 #' ul = stringr::str_extract(england_demographics$class, "_([0-9]+)",group = 1) %>%
 #'   as.numeric()
+#' # ul is currently inclusive so add 1:
+#' ul = ul + 1
 #'
 #' tmp = reband_discrete(
 #'   ul, england_demographics$population,
@@ -39,8 +42,16 @@
 #'
 #' sum(tmp)
 #' sum(england_demographics$population)
-reband_discrete = function(x, y, xout, xlim=c(0,NA), ytotal=c(0,sum(y)), digits=0, labelling = c("positive_integer","inclusive","exclusive"), sep="-") {
-
+reband_discrete = function(
+  x,
+  y,
+  xout,
+  xlim = c(0, NA),
+  ytotal = c(0, sum(y)),
+  digits = 0,
+  labelling = c("positive_integer", "inclusive", "exclusive"),
+  sep = "-"
+) {
   min_x = xlim[[1]]
   max_x = xlim[[2]]
   min_y = ytotal[[1]]
@@ -51,60 +62,72 @@ reband_discrete = function(x, y, xout, xlim=c(0,NA), ytotal=c(0,sum(y)), digits=
     if (!is.null(max_x)) {
       x[is.na(x)] = max_x
     } else {
-      if (max(xout,na.rm = TRUE)<max(x,na.rm = TRUE)) {
+      if (max(xout, na.rm = TRUE) < max(x, na.rm = TRUE)) {
         x[is.na(x)] = Inf
       } else {
         x[is.na(x)] = max(xout)
-        warning("When rebanding missing `x` values are assumed to be less than the maximum of `xout`.\nIf the NA represents a different upper limit than `xout`, the `max_x` parameter must be supplied.",call. = FALSE)
+        warning(
+          "When rebanding missing `x` values are assumed to be less than the maximum of `xout`.\nIf the NA represents a different upper limit than `xout`, the `max_x` parameter must be supplied.",
+          call. = FALSE
+        )
       }
     }
   }
 
-  if(min(xout,na.rm = TRUE) < min(x,na.rm=TRUE) & min(x,na.rm=TRUE) > min_x) {
-    x = c(min_x,x)
-    y = c(min_y,y)
+  if (
+    min(xout, na.rm = TRUE) < min(x, na.rm = TRUE) &
+      min(x, na.rm = TRUE) > min_x
+  ) {
+    x = c(min_x, x)
+    y = c(min_y, y)
     # we do not have to assume y0 = 0
   }
 
-  if (any(duplicated(x))) stop("x values must be unique and represent the high end of each y value.")
+  if (any(duplicated(x))) {
+    stop("x values must be unique and represent the high end of each y value.")
+  }
   y = y[order(x)]
   x = x[order(x)]
   xout = sort(xout)
   # if (max(xout)<max(x)) xout=c(xout,max(x))
 
   total = sum(y)
-  y = y/total
-  min_y = ytotal[[1]]/total
-  max_y = ytotal[[2]]/total
+  y = y / total
+  min_y = ytotal[[1]] / total
+  max_y = ytotal[[2]] / total
 
   cum_y = cumsum(y)
   pred = stats::splinefun(x, cum_y, method = "monoH.FC")
   py = pred(xout)
-  if (max(xout,na.rm = TRUE)<max(x,na.rm = TRUE)) {
-    xout = c(xout,Inf)
-    py = c(py,1)
+  if (max(xout, na.rm = TRUE) < max(x, na.rm = TRUE)) {
+    xout = c(xout, Inf)
+    py = c(py, 1)
   }
-  pred_y = (py - dplyr::lag(py,default = 0)) * total
+  pred_y = (py - dplyr::lag(py, default = 0)) * total
   if (labelling == "positive_integer") {
     nms = dplyr::case_when(
-      !is.finite(xout) ~ sprintf("%.0f+",dplyr::lag(xout,default = 0)),
-      dplyr::lag(xout,default = 0)+1 == xout ~ sprintf("%.0f",xout),
-      is.na(dplyr::lag(xout)) ~ sprintf("%.0f%s%.0f",min_x,sep,xout-1),
-      TRUE ~ sprintf("%.0f%s%.0f",dplyr::lag(xout,default = 0),sep,xout-1)
+      !is.finite(xout) ~ sprintf("%.0f+", dplyr::lag(xout, default = 0)),
+      dplyr::lag(xout, default = 0) + 1 == xout ~ sprintf("%.0f", xout),
+      is.na(dplyr::lag(xout)) ~ sprintf("%.0f%s%.0f", min_x, sep, xout - 1),
+      TRUE ~ sprintf("%.0f%s%.0f", dplyr::lag(xout, default = 0), sep, xout - 1)
     )
   } else if (labelling == "inclusive") {
     nms = dplyr::case_when(
-      !is.finite(xout) ~ sprintf(">%.*f",digits, dplyr::lag(xout,default = 0)),
-      is.na(dplyr::lag(xout)) ~ sprintf("\u2264%.*f",digits, xout),
-      TRUE ~ sprintf("%.*f< & \u2264%.*f",digits,dplyr::lag(xout),digits,xout)
+      !is.finite(xout) ~
+        sprintf(">%.*f", digits, dplyr::lag(xout, default = 0)),
+      is.na(dplyr::lag(xout)) ~ sprintf("\u2264%.*f", digits, xout),
+      TRUE ~
+        sprintf("%.*f< & \u2264%.*f", digits, dplyr::lag(xout), digits, xout)
     )
-  } else (
-    nms = dplyr::case_when(
-      !is.finite(xout) ~ sprintf("\u2265%.*f",digits, dplyr::lag(xout,default = 0)),
-      is.na(dplyr::lag(xout)) ~ sprintf("<%.*f",digits, xout),
-      TRUE ~ sprintf("%.*f\u2264 & <%.*f",digits,dplyr::lag(xout),digits,xout)
-    )
-  )
+  } else {
+    (nms = dplyr::case_when(
+      !is.finite(xout) ~
+        sprintf("\u2265%.*f", digits, dplyr::lag(xout, default = 0)),
+      is.na(dplyr::lag(xout)) ~ sprintf("<%.*f", digits, xout),
+      TRUE ~
+        sprintf("%.*f\u2264 & <%.*f", digits, dplyr::lag(xout), digits, xout)
+    ))
+  }
   names(pred_y) = nms
   return(pred_y)
 }

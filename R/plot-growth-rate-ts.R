@@ -7,13 +7,14 @@
 #'   to something if there are multiple incidence time series in the plot
 #' @inheritParams geom_events
 #' @inheritDotParams geom_events events
+#' @inheritDotParams geom_truth
 #'
 #' @return a ggplot
 #' @export
 #' @concept vis
 #' @examples
 #'
-#' data = ggoutbreak::test_poisson_rt_2class
+#' data = example_poisson_rt_2class()
 #' tmp2 = data %>% poisson_locfit_model()
 #'
 #' if(interactive()) {
@@ -28,36 +29,40 @@ plot_growth_rate = function(
 ) {
   interfacer::idispatch(
     modelled,
-    plot_growth_rate.incidence = i_incidence_rate,
-    plot_growth_rate.proportion = i_proportion_rate
+    plot_growth_rate.default = i_growth_rate,
+    plot_growth_rate.relative = i_relative_growth_rate
   )
 }
 
 # internal function for dispatch
-plot_growth_rate.incidence = function(
+plot_growth_rate.default = function(
   modelled = i_incidence_rate,
   ...,
   mapping = .check_for_aes(modelled, ...),
   events = i_events
 ) {
-  modelled = interfacer::ivalidate(modelled)
+  # modelled = interfacer::ivalidate(modelled)
 
   my = .glimit(modelled$growth.0.5)
 
   ggplot2::ggplot() +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = modelled$time) +
     ggplot2::geom_hline(yintercept = 0, colour = "grey50") +
     .layer(
       ggplot2::GeomLine,
       data = modelled,
-      mapping = ggplot2::aes(x = as.Date(time), y = growth.0.5, !!!mapping),
+      mapping = ggplot2::aes(
+        x = .x_axis(time, ...),
+        y = growth.0.5,
+        !!!mapping
+      ),
       ...
     ) +
     .layer(
       ggplot2::GeomRibbon,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         ymin = growth.0.025,
         ymax = growth.0.975,
         !!!mapping
@@ -66,7 +71,6 @@ plot_growth_rate.incidence = function(
       .default = list(colour = NA, alpha = 0.2)
     ) +
     ggplot2::ylab(sprintf("growth rate per %s", .fmt_unit(modelled$time))) +
-    ggplot2::xlab(NULL) +
     ggplot2::theme(legend.title = ggplot2::element_blank()) +
     ggplot2::scale_y_continuous(
       sec.axis = ggplot2::dup_axis(
@@ -80,32 +84,44 @@ plot_growth_rate.incidence = function(
         name = "doubling time (days)"
       )
     ) +
-    ggplot2::coord_cartesian(ylim = c(-my, my))
+    .gdefaultcoords(modelled$growth.0.5) +
+    geom_truth(...)
 }
 
-.glimit = function(y) {
-  ceiling(max(abs(y), na.rm = TRUE) * 20) / 20
+.glimit = function(y, res = 1 / 20) {
+  maxy = quantile(abs(y), 0.99, na.rm = TRUE) * 1.1
+  ceiling(maxy / res) * res
+}
+
+.gdefaultcoords = function(y, res = 1 / 20) {
+  my = .glimit(y, res)
+  if (!any(y < 0, na.rm = TRUE)) {
+    my2 = 0
+  } else {
+    my2 = -my
+  }
+  ggplot2::coord_cartesian(ylim = c(my2, my))
 }
 
 # internal function for dispatch
-plot_growth_rate.proportion = function(
-  modelled = i_proportion_rate,
+plot_growth_rate.relative = function(
+  modelled = i_relative_growth_rate,
   ...,
   mapping = .check_for_aes(modelled, ...),
   events = i_events
 ) {
-  modelled = interfacer::ivalidate(modelled)
+  # modelled = interfacer::ivalidate(modelled)
 
   my = .glimit(modelled$relative.growth.0.5)
 
   ggplot2::ggplot() +
-    geom_events(events, ...) +
+    geom_events(events, ..., unit = modelled$time) +
     ggplot2::geom_hline(yintercept = 0, colour = "grey50") +
     .layer(
       ggplot2::GeomLine,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         y = relative.growth.0.5,
         !!!mapping
       ),
@@ -115,7 +131,7 @@ plot_growth_rate.proportion = function(
       ggplot2::GeomRibbon,
       data = modelled,
       mapping = ggplot2::aes(
-        x = as.Date(time),
+        x = .x_axis(time, ...),
         ymin = relative.growth.0.025,
         ymax = relative.growth.0.975,
         !!!mapping
@@ -129,7 +145,8 @@ plot_growth_rate.proportion = function(
     )) +
     ggplot2::xlab(NULL) +
     ggplot2::theme(legend.title = ggplot2::element_blank()) +
-    ggplot2::coord_cartesian(ylim = c(-my, my))
+    .gdefaultcoords(modelled$relative.growth.0.5) +
+    geom_truth(...)
 
   # growth rate limits do not apply for relative
 }
