@@ -185,7 +185,11 @@ integer_breaks = function(n = 5, ...) {
     ggplot2::layer(
       geom = geom,
       stat = ggplot2::StatIdentity,
-      data = data,
+      data = if (!is.null(data)) {
+        ggplot2::remove_missing(data, na.rm = TRUE, finite = TRUE)
+      } else {
+        NULL
+      },
       mapping = .check_in_data(data, mapping),
       position = .ifnull(dots$position, "identity"),
       show.legend = .ifnull(dots$show.legend, TRUE),

@@ -1,0 +1,269 @@
+# Population comparisons and incidence
+
+Comparisons between epidemic states in different populations separated
+by for example geography, or in this case age, requires a normalisation
+by the population size in either absolute or proportional terms. Based
+on the 2021 census we have some demo data for the demographics of
+England:
+
+``` r
+england_demographics = ukc19::uk_population_2019_by_5yr_age %>% 
+  dplyr::filter(name == "England") %>%
+  dplyr::group_by(code,name)
+dplyr::glimpse(england_demographics)
+#> Rows: 19
+#> Columns: 6
+#> Groups: code, name [1]
+#> $ code                <chr> "E92000001", "E92000001", "E92000001", "E92000001"…
+#> $ class               <chr> "00_04", "05_09", "10_14", "15_19", "20_24", "25_2…
+#> $ population          <dbl> 3299637, 3538206, 3354246, 3090232, 3487863, 38014…
+#> $ name                <chr> "England", "England", "England", "England", "Engla…
+#> $ codeType            <chr> "CTRY20", "CTRY20", "CTRY20", "CTRY20", "CTRY20", …
+#> $ baseline_proportion <dbl> 0.058621694, 0.062860136, 0.059591883, 0.054901383…
+```
+
+## Incidence Poisson rate model
+
+A plot of the normalised incidence rates of COVID-19 by population size,
+shows initially the rate of COVID cases was highest in the elderly. By
+late 2020 this pattern had changed and rates were uniform across age
+groups. In early 2021 as vaccination took hold and school testing was
+rolled out, younger age groups had higher rates of COVID positive tests,
+with a curious spike in the very young age groups around November 2021.
+In early 2022 the pattern reversed and the elderly again became the age
+group with the highest rates, and that pattern has persisted until the
+present. Transiently the instantaneous rates per 1000 person years
+exceeded 1000 in some age groups, this is possible for limited time
+periods, or if multiple episodes per year can be observed.
+
+``` r
+
+poisson_model = example_england_covid_by_age() %>%
+   ggoutbreak::poisson_locfit_model(window=21) %>%
+   ggoutbreak::normalise_incidence(england_demographics, population_unit=1000, normalise_time="1 year")
+
+raw_pop = example_england_covid_by_age() %>% 
+  ggoutbreak::normalise_count(england_demographics, population_unit=1000, normalise_time="1 year")
+
+plot_incidence(poisson_model, raw = raw_pop, size=0.25)+scale_y_log1p(n=7)+
+  ggplot2::scale_colour_viridis_d(aesthetics = c("fill","colour"))
+```
+
+![](incidence-trends_files/figure-html/unnamed-chunk-2-1.png)
+
+The use of test positives as a proxy for COVID incidence is clearly
+potentially biased by testing (particularly in the first wave where
+testing was limited to those in hospital). A more reliable comparison in
+this situation would be a test positive proportion, but unfortunately
+testing rates are not published broken down by age.
+
+The exponential growth rate is already normalised by population size.
+Comparisons of the growth rate in these populations gives an idea of how
+tightly coupled they are. In most age groups the epidemic is growing and
+shrinking in sync apart from possibly the very young. COVID detections
+in this age group were not particularly reliable though and this would
+be easy to over-interpret.
+
+``` r
+
+
+plot_growth_rate(poisson_model)+
+  ggplot2::scale_fill_viridis_d(aesthetics = c("fill","colour"))+
+  ggplot2::coord_cartesian(ylim=c(-0.15,0.15))
+```
+
+![](incidence-trends_files/figure-html/unnamed-chunk-3-1.png)
+
+The combination of growth and normalised incidence allows us to compare
+the epidemic state at different time points, in this case Christmas day
+in 2020, 2021 and 2022. This shows the same data as the previous graphs.
+
+``` r
+
+plot_growth_phase(poisson_model,
+    timepoints = as.Date(c("Xmas 2020"="2020-12-25","Xmas 2021"="2021-12-25","Xmas 2022"="2022-12-25")),
+    duration = 70, 
+    interval = 7
+)+
+  ggplot2::scale_colour_viridis_d()
+```
+
+![](incidence-trends_files/figure-html/unnamed-chunk-4-1.png)
+
+## Proportion model
+
+There are two possible proportions models which would be of interest
+here. As mentioned about the proportion of positive tests in each age
+group would give us a clearer picture of whether the differences between
+age groups are down to differential testing, but unfortunately testing
+denominator are not available in this data set.
+
+The second potential use is the distribution of ages in the test
+positive age group. This age distribution gives us some information
+about where the burden of disease is in the population but is also
+biased by test prioritisation. In this case the denominator is the
+number of cases in all age groups, and the proportions model tells us
+about the relative frequency of cases in each age group.
+
+A multinomial proportion shows similar patterns as the normalised
+incidence plot above:
+
+``` r
+
+
+binomial_model = example_england_covid_by_age() %>%
+    ggoutbreak::proportion_locfit_model(window=21) %>%
+    dplyr::group_by(class)
+
+p1 = plot_multinomial(binomial_model, normalise = TRUE)+
+  ggplot2::scale_fill_viridis_d()
+
+p2 = ggplot2::ggplot(england_demographics)+
+  ggplot2::geom_bar(ggplot2::aes(x="baseline",y=population/sum(population)*100,fill=class), stat="identity", position="stack", colour="black", linewidth=0.1)+
+  ggplot2::scale_fill_viridis_d(guide="none")+
+  ggplot2::xlab(NULL)+
+  ggplot2::ylab(NULL)+
+  ggplot2::theme(axis.text.y = ggplot2::element_blank())+
+  ggplot2::coord_cartesian(expand=FALSE)
+
+p1+p2+patchwork::plot_layout(nrow=1,widths = c(20,1),guides = "collect")
+```
+
+![](incidence-trends_files/figure-html/unnamed-chunk-5-1.png)
+
+The age distribution of test positives can be normalised by the age
+distribution of the population. This give us a relative proportion of
+age groups in people testing positive versus expected in the population.
+This is conceptually a relative risk but of age group given COVID status
+
+i.e. it is $`\frac{P(age = 80+|COVID+)}{P(age = 80+)}`$
+
+At any point in time for a given population this quantity is centred
+around 1 and comparing it to growth rate gives us a possibly clearer
+picture of the trajectory of the relative distribution of COVID in the
+population. In Xmas 2021 although the majority of cases was in the
+young, relatively high growth in the elderly population meant that they
+were catching up, and from above we can see that by early 2022 the
+elderly had highest COVID positive rates. In 2022 however, the
+separation of the age groups was established and the trajectories were
+acting to preserve that separation.
+
+``` r
+
+risk_ratio_model = binomial_model %>% infer_risk_ratio(england_demographics %>% dplyr::group_by(class))
+
+plot_growth_phase(risk_ratio_model,
+    timepoints = as.Date(c("Xmas 2020"="2020-12-25","Xmas 2021"="2021-12-25","Xmas 2022"="2022-12-25")),
+    duration = 70, 
+    interval = 7
+)+
+  ggplot2::scale_colour_viridis_d()
+```
+
+![](incidence-trends_files/figure-html/unnamed-chunk-6-1.png)
+
+### Pre test probability
+
+Using the ONS COVID-19 infection survey we can look at population
+prevalence based on random sampling (panel A).
+
+The proportion of people positive in a random sample of the population
+can be compared to the proportion of people testing positive out of all
+the people tested. This ratio is an indication of the pre-test
+probability of disease in the non-random sample group and gives us some
+idea of how selectively testing is being applied. If testing is only
+being done on people with symptoms for example then their pre-test
+probability of disease is higher than the general population. This is
+shown in panel B, and it also can be interpreted as how biased the
+sample that is tested for symptoms is.
+
+``` r
+
+england_ons_infection_survey = ukc19::ons_infection_survey %>% 
+  dplyr::filter(name == "England") %>%
+  dplyr::mutate(time = as.time_period(date))
+
+p1 = ggoutbreak::plot_prevalence(
+    england_ons_infection_survey,
+    events = ukc19::timeline
+  )+
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(), 
+    axis.text.x = ggplot2::element_blank(), 
+    axis.text.x.bottom = ggplot2::element_blank()
+  )+
+  ggplot2::ylab("ONS prevalence (%)")
+
+
+p2 = ukc19::england_covid_positivity %>% 
+  dplyr::filter(name == "England") %>%
+  dplyr::mutate(time = as.time_period(date, england_ons_infection_survey$time)) %>%
+  proportion_locfit_model() %>%
+  dplyr::inner_join(england_ons_infection_survey %>% 
+                      dplyr::rename_with(.cols = dplyr::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
+  ) %>%
+  dplyr::transmute(date=date, pre_test_odds = proportion.0.5 / ons.0.5) %>%
+  ggplot2::ggplot(ggplot2::aes(x=date,y=pre_test_odds)) + ggplot2::geom_line() +
+  ggplot2::geom_hline(yintercept=1, colour="grey40",linetype="dashed") +
+  ggplot2::ylab("Pre-test odds ratio") +
+  ggoutbreak::geom_events(events = ukc19::timeline,hide_labels = TRUE)+
+  ggplot2::theme(
+    axis.title.x = ggplot2::element_blank(), 
+    axis.text.x = ggplot2::element_blank(), 
+    axis.text.x.bottom = ggplot2::element_blank(), 
+    axis.text.x.top = ggplot2::element_blank()
+  )
+```
+
+Likewise the incidence of cases per capita can be compared to the
+prevalence. A prevalence-like estimate can be made from the incidence by
+convolving the incidence estimate with a delay distribution that
+represents the duration of infection. Duration of infection could be
+represented either by the sensitivity of a test to detect an infection
+as a function of time after infection, or as the probability of
+successful viral culture as a function of time after symptom onset.
+
+In this case the ratio of prevalence derived from positive case counts,
+resulting from symptomatic testing, and prevalence measured directly on
+a random sample by the ONS survey has a connection with the
+ascertainment rate. The actual value of the ascertainment rate
+calculated by this method depends very heavily on assumptions on the
+duration of infection, and hence the prevalence that is derived from
+case rates, and absolute value of the derived ascertainment is not
+reliable, however the relative change in this number is still
+informative and demonstrates that case ascertainment fell abruptly
+during the omicron wave (panel C).
+
+``` r
+england_pop = england_demographics %>% 
+  dplyr::ungroup() %>% 
+  dplyr::summarise(population = sum(population))
+
+p3 = ukc19::england_covid_positivity %>% 
+  dplyr::mutate(time = as.time_period(date)) %>%
+  dplyr::filter(name == "England") %>%
+  ggoutbreak::poisson_locfit_model() %>%
+  # N.B. `covid_viral_shedding` is technically from symptom onset not infection.
+  # We could argue that this is a good thing as case positivity is closer in time
+  # to symptom onset however this is forgetting about all the cases that would
+  # test positive if they had been tested. An alternative to this would have been 
+  # to use `covid_test_sensitivity` which looks at probability of detection from 
+  # time of infection but it is only in cases with proven infection so a biased 
+  # prior.
+  ggoutbreak::infer_prevalence(pop = england_pop, ip = ukc19::viral_shedding$resampled ) %>%
+  dplyr::inner_join(
+    england_ons_infection_survey %>% 
+      dplyr::filter(name=="England") %>% 
+      dplyr::rename_with(.cols = dplyr::starts_with("prevalence"), .fn = ~stringr::str_replace(.x,"prevalence","ons")), by=c("time")
+  ) %>%
+  dplyr::transmute(date=date, ascertainment = prevalence.0.5 / ons.0.5 * 100) %>%
+  ggplot2::ggplot(ggplot2::aes(x=date,y=ascertainment)) + 
+  ggplot2::geom_line() + 
+  ggplot2::ylab("Ascertainment rate (%)") +
+  ggoutbreak::geom_events(events = ukc19::timeline, hide_labels = TRUE)
+
+
+p1+p2+p3+patchwork::plot_layout(ncol=1)+patchwork::plot_annotation(tag_levels="A")
+```
+
+![](incidence-trends_files/figure-html/unnamed-chunk-8-1.png)

@@ -74,6 +74,8 @@ Coerce an object to a \code{ggoutbreak} compatible time series dataframe
 
 data("mers_2014_15", package="EpiEstim")
 
+set_default_unit("1 day")
+
 # Use an expression to generate a case count:
 # N.B. complex column names need to be surrounded with bcakticks like this:
 

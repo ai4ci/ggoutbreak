@@ -181,7 +181,7 @@ rt_cori = function(
           ) %>%
           .result_from_fit(
             type = "rt",
-            qfn = \(p) {
+            qfn = function(p) {
               .qmixlist(
                 dist = "gamma",
                 p = p,
@@ -212,7 +212,7 @@ rt_cori = function(
           ) %>%
           .result_from_fit(
             type = "rt",
-            qfn = \(p) qgamma2(p, .$rt.fit, .$rt.se.fit)
+            qfn = function(p) qgamma2(p, .$rt.fit, .$rt.se.fit)
           ) %>%
           .keep_cdf(
             type = "rt",

@@ -48,7 +48,7 @@ example_england_covid_by_age() \%>\%
   dplyr::glimpse()
 
 example_england_covid_by_age() \%>\%
-  time_aggregate(.fns=mean) \%>\%
+  time_aggregate(.fns=mean, .cols=dplyr::where(is.numeric)) \%>\%
   dplyr::glimpse()
 }
 \concept{time_period}

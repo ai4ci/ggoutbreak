@@ -15,7 +15,7 @@ day after the infector was infected (given that the infectee was infected)."><me
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,7 +75,8 @@ day after the infector was infected (given that the infectee was infected).</p>
 <span>  n_boots <span class="op">=</span> <span class="fl">100</span>,</span>
 <span>  epiestim_compat <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  epiestim_sampler <span class="op">=</span> <span class="va">epiestim_compat</span>,</span>
-<span>  z_crit <span class="op">=</span> <span class="fl">0.95</span></span>
+<span>  z_crit <span class="op">=</span> <span class="fl">0.95</span>,</span>
+<span>  seed <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.time</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -118,6 +119,10 @@ with correlation.</p></dd>
 
 <dt id="arg-z-crit">z_crit<a class="anchor" aria-label="anchor" href="#arg-z-crit"></a></dt>
 <dd><p>the width of the confidence intervals (defaults to 95%).</p></dd>
+
+
+<dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
+<dd><p>a RNG seed</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -168,7 +173,7 @@ can handle zero/negative serial intervals (e.g. <code>rt_from_incidence</code> o
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   mean             sd              </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>            <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>           </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 5.07 [3.92-6.51] 1.85 [0.88-4.06]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> 5.01 [3.67-6.56] 1.82 [0.83-3.78]</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="plot_ip.html">plot_ip</a></span><span class="op">(</span><span class="va">tmp</span>, alpha<span class="op">=</span><span class="fl">0.1</span><span class="op">)</span> <span class="op">+</span></span></span>
@@ -194,7 +199,7 @@ can handle zero/negative serial intervals (e.g. <code>rt_from_incidence</code> o
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

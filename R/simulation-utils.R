@@ -218,11 +218,11 @@ cfg_weekly_ip_fn = function(
 #' @concept test
 #'
 #' @examples
-#' fn = cfg_gamma_ip_fn(mean_fn = \(t) ifelse(t < 5, 4, 2))
+#' fn = cfg_gamma_ip_fn(mean_fn = function(t) ifelse(t < 5, 4, 2))
 #' # a gamma function that changes mean at time 5
 #' fn(4)
 #' fn(7)
-cfg_gamma_ip_fn = function(mean_fn = ~2, sd_fn = \(mean) sqrt(mean)) {
+cfg_gamma_ip_fn = function(mean_fn = ~2, sd_fn = function(mean) sqrt(mean)) {
   mean_fn = .fn_check(mean_fn)
   sd_fn = .fn_check(sd_fn)
 
@@ -1090,7 +1090,7 @@ sim_geom_function = function(df, ...) {
     return(NULL)
   }
   return(ggplot2::geom_function(
-    fun = \(x) {
+    fun = function(x) {
       if (is.Date(x)) {
         x = date_to_time(x, df$time)
       }
@@ -1697,7 +1697,7 @@ sim_apply_delay.linelist = function(
       ) %>%
       dplyr::rename(tested = sample) %>%
       sim_delay(
-        p_fn = \(t, tested) tested,
+        p_fn = function(t, tested) tested,
         delay_fn = fn_result_delay,
         input = "sample_time",
         "result"
@@ -1759,9 +1759,9 @@ sim_summarise_linelist = function(
   df = i_sim_linelist,
   ...,
   censoring = list(
-    admitted = \(t) rgamma2(t, mean = 5),
-    death = \(t) rgamma2(t, mean = 10),
-    sample = \(t, result_delay) result_delay
+    admitted = function(t) rgamma2(t, mean = 5),
+    death = function(t) rgamma2(t, mean = 10),
+    sample = function(t, result_delay) result_delay
   ),
   max_time = max(df$time)
 ) {
@@ -2029,7 +2029,7 @@ sim_summarise_linelist = function(
 #'   time = 1:10,
 #'   class = rep(c("one","two"),5)
 #' )
-#' .ts_evaluate(\(t,class) {print(t); print(class); 1}, test )
+#' .ts_evaluate(function(t,class) {print(t); print(class); 1}, test )
 #'
 .ts_evaluate = function(fn, df) {
   fn = .fn_check(fn)
@@ -2062,7 +2062,7 @@ sim_summarise_linelist = function(
 # suppressing unused parameter error
 # checks inputs against the formal parameters and throws a helpful error
 # if they don't match, ignoring defaults at the moment.
-# fn = fn = \(a,b,c) a+b+c
+# fn = fn = function(a,b,c) a+b+c
 # try(.fn_check(fn)(x=1,y=2,z=3))
 # .fn_check(fn)(a=1,b=2,c=3,d=4)
 # try(.fn_check(fn)(a=1,y=2,z=3))
@@ -2128,12 +2128,12 @@ sim_summarise_linelist = function(
   })
 }
 
-#' Takes an input mapping specification and applies data transofmrs
+#' Takes an input mapping specification and applies data transforms
 #' @noRd
 #' @examples
 #' fn_list = list(
 #'   Species = ~ toupper(.x),
-#'   Sepal.Width = \(Sepal.Length, Sepal.Width) Sepal.Length+Sepal.Width
+#'   Sepal.Width = function(Sepal.Length, Sepal.Width) Sepal.Length+Sepal.Width
 #' )
 #' fn = .fn_transition(fn_list)
 #' fn(iris %>% dplyr::mutate(t=dplyr::row_number()))

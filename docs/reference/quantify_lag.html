@@ -15,7 +15,7 @@ error of input and estimated based on different lag offsets."><meta property="og
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -84,8 +84,7 @@ style function, in which case the <code>.x</code> variable is the input dataset 
 <li><p>probability (proportion) - the probability of new event during this period.</p></li>
 <li><p>a0 (double) - the beginning of the time period (in days)</p></li>
 <li><p>a1 (double) - the end of the time period (in days)</p></li>
-</ul><p>Minimally grouped by: boot (and other groupings allowed).</p>
-<p>A default value is defined.</p></dd>
+</ul><p>Minimally grouped by: boot (and other groupings allowed).</p></dd>
 
 
 <dt id="arg-lags">lags<a class="anchor" aria-label="anchor" href="#arg-lags"></a></dt>
@@ -100,10 +99,13 @@ in days that the estimate is behind the actual observation</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># lags from a locfit incidence model with Rt estimation.</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="fu"><a href="set_defaults.html">set_default_start</a></span><span class="op">(</span><span class="st">"2025-01-01"</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2020-01-01"</span>
+<span class="r-in"><span><span class="co"># lags from a locfit incidence model with Rt estimation.</span></span></span>
 <span class="r-in"><span><span class="co"># This model has no estimator lag:</span></span></span>
 <span class="r-in"><span><span class="va">pipeline</span> <span class="op">=</span> <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_from_incidence.html">rt_from_incidence</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline</span>, ip <span class="op">=</span> <span class="va">example_ip()</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline</span>, ip <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_ip</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rt from incidence: assuming independence and approximating quantiles. </span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> (N.B. this message will only be displayed once.)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 3 × 2</span></span>
@@ -118,7 +120,7 @@ in days that the estimate is behind the actual observation</p>
 <span class="r-in"><span><span class="co"># this model's lags depend on the infectivity profile.</span></span></span>
 <span class="r-in"><span><span class="co"># In this case it is 8 days</span></span></span>
 <span class="r-in"><span><span class="va">pipeline2</span> <span class="op">=</span>  <span class="op">~</span> <span class="va">.x</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="rt_epiestim.html">rt_epiestim</a></span><span class="op">(</span>ip <span class="op">=</span> <span class="va">.y</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline2</span>, ip<span class="op">=</span><span class="va">example_ip()</span> <span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">quantify_lag</span><span class="op">(</span><span class="va">pipeline2</span>, ip<span class="op">=</span><span class="fu"><a href="example_fns.html">example_ip</a></span><span class="op">(</span><span class="op">)</span> <span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 2</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># Groups:   estimate [1]</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   estimate   lag</span>
@@ -136,7 +138,7 @@ in days that the estimate is behind the actual observation</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

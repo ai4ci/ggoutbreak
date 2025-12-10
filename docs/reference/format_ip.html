@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -65,8 +65,7 @@ optional if <code>tau</code> is given. - a dataframe with columns:</p><ul><li><p
 <li><p>probability (proportion) - the probability of new event during this period.</p></li>
 <li><p>a0 (double) - the beginning of the time period (in days)</p></li>
 <li><p>a1 (double) - the end of the time period (in days)</p></li>
-</ul><p>Minimally grouped by: boot (and other groupings allowed).</p>
-<p>A default value is defined.</p></dd>
+</ul><p>Minimally grouped by: boot (and other groupings allowed).</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -76,8 +75,8 @@ optional if <code>tau</code> is given. - a dataframe with columns:</p><ul><li><p
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">format_ip</span><span class="op">(</span><span class="va">ganyani_ip</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PDF: mean: 5.25 [3.74 — 6.65]; sd: 1.92 [0.705 — 3.19]; 100 bootstraps"</span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu">format_ip</span><span class="op">(</span><span class="fu"><a href="example_fns.html">example_ganyani_ip</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PDF: mean: 5.12 [3.58 — 6.77]; sd: 1.99 [0.849 — 3.16]; 100 bootstraps"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -90,7 +89,7 @@ optional if <code>tau</code> is given. - a dataframe with columns:</p><ul><li><p
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

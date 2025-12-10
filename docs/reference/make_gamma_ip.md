@@ -1,0 +1,133 @@
+# Make an infectivity profile from published data
+
+The infectivity profile is typically fitted to data by MCMC and reported
+as median and 95% credible intervals, of the mean, and the SD of
+(usually) a gamma distribution. This function generates a discrete
+infectivity probability distribution representing the chance that an
+infectee was infected on any specific day after the infector was
+infected (given that the infectee was infected).
+
+## Usage
+
+``` r
+make_gamma_ip(
+  median_of_mean,
+  lower_ci_of_mean = median_of_mean,
+  upper_ci_of_mean = median_of_mean,
+  median_of_sd = sqrt(median_of_mean),
+  lower_ci_of_sd = median_of_sd,
+  upper_ci_of_sd = median_of_sd,
+  correlation = NA,
+  n_boots = 100,
+  epiestim_compat = FALSE,
+  epiestim_sampler = epiestim_compat,
+  z_crit = 0.95,
+  seed = Sys.time()
+)
+```
+
+## Arguments
+
+- median_of_mean, lower_ci_of_mean, upper_ci_of_mean:
+
+  Quantiles of the infectivity profile mean.
+
+- median_of_sd, lower_ci_of_sd, upper_ci_of_sd:
+
+  Quantiles of the infectivity profile SD.
+
+- correlation:
+
+  the correlation between mean and sd. this is optional and will be
+  inferred if not provided.
+
+- n_boots:
+
+  The number of samples to generate.
+
+- epiestim_compat:
+
+  Use `EpiEstim` to generate the infectivity profiles. A true value here
+  results in an infectivity profile with probability of 0 for day 0. If
+  false the infectivity profile may include density at zero or even
+  negative values.
+
+- epiestim_sampler:
+
+  Use `EpiEstim` to generate the random samples using independent
+  truncated normal distributions for mean and SD based on parameters
+  above. If `FALSE` then it will use a log normal distributions with
+  correlation.
+
+- z_crit:
+
+  the width of the confidence intervals (defaults to 95%).
+
+- seed:
+
+  a RNG seed
+
+## Value
+
+a long format infectivity profile data frame, or a list of dataframes if
+input is a vector.
+
+## Details
+
+`EpiEstim` generates these distributions by sampling from a truncated
+normal distribution for both mean and sd. The means and sds thus
+produced are discretised using a gamma distribution offset by 1 day, to
+enforce that the probability of infection on day zero is zero.
+
+This constraint changes the shape of the distribution somewhat and may
+cause a small bias (although there is no ground truth to evaluate). In
+this function two different sampling and discretisation strategy are
+provided. The sampler uses log-normal distributions for both mean and SD
+with a degree of correlation. The discretizer assigns probabilities
+direct from the CDF of the gamma distribution without offset. This
+results in non zero values for the probability at time zero and can only
+be used with Rt estimation methods that can handle zero/negative serial
+intervals (e.g. `rt_from_incidence` or `rt_from_renewal`, or
+`rt_from_growth_rate`). The alternative follows `EpiEstim`s algorithm.
+
+## Examples
+
+``` r
+# COVID-19 estimates from Ganyani et al 2020.
+tmp = make_gamma_ip(5.2, 3.78, 6.78, 1.72, 0.91, 3.93,
+  epiestim_sampler=FALSE, epiestim_compat=FALSE)
+
+tmp %>%
+  dplyr::group_by(boot) %>%
+  dplyr::summarise(
+    mean = sum(tau*probability),
+    sd = sqrt(sum((tau-sum(tau*probability))^2*probability))
+  ) %>%
+  dplyr::summarise(
+    mean = sprintf("%1.2f [%1.2f-%1.2f]",
+      stats::quantile(mean,0.5),
+      stats::quantile(mean,0.025),
+      stats::quantile(mean,0.975)),
+    sd = sprintf("%1.2f [%1.2f-%1.2f]",
+      stats::quantile(sd,0.5),
+      stats::quantile(sd,0.025),
+      stats::quantile(sd,0.975))
+  )
+#> # A tibble: 1 × 2
+#>   mean             sd              
+#>   <chr>            <chr>           
+#> 1 5.01 [3.67-6.56] 1.82 [0.83-3.78]
+
+if(interactive()) {
+  plot_ip(tmp, alpha=0.1) +
+    ggplot2::coord_cartesian(xlim=c(0,15))
+}
+
+means = c(3,4,5)
+ips = make_gamma_ip(means)
+
+if (interactive()) {
+  purrr::map2(ips,means, ~ .x %>% dplyr::mutate(label = sprintf("Mean: %1.2f",.y))) %>%
+    purrr::map( ~ plot_ip(.x,alpha=0.1)+ggplot2::facet_wrap(~label))
+}
+```

@@ -128,7 +128,7 @@ changes2 = changes %>% dplyr::transmute(
   t = t*7,
   R = wallinga_lipsitch(r/7, example_ganyani_ip())
 )
-rt_for_date = \(t) cfg_step_fn(changes2)(as.time_period(t, unit="1 day"))
+rt_for_date = function(t) cfg_step_fn(changes2)(as.time_period(t, unit="1 day"))
 
 # Calculate the reproduction number from daily incidence estimates
 rt_estim = incidence2 %>% rt_from_incidence(ip =  example_ganyani_ip(),approx = TRUE)

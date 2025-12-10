@@ -21,7 +21,7 @@ single point in time."><meta property="og:image" content="https://ai4ci.github.i
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -101,8 +101,7 @@ single point in time.</p>
 <li><p>probability (proportion) - the probability of new event during this period.</p></li>
 <li><p>a0 (double) - the beginning of the time period (in days)</p></li>
 <li><p>a1 (double) - the end of the time period (in days)</p></li>
-</ul><p>Minimally grouped by: boot (and other groupings allowed).</p>
-<p>A default value is defined.</p></dd>
+</ul><p>Minimally grouped by: boot (and other groupings allowed).</p></dd>
 
 
 <dt id="arg-bootstraps">bootstraps<a class="anchor" aria-label="anchor" href="#arg-bootstraps"></a></dt>
@@ -136,11 +135,11 @@ deterministic.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt_smooth.html">test_poisson_rt_smooth</a></span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_poisson_rt_smooth</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
-<span class="r-in"><span>  <span class="fu">rt_from_growth_rate</span><span class="op">(</span>ip<span class="op">=</span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="example_ip().html">example_ip()</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="fu">rt_from_growth_rate</span><span class="op">(</span>ip<span class="op">=</span><span class="fu"><a href="example_fns.html">example_ip</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">tmp</span>, date_labels<span class="op">=</span><span class="st">"%b %y"</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="sim_geom_function.html">sim_geom_function</a></span><span class="op">(</span><span class="va">data</span>,colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></span>
@@ -157,7 +156,7 @@ deterministic.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

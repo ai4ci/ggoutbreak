@@ -581,7 +581,7 @@ rt_incidence_timeseries_implementation = function(
       )
 
     if (mean(tmp_Rt$bias_flag[-(1:max_tau)]) > 0.01) {
-      .warn_once(
+      .message_once(
         "Estimates were assumed to be independent, but more that 1% of estimates\n",
         "are at risk of Rt underestimation by more that 0.05 (absolute).\n",
         "We advise re-running supplying a full variance-covariance matrix, or\n",
@@ -642,7 +642,7 @@ rt_incidence_timeseries_implementation = function(
     out = out %>%
       .result_from_fit(
         type = "rt",
-        qfn = \(p) stats::qlnorm(p, .$rt.fit, .$rt.se.fit)
+        qfn = function(p) stats::qlnorm(p, .$rt.fit, .$rt.se.fit)
       ) %>%
       .keep_cdf(
         type = "rt",
@@ -658,7 +658,7 @@ rt_incidence_timeseries_implementation = function(
       .result_from_fit(
         type = "rt",
         # This is one estimate of Rt, as a mixture distribution.
-        qfn = \(p) {
+        qfn = function(p) {
           purrr::map2_dbl(
             .$mu_Rt_mix,
             .$sigma_Rt_mix,

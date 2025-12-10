@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,6 +61,7 @@
 <span>  event_fill_colour <span class="op">=</span> <span class="st">"grey50"</span>,</span>
 <span>  hide_labels <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  guide_axis <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/sec_axis.html" class="external-link">derive</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  x_axis_style <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"date"</span>, <span class="st">"time_period"</span><span class="op">)</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -105,6 +106,12 @@
 <dd><p>a guide axis configuration for the labels
 (see <code><a href="https://ggplot2.tidyverse.org/reference/guide_axis.html" class="external-link">ggplot2::guide_axis</a></code> and <code><a href="https://ggplot2.tidyverse.org/reference/sec_axis.html" class="external-link">ggplot2::dup_axis</a></code>). This can be used to
 specify a position amongst other things.</p></dd>
+
+
+<dt id="arg-x-axis-style">x_axis_style<a class="anchor" aria-label="anchor" href="#arg-x-axis-style"></a></dt>
+<dd><p>should the x-axis be <code>"date"</code> or a count of
+<code>"time_period"</code>s since a start date (may be specified in <code>...</code> or defaults
+from data)</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -206,6 +213,25 @@ bounds values with <code>NA</code>.</p></li>
 <dd><p>Missing values will be replaced with this value.</p></dd>
 
 
+</dl><p>Named arguments passed on to <code><a href="as.time_period.html">as.time_period</a></code></p><dl><dt><code>unit</code></dt>
+<dd><p>the length of one unit of time. This will be either a integer
+number of days, or a specification such as "1 week", or another <code>time_period</code>.
+If <code>x</code> is a <code>time_period</code>, and the unit is different to that of <code>x</code>
+this will return a rescaled <code>time_period</code> using the new units.</p></dd>
+
+<dt><code>start_date</code></dt>
+<dd><p>the zero time date as something that can be coerced to a
+date. If the <code>x</code> input is already a <code>time_period</code> and this is different to its
+<code>start_date</code> then <code>x</code> will be recalibrated to use the new start date.</p></dd>
+
+<dt><code>anchor</code></dt>
+<dd><p>only relevant if <code>x</code> is a vector of dates, this is a date, or
+<code>"start"</code> or <code>"end"</code> or a weekday name e.g.
+<code>"mon"</code>. With the vector of dates in <code>x</code> it will use this anchor to find a reference date for
+the time-series. If not provided then the current defaults will be used.
+(see <code><a href="set_defaults.html">set_defaults()</a></code>)</p></dd>
+
+
 </dl></dd>
 
 </dl></div>
@@ -223,7 +249,7 @@ bounds values with <code>NA</code>.</p></li>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

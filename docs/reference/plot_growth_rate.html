@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,11 +66,6 @@
 
 <dl><dt id="arg-modelled">modelled<a class="anchor" aria-label="anchor" href="#arg-modelled"></a></dt>
 <dd><p>a growth rate dataframe. - EITHER: a dataframe with columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
-<li><p>incidence.fit (double) - an estimate of the incidence rate on a log scale</p></li>
-<li><p>incidence.se.fit (positive_double) - the standard error of the incidence rate estimate on a log scale</p></li>
-<li><p>incidence.0.025 (positive_double) - lower confidence limit of the incidence rate (true scale)</p></li>
-<li><p>incidence.0.5 (positive_double) - median estimate of the incidence rate (true scale)</p></li>
-<li><p>incidence.0.975 (positive_double) - upper confidence limit of the incidence rate (true scale)</p></li>
 <li><p>growth.fit (double) - an estimate of the growth rate</p></li>
 <li><p>growth.se.fit (positive_double) - the standard error the growth rate</p></li>
 <li><p>growth.0.025 (double) - lower confidence limit of the growth rate</p></li>
@@ -78,11 +73,6 @@
 <li><p>growth.0.975 (double) - upper confidence limit of the growth rate</p></li>
 </ul><p>Any grouping allowed.</p>
 <p>OR with columns:</p><ul><li><p>time (ggoutbreak::time_period + group_unique) - A (usually complete) set of singular observations per unit time as a `time_period`</p></li>
-<li><p>proportion.fit (double) - an estimate of the proportion on a logit scale</p></li>
-<li><p>proportion.se.fit (positive_double) - the standard error of proportion estimate on a logit scale</p></li>
-<li><p>proportion.0.025 (proportion) - lower confidence limit of proportion (true scale)</p></li>
-<li><p>proportion.0.5 (proportion) - median estimate of proportion (true scale)</p></li>
-<li><p>proportion.0.975 (proportion) - upper confidence limit of proportion (true scale)</p></li>
 <li><p>relative.growth.fit (double) - an estimate of the relative growth rate</p></li>
 <li><p>relative.growth.se.fit (positive_double) - the standard error the relative growth rate</p></li>
 <li><p>relative.growth.0.025 (double) - lower confidence limit of the relative growth rate</p></li>
@@ -98,6 +88,40 @@
 <li><p>end (date) - the end date or NA if a single event</p></li>
 </ul><p>Any grouping allowed.</p>
 <p>A default value is defined.</p></dd>
+
+
+</dl><p>Named arguments passed on to <code><a href="geom_truth.html">geom_truth</a></code></p><dl><dt><code>true_df</code></dt>
+<dd><p>a data frame with a <code>time_period</code> column called time and a
+value column (name given in <code>true_col</code>). This is optional and will be picked
+up from the <code>raw</code> parameter if given.</p></dd>
+
+<dt><code>true_col</code></dt>
+<dd><p>the column name / expression of the true value</p></dd>
+
+<dt><code>true_fmt</code></dt>
+<dd><p>a list of ggplot formatting to apply to the true value timeseries</p></dd>
+
+<dt><code>...</code></dt>
+<dd><p>Named arguments passed on to <code><a href="as.time_period.html">as.time_period</a></code></p><dl><dt><code>unit</code></dt>
+<dd><p>the length of one unit of time. This will be either a integer
+number of days, or a specification such as "1 week", or another <code>time_period</code>.
+If <code>x</code> is a <code>time_period</code>, and the unit is different to that of <code>x</code>
+this will return a rescaled <code>time_period</code> using the new units.</p></dd>
+
+<dt><code>start_date</code></dt>
+<dd><p>the zero time date as something that can be coerced to a
+date. If the <code>x</code> input is already a <code>time_period</code> and this is different to its
+<code>start_date</code> then <code>x</code> will be recalibrated to use the new start date.</p></dd>
+
+<dt><code>anchor</code></dt>
+<dd><p>only relevant if <code>x</code> is a vector of dates, this is a date, or
+<code>"start"</code> or <code>"end"</code> or a weekday name e.g.
+<code>"mon"</code>. With the vector of dates in <code>x</code> it will use this anchor to find a reference date for
+the time-series. If not provided then the current defaults will be used.
+(see <code><a href="set_defaults.html">set_defaults()</a></code>)</p></dd>
+
+
+</dl></dd>
 
 
 </dl></dd>
@@ -124,7 +148,7 @@ to something if there are multiple incidence time series in the plot</p></dd>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt_2class.html">test_poisson_rt_2class</a></span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_poisson_rt_2class</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tmp2</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu"><a href="poisson_locfit_model.html">poisson_locfit_model</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>
@@ -142,7 +166,7 @@ to something if there are multiple incidence time series in the plot</p></dd>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

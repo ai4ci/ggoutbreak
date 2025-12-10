@@ -33,9 +33,11 @@ NULL
 #' @export
 example_england_covid_by_age = function() {
   if (is.null(exdata$england_covid_by_age)) {
-    exdata$england_covid_by_age =
-      ukc19::england_cases_by_5yr_age %>%
-      timeseries()
+    with_defaults("2019-12-29", "1 day", {
+      exdata$england_covid_by_age =
+        ukc19::england_cases_by_5yr_age %>%
+        timeseries()
+    })
   }
   return(exdata$england_covid_by_age)
 }
@@ -45,9 +47,11 @@ example_england_covid_by_age = function() {
 #' @export
 example_poisson_age_stratified = function() {
   if (is.null(exdata$poisson_age_stratified)) {
-    exdata$poisson_age_stratified =
-      example_england_covid_by_age() %>%
-      poisson_locfit_model(window = 14)
+    with_defaults("2019-12-29", "1 day", {
+      exdata$poisson_age_stratified =
+        example_england_covid_by_age() %>%
+        poisson_locfit_model(window = 14)
+    })
   }
   return(exdata$poisson_age_stratified)
 }
@@ -57,10 +61,12 @@ example_poisson_age_stratified = function() {
 #' @export
 example_poisson_locfit = function() {
   if (is.null(exdata$example_poisson_locfit)) {
-    exdata$example_poisson_locfit =
-      example_england_covid_by_age() %>%
-      time_aggregate() %>%
-      poisson_locfit_model(window = 14)
+    with_defaults("2019-12-29", "1 day", {
+      exdata$example_poisson_locfit =
+        example_england_covid_by_age() %>%
+        time_aggregate() %>%
+        poisson_locfit_model(window = 14)
+    })
   }
   return(exdata$example_poisson_locfit)
 }
@@ -73,9 +79,11 @@ example_poisson_locfit = function() {
 #' @export
 example_proportion_age_stratified = function() {
   if (is.null(exdata$example_proportion_age_stratified)) {
-    exdata$example_proportion_age_stratified =
-      example_england_covid_by_age() %>%
-      proportion_locfit_model(window = 14)
+    with_defaults("2019-12-29", "1 day", {
+      exdata$example_proportion_age_stratified =
+        example_england_covid_by_age() %>%
+        proportion_locfit_model(window = 14)
+    })
   }
   return(exdata$example_proportion_age_stratified)
 }
@@ -260,7 +268,7 @@ example_poisson_rt_smooth = function() {
     with_defaults("2025-01-01", "1 day", {
       exdata$example_poisson_rt_smooth =
         sim_poisson_Rt_model(
-          fn_Rt = \(t) exp(sin(t / 80 * pi)^4 - 0.25),
+          fn_Rt = function(t) exp(sin(t / 80 * pi)^4 - 0.25),
           max_time = 160
         )
     })
@@ -269,7 +277,7 @@ example_poisson_rt_smooth = function() {
 }
 
 #' @describeIn example_fns Two class example using [sim_poisson_Rt_model()]
-#' Two smooth $R_t$ based incidence tmieseries one growing with an time varying Rt
+#' Two smooth $R_t$ based incidence timeseries one growing with an time varying Rt
 #' `exp(sin(t / 80 * pi)^4 - 0.25)` and the other offset by 10 days:
 #' `exp(sin((t - 10) / 80 * pi)^4 - 0.25)`. This is a simple relative growth test
 #'
@@ -280,12 +288,12 @@ example_poisson_rt_2class = function() {
       exdata$example_poisson_rt_2class =
         dplyr::bind_rows(
           sim_poisson_Rt_model(
-            fn_Rt = \(t) exp(sin(t / 80 * pi)^4 - 0.25),
+            fn_Rt = function(t) exp(sin(t / 80 * pi)^4 - 0.25),
             max_time = 160
           ) %>%
             dplyr::mutate(class = "one"),
           sim_poisson_Rt_model(
-            fn_Rt = \(t) exp(sin((t - 10) / 80 * pi)^4 - 0.25),
+            fn_Rt = function(t) exp(sin((t - 10) / 80 * pi)^4 - 0.25),
             max_time = 160
           ) %>%
             dplyr::mutate(class = "two")
@@ -325,9 +333,9 @@ example_delayed_observation = function() {
     delayed_counts = bpm %>%
       sim_summarise_linelist(
         censoring = list(
-          admitted = \(t) rgamma2(t, mean = 5),
-          death = \(t) rgamma2(t, mean = 10),
-          sample = \(t, result_delay) result_delay
+          admitted = function(t) rgamma2(t, mean = 5),
+          death = function(t) rgamma2(t, mean = 10),
+          sample = function(t, result_delay) result_delay
         ),
         max_time = 0:80
       )

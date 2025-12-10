@@ -195,7 +195,7 @@ time_summarise = function(
 #'   dplyr::glimpse()
 #'
 #' example_england_covid_by_age() %>%
-#'   time_aggregate(.fns=mean) %>%
+#'   time_aggregate(.fns=mean, .cols=dplyr::where(is.numeric)) %>%
 #'   dplyr::glimpse()
 time_aggregate = function(
   df = i_timestamped,

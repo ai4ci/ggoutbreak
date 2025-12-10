@@ -66,7 +66,7 @@ plot_proportion = function(
       if (plot_points) {
         .layer(
           ggplot2::GeomPoint,
-          data = raw,
+          data = raw %>% dplyr::filter(!is.nan(count / denom)),
           mapping = ggplot2::aes(
             x = .x_axis(time, ...),
             y = count / denom * 100,

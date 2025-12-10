@@ -1,0 +1,79 @@
+# Generate an outbreak case count series defined by growth rates using a poisson model.
+
+Generate an outbreak case count series defined by growth rates using a
+poisson model.
+
+## Usage
+
+``` r
+sim_poisson_model(
+  changes = dplyr::tibble(t = c(0, 20, 40, 60, 80), growth = c(0.1, 0, -0.1, 0, 0.1)),
+  kappa = 1,
+  max_time = 104,
+  seed = Sys.time(),
+  fn_growth = cfg_step_fn(changes),
+  fn_imports = ~ifelse(.x == 0, 100, 0),
+  time_unit = "1 day"
+)
+```
+
+## Arguments
+
+- changes:
+
+  a dataframe holding change time points (`t`) and growth rate per week
+  (`growth`) columns
+
+- kappa:
+
+  a dispersion parameter. 1 is no dispersion (compared to poisson),
+  smaller values mean more dispersion.
+
+- max_time:
+
+  the desired length of the time series,
+
+- seed:
+
+  a random seed
+
+- fn_growth:
+
+  a function that takes input vector `t` and returns the growth rates at
+  times `t`
+
+- fn_imports:
+
+  a function that takes input vector `t` and returns the number of
+  imported cases at times `t`.
+
+- time_unit:
+
+  e.g. a daily or weekly time series: "1 day", "7 days"
+
+## Value
+
+A dataframe of case counts
+
+A dataframe containing the following columns:
+
+- statistic (character) - An identifier for the statistic, whether that
+  be infections, admissions, deaths
+
+- count (positive_integer) - Positive case counts associated with the
+  specified time frame
+
+- time (ggoutbreak::time_period + group_unique) - A (usually complete)
+  set of singular observations per unit time as a \`time_period\`
+
+Minimally grouped by: statistic (and other groupings may be present).
+
+## Examples
+
+``` r
+tmp2 = sim_poisson_model(seed=100, fn_imports = ~ ifelse(.x %in% c(0,50),100,0))
+
+if (interactive()) {
+  ggplot2::ggplot(tmp2)+ggplot2::geom_point(ggplot2::aes(x=time,y=count))
+}
+```

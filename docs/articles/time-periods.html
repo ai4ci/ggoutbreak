@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,100 +110,263 @@ the population for each subgroup.</p>
 is in the form of a set of time series of counts, each of which has a
 unique set of times, which are usually complete. To create datasets like
 this from line lists <code>ggoutbreak</code> provides some
-infrastructure for dealing with time series:</p>
+infrastructure for dealing with time series</p>
 </div>
 <div class="section level2">
-<h2 id="time-periods">Time periods<a class="anchor" aria-label="anchor" href="#time-periods"></a>
+<h2 id="coercing-data-into-ggoutbreak-format">Coercing data into <code>ggoutbreak</code> format<a class="anchor" aria-label="anchor" href="#coercing-data-into-ggoutbreak-format"></a>
+</h2>
+<div class="section level3">
+<h3 id="a-simple-linelist">A simple linelist<a class="anchor" aria-label="anchor" href="#a-simple-linelist"></a>
+</h3>
+<p>At the lowest level a linelist might be the list of timestamps of
+some observation. This is the easiest input to process and is imported
+into a single column data frame.</p>
+<p>The linelist is timestamped using a S3 <code>time_period</code> class
+which is simply a numeric of defined length time units (in this case
+days) from an origin (in this case <code>2019-12-29</code>). We can plot
+the individual cases.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># Set the default start date and unit for `ggoutbreak`:</span></span>
+<span><span class="co"># This is not absolutely required as will set itself but helps in the long run</span></span>
+<span><span class="fu"><a href="../reference/set_defaults.html">set_defaults</a></span><span class="op">(</span><span class="st">"2019-12-29"</span>,<span class="st">"1 day"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Timestamps of 100 cases in first 40 days with a exponential growth rate of 0.1.</span></span>
+<span><span class="va">lldates</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2019-12-29"</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="../reference/rexpgrowth.html">rexpgrowth</a></span><span class="op">(</span><span class="fl">100</span>,<span class="fl">0.1</span>,<span class="fl">40</span><span class="op">)</span></span>
+<span><span class="va">ll</span> <span class="op">=</span> <span class="va">lldates</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/linelist.html">linelist</a></span><span class="op">(</span><span class="op">)</span> </span>
+<span><span class="va">ll</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 100</span></span>
+<span><span class="co">#&gt; Columns: 1</span></span>
+<span><span class="co">#&gt; $ time <span style="color: #949494; font-style: italic;">&lt;t[day]&gt;</span> 39.17<span style="color: #949494;">, </span>22.9<span style="color: #949494;">, </span>31.09<span style="color: #949494;">, </span>38.32<span style="color: #949494;">, </span>39.93<span style="color: #949494;">, </span>33.88<span style="color: #949494;">, </span>33.29<span style="color: #949494;">, </span>36.65<span style="color: #949494;">, </span>27.29<span style="color: #949494;">, </span>…</span></span>
+<span><span class="va">ll</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_cases.html">plot_cases</a></span><span class="op">(</span>individual<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="time-periods_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="576"></p>
+<p>Supposing we had a slightly more complex input data. Maybe we also
+had gender and age as well as a <code>onset_dates</code> column in a
+dataframe. We can let <code>ggoutbreak</code> guess the structure of the
+linelist, and time stamp it. If there are multiple date columns we could
+also have specified the date:</p>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">lldf</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
+<span>  onset_dates <span class="op">=</span> <span class="va">lldates</span>,</span>
+<span>  gender <span class="op">=</span> <span class="fu"><a href="../reference/rcategorical.html">rcategorical</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>male <span class="op">=</span> <span class="fl">0.54</span>, women <span class="op">=</span> <span class="fl">0.46</span><span class="op">)</span>, factor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span>,</span>
+<span>  age <span class="op">=</span> <span class="fu"><a href="../reference/rcategorical.html">rcategorical</a></span><span class="op">(</span><span class="fl">100</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>`0-17` <span class="op">=</span> <span class="fl">0.2</span>, `18-64` <span class="op">=</span> <span class="fl">0.6</span>, `65+`<span class="op">=</span><span class="fl">0.2</span><span class="op">)</span>, factor <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># in this case we can let `ggoutbreak` guess the structure of this linelist:</span></span>
+<span></span>
+<span><span class="va">ll2</span> <span class="op">=</span> <span class="va">lldf</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/linelist.html">linelist</a></span><span class="op">(</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">ll2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 100</span></span>
+<span><span class="co">#&gt; Columns: 4</span></span>
+<span><span class="co">#&gt; $ onset_dates <span style="color: #949494; font-style: italic;">&lt;date&gt;</span> 2020-02-06<span style="color: #949494;">, </span>2020-01-20<span style="color: #949494;">, </span>2020-01-29<span style="color: #949494;">, </span>2020-02-05<span style="color: #949494;">, </span>2020-02-0…</span></span>
+<span><span class="co">#&gt; $ gender      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> women<span style="color: #949494;">, </span>women<span style="color: #949494;">, </span>male<span style="color: #949494;">, </span>male<span style="color: #949494;">, </span>male<span style="color: #949494;">, </span>women<span style="color: #949494;">, </span>male<span style="color: #949494;">, </span>women<span style="color: #949494;">, </span>male<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ age         <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> 18-64<span style="color: #949494;">, </span>65+<span style="color: #949494;">, </span>18-64<span style="color: #949494;">, </span>0-17<span style="color: #949494;">, </span>0-17<span style="color: #949494;">, </span>65+<span style="color: #949494;">, </span>18-64<span style="color: #949494;">, </span>18-64<span style="color: #949494;">, </span>0-17<span style="color: #949494;">, </span>65…</span></span>
+<span><span class="co">#&gt; $ time        <span style="color: #949494; font-style: italic;">&lt;t[day]&gt;</span> 39.17<span style="color: #949494;">, </span>22.9<span style="color: #949494;">, </span>31.09<span style="color: #949494;">, </span>38.32<span style="color: #949494;">, </span>39.93<span style="color: #949494;">, </span>33.88<span style="color: #949494;">, </span>33.29<span style="color: #949494;">, </span>36.65<span style="color: #949494;">, </span>…</span></span>
+<span></span>
+<span><span class="co"># And we can plot it with the data ordered how we like:</span></span>
+<span><span class="va">ll2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">age</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/plot_cases.html">plot_cases</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill<span class="op">=</span><span class="va">age</span><span class="op">)</span>, individual<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="time-periods_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="576"></p>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">ll2</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">gender</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/plot_cases.html">plot_cases</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill<span class="op">=</span><span class="va">gender</span><span class="op">)</span>, individual<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
+<p><img src="time-periods_files/figure-html/unnamed-chunk-3-2.png" class="r-plt" width="576"></p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="co"># In this case as it is a different time we can if we like anchor the time</span></span>
+<span><span class="co"># series to the `start` so the time column runs from zero. In this case we are</span></span>
+<span><span class="co"># also going to make the time stamp count in weeks:</span></span>
+<span></span>
+<span><span class="va">sl2014</span> <span class="op">=</span> <span class="fu">outbreaks</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/outbreaks/man/ebola_sierraleone_2014.html" class="external-link">ebola_sierraleone_2014</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu"><a href="../reference/linelist.html">linelist</a></span><span class="op">(</span>date <span class="op">=</span> <span class="va">date_of_onset</span>, anchor<span class="op">=</span><span class="st">"start"</span>, unit<span class="op">=</span><span class="st">"weeks"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span></span>
+<span>    age_cat <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/cut.html" class="external-link">cut</a></span><span class="op">(</span><span class="va">age</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span>,<span class="fl">18</span>,<span class="fl">65</span>,<span class="cn">Inf</span><span class="op">)</span><span class="op">)</span>,</span>
+<span>    <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/where.html" class="external-link">where</a></span><span class="op">(</span><span class="va">is.character</span><span class="op">)</span>,<span class="fu">forcats</span><span class="fu">::</span><span class="va"><a href="https://forcats.tidyverse.org/reference/as_factor.html" class="external-link">as_factor</a></span><span class="op">)</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 11,903</span></span>
+<span><span class="co">#&gt; Columns: 10</span></span>
+<span><span class="co">#&gt; $ id             <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>15<span style="color: #949494;">, </span>16<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ age            <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 20<span style="color: #949494;">, </span>42<span style="color: #949494;">, </span>45<span style="color: #949494;">, </span>15<span style="color: #949494;">, </span>19<span style="color: #949494;">, </span>55<span style="color: #949494;">, </span>50<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>54<span style="color: #949494;">, </span>57<span style="color: #949494;">, </span>50<span style="color: #949494;">, </span>27<span style="color: #949494;">, </span>38<span style="color: #949494;">, </span>29<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ sex            <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F<span style="color: #949494;">, </span>F…</span></span>
+<span><span class="co">#&gt; $ status         <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> confirmed<span style="color: #949494;">, </span>confirmed<span style="color: #949494;">, </span>confirmed<span style="color: #949494;">, </span>confirmed<span style="color: #949494;">, </span>confirmed<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ date_of_onset  <span style="color: #949494; font-style: italic;">&lt;date&gt;</span> 2014-05-18<span style="color: #949494;">, </span>2014-05-20<span style="color: #949494;">, </span>2014-05-20<span style="color: #949494;">, </span>2014-05-21<span style="color: #949494;">, </span>2014-0…</span></span>
+<span><span class="co">#&gt; $ date_of_sample <span style="color: #949494; font-style: italic;">&lt;date&gt;</span> 2014-05-23<span style="color: #949494;">, </span>2014-05-25<span style="color: #949494;">, </span>2014-05-25<span style="color: #949494;">, </span>2014-05-26<span style="color: #949494;">, </span>2014-0…</span></span>
+<span><span class="co">#&gt; $ district       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> Kailahun<span style="color: #949494;">, </span>Kailahun<span style="color: #949494;">, </span>Kailahun<span style="color: #949494;">, </span>Kailahun<span style="color: #949494;">, </span>Kailahun<span style="color: #949494;">, </span>Kaila…</span></span>
+<span><span class="co">#&gt; $ chiefdom       <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> Kissi Teng<span style="color: #949494;">, </span>Kissi Teng<span style="color: #949494;">, </span>Kissi Tonge<span style="color: #949494;">, </span>Kissi Teng<span style="color: #949494;">, </span>Kissi …</span></span>
+<span><span class="co">#&gt; $ time           <span style="color: #949494; font-style: italic;">&lt;t[week]&gt;</span> 0<span style="color: #949494;">, </span>0.29<span style="color: #949494;">, </span>0.29<span style="color: #949494;">, </span>0.43<span style="color: #949494;">, </span>0.43<span style="color: #949494;">, </span>0.43<span style="color: #949494;">, </span>0.43<span style="color: #949494;">, </span>0.57<span style="color: #949494;">, </span>0.57<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ age_cat        <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> "(18,65]"<span style="color: #949494;">, </span>"(18,65]"<span style="color: #949494;">, </span>"(18,65]"<span style="color: #949494;">, </span>"(0,18]"<span style="color: #949494;">, </span>"(18,65]"<span style="color: #949494;">, </span>"…</span></span></code></pre></div>
+<p>Plotting this is also easy, and in this case it is organised by
+week:</p>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sl2014</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="va">status</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/plot_cases.html">plot_cases</a></span><span class="op">(</span>mapping <span class="op">=</span> <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>fill<span class="op">=</span><span class="va">status</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<p><img src="time-periods_files/figure-html/unnamed-chunk-5-1.png" class="r-plt" width="576"></p>
+</div>
+<div class="section level3">
+<h3 id="count-data">Count data<a class="anchor" aria-label="anchor" href="#count-data"></a>
+</h3>
+<p>Count data describes the number of cases in a time period, e.g. a
+day, a week etc. It may also be associated one or more major grouping,
+such as age category, gender, geographical region, ethnicity, viral
+subtype. In all these groups there is potentially a population
+denominator, but often there is a major grouping that may define a
+different denominator (e.g. total tested individuals). These categories
+can be arbitrarily bought into <code>ggoutbreak</code> and managed as
+groups in exactly the same was as you would in a normal
+<code>dplyr</code> pipeline.</p>
+<p>Because count data needs to be unique for each group for each time
+point extra checks are carried out to make sure that the count grouping
+is correct:</p>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="va">nhs111</span> <span class="op">=</span> <span class="fu">outbreaks</span><span class="fu">::</span><span class="va"><a href="https://rdrr.io/pkg/outbreaks/man/covid19_england_nhscalls_2020.html" class="external-link">covid19_england_nhscalls_2020</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">sex</span>,<span class="va">ccg_code</span>,<span class="va">ccg_name</span>,<span class="va">nhs_region</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/timeseries.html">timeseries</a></span><span class="op">(</span></span>
+<span>    class <span class="op">=</span> <span class="va">age</span></span>
+<span>  <span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 253,670</span></span>
+<span><span class="co">#&gt; Columns: 13</span></span>
+<span><span class="co">#&gt; Groups: sex, ccg_code, ccg_name, nhs_region, class, site_type [3,706]</span></span>
+<span><span class="co">#&gt; $ sex        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ ccg_code   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "e38000062"<span style="color: #949494;">, </span>"e38000163"<span style="color: #949494;">, </span>"e38000001"<span style="color: #949494;">, </span>"e38000002"<span style="color: #949494;">, </span>"e38000…</span></span>
+<span><span class="co">#&gt; $ ccg_name   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "nhs_gloucestershire_ccg"<span style="color: #949494;">, </span>"nhs_south_tyneside_ccg"<span style="color: #949494;">, </span>"nhs_a…</span></span>
+<span><span class="co">#&gt; $ nhs_region <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "South West"<span style="color: #949494;">, </span>"North East and Yorkshire"<span style="color: #949494;">, </span>"North East and Y…</span></span>
+<span><span class="co">#&gt; $ class      <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> missing<span style="color: #949494;">, </span>missing<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ time       <span style="color: #949494; font-style: italic;">&lt;t[day]&gt;</span> 80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>80<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ site_type  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "111"<span style="color: #949494;">, </span>"111"<span style="color: #949494;">, </span>"111"<span style="color: #949494;">, </span>"111"<span style="color: #949494;">, </span>"111"<span style="color: #949494;">, </span>"111"<span style="color: #949494;">, </span>"111"<span style="color: #949494;">, </span>"111"<span style="color: #949494;">, </span>"11…</span></span>
+<span><span class="co">#&gt; $ date       <span style="color: #949494; font-style: italic;">&lt;date&gt;</span> 2020-03-18<span style="color: #949494;">, </span>2020-03-18<span style="color: #949494;">, </span>2020-03-18<span style="color: #949494;">, </span>2020-03-18<span style="color: #949494;">, </span>2020-03-18…</span></span>
+<span><span class="co">#&gt; $ age        <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "missing"<span style="color: #949494;">, </span>"missing"<span style="color: #949494;">, </span>"0-18"<span style="color: #949494;">, </span>"0-18"<span style="color: #949494;">, </span>"0-18"<span style="color: #949494;">, </span>"0-18"<span style="color: #949494;">, </span>"0-18…</span></span>
+<span><span class="co">#&gt; $ postcode   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "gl34fe"<span style="color: #949494;">, </span>"ne325nn"<span style="color: #949494;">, </span>"bd57jr"<span style="color: #949494;">, </span>"tn254ab"<span style="color: #949494;">, </span>"rm13ae"<span style="color: #949494;">, </span>"n111np…</span></span>
+<span><span class="co">#&gt; $ day        <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">,</span>…</span></span>
+<span><span class="co">#&gt; $ weekday    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> rest_of_week<span style="color: #949494;">, </span>rest_of_week<span style="color: #949494;">, </span>rest_of_week<span style="color: #949494;">, </span>rest_of_week<span style="color: #949494;">, </span>res…</span></span>
+<span><span class="co">#&gt; $ count      <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>35<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>11<span style="color: #949494;">, </span>19<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>27<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>20<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>…</span></span></code></pre></div>
+<p>In this case the level of detail may be more than we want to deal
+with and aggregating groups maybe useful (mre details later):</p>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">nhs111combined</span> <span class="op">=</span> <span class="va">nhs111</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">sex</span>,<span class="va">class</span>,<span class="va">age</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="../reference/time_aggregate.html">time_aggregate</a></span><span class="op">(</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Rows: 1,713</span></span>
+<span><span class="co">#&gt; Columns: 4</span></span>
+<span><span class="co">#&gt; Groups: sex, class [12]</span></span>
+<span><span class="co">#&gt; $ sex   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"fem…</span></span>
+<span><span class="co">#&gt; $ class <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> 0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18<span style="color: #949494;">, </span>0-18…</span></span>
+<span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;t[day]&gt;</span> 80<span style="color: #949494;">, </span>81<span style="color: #949494;">, </span>82<span style="color: #949494;">, </span>83<span style="color: #949494;">, </span>84<span style="color: #949494;">, </span>85<span style="color: #949494;">, </span>86<span style="color: #949494;">, </span>87<span style="color: #949494;">, </span>88<span style="color: #949494;">, </span>89<span style="color: #949494;">, </span>90<span style="color: #949494;">, </span>91<span style="color: #949494;">, </span>92<span style="color: #949494;">, </span>93<span style="color: #949494;">, </span>94<span style="color: #949494;">, </span>9…</span></span>
+<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 10283<span style="color: #949494;">, </span>10400<span style="color: #949494;">, </span>9029<span style="color: #949494;">, </span>8849<span style="color: #949494;">, </span>9185<span style="color: #949494;">, </span>9326<span style="color: #949494;">, </span>7617<span style="color: #949494;">, </span>6890<span style="color: #949494;">, </span>5768<span style="color: #949494;">, </span>5709<span style="color: #949494;">, </span>58…</span></span>
+<span></span>
+<span><span class="va">nhs111combined</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/plot_counts.html">plot_counts</a></span><span class="op">(</span>mapping<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>colour<span class="op">=</span><span class="va">class</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span><span class="va">sex</span><span class="op">)</span><span class="op">+</span></span>
+<span>  <span class="fu"><a href="../reference/scale_y_log1p.html">scale_y_log1p</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+<p><img src="time-periods_files/figure-html/unnamed-chunk-7-1.png" class="r-plt" width="576"></p>
+</div>
+</div>
+<div class="section level2">
+<h2 id="more-detail-on-time-periods">More detail on time periods<a class="anchor" aria-label="anchor" href="#more-detail-on-time-periods"></a>
 </h2>
 <p>A weekly case rate represents a time slice of seven days with a start
 and finish date. Dates are a continuous quantity, and
 <code>cut_dates()</code> can be used to classify continuous dates into
 periods of equal duration, with a start date:</p>
-<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">random_dates</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">21</span>,<span class="fl">50</span>,replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/cut_date.html">cut_date</a></span><span class="op">(</span> <span class="va">random_dates</span>, unit <span class="op">=</span> <span class="st">"1 week"</span>, anchor <span class="op">=</span> <span class="st">"start"</span>, dfmt <span class="op">=</span> <span class="st">"%d %b"</span><span class="op">)</span></span>
-<span><span class="co">#&gt; 12 Oct — 18 Oct 12 Oct — 18 Oct 05 Oct — 11 Oct 05 Oct — 11 Oct 19 Oct — 25 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-12"    "2025-10-12"    "2025-10-05"    "2025-10-05"    "2025-10-19" </span></span>
-<span><span class="co">#&gt; 19 Oct — 25 Oct 05 Oct — 11 Oct 05 Oct — 11 Oct 12 Oct — 18 Oct 05 Oct — 11 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-19"    "2025-10-05"    "2025-10-05"    "2025-10-12"    "2025-10-05" </span></span>
-<span><span class="co">#&gt; 05 Oct — 11 Oct 19 Oct — 25 Oct 12 Oct — 18 Oct 05 Oct — 11 Oct 12 Oct — 18 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-05"    "2025-10-19"    "2025-10-12"    "2025-10-05"    "2025-10-12" </span></span>
-<span><span class="co">#&gt; 12 Oct — 18 Oct 05 Oct — 11 Oct 19 Oct — 25 Oct 12 Oct — 18 Oct 05 Oct — 11 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-12"    "2025-10-05"    "2025-10-19"    "2025-10-12"    "2025-10-05" </span></span>
-<span><span class="co">#&gt; 05 Oct — 11 Oct 05 Oct — 11 Oct 19 Oct — 25 Oct 05 Oct — 11 Oct 05 Oct — 11 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-05"    "2025-10-05"    "2025-10-19"    "2025-10-05"    "2025-10-05" </span></span>
-<span><span class="co">#&gt; 12 Oct — 18 Oct 05 Oct — 11 Oct 19 Oct — 25 Oct 05 Oct — 11 Oct 12 Oct — 18 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-12"    "2025-10-05"    "2025-10-19"    "2025-10-05"    "2025-10-12" </span></span>
-<span><span class="co">#&gt; 12 Oct — 18 Oct 19 Oct — 25 Oct 05 Oct — 11 Oct 19 Oct — 25 Oct 19 Oct — 25 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-12"    "2025-10-19"    "2025-10-05"    "2025-10-19"    "2025-10-19" </span></span>
-<span><span class="co">#&gt; 05 Oct — 11 Oct 05 Oct — 11 Oct 05 Oct — 11 Oct 19 Oct — 25 Oct 12 Oct — 18 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-05"    "2025-10-05"    "2025-10-05"    "2025-10-19"    "2025-10-12" </span></span>
-<span><span class="co">#&gt; 05 Oct — 11 Oct 19 Oct — 25 Oct 19 Oct — 25 Oct 05 Oct — 11 Oct 12 Oct — 18 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-05"    "2025-10-19"    "2025-10-19"    "2025-10-05"    "2025-10-12" </span></span>
-<span><span class="co">#&gt; 05 Oct — 11 Oct 12 Oct — 18 Oct 19 Oct — 25 Oct 19 Oct — 25 Oct 12 Oct — 18 Oct </span></span>
-<span><span class="co">#&gt;    "2025-10-05"    "2025-10-12"    "2025-10-19"    "2025-10-19"    "2025-10-12"</span></span></code></pre></div>
+<span><span class="co">#&gt; 11 Dec — 17 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec 18 Dec — 24 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-11"    "2025-12-25"    "2025-12-25"    "2025-12-18"    "2025-12-18" </span></span>
+<span><span class="co">#&gt; 18 Dec — 24 Dec 11 Dec — 17 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-18"    "2025-12-11"    "2025-12-25"    "2025-12-25"    "2025-12-25" </span></span>
+<span><span class="co">#&gt; 18 Dec — 24 Dec 11 Dec — 17 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-18"    "2025-12-11"    "2025-12-25"    "2025-12-18"    "2025-12-25" </span></span>
+<span><span class="co">#&gt; 11 Dec — 17 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec 11 Dec — 17 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-11"    "2025-12-25"    "2025-12-25"    "2025-12-11"    "2025-12-11" </span></span>
+<span><span class="co">#&gt; 18 Dec — 24 Dec 11 Dec — 17 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-18"    "2025-12-11"    "2025-12-18"    "2025-12-25"    "2025-12-11" </span></span>
+<span><span class="co">#&gt; 25 Dec — 31 Dec 11 Dec — 17 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-25"    "2025-12-11"    "2025-12-18"    "2025-12-25"    "2025-12-18" </span></span>
+<span><span class="co">#&gt; 18 Dec — 24 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-18"    "2025-12-18"    "2025-12-25"    "2025-12-25"    "2025-12-18" </span></span>
+<span><span class="co">#&gt; 11 Dec — 17 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec 18 Dec — 24 Dec 18 Dec — 24 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-11"    "2025-12-25"    "2025-12-11"    "2025-12-18"    "2025-12-18" </span></span>
+<span><span class="co">#&gt; 18 Dec — 24 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec 25 Dec — 31 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-18"    "2025-12-25"    "2025-12-25"    "2025-12-11"    "2025-12-25" </span></span>
+<span><span class="co">#&gt; 25 Dec — 31 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec </span></span>
+<span><span class="co">#&gt;    "2025-12-25"    "2025-12-25"    "2025-12-25"    "2025-12-25"    "2025-12-18"</span></span></code></pre></div>
 <p>Performing calculations using interval censored dates is awkward. A
 numeric version of dates is useful that can keep track of both the start
 date of a time series and its intrinsic duration, as a numeric. This is
 the purpose of the <code>time_period</code> class:</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dates</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2020-01-01"</span><span class="op">)</span>,by<span class="op">=</span><span class="fl">7</span>,length.out <span class="op">=</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">tmp</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">dates</span><span class="op">)</span></span>
 <span><span class="va">tmp</span></span>
-<span><span class="co">#&gt; time unit: week, origin: 2019-12-29 (a Sunday)</span></span>
-<span><span class="co">#&gt; [1] 0.4285714 1.4285714 2.4285714 3.4285714 4.4285714</span></span></code></pre></div>
-<p>The <code>time_period</code> defaults to using a date at the
-beginning of the COVID-19 pandemic as its origin and calculating a
-duration unit based on the data (in this case weekly).</p>
+<span><span class="co">#&gt; time unit: day, origin: 2019-12-29 (a Sunday)</span></span>
+<span><span class="co">#&gt; 3 10 17 24 31</span></span></code></pre></div>
+<p>The <code>time_period</code> defaults to using the start of the first
+defined <code>time_period</code> in a session as its origin and
+calculating a duration unit based on the data (in this case weekly).
+This behaviour can be controlled explicitly with
+<code><a href="../reference/set_defaults.html">set_default_start()</a></code> and <code><a href="../reference/set_defaults.html">set_default_unit()</a></code>, or
+on an ad-hoc basis by providing the <code>start_date</code> or
+<code>anchor</code> and <code>unit</code> variables to calls to
+<code><a href="../reference/as.time_period.html">as.time_period()</a></code></p>
 <p>A usual set of S3 methods are available such as formatting, printing,
 labelling, and casting <code>time_period</code>s to and from dates and
 <code>POSIXct</code> classes:</p>
-<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/labels.html" class="external-link">labels</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "01/Jan — 08/Jan" "08/Jan — 15/Jan" "15/Jan — 22/Jan" "22/Jan — 29/Jan"</span></span>
-<span><span class="co">#&gt; [5] "29/Jan — 05/Feb"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "01/Jan" "08/Jan" "15/Jan" "22/Jan" "29/Jan"</span></span></code></pre></div>
 <p>A weekly time series can be recast to a different frequency, or start
 date:</p>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">tmp2</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">tmp</span>, unit <span class="op">=</span> <span class="st">"2 days"</span>, start_date <span class="op">=</span> <span class="st">"2020-01-01"</span><span class="op">)</span></span>
 <span><span class="va">tmp2</span></span>
 <span><span class="co">#&gt; time unit: 2 days, origin: 2020-01-01 (a Wednesday)</span></span>
-<span><span class="co">#&gt; [1]  0.0  3.5  7.0 10.5 14.0</span></span></code></pre></div>
+<span><span class="co">#&gt; 0 3.5 7 10.5 14</span></span></code></pre></div>
 <p>and the original dates should be recoverable:</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">tmp2</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "2020-01-01" "2020-01-08" "2020-01-15" "2020-01-22" "2020-01-29"</span></span></code></pre></div>
 <p><code><a href="../reference/date_seq.html">date_seq()</a></code> can be used to make sure a set of periodic
 times is complete:</p>
-<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">tmp3</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0</span><span class="op">:</span><span class="fl">2</span>,<span class="fl">4</span><span class="op">:</span><span class="fl">5</span><span class="op">)</span><span class="op">*</span><span class="fl">7</span>,anchor <span class="op">=</span> <span class="st">"start"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="../reference/date_seq.html">date_seq</a></span><span class="op">(</span><span class="va">tmp3</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] "2025-10-04" "2025-10-11" "2025-10-18" "2025-10-25" "2025-11-01"</span></span>
-<span><span class="co">#&gt; [6] "2025-11-08"</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] "2025-12-10" "2025-12-17" "2025-12-24" "2025-12-31" "2026-01-07"</span></span>
+<span><span class="co">#&gt; [6] "2026-01-14"</span></span></code></pre></div>
 <p><code>time_period</code>s can also be used with monthly or yearly
-data but such data are not regular. This is approximately handles and
+data but such data are not regular. This is approximately handled and
 irregular date periods are generally OK to use with
 <code>ggoutbreak</code>. Some functions like <code>date_seq</code> may
 not work as anticipated with irregular dates, and some conversions
-between weeks and months for example are potentially risky.</p>
-<p>Two time series can be aligned to make them comparable:</p>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+between weeks and months, for example, are potentially lossy.</p>
+<p>Two time series can be aligned to make them comparable, although by
+default the creation of time series means they are already
+comparable:</p>
+<div class="sourceCode" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">orig_dates</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fl">1</span><span class="op">:</span><span class="fl">10</span><span class="op">*</span><span class="fl">7</span></span>
 <span></span>
 <span><span class="co"># a 2 daily time series based on weekly dates</span></span>
-<span><span class="va">t1</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">orig_dates</span>, unit <span class="op">=</span> <span class="st">"2 days"</span>, start_date <span class="op">=</span> <span class="st">"2021-01-01"</span><span class="op">)</span></span>
+<span><span class="va">t1</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">orig_dates</span>, unit <span class="op">=</span> <span class="st">"2 days"</span>, anchor <span class="op">=</span> <span class="st">"2021-01-01"</span><span class="op">)</span></span>
 <span><span class="va">t1</span></span>
 <span><span class="co">#&gt; time unit: 2 days, origin: 2021-01-01 (a Friday)</span></span>
-<span><span class="co">#&gt;  [1] 872.0 875.5 879.0 882.5 886.0 889.5 893.0 896.5 900.0 903.5</span></span>
+<span><span class="co">#&gt; 905.5 909 912.5 916 919.5 923 926.5 930 933.5 937</span></span>
 <span></span>
 <span><span class="co"># a weekly with different start date</span></span>
-<span><span class="va">t2</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">orig_dates</span>, unit <span class="op">=</span> <span class="st">"1 week"</span>, start_date <span class="op">=</span> <span class="st">"2022-01-01"</span><span class="op">)</span></span>
+<span><span class="va">t2</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">orig_dates</span>, unit <span class="op">=</span> <span class="st">"1 week"</span>, anchor <span class="op">=</span> <span class="st">"2022-01-01"</span><span class="op">)</span></span>
 <span><span class="va">t2</span></span>
 <span><span class="co">#&gt; time unit: week, origin: 2022-01-01 (a Saturday)</span></span>
-<span><span class="co">#&gt;  [1] 197 198 199 200 201 202 203 204 205 206</span></span>
+<span><span class="co">#&gt; 206.6 207.6 208.6 209.6 210.6 211.6 212.6 213.6 214.6 215.6</span></span>
 <span></span>
 <span><span class="co"># rebase t1 into the same format as t2</span></span>
 <span><span class="co"># as t1 and t2 based on the same original dates converting t2 onto the same</span></span>
@@ -211,7 +374,12 @@ between weeks and months for example are potentially risky.</p>
 <span><span class="va">t3</span> <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">t1</span>,<span class="va">t2</span><span class="op">)</span></span>
 <span><span class="va">t3</span></span>
 <span><span class="co">#&gt; time unit: week, origin: 2022-01-01 (a Saturday)</span></span>
-<span><span class="co">#&gt;  [1] 197 198 199 200 201 202 203 204 205 206</span></span></code></pre></div>
+<span><span class="co">#&gt; 206.6 207.6 208.6 209.6 210.6 211.6 212.6 213.6 214.6 215.6</span></span>
+<span></span>
+<span><span class="co"># This happens automatically when the vectors are concatented</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="va">t1</span>,<span class="va">t2</span><span class="op">)</span></span>
+<span><span class="co">#&gt; time unit: 2 days, origin: 2021-01-01 (a Friday)</span></span>
+<span><span class="co">#&gt; 905.5 909 912.5 916 919.5 923 926.5 930 933.5 937 905.5 909 912.5 916 919.5 923 926.5 930 933.5 937</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="times-in-ggoutbreak-and-conversion-of-line-lists">Times in <code>ggoutbreak</code> and conversion of line-lists<a class="anchor" aria-label="anchor" href="#times-in-ggoutbreak-and-conversion-of-line-lists"></a>
@@ -219,26 +387,29 @@ between weeks and months for example are potentially risky.</p>
 <p><code>ggoutbreak</code> uses the <code>time_period</code> class
 internally extensively. Casting dates to and from
 <code>time_periods</code> is all that generally needs to be done before
-using <code>ggoutbreak</code>. Most of the functions in
-<code>ggoutbreak</code> operate on time series data which expect a
-unique (and usually complete) set of data on a periodic time.</p>
+using <code>ggoutbreak</code> and this is done automatically by
+<code><a href="../reference/linelist.html">linelist()</a></code> and <code><a href="../reference/timeseries.html">timeseries()</a></code> functions. Most of
+the functions in <code>ggoutbreak</code> operate on time series data
+which expect a unique (and usually complete) set of data on a periodic
+time.</p>
 <p>To help prepare line-list data into time series there is the
 <code><a href="../reference/time_summarise.html">time_summarise()</a></code> function. A minimal line-list will have a
-date column and nothing else.</p>
-<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+date column and nothing else. From this we can generate a count of cases
+over a specific time unit:</p>
+<div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">random_dates</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">21</span>,<span class="fl">50</span>,replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">linelist</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span>date <span class="op">=</span> <span class="va">random_dates</span><span class="op">)</span></span>
 <span><span class="va">linelist</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu"><a href="../reference/time_summarise.html">time_summarise</a></span><span class="op">(</span>unit<span class="op">=</span><span class="st">"1 week"</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 3</span></span>
 <span><span class="co">#&gt; Columns: 2</span></span>
-<span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2</span></span>
-<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 27<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>6</span></span></code></pre></div>
+<span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;t[week]&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2</span></span>
+<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 16<span style="color: #949494;">, </span>20<span style="color: #949494;">, </span>14</span></span></code></pre></div>
 <p>If the line-list contains a <code>class</code> column it is
 interpreted as a complete record of all possible options from which we
 can calculate a denominator. In this case the positive and negative
 results of a test:</p>
-<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">random_dates</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">21</span>,<span class="fl">200</span>,replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">linelist2</span> <span class="op">=</span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
@@ -250,9 +421,9 @@ results of a test:</p>
 <span><span class="co">#&gt; Columns: 4</span></span>
 <span><span class="co">#&gt; Groups: class [2]</span></span>
 <span><span class="co">#&gt; $ class <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "negative"<span style="color: #949494;">, </span>"negative"<span style="color: #949494;">, </span>"negative"<span style="color: #949494;">, </span>"positive"<span style="color: #949494;">, </span>"positive"<span style="color: #949494;">, </span>"pos…</span></span>
-<span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2</span></span>
-<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 52<span style="color: #949494;">, </span>66<span style="color: #949494;">, </span>73<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>3</span></span>
-<span><span class="co">#&gt; $ denom <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 56<span style="color: #949494;">, </span>68<span style="color: #949494;">, </span>76<span style="color: #949494;">, </span>56<span style="color: #949494;">, </span>68<span style="color: #949494;">, </span>76</span></span></code></pre></div>
+<span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;t[week]&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2</span></span>
+<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 66<span style="color: #949494;">, </span>76<span style="color: #949494;">, </span>53<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>1</span></span>
+<span><span class="co">#&gt; $ denom <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 68<span style="color: #949494;">, </span>78<span style="color: #949494;">, </span>54<span style="color: #949494;">, </span>68<span style="color: #949494;">, </span>78<span style="color: #949494;">, </span>54</span></span></code></pre></div>
 <p>In this specific example subsequent analysis with
 <code>ggoutbreak</code> may focus on the <code>positive</code> subgroup
 only, as the comparison between <code>positive</code> and
@@ -265,7 +436,7 @@ grouping other than <code>class</code> columns is also possible for
 multi-faceted comparisons, and grouping is preserved but not included
 automatically in the denominator, which may need to be manually
 calculated:</p>
-<div class="sourceCode" id="cb10"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">random_dates</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="https://rdrr.io/r/base/sample.html" class="external-link">sample.int</a></span><span class="op">(</span><span class="fl">21</span>,<span class="fl">200</span>,replace <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">variant</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Multinom.html" class="external-link">rmultinom</a></span><span class="op">(</span><span class="fl">200</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.1</span>,<span class="fl">0.3</span>,<span class="fl">0.6</span><span class="op">)</span><span class="op">)</span>, MARGIN <span class="op">=</span> <span class="fl">2</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">x</span><span class="op">==</span><span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
@@ -286,9 +457,9 @@ calculated:</p>
 <span><span class="co">#&gt; Groups: gender, class [6]</span></span>
 <span><span class="co">#&gt; $ gender <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">, </span>"male"<span style="color: #949494;">, </span>"male"<span style="color: #949494;">, </span>"male"<span style="color: #949494;">, </span>"female"<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ class  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "variant1"<span style="color: #949494;">, </span>"variant2"<span style="color: #949494;">, </span>"variant3"<span style="color: #949494;">, </span>"variant1"<span style="color: #949494;">, </span>"variant2"<span style="color: #949494;">, </span>"va…</span></span>
-<span><span class="co">#&gt; $ time   <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2</span></span>
-<span><span class="co">#&gt; $ count  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 5<span style="color: #949494;">, </span>12<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>26<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>24<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>8<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>25<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>12</span></span>
-<span><span class="co">#&gt; $ denom  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 34<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>33<span style="color: #949494;">, </span>33<span style="color: #949494;">, </span>33<span style="color: #949494;">, </span>36<span style="color: #949494;">, </span>36<span style="color: #949494;">, </span>36<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>38<span style="color: #949494;">, </span>38<span style="color: #949494;">, </span>38…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ time   <span style="color: #949494; font-style: italic;">&lt;t[week]&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>2</span></span>
+<span><span class="co">#&gt; $ count  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 2<span style="color: #949494;">, </span>9<span style="color: #949494;">, </span>28<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>16<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>13<span style="color: #949494;">, </span>22<span style="color: #949494;">, </span>3<span style="color: #949494;">, </span>6<span style="color: #949494;">, </span>22<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>22<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>15</span></span>
+<span><span class="co">#&gt; $ denom  <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 39<span style="color: #949494;">, </span>39<span style="color: #949494;">, </span>39<span style="color: #949494;">, </span>32<span style="color: #949494;">, </span>32<span style="color: #949494;">, </span>32<span style="color: #949494;">, </span>37<span style="color: #949494;">, </span>37<span style="color: #949494;">, </span>37<span style="color: #949494;">, </span>31<span style="color: #949494;">, </span>31<span style="color: #949494;">, </span>31<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>34<span style="color: #949494;">, </span>34<span style="color: #949494;">,</span>…</span></span></code></pre></div>
 </div>
 <div class="section level2">
 <h2 id="aggregating-time-series-datasets-">Aggregating time series datasets.<a class="anchor" aria-label="anchor" href="#aggregating-time-series-datasets-"></a>
@@ -298,7 +469,7 @@ removing a level of grouping whilst retaining time is made easier with
 <code><a href="../reference/time_aggregate.html">time_aggregate()</a></code>. In this case we wish to sum
 <code>count</code> and <code>denom</code> by gender, retaining the class
 grouping.</p>
-<div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="va">count_by_gender</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
 <span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/group_by.html" class="external-link">group_by</a></span><span class="op">(</span><span class="va">class</span>,<span class="va">gender</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
@@ -308,9 +479,9 @@ grouping.</p>
 <span><span class="co">#&gt; Columns: 4</span></span>
 <span><span class="co">#&gt; Groups: class [3]</span></span>
 <span><span class="co">#&gt; $ class <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> "variant1"<span style="color: #949494;">, </span>"variant1"<span style="color: #949494;">, </span>"variant1"<span style="color: #949494;">, </span>"variant2"<span style="color: #949494;">, </span>"variant2"<span style="color: #949494;">, </span>"var…</span></span>
-<span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2</span></span>
-<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 7<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>10<span style="color: #949494;">, </span>17<span style="color: #949494;">, </span>16<span style="color: #949494;">, </span>16<span style="color: #949494;">, </span>43<span style="color: #949494;">, </span>49<span style="color: #949494;">, </span>37</span></span>
-<span><span class="co">#&gt; $ denom <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 67<span style="color: #949494;">, </span>70<span style="color: #949494;">, </span>63<span style="color: #949494;">, </span>67<span style="color: #949494;">, </span>70<span style="color: #949494;">, </span>63<span style="color: #949494;">, </span>67<span style="color: #949494;">, </span>70<span style="color: #949494;">, </span>63</span></span></code></pre></div>
+<span><span class="co">#&gt; $ time  <span style="color: #949494; font-style: italic;">&lt;t[week]&gt;</span> 0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>1<span style="color: #949494;">, </span>2</span></span>
+<span><span class="co">#&gt; $ count <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 8<span style="color: #949494;">, </span>5<span style="color: #949494;">, </span>4<span style="color: #949494;">, </span>19<span style="color: #949494;">, </span>19<span style="color: #949494;">, </span>20<span style="color: #949494;">, </span>44<span style="color: #949494;">, </span>44<span style="color: #949494;">, </span>37</span></span>
+<span><span class="co">#&gt; $ denom <span style="color: #949494; font-style: italic;">&lt;int&gt;</span> 71<span style="color: #949494;">, </span>68<span style="color: #949494;">, </span>61<span style="color: #949494;">, </span>71<span style="color: #949494;">, </span>68<span style="color: #949494;">, </span>61<span style="color: #949494;">, </span>71<span style="color: #949494;">, </span>68<span style="color: #949494;">, </span>61</span></span></code></pre></div>
 <p>by default <code>time_aggregate</code> will sum any of
 <code>count</code>, <code>denom</code> and <code>population</code>
 columns but any other behaviour can be specified by passing
@@ -327,7 +498,7 @@ columns but any other behaviour can be specified by passing
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>

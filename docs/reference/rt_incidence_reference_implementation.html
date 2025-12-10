@@ -15,7 +15,7 @@ please see rt_incidence_timeseries_implementation()."><meta property="og:image" 
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -134,9 +134,9 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt_smooth.html">test_poisson_rt_smooth</a></span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_poisson_rt_smooth</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">omega</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="omega_matrix.html">omega_matrix</a></span><span class="op">(</span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="example_ip().html">example_ip()</a></span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">omega</span> <span class="op">=</span> <span class="fu"><a href="omega_matrix.html">omega_matrix</a></span><span class="op">(</span><span class="fu"><a href="example_fns.html">example_ip</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">k</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/nrow.html" class="external-link">nrow</a></span><span class="op">(</span><span class="va">omega</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pred_time</span> <span class="op">=</span> <span class="fl">50</span></span></span>
@@ -174,10 +174,10 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
 <span class="r-in"><span><span class="co"># quantiles from a mixture distribution:</span></span></span>
 <span class="r-in"><span><span class="va">rt_est</span><span class="op">$</span><span class="fu">quantile_Rt_fn</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>,<span class="fl">0.5</span>,<span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  q.0.025    q.0.5  q.0.975 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.455526 1.634377 1.830540 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.424568 1.577702 1.793228 </span>
 <span class="r-in"><span><span class="co"># and from the rough estimate based on matching of moments:</span></span></span>
 <span class="r-in"><span><span class="fu">stats</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/r/stats/Lognormal.html" class="external-link">qlnorm</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>,<span class="fl">0.5</span>,<span class="fl">0.975</span><span class="op">)</span>, <span class="va">rt_est</span><span class="op">$</span><span class="va">meanlog_Rt_star</span>, <span class="va">rt_est</span><span class="op">$</span><span class="va">sdlog_Rt_star</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.459894 1.633823 1.828472</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 1.408223 1.582160 1.777581</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># GLM do not produce vcov matrices we can estimate them if we have access to</span></span></span>
 <span class="r-in"><span><span class="co"># the data:</span></span></span>
@@ -188,7 +188,7 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
 <span class="r-in"><span><span class="va">rt_est_vcov</span> <span class="op">=</span> <span class="fu">rt_incidence_reference_implementation</span><span class="op">(</span>mu_t<span class="op">=</span><span class="va">mu_t</span>,vcov_ij <span class="op">=</span> <span class="va">vcov_glm_ij</span>, omega <span class="op">=</span> <span class="va">omega</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rt_est_vcov</span><span class="op">$</span><span class="fu">quantile_Rt_fn</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>,<span class="fl">0.5</span>,<span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  q.0.025    q.0.5  q.0.975 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.454665 1.634329 1.832545 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.423874 1.577717 1.794345 </span>
 <span class="r-in"><span><span class="co"># In theory assuming independence leads to excess uncertainty and possible</span></span></span>
 <span class="r-in"><span><span class="co"># underestimation bias. In most situations though this appears low risk.</span></span></span>
 <span class="r-in"><span></span></span>
@@ -205,7 +205,7 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
 <span class="r-in"><span><span class="va">rt_est2</span> <span class="op">=</span> <span class="fu">rt_incidence_reference_implementation</span><span class="op">(</span>mu_t<span class="op">=</span><span class="va">mu_t2</span>, vcov_ij<span class="op">=</span><span class="va">vcov_ij</span>, omega <span class="op">=</span> <span class="va">omega</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">rt_est2</span><span class="op">$</span><span class="fu">quantile_Rt_fn</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">0.025</span>,<span class="fl">0.5</span>,<span class="fl">0.975</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  q.0.025    q.0.5  q.0.975 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1.474990 1.659205 1.865734 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1.442381 1.592879 1.826743 </span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># How does this compare to EpiEstim:</span></span></span>
 <span class="r-in"><span><span class="co"># N.B. setting seed to make deterministic</span></span></span>
@@ -225,7 +225,7 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
 <span class="r-in"><span><span class="va">epi</span><span class="op">$</span><span class="va">R</span> <span class="op"><a href="pipe.html">%&gt;%</a></span></span></span>
 <span class="r-in"><span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">`Quantile.0.025(R)`</span>, <span class="va">`Median(R)`</span>, <span class="va">`Quantile.0.975(R)`</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   Quantile.0.025(R) Median(R) Quantile.0.975(R)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 1          1.616201  1.906538          2.228721</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1          1.655946   1.91267           2.25184</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
@@ -239,7 +239,7 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

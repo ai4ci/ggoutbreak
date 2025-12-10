@@ -66,9 +66,9 @@ TODO: setup simulation.
 # delayed_counts = bpm %>%
 #   ggoutbreak::sim_summarise_linelist(
 #     censoring = list(
-#       admitted = \(t) rgamma2(t, mean = 5),
-#       death = \(t) rgamma2(t, mean = 10),
-#       sample = \(t, result_delay) result_delay
+#       admitted = function(t) rgamma2(t, mean = 5),
+#       death = function(t) rgamma2(t, mean = 10),
+#       sample = function(t, result_delay) result_delay
 #     ),
 #     max_time = 0:80
 #   )

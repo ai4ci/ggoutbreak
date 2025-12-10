@@ -65,7 +65,7 @@ infer_population = function(
   base = base %>% dplyr::select(dplyr::all_of(shared_cols), !!baseline_col)
 
   if (!all(dplyr::group_vars(base) %in% shared_cols)) {
-    warning(
+    message(
       "different column groupings in `modelled` and `base` parameters.\n",
       "regrouping `base` data to be compatible with `modelled` grouping"
     )
@@ -75,7 +75,7 @@ infer_population = function(
   if (interfacer::is_col_present(base, time)) {
     if (!.metadata_matches(base$time, modelled$time)) {
       if (.get_meta(base$time)$unit != .get_meta(modelled$time)$unit) {
-        warning(
+        message(
           "inputs have time columns with different units and are being rescaled to a common value."
         )
       }

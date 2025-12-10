@@ -1,0 +1,84 @@
+# Apply a right censoring to count data.
+
+Delayed observations means that if, for example a case is only
+attributed to a disease after a delay there is right censoring of the
+data. There can be very complex patterns of right censoring if for
+example observations are batched and published weekly. During COVID in
+the UK some death data was published frequently but some was
+retrospectively reported on monthly intervals, depending on where the
+patient died, which lead to complex time dependent biases in the death
+data. Given the description of the delay, this function will simulate
+this effect for count data. In another example there were delays
+reporting test results in the run up to Christmas which resulted in case
+rates apparently dropping as schools broke up. This could have affected
+timing of the 2021 Christmas lockdown.
+
+## Usage
+
+``` r
+sim_delayed_observation(
+  df = i_sim_count_data,
+  delay_fn,
+  ...,
+  input = "infections",
+  output = input,
+  max_time = max(df$time)
+)
+```
+
+## Arguments
+
+- df:
+
+  a count dataframe from e.g.
+  [`sim_poisson_model()`](https://ai4ci.github.io/ggoutbreak/reference/sim_poisson_model.md)
+  or
+  [`sim_summarise_linelist()`](https://ai4ci.github.io/ggoutbreak/reference/sim_summarise_linelist.md)
+
+- delay_fn:
+
+  a function that takes time and returns the probability of observation
+  (given it occurred) over time since infection (i.e. tau) as an ip
+  delay distribution. This does not have to sum to 1 (e.g. mapping
+  incidence to prevalence) but if not then it will behave as if some
+  fraction or events are not observed (or observed multiple times). See
+  [`cfg_weekly_ip_fn()`](https://ai4ci.github.io/ggoutbreak/reference/cfg_weekly_ip_fn.md)
+  and
+  [`cfg_gamma_ip_fn()`](https://ai4ci.github.io/ggoutbreak/reference/cfg_gamma_ip_fn.md)
+  for helper functions to construct this parameter.
+
+- ...:
+
+  not used
+
+- input:
+
+  the input statistic (defaults to `count`)
+
+- output:
+
+  the output column name (defaults to same as `input`)
+
+- max_time:
+
+  the date on which censoring is taking place.
+
+## Value
+
+the result of applying this right censoring to the data.
+
+## Examples
+
+``` r
+weekday_delay = make_fixed_ip(mean = 5, sd = 2)
+weekend_delay = make_fixed_ip(mean = 7, sd = 2)
+
+delay_fn = ~ ifelse(.x %% 7 %in% c(6,7), list(weekend_delay), list(weekday_delay))
+
+data = dplyr::tibble(time=1:40, count = rep(100,40), statistic="infections") %>%
+  dplyr::group_by(statistic) %>%
+  sim_delayed_observation(delay_fn,output="delayed")
+
+if (interactive()) ggplot2::ggplot(data,ggplot2::aes(x=time,colour=statistic))+
+  ggplot2::geom_line(ggplot2::aes(y=count))
+```

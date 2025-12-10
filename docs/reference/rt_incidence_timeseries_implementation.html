@@ -15,7 +15,7 @@ until there is at least the"><meta property="og:image" content="https://ai4ci.gi
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,8 +107,7 @@ this slower than using the full covariance matrix.</p></dd>
 <dd><p>a long format infectivity profile dataframe. - a dataframe with columns:</p><ul><li><p>boot (anything + default(1)) - a bootstrap identifier</p></li>
 <li><p>probability (proportion) - the probability of new event during this period.</p></li>
 <li><p>tau (integer + complete) - the days since the index event.</p></li>
-</ul><p>Minimally grouped by: boot (and other groupings allowed).</p>
-<p>A default value is defined.</p></dd>
+</ul><p>Minimally grouped by: boot (and other groupings allowed).</p></dd>
 
 
 <dt id="arg-tidy">tidy<a class="anchor" aria-label="anchor" href="#arg-tidy"></a></dt>
@@ -151,8 +150,8 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="test_poisson_rt_smooth.html">test_poisson_rt_smooth</a></span></span></span>
-<span class="r-in"><span><span class="va">ip</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="example_ip().html">example_ip()</a></span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_poisson_rt_smooth</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">ip</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_ip</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># first we need a set of incidence estimates</span></span></span>
 <span class="r-in"><span><span class="co"># we fit a poisson model to counts using a GAM:</span></span></span>
@@ -195,11 +194,13 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
 <span class="r-in"><span>    data <span class="op">=</span> <span class="va">rt_est</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">time</span>, y<span class="op">=</span><span class="va">mean_Rt_star</span>, colour<span class="op">=</span><span class="st">"gam+rt"</span><span class="op">)</span><span class="op">)</span><span class="op">+</span></span></span>
 <span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    data <span class="op">=</span> <span class="va">epi</span><span class="op">$</span><span class="va">R</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="va">t_end</span>, y<span class="op">=</span><span class="va">`Mean(R)`</span>, colour<span class="op">=</span><span class="st">"epiestim"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Don't know how to automatically pick scale for object of type</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;time_period/vctrs_vctr&gt;</span>. Defaulting to continuous.</span>
 <span class="r-plt img"><img src="rt_incidence_timeseries_implementation-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># mean bias of GAM+rt estimate:</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/mean.html" class="external-link">mean</a></span><span class="op">(</span><span class="va">data</span><span class="op">$</span><span class="va">rt</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq_along</a></span><span class="op">(</span><span class="va">rt_est</span><span class="op">$</span><span class="va">mean_Rt_star</span><span class="op">)</span><span class="op">]</span> <span class="op">-</span> <span class="va">rt_est</span><span class="op">$</span><span class="va">mean_Rt_star</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.008394484</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] 0.01708208</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>
@@ -212,7 +213,7 @@ https://ai4ci.github.io/ggoutbreak/articles/rt-from-incidence.html</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

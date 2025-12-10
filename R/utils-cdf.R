@@ -261,7 +261,7 @@
 # tmp2 = .cdf_generator(mean=list(c(1,2,3),c(3,4,5)),sd=list(c(1,1,1),c(2,2,2)))
 # lapply(tmp2, function(fn) fn(0:10))
 # logit_cdf = .cdf_generator(mean=0,sd=1,trans_fn=.logit)
-# lapply(logit_cdf, \(f) f(seq(0,1,0.1)))
+# lapply(logit_cdf, function(f) f(seq(0,1,0.1)))
 # trans here would be .logit or log,
 .cdf_generator = function(..., trans_fn = ~.x) {
   dots = rlang::list2(...)
@@ -273,7 +273,7 @@
     if (!is.list(samples)) {
       samples = list(samples)
     }
-    return(lapply(samples, \(x) .ecdf(x, trans_fn = trans_fn)))
+    return(lapply(samples, function(x) .ecdf(x, trans_fn = trans_fn)))
   }
 
   if (identical(names(dots), c("mean", "sd"))) {

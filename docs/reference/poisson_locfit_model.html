@@ -11,7 +11,7 @@ using the package locfit."><meta property="og:image" content="https://ai4ci.gith
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,8 +114,7 @@ a linear model piece wise. - default <code>2</code></p></dd>
 Rt value will not be estimated - a dataframe with columns:</p><ul><li><p>boot (anything + default(1)) - a bootstrap identifier</p></li>
 <li><p>probability (proportion) - the probability of new event during this period.</p></li>
 <li><p>tau (integer + complete) - the days since the index event.</p></li>
-</ul><p>Minimally grouped by: boot (and other groupings allowed).</p>
-<p>A default value is defined.</p></dd>
+</ul><p>Minimally grouped by: boot (and other groupings allowed).</p></dd>
 
 
 <dt id="arg-quick">quick<a class="anchor" aria-label="anchor" href="#arg-quick"></a></dt>
@@ -154,19 +153,21 @@ daily data the rate will be cases per day and the growth rate will be daily).</p
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu"><a href="test_poisson_rt.html">test_poisson_rt</a></span><span class="op">(</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">poisson_locfit_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">14</span>,deg<span class="op">=</span><span class="fl">2</span>, ip<span class="op">=</span><span class="va">example_ip()</span>, quick<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_poisson_rt</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">poisson_locfit_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">14</span>,deg<span class="op">=</span><span class="fl">2</span>, ip<span class="op">=</span><span class="fu"><a href="example_fns.html">example_ip</a></span><span class="op">(</span><span class="op">)</span>, quick<span class="op">=</span><span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Rt estimation using Locfit (approx and assuming independence)</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Estimates were assumed to be independent, but more that 1% of estimates</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> are at risk of Rt underestimation by more that 0.05 (absolute).</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> We advise re-running supplying a full variance-covariance matrix, or</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> a value to the `raw` parameter, or setting `quick=FALSE`.</span>
-<span class="r-in"><span><span class="fu"><a href="plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">tmp</span><span class="op">)</span><span class="op">+</span><span class="fu"><a href="sim_geom_function.html">sim_geom_function</a></span><span class="op">(</span><span class="va">data</span>,colour<span class="op">=</span><span class="st">"red"</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Estimates were assumed to be independent, but more that 1% of estimates</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> are at risk of Rt underestimation by more that 0.05 (absolute).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> We advise re-running supplying a full variance-covariance matrix, or</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> a value to the `raw` parameter, or setting `quick=FALSE`.</span>
+<span class="r-in"><span><span class="fu"><a href="plot_rt.html">plot_rt</a></span><span class="op">(</span><span class="va">tmp</span>,</span></span>
+<span class="r-in"><span>    raw<span class="op">=</span><span class="va">data</span>,</span></span>
+<span class="r-in"><span>    true_col <span class="op">=</span> <span class="va">rt</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="poisson_locfit_model-1.png" alt="" width="700" height="433"></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="va">test_poisson_growth_rate</span></span></span>
-<span class="r-in"><span><span class="va">tmp2</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">poisson_locfit_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">7</span>,deg<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">tmp3</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">ggoutbreak</span><span class="fu">::</span><span class="fu">poisson_locfit_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">14</span>,deg<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_poisson_growth_rate</a></span><span class="op">(</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tmp2</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">poisson_locfit_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">7</span>,deg<span class="op">=</span><span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">tmp3</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">poisson_locfit_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">14</span>,deg<span class="op">=</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
@@ -179,19 +180,17 @@ daily data the rate will be cases per day and the growth rate will be daily).</p
 <span class="r-in"><span>  <span class="fu"><a href="plot_incidence.html">plot_incidence</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">comp</span>,</span></span>
 <span class="r-in"><span>    date_labels<span class="op">=</span><span class="st">"%b %y"</span>,</span></span>
-<span class="r-in"><span>    raw<span class="op">=</span><span class="va">data</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span><span class="op">+</span></span></span>
-<span class="r-in"><span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_path.html" class="external-link">geom_line</a></span><span class="op">(</span></span></span>
-<span class="r-in"><span>    data<span class="op">=</span><span class="va">data</span>,</span></span>
-<span class="r-in"><span>    mapping<span class="op">=</span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x<span class="op">=</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="va">time</span><span class="op">)</span>,y<span class="op">=</span><span class="va">rate</span><span class="op">)</span>,</span></span>
-<span class="r-in"><span>    colour<span class="op">=</span><span class="st">"grey40"</span></span></span>
+<span class="r-in"><span>    raw<span class="op">=</span><span class="va">data</span>,</span></span>
+<span class="r-in"><span>    true_col <span class="op">=</span> <span class="va">rate</span></span></span>
 <span class="r-in"><span>  <span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span>  <span class="fu"><a href="plot_growth_rate.html">plot_growth_rate</a></span><span class="op">(</span></span></span>
 <span class="r-in"><span>    <span class="va">comp</span>,</span></span>
-<span class="r-in"><span>    date_labels<span class="op">=</span><span class="st">"%b %y"</span></span></span>
-<span class="r-in"><span>  <span class="op">)</span><span class="op">+</span></span></span>
-<span class="r-in"><span>  <span class="fu"><a href="sim_geom_function.html">sim_geom_function</a></span><span class="op">(</span><span class="va">data</span>,colour<span class="op">=</span><span class="st">"black"</span><span class="op">)</span></span></span>
+<span class="r-in"><span>    date_labels<span class="op">=</span><span class="st">"%b %y"</span>,</span></span>
+<span class="r-in"><span>    raw <span class="op">=</span> <span class="va">data</span>,</span></span>
+<span class="r-in"><span>    true_col <span class="op">=</span> <span class="va">growth</span></span></span>
+<span class="r-in"><span>  <span class="op">)</span></span></span>
+<span class="r-in"><span>  <span class="co"># sim_geom_function(data,colour="black")</span></span></span>
 <span class="r-in"><span><span class="op">}</span></span></span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
@@ -205,7 +204,7 @@ daily data the rate will be cases per day and the growth rate will be daily).</p
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer></div>

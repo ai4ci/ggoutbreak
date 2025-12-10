@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.5.2
+Version: 0.6.0
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -58,7 +58,8 @@ Imports:
     signal,
     mgcv,
     deSolve,
-    ukc19 (>= 0.0.3)
+    ukc19 (>= 0.0.3),
+    vctrs
 Remotes: github::ai4ci/interfacer, github::ai4ci/ukc19
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,

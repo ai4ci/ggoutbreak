@@ -318,6 +318,7 @@ plot_growth_phase.risk_ratio = function(
     ) +
     .layer(
       ggplot2::GeomPath,
+      data = plot_data,
       mapping = ggplot2::aes(x = x, y = y, alpha = fade * 0.75, !!!mapping),
       ...
     ) +

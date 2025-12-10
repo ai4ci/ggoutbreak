@@ -1,5 +1,5 @@
 pandoc: '3.4'
-pkgdown: 2.1.3
+pkgdown: 2.2.0
 pkgdown_sha: ~
 articles:
   covid-timeseries: covid-timeseries.html
@@ -14,7 +14,7 @@ articles:
   time-periods: time-periods.html
   variant-proportions: variant-proportions.html
   weekly-incidence: weekly-incidence.html
-last_built: 2025-10-04T00:36Z
+last_built: 2025-12-10T17:31Z
 urls:
   reference: https://ai4ci.github.io/ggoutbreak/reference
   article: https://ai4ci.github.io/ggoutbreak/articles

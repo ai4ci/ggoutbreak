@@ -25,7 +25,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.5.1</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -96,16 +96,18 @@ terms of bias and it should not be regarded as definitive:</p>
 <div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span></span>
 <span><span class="co"># tidy copy of the sanger weekly variants count data aggregated to England level</span></span>
-<span><span class="fu">ggoutbreak</span><span class="fu">::</span><span class="va"><a href="../reference/england_variants.html">england_variants</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
+<span><span class="va">england_variants</span> <span class="op">=</span> <span class="fu">ukc19</span><span class="fu">::</span><span class="va"><a href="https://ai4ci.github.io/ukc19/reference/covid_variants.html" class="external-link">covid_variants</a></span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span> </span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>time <span class="op">=</span> <span class="fu"><a href="../reference/as.time_period.html">as.time_period</a></span><span class="op">(</span><span class="va">date</span>, <span class="st">"1 day"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="../reference/pipe.html">%&gt;%</a></span></span>
+<span>  <span class="fu">dplyr</span><span class="fu">::</span><span class="fu"><a href="https://pillar.r-lib.org/reference/glimpse.html" class="external-link">glimpse</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Rows: 479</span></span>
 <span><span class="co">#&gt; Columns: 6</span></span>
 <span><span class="co">#&gt; Groups: class [10]</span></span>
 <span><span class="co">#&gt; $ date      <span style="color: #949494; font-style: italic;">&lt;date&gt;</span> 2020-09-05<span style="color: #949494;">, </span>2020-09-05<span style="color: #949494;">, </span>2020-09-12<span style="color: #949494;">, </span>2020-09-12<span style="color: #949494;">, </span>2020-09-19<span style="color: #949494;">,</span>…</span></span>
-<span><span class="co">#&gt; $ time      <span style="color: #949494; font-style: italic;">&lt;time_prd&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>28<span style="color: #949494;">, </span>28<span style="color: #949494;">, </span>35<span style="color: #949494;">, </span>35<span style="color: #949494;">, </span>42<span style="color: #949494;">, </span>42<span style="color: #949494;">, </span>49<span style="color: #949494;">,</span>…</span></span>
 <span><span class="co">#&gt; $ class     <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> Other<span style="color: #949494;">, </span>Alpha (B.1.1.7)<span style="color: #949494;">, </span>Other<span style="color: #949494;">, </span>Alpha (B.1.1.7)<span style="color: #949494;">, </span>Other<span style="color: #949494;">, </span>Alpha…</span></span>
 <span><span class="co">#&gt; $ who_class <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span> Other<span style="color: #949494;">, </span>Alpha<span style="color: #949494;">, </span>Other<span style="color: #949494;">, </span>Alpha<span style="color: #949494;">, </span>Other<span style="color: #949494;">, </span>Alpha<span style="color: #949494;">, </span>Other<span style="color: #949494;">, </span>Alpha<span style="color: #949494;">, </span>Othe…</span></span>
 <span><span class="co">#&gt; $ count     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1182<span style="color: #949494;">, </span>371<span style="color: #949494;">, </span>1439<span style="color: #949494;">, </span>588<span style="color: #949494;">, </span>837<span style="color: #949494;">, </span>429<span style="color: #949494;">, </span>1685<span style="color: #949494;">, </span>1157<span style="color: #949494;">, </span>1208<span style="color: #949494;">, </span>823<span style="color: #949494;">, </span>1501<span style="color: #949494;">,</span>…</span></span>
-<span><span class="co">#&gt; $ denom     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1553<span style="color: #949494;">, </span>1553<span style="color: #949494;">, </span>2027<span style="color: #949494;">, </span>2027<span style="color: #949494;">, </span>1266<span style="color: #949494;">, </span>1266<span style="color: #949494;">, </span>2842<span style="color: #949494;">, </span>2842<span style="color: #949494;">, </span>2031<span style="color: #949494;">, </span>2031<span style="color: #949494;">, </span>…</span></span></code></pre></div>
+<span><span class="co">#&gt; $ denom     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> 1553<span style="color: #949494;">, </span>1553<span style="color: #949494;">, </span>2027<span style="color: #949494;">, </span>2027<span style="color: #949494;">, </span>1266<span style="color: #949494;">, </span>1266<span style="color: #949494;">, </span>2842<span style="color: #949494;">, </span>2842<span style="color: #949494;">, </span>2031<span style="color: #949494;">, </span>2031<span style="color: #949494;">, </span>…</span></span>
+<span><span class="co">#&gt; $ time      <span style="color: #949494; font-style: italic;">&lt;t[day]&gt;</span> 0<span style="color: #949494;">, </span>0<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>7<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>14<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>21<span style="color: #949494;">, </span>28<span style="color: #949494;">, </span>28<span style="color: #949494;">, </span>35<span style="color: #949494;">, </span>35<span style="color: #949494;">, </span>42<span style="color: #949494;">, </span>42<span style="color: #949494;">, </span>49<span style="color: #949494;">, </span>4…</span></span></code></pre></div>
 <p>The data must have a <code>class</code> column defining the main
 categorisation of the data (in this case it is the main Pango variant).
 The <code>time</code> column is a <code>time_period</code> derived from
@@ -142,7 +144,7 @@ over time can be estimated with a multinomial model.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_multinomial.html">plot_multinomial</a></span><span class="op">(</span><span class="va">probs</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option<span class="op">=</span><span class="st">"cividis"</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variant-proportions_files/figure-html/unnamed-chunk-2-1.png" width="576"></p>
+<p><img src="variant-proportions_files/figure-html/unnamed-chunk-2-1.png" class="r-plt" width="576"></p>
 </div>
 <div class="section level2">
 <h2 id="binomial-proportions-model">Binomial proportions model<a class="anchor" aria-label="anchor" href="#binomial-proportions-model"></a>
@@ -157,7 +159,7 @@ to 1.</p>
 <span></span>
 <span><span class="fu"><a href="../reference/plot_proportion.html">plot_proportion</a></span><span class="op">(</span><span class="va">probs2</span><span class="op">)</span><span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_colour_viridis_d</a></span><span class="op">(</span>option<span class="op">=</span><span class="st">"cividis"</span>,aesthetics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"colour"</span>,<span class="st">"fill"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variant-proportions_files/figure-html/unnamed-chunk-3-1.png" width="576"></p>
+<p><img src="variant-proportions_files/figure-html/unnamed-chunk-3-1.png" class="r-plt" width="576"></p>
 <p>The rate of change of the proportion of each individual variant
 versus the others on a logistic scale can be used to work out the
 exponential growth rate of one variant relative to the others. Because
@@ -170,7 +172,7 @@ having increasing numbers in a growing epidemic.</p>
 <code class="sourceCode R"><span></span>
 <span><span class="fu"><a href="../reference/plot_growth_rate.html">plot_growth_rate</a></span><span class="op">(</span><span class="va">probs2</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/scale_viridis.html" class="external-link">scale_fill_viridis_d</a></span><span class="op">(</span>option<span class="op">=</span><span class="st">"cividis"</span>,aesthetics <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"colour"</span>,<span class="st">"fill"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
-<p><img src="variant-proportions_files/figure-html/unnamed-chunk-4-1.png" width="576"></p>
+<p><img src="variant-proportions_files/figure-html/unnamed-chunk-4-1.png" class="r-plt" width="576"></p>
 <p>The binomial relative growth rate per day is a growth advantage over
 existing variants. This has a dependency on the unit of time which is
 controlled by the <code>time_period</code> configuration. In the data
@@ -192,7 +194,7 @@ time distribution) and as a result is much more complex.</p>
 </div>
 
 <div class="pkgdown-footer-right">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.1.3.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.2.0.</p>
 </div>
 
     </footer>
