@@ -148,7 +148,6 @@ utils::globalVariables(c(
   "t_tau",
   "tau",
   "test",
-  "example_ip()",
   "time",
   "time_unit",
   "timeseries",
@@ -227,5 +226,18 @@ utils::globalVariables(c(
   "sigma_t",
   "time_minus_tau",
   "var_Rt",
-  "var_Rt_star"
+  "var_Rt_star",
+  "counts",
+  "dates",
+  "dup",
+  "grp_uq",
+  "prevalence.fit",
+  "prevalence.se.fit",
+  "serial_interval",
+  "symptom_onset",
+  "symptom_onset_time",
+  "symptom_onset_time.infector",
+  "symptom_onset.infector",
+  "symptom_onset.pri",
+  "symptom_onset.sec"
 ))

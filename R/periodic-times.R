@@ -7,7 +7,6 @@
 #' and fractional days to be represented in a consistent(ish) way
 #'
 #' @inheritParams as.time_period
-#' @param ... used for subtype implementations
 #'
 #' @return a `time_period` class, consisting of a vector of numbers, with
 #'   attributes for time period and `start_date`
@@ -350,22 +349,22 @@ vec_arith.time_period.integer <- function(op, x, y, ...) {
 
 #' @export
 #' @method vec_math time_period
-vec_math.time_period <- function(fn, x, ...) {
+vec_math.time_period <- function(.fn, x, ...) {
   unit = attributes(x)$unit
   start_date = as.Date(attributes(x)$start_date)
   switch(
-    fn,
+    .fn,
     "floor" = ,
     "trunc" = ,
     "ceiling" = ,
     "cummax" = ,
     "cummin" = ,
     "round" = new_time_period(
-      vctrs::vec_math_base(fn, x),
+      vctrs::vec_math_base(.fn, x),
       start_date = start_date,
       unit = unit
     ),
-    vctrs::vec_math_base(fn, x)
+    vctrs::vec_math_base(.fn, x)
     # cli::cli_abort("function not supported: {fn}() for {.cls {class(x)}}")
   )
 }
@@ -384,6 +383,8 @@ vec_math.time_period <- function(fn, x, ...) {
 #' during a single run, if they are not specified.
 #'
 #' @inheritParams as.time_period
+#' @param date A date, or something that can be cast to one, that represents
+#'   day zero for an outbreak.
 #'
 #' @returns depending on the methods the original default start date / the
 #'   original default unit, a list of both or the result of evaluating the
@@ -1116,13 +1117,12 @@ seq.time_period = function(
   ))
 }
 
-
+#
 # .convert_units = function(x, original) {
 #   orig_unit = attributes(original)$unit
 #   orig_start_date = attributes(original)$start_date
 #   as.time_period.time_period(x, orig_unit, orig_start_date)
 # }
-#
 
 #' @describeIn as.time_period Check is a `time_period`
 #' @export

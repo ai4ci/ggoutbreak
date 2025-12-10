@@ -36,7 +36,10 @@ Suggests:
     magrittr,
     ragg,
     lifecycle,
-    outbreaks
+    outbreaks,
+    incidence,
+    incidence2,
+    grates
 VignetteBuilder: knitr
 Imports: 
     dplyr,
@@ -59,7 +62,8 @@ Imports:
     mgcv,
     deSolve,
     ukc19 (>= 0.0.3),
-    vctrs
+    vctrs,
+    forcats
 Remotes: github::ai4ci/interfacer, github::ai4ci/ukc19
 URL: https://ai4ci.github.io/ggoutbreak/,
     https://github.com/ai4ci/ggoutbreak,

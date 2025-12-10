@@ -22,7 +22,7 @@ test = dplyr::tibble(
   time = 1:10,
   class = rep(c("one","two"),5)
 )
-.ts_evaluate(\(t,class) {print(t); print(class); 1}, test )
+.ts_evaluate(function(t,class) {print(t); print(class); 1}, test )
 
 }
 \keyword{internal}

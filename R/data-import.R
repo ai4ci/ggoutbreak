@@ -9,7 +9,7 @@
 #' @export
 #'
 #' @examples
-#' (Sys.Date()+runif(100)*7) %>% linelist()
+#' (Sys.Date()+stats::runif(100)*7) %>% linelist()
 linelist = function(x, ...) {
   UseMethod("linelist", x)
 }
@@ -67,7 +67,7 @@ linelist.data.frame = function(x, ..., date = NULL) {
 #'
 #' @examples
 #'
-#' data("mers_2014_15", package="EpiEstim")
+#' utils::data("mers_2014_15", package="EpiEstim")
 #'
 #' set_default_unit("1 day")
 #'

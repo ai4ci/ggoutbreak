@@ -27,6 +27,9 @@ this will return a rescaled \code{time_period} using the new units.}
 
 \item{expr}{an expression to evaluate with the defaults set to the provided
 values.}
+
+\item{date}{A date, or something that can be cast to one, that represents
+day zero for an outbreak.}
 }
 \value{
 depending on the methods the original default start date / the

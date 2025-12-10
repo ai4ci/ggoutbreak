@@ -22,8 +22,6 @@ date. If the \code{x} input is already a \code{time_period} and this is differen
 number of days, or a specification such as "1 week", or another \code{time_period}.
 If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
 this will return a rescaled \code{time_period} using the new units.}
-
-\item{...}{used for subtype implementations}
 }
 \value{
 a \code{time_period} class, consisting of a vector of numbers, with

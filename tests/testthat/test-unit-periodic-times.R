@@ -84,7 +84,7 @@ test_that("as.time_period unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/periodic-times.R"), c(880, 1, 880+1, 1))
+    srcref = srcref(srcfile("../../R/periodic-times.R"), c(881, 1, 881+1, 1))
   )
 })
 
@@ -210,7 +210,7 @@ test_that("S3_time_period unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/periodic-times.R"), c(21, 1, 21+1, 1))
+    srcref = srcref(srcfile("../../R/periodic-times.R"), c(20, 1, 20+1, 1))
   )
 })
 
@@ -238,7 +238,7 @@ test_that(".day_interval unit test", {
   # source of the unit test:
   testthat::expect(rlang::caller_env(n = 2)$ok,
     failure_message = "Source link for failing @unit test.",
-    srcref = srcref(srcfile("../../R/periodic-times.R"), c(634, 1, 634+1, 1))
+    srcref = srcref(srcfile("../../R/periodic-times.R"), c(635, 1, 635+1, 1))
   )
 })
 

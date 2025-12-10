@@ -24,7 +24,7 @@ returns an ip delay distribution for each day defined by the \code{mean_fn} and 
 Get a IP generating function from time varying mean and SD of a gamma function
 }
 \examples{
-fn = cfg_gamma_ip_fn(mean_fn = \(t) ifelse(t < 5, 4, 2))
+fn = cfg_gamma_ip_fn(mean_fn = function(t) ifelse(t < 5, 4, 2))
 # a gamma function that changes mean at time 5
 fn(4)
 fn(7)

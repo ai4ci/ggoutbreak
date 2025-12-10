@@ -72,7 +72,7 @@ Coerce an object to a \code{ggoutbreak} compatible time series dataframe
 }
 \examples{
 
-data("mers_2014_15", package="EpiEstim")
+utils::data("mers_2014_15", package="EpiEstim")
 
 set_default_unit("1 day")
 

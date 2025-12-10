@@ -37,5 +37,5 @@ Any grouping allowed.
 Coerce an object to a \code{ggoutbreak} compatible case linelist.
 }
 \examples{
-(Sys.Date()+runif(100)*7) \%>\% linelist()
+(Sys.Date()+stats::runif(100)*7) \%>\% linelist()
 }

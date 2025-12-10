@@ -120,7 +120,7 @@ is a relatively unchallenging test data set that should not pose a problem
 for smooth estimators.
 
 \item \code{example_poisson_rt_2class()}: Two class example using \code{\link[=sim_poisson_Rt_model]{sim_poisson_Rt_model()}}
-Two smooth $R_t$ based incidence tmieseries one growing with an time varying Rt
+Two smooth $R_t$ based incidence timeseries one growing with an time varying Rt
 \code{exp(sin(t / 80 * pi)^4 - 0.25)} and the other offset by 10 days:
 \code{exp(sin((t - 10) / 80 * pi)^4 - 0.25)}. This is a simple relative growth test
 

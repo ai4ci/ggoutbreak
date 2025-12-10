@@ -675,6 +675,9 @@ sim_multinomial = function(
 #'   individual super-spreading. This must be between 1 and `Inf` with 1 being
 #'   standard poisson dispersion and larger values representing over dispersion.
 #' @param max_time maximum duration of simulation
+#' @param max_size the maximum size of a single generation. If a generation
+#'   exceeds this limit the branching process terminates with a warning that
+#'   the simulation is incomplete.
 #' @param seed random seed
 #' @param fn_Rt can be specified instead of `changes` df. This is a vectorised
 #'   function that accepts a time parameter and returns a reproduction number.

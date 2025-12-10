@@ -55,6 +55,10 @@ must be vectorised and assume no grouping structure. If the function has
 named parameters it can reference any of the metadata columns, or time
 (as \code{t}). The \code{\link[=rcategorical]{rcategorical()}} function may be useful in this scenario.}
 
+\item{max_size}{the maximum size of a single generation. If a generation
+exceeds this limit the branching process terminates with a warning that
+the simulation is incomplete.}
+
 \item{...}{not used}
 }
 \value{
