@@ -67,7 +67,7 @@ plot_counts.default = function(
       mapping = ggplot2::aes(x = .x_axis(time, ...), y = count, !!!mapping),
       ...
     ) +
-    ggplot2::scale_y_continuous(breaks = integer_breaks()) +
+    suppressWarnings(ggplot2::scale_y_continuous(breaks = integer_breaks())) +
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(raw$time))) +
     ggplot2::xlab(NULL) +
     ggplot2::theme(legend.title = ggplot2::element_blank())
@@ -274,7 +274,7 @@ plot_cases.default = function(
     ) +
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(raw$time))) +
     ggplot2::theme(legend.title = ggplot2::element_blank()) +
-    ggplot2::scale_y_continuous(breaks = integer_breaks()) +
+    suppressWarnings(ggplot2::scale_y_continuous(breaks = integer_breaks())) +
     {
       if (individual) ggplot2::coord_fixed() else NULL
     }

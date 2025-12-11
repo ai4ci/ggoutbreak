@@ -247,7 +247,7 @@ proportion_locfit_model = function(
 #' data = example_poisson_rt()
 #' tmp = data %>% poisson_locfit_model(window=14,deg=2, ip=example_ip(), quick=TRUE)
 #' plot_rt(tmp,
-#'     raw=data,
+#'     raw = data,
 #'     true_col = rt)
 #'
 #' data = example_poisson_growth_rate()

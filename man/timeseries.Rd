@@ -129,3 +129,4 @@ if (requireNamespace("incidence2",quietly = TRUE)) {
 }
 
 }
+\concept{models}

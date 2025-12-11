@@ -39,3 +39,4 @@ Coerce an object to a \code{ggoutbreak} compatible case linelist.
 \examples{
 (Sys.Date()+stats::runif(100)*7) \%>\% linelist()
 }
+\concept{models}

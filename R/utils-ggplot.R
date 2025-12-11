@@ -181,16 +181,13 @@ integer_breaks = function(n = 5, ...) {
     dots$fill = dots$colour
     dots$colour = NULL
   }
+  preprocess = .preprocess(data, mapping)
   return(
     ggplot2::layer(
       geom = geom,
       stat = ggplot2::StatIdentity,
-      data = if (!is.null(data)) {
-        ggplot2::remove_missing(data, na.rm = TRUE, finite = TRUE)
-      } else {
-        NULL
-      },
-      mapping = .check_in_data(data, mapping),
+      data = preprocess$data,
+      mapping = preprocess$mapping,
       position = .ifnull(dots$position, "identity"),
       show.legend = .ifnull(dots$show.legend, TRUE),
       inherit.aes = .ifnull(dots$inherit.aes, FALSE),
@@ -201,23 +198,57 @@ integer_breaks = function(n = 5, ...) {
   )
 }
 
-.check_in_data = function(df, mapping) {
-  if (is.null(df)) {
-    return(mapping)
+.preprocess = function(data, mapping) {
+  if (is.null(data)) {
+    return(list(mapping = mapping, data = NULL))
   }
+
+  .na.rm = getOption("ggoutbreak.remove_na", TRUE)
+
+  keep = rep(TRUE, nrow(data))
   for (k in names(mapping)) {
-    tmp = try(rlang::eval_tidy(mapping[[k]], df), silent = TRUE)
+    tmp = try(rlang::eval_tidy(mapping[[k]], data), silent = TRUE)
     if (
       inherits(tmp, "try-error") ||
         is.language(tmp) ||
         is.function(tmp) ||
-        length(tmp) != nrow(df)
+        length(tmp) != nrow(data)
     ) {
       mapping[[k]] = NULL
+    } else {
+      if (.na.rm) {
+        keep = keep & (is.factor(tmp) | (!is.na(tmp) & !is.infinite(tmp)))
+      }
     }
   }
-  return(mapping)
+
+  if (any(!keep)) {
+    .message_once(
+      sprintf("Removing %d rows with missing or non-finite values", sum(!keep))
+    )
+    data = data[keep, ]
+  }
+
+  return(list(mapping = mapping, data = data))
 }
+
+# .check_in_data = function(df, mapping) {
+#   if (is.null(df)) {
+#     return(mapping)
+#   }
+#   for (k in names(mapping)) {
+#     tmp = try(rlang::eval_tidy(mapping[[k]], df), silent = TRUE)
+#     if (
+#       inherits(tmp, "try-error") ||
+#         is.language(tmp) ||
+#         is.function(tmp) ||
+#         length(tmp) != nrow(df)
+#     ) {
+#       mapping[[k]] = NULL
+#     }
+#   }
+#   return(mapping)
+# }
 
 # for use as a default parameter in a function.
 # checks a ggplot::aes is not given in the dots, before

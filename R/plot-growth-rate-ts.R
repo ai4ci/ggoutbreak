@@ -72,7 +72,7 @@ plot_growth_rate.default = function(
     ) +
     ggplot2::ylab(sprintf("growth rate per %s", .fmt_unit(modelled$time))) +
     ggplot2::theme(legend.title = ggplot2::element_blank()) +
-    ggplot2::scale_y_continuous(
+    suppressWarnings(ggplot2::scale_y_continuous(
       sec.axis = ggplot2::dup_axis(
         labels = function(x) {
           ifelse(
@@ -83,7 +83,7 @@ plot_growth_rate.default = function(
         },
         name = "doubling time (days)"
       )
-    ) +
+    )) +
     .gdefaultcoords(modelled$growth.0.5) +
     geom_truth(...)
 }

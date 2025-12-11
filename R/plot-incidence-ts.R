@@ -123,7 +123,7 @@ plot_incidence.default = function(
         NULL
       }
     } +
-    ggplot2::scale_y_continuous(breaks = integer_breaks()) +
+    suppressWarnings(ggplot2::scale_y_continuous(breaks = integer_breaks())) +
     ggplot2::ylab(sprintf("cases per %s", .fmt_unit(modelled$time))) +
     ggplot2::theme(legend.title = ggplot2::element_blank()) +
     ggplot2::coord_cartesian(ylim = c(NA, ul)) +
