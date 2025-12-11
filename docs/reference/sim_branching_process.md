@@ -83,6 +83,12 @@ sim_branching_process(
   [`rcategorical()`](https://ai4ci.github.io/ggoutbreak/reference/rcategorical.md)
   function may be useful in this scenario.
 
+- max_size:
+
+  the maximum size of a single generation. If a generation exceeds this
+  limit the branching process terminates with a warning that the
+  simulation is incomplete.
+
 - ...:
 
   not used

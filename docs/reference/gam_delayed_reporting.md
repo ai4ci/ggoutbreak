@@ -69,7 +69,7 @@ cfg = gam_delayed_reporting(14,40)
 fit = cfg$model_fn(data)
 summary(fit)
 #> 
-#> Family: Negative Binomial(1561106.316) 
+#> Family: Negative Binomial(793.435) 
 #> Link function: log 
 #> 
 #> Formula:
@@ -78,17 +78,17 @@ summary(fit)
 #> 
 #> Parametric coefficients:
 #>             Estimate Std. Error z value Pr(>|z|)    
-#> (Intercept)  1.62065    0.02503   64.75   <2e-16 ***
+#> (Intercept)  1.99774    0.01559   128.2   <2e-16 ***
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
 #> Approximate significance of smooth terms:
 #>               edf Ref.df Chi.sq p-value    
-#> s(time)     6.962  6.999  48076  <2e-16 ***
-#> s(log(tau)) 2.999  3.000   5510  <2e-16 ***
+#> s(time)     6.969      7  51830  <2e-16 ***
+#> s(log(tau)) 2.998      3   5420  <2e-16 ***
 #> ---
 #> Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
 #> 
-#> R-sq.(adj) =  0.984   Deviance explained = 98.4%
-#> -REML = 6509.8  Scale est. = 1         n = 3240
+#> R-sq.(adj) =   0.98   Deviance explained = 97.9%
+#> -REML = 7103.1  Scale est. = 1         n = 3240
 ```

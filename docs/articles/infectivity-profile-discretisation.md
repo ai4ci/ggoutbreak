@@ -17,16 +17,16 @@ SI_fit_clever <- coarseDataTools::dic.fit.mcmc(dat = si_data,
 
     ## Running 6000 MCMC iterations 
     ## MCMCmetrop1R iteration 1 of 6000 
-    ## function value =  -31.86869
+    ## function value =  -32.21639
     ## theta = 
-    ##   -0.14075
-    ##    0.54710
+    ##   -0.16687
+    ##    0.32325
     ## Metropolis acceptance rate = 1.00000
     ## 
     ## 
     ## 
     ## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    ## The Metropolis acceptance rate was 0.55667
+    ## The Metropolis acceptance rate was 0.56183
     ## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 ``` r
@@ -35,12 +35,12 @@ SI_fit_clever
 
     ## Coarse Data Model Parameter and Quantile Estimates: 
     ##         est CIlow CIhigh
-    ## shape 1.078 0.480  2.331
-    ## scale 1.344 0.618  3.762
-    ## p5    0.090 0.004  0.337
-    ## p50   1.048 0.538  1.679
-    ## p95   4.214 2.835  8.007
-    ## p99   6.368 4.130 13.218
+    ## shape 1.072 0.470  2.335
+    ## scale 1.365 0.635  3.554
+    ## p5    0.089 0.004  0.357
+    ## p50   1.048 0.470  1.737
+    ## p95   4.262 2.748  7.656
+    ## p99   6.459 4.066 12.578
     ## Note: please check that the MCMC converged on the target distribution by running multiple chains. MCMC samples are available in the mcmc slot (e.g. my.fit@mcmc)
 
 The median estimate and confidence intervals are quantiles of the
@@ -235,15 +235,15 @@ plot2data = compare_R %>% tidyr::unnest(R) %>% dplyr::glimpse()
     ## $ r                   <dbl> 0.40, 0.20, 0.10, 0.05, 0.00, -0.05, -0.10
     ## $ t_start             <dbl> 2, 2, 2, 2, 2, 2, 2
     ## $ t_end               <dbl> 30, 30, 30, 30, 30, 30, 30
-    ## $ `Mean(R)`           <dbl> 1.7543441, 1.3511354, 1.1751333, 1.0957564, 1.0250…
-    ## $ `Std(R)`            <dbl> 0.16244367, 0.07642027, 0.04090425, 0.02835450, 0.…
-    ## $ `Quantile.0.025(R)` <dbl> 1.5016885, 1.2292047, 1.1086763, 1.0469306, 0.9805…
-    ## $ `Quantile.0.05(R)`  <dbl> 1.5251242, 1.2403353, 1.1156855, 1.0536505, 0.9873…
-    ## $ `Quantile.0.25(R)`  <dbl> 1.6415567, 1.2973633, 1.1463599, 1.0754958, 1.0089…
-    ## $ `Median(R)`         <dbl> 1.7170525, 1.3348355, 1.1679082, 1.0929499, 1.0242…
-    ## $ `Quantile.0.75(R)`  <dbl> 1.8721513, 1.4079964, 1.2034030, 1.1140078, 1.0405…
-    ## $ `Quantile.0.95(R)`  <dbl> 2.005677, 1.468689, 1.243300, 1.145625, 1.064894, …
-    ## $ `Quantile.0.975(R)` <dbl> 2.1923755, 1.5507611, 1.2776107, 1.1588705, 1.0734…
+    ## $ `Mean(R)`           <dbl> 1.6641994, 1.3072875, 1.1517852, 1.0810359, 1.0168…
+    ## $ `Std(R)`            <dbl> 0.12963336, 0.06133921, 0.03339973, 0.02404235, 0.…
+    ## $ `Quantile.0.025(R)` <dbl> 1.4963531, 1.2238948, 1.1012114, 1.0392615, 0.9748…
+    ## $ `Quantile.0.05(R)`  <dbl> 1.5012970, 1.2262818, 1.1051687, 1.0447892, 0.9815…
+    ## $ `Quantile.0.25(R)`  <dbl> 1.5599622, 1.2576126, 1.1249781, 1.0630717, 1.0019…
+    ## $ `Median(R)`         <dbl> 1.6350399, 1.2946973, 1.1476154, 1.0792803, 1.0167…
+    ## $ `Quantile.0.75(R)`  <dbl> 1.7528633, 1.3502791, 1.1743058, 1.0971807, 1.0314…
+    ## $ `Quantile.0.95(R)`  <dbl> 1.9225703, 1.4191928, 1.2127492, 1.1235649, 1.0528…
+    ## $ `Quantile.0.975(R)` <dbl> 1.9453193, 1.4432290, 1.2221660, 1.1307381, 1.0606…
 
 ``` r
 ggplot2::ggplot(R_t_summ )+

@@ -46,6 +46,11 @@
   : Calculate a growth rate from a reproduction number and an
   infectivity profile,
 
+- [`linelist()`](https://ai4ci.github.io/ggoutbreak/reference/linelist.md)
+  :
+
+  Coerce an object to a `ggoutbreak` compatible case linelist.
+
 - [`multinomial_nnet_model()`](https://ai4ci.github.io/ggoutbreak/reference/multinomial_nnet_model.md)
   : Multinomial time-series model.
 
@@ -98,6 +103,11 @@
 - [`rt_incidence_timeseries_implementation()`](https://ai4ci.github.io/ggoutbreak/reference/rt_incidence_timeseries_implementation.md)
   : Time series implementation of the Rt from modelled incidence
   algorithm
+
+- [`timeseries()`](https://ai4ci.github.io/ggoutbreak/reference/timeseries.md)
+  :
+
+  Coerce an object to a `ggoutbreak` compatible time series dataframe
 
 - [`wallinga_lipsitch()`](https://ai4ci.github.io/ggoutbreak/reference/wallinga_lipsitch.md)
   : Calculate the reproduction number from a growth rate estimate and an
@@ -419,18 +429,7 @@
 
 ## Others
 
-- [`linelist()`](https://ai4ci.github.io/ggoutbreak/reference/linelist.md)
-  :
-
-  Coerce an object to a `ggoutbreak` compatible case linelist.
-
 - [`reband_discrete()`](https://ai4ci.github.io/ggoutbreak/reference/reband_discrete.md)
   : Reband any discrete distribution
-
-- [`timeseries()`](https://ai4ci.github.io/ggoutbreak/reference/timeseries.md)
-  :
-
-  Coerce an object to a `ggoutbreak` compatible time series dataframe
-
 - [`vcov_from_residuals()`](https://ai4ci.github.io/ggoutbreak/reference/vcov_from_residuals.md)
   : Estimate Parametric VCOV Matrix from Residuals

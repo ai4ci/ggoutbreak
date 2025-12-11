@@ -39,6 +39,11 @@ set_default_unit(unit)
   an expression to evaluate with the defaults set to the provided
   values.
 
+- date:
+
+  A date, or something that can be cast to one, that represents day zero
+  for an outbreak.
+
 ## Value
 
 depending on the methods the original default start date / the original

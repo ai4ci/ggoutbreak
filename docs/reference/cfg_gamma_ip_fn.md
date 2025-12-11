@@ -33,7 +33,7 @@ and `sd_fn`
 ## Examples
 
 ``` r
-fn = cfg_gamma_ip_fn(mean_fn = \(t) ifelse(t < 5, 4, 2))
+fn = cfg_gamma_ip_fn(mean_fn = function(t) ifelse(t < 5, 4, 2))
 # a gamma function that changes mean at time 5
 fn(4)
 #> [[1]]

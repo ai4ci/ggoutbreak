@@ -41,10 +41,10 @@ tmp = cfg_ip_sampler_rng(example_ganyani_ip())(10000)
 # This discretised ganyani distribution is based on these figures:
 # mean: 5.2 (3.78-6.78) and sd: 1.72 (0.91-3.93)
 format_ip(example_ganyani_ip())
-#> [1] "PDF: mean: 5.12 [3.58 — 6.77]; sd: 1.99 [0.849 — 3.16]; 100 bootstraps"
+#> [1] "PDF: mean: 5.2 [3.98 — 6.82]; sd: 2.06 [0.644 — 3.19]; 100 bootstraps"
 
 mean(tmp) # Should be about 5.2
-#> [1] 5.202316
+#> [1] 5.265945
 stats::sd(tmp) # Should be about 1.72
-#> [1] 2.222033
+#> [1] 2.248792
 ```

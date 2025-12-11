@@ -15,7 +15,7 @@ window units of the time series."><meta property="og:image" content="https://ai4
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -122,10 +122,12 @@ less smoothing, large value in more.</p></dd>
 <span class="r-in"><span><span class="va">data</span> <span class="op">=</span> <span class="fu"><a href="example_fns.html">example_poisson_rt_2class</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">tmp</span> <span class="op">=</span> <span class="va">data</span> <span class="op"><a href="pipe.html">%&gt;%</a></span> <span class="fu">multinomial_nnet_model</span><span class="op">(</span>window<span class="op">=</span><span class="fl">14</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> # weights:  28 (13 variable)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> initial  value 44630.360662 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> iter  10 value 39354.669896</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> iter  20 value 38533.463749</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> final  value 38533.460670 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> initial  value 44413.405594 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iter  10 value 39246.733943</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iter  20 value 38298.920341</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iter  20 value 38298.920309</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> iter  20 value 38298.920308</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> final  value 38298.920308 </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> converged</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive</a></span><span class="op">(</span><span class="op">)</span><span class="op">)</span> <span class="op">{</span></span></span>

@@ -105,7 +105,7 @@ Any grouping allowed.
 ## Examples
 
 ``` r
-data("mers_2014_15", package="EpiEstim")
+utils::data("mers_2014_15", package="EpiEstim")
 
 set_default_unit("1 day")
 #> [1] "7d 0H 0M 0S"
@@ -192,10 +192,10 @@ if (requireNamespace("incidence",quietly = TRUE)) {
 #> $ class <fct> f, m, f, m, f, m, f, m, f, m, f, m, f, m, f, m, f, m, f, m, f, m…
 #> $ count <int> 1, 0, 0, 1, 4, 1, 4, 0, 9, 3, 8, 10, 8, 7, 9, 11, 13, 10, 7, 15,…
 #> $ time  <t[week]> -560.3, -560.3, -559.3, -559.3, -558.3, -558.3, -557.3, -557…
-#> Rows: 4
+#> Rows: 3
 #> Columns: 2
-#> $ time  <t[week]> 46.71, 47.71, 48.71, 49.71
-#> $ count <int> 0, 2, 6, 2
+#> $ time  <t[week]> 47.71, 48.71, 49.71
+#> $ count <int> 0, 6, 4
 
 if (requireNamespace("incidence2",quietly = TRUE)) {
   dat = outbreaks::ebola_sim_clean$linelist

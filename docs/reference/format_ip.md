@@ -34,5 +34,5 @@ an infectivity profile description
 
 ``` r
 format_ip(example_ganyani_ip())
-#> [1] "PDF: mean: 5.12 [3.58 — 6.77]; sd: 1.99 [0.849 — 3.16]; 100 bootstraps"
+#> [1] "PDF: mean: 5.2 [3.98 — 6.82]; sd: 2.06 [0.644 — 3.19]; 100 bootstraps"
 ```

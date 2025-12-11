@@ -218,26 +218,26 @@ with a start date:
 ``` r
 random_dates = Sys.Date()+sample.int(21,50,replace = TRUE)
 cut_date( random_dates, unit = "1 week", anchor = "start", dfmt = "%d %b")
-#> 11 Dec — 17 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec 18 Dec — 24 Dec 
-#>    "2025-12-11"    "2025-12-25"    "2025-12-25"    "2025-12-18"    "2025-12-18" 
-#> 18 Dec — 24 Dec 11 Dec — 17 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 
-#>    "2025-12-18"    "2025-12-11"    "2025-12-25"    "2025-12-25"    "2025-12-25" 
-#> 18 Dec — 24 Dec 11 Dec — 17 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec 
-#>    "2025-12-18"    "2025-12-11"    "2025-12-25"    "2025-12-18"    "2025-12-25" 
-#> 11 Dec — 17 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec 11 Dec — 17 Dec 
-#>    "2025-12-11"    "2025-12-25"    "2025-12-25"    "2025-12-11"    "2025-12-11" 
-#> 18 Dec — 24 Dec 11 Dec — 17 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec 
-#>    "2025-12-18"    "2025-12-11"    "2025-12-18"    "2025-12-25"    "2025-12-11" 
-#> 25 Dec — 31 Dec 11 Dec — 17 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec 
-#>    "2025-12-25"    "2025-12-11"    "2025-12-18"    "2025-12-25"    "2025-12-18" 
-#> 18 Dec — 24 Dec 18 Dec — 24 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec 
-#>    "2025-12-18"    "2025-12-18"    "2025-12-25"    "2025-12-25"    "2025-12-18" 
-#> 11 Dec — 17 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec 18 Dec — 24 Dec 18 Dec — 24 Dec 
-#>    "2025-12-11"    "2025-12-25"    "2025-12-11"    "2025-12-18"    "2025-12-18" 
-#> 18 Dec — 24 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 11 Dec — 17 Dec 25 Dec — 31 Dec 
-#>    "2025-12-18"    "2025-12-25"    "2025-12-25"    "2025-12-11"    "2025-12-25" 
-#> 25 Dec — 31 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 25 Dec — 31 Dec 18 Dec — 24 Dec 
-#>    "2025-12-25"    "2025-12-25"    "2025-12-25"    "2025-12-25"    "2025-12-18"
+#> 12 Dec — 18 Dec 26 Dec — 01 Jan 26 Dec — 01 Jan 19 Dec — 25 Dec 19 Dec — 25 Dec 
+#>    "2025-12-12"    "2025-12-26"    "2025-12-26"    "2025-12-19"    "2025-12-19" 
+#> 19 Dec — 25 Dec 12 Dec — 18 Dec 26 Dec — 01 Jan 26 Dec — 01 Jan 26 Dec — 01 Jan 
+#>    "2025-12-19"    "2025-12-12"    "2025-12-26"    "2025-12-26"    "2025-12-26" 
+#> 19 Dec — 25 Dec 12 Dec — 18 Dec 26 Dec — 01 Jan 19 Dec — 25 Dec 26 Dec — 01 Jan 
+#>    "2025-12-19"    "2025-12-12"    "2025-12-26"    "2025-12-19"    "2025-12-26" 
+#> 12 Dec — 18 Dec 26 Dec — 01 Jan 26 Dec — 01 Jan 12 Dec — 18 Dec 12 Dec — 18 Dec 
+#>    "2025-12-12"    "2025-12-26"    "2025-12-26"    "2025-12-12"    "2025-12-12" 
+#> 19 Dec — 25 Dec 12 Dec — 18 Dec 19 Dec — 25 Dec 26 Dec — 01 Jan 12 Dec — 18 Dec 
+#>    "2025-12-19"    "2025-12-12"    "2025-12-19"    "2025-12-26"    "2025-12-12" 
+#> 26 Dec — 01 Jan 12 Dec — 18 Dec 19 Dec — 25 Dec 26 Dec — 01 Jan 19 Dec — 25 Dec 
+#>    "2025-12-26"    "2025-12-12"    "2025-12-19"    "2025-12-26"    "2025-12-19" 
+#> 19 Dec — 25 Dec 19 Dec — 25 Dec 26 Dec — 01 Jan 26 Dec — 01 Jan 19 Dec — 25 Dec 
+#>    "2025-12-19"    "2025-12-19"    "2025-12-26"    "2025-12-26"    "2025-12-19" 
+#> 12 Dec — 18 Dec 26 Dec — 01 Jan 12 Dec — 18 Dec 19 Dec — 25 Dec 19 Dec — 25 Dec 
+#>    "2025-12-12"    "2025-12-26"    "2025-12-12"    "2025-12-19"    "2025-12-19" 
+#> 19 Dec — 25 Dec 26 Dec — 01 Jan 26 Dec — 01 Jan 12 Dec — 18 Dec 26 Dec — 01 Jan 
+#>    "2025-12-19"    "2025-12-26"    "2025-12-26"    "2025-12-12"    "2025-12-26" 
+#> 26 Dec — 01 Jan 26 Dec — 01 Jan 26 Dec — 01 Jan 26 Dec — 01 Jan 19 Dec — 25 Dec 
+#>    "2025-12-26"    "2025-12-26"    "2025-12-26"    "2025-12-26"    "2025-12-19"
 ```
 
 Performing calculations using interval censored dates is awkward. A
@@ -298,8 +298,8 @@ can be used to make sure a set of periodic times is complete:
 
 tmp3 = as.time_period(Sys.Date()+c(0:2,4:5)*7,anchor = "start")
 as.Date(date_seq(tmp3))
-#> [1] "2025-12-10" "2025-12-17" "2025-12-24" "2025-12-31" "2026-01-07"
-#> [6] "2026-01-14"
+#> [1] "2025-12-11" "2025-12-18" "2025-12-25" "2026-01-01" "2026-01-08"
+#> [6] "2026-01-15"
 ```
 
 `time_period`s can also be used with monthly or yearly data but such
@@ -320,13 +320,13 @@ orig_dates = Sys.Date()+1:10*7
 t1 = as.time_period(orig_dates, unit = "2 days", anchor = "2021-01-01")
 t1
 #> time unit: 2 days, origin: 2021-01-01 (a Friday)
-#> 905.5 909 912.5 916 919.5 923 926.5 930 933.5 937
+#> 906 909.5 913 916.5 920 923.5 927 930.5 934 937.5
 
 # a weekly with different start date
 t2 = as.time_period(orig_dates, unit = "1 week", anchor = "2022-01-01")
 t2
 #> time unit: week, origin: 2022-01-01 (a Saturday)
-#> 206.6 207.6 208.6 209.6 210.6 211.6 212.6 213.6 214.6 215.6
+#> 206.7 207.7 208.7 209.7 210.7 211.7 212.7 213.7 214.7 215.7
 
 # rebase t1 into the same format as t2
 # as t1 and t2 based on the same original dates converting t2 onto the same
@@ -334,12 +334,12 @@ t2
 t3 = as.time_period(t1,t2)
 t3
 #> time unit: week, origin: 2022-01-01 (a Saturday)
-#> 206.6 207.6 208.6 209.6 210.6 211.6 212.6 213.6 214.6 215.6
+#> 206.7 207.7 208.7 209.7 210.7 211.7 212.7 213.7 214.7 215.7
 
 # This happens automatically when the vectors are concatented
 c(t1,t2)
 #> time unit: 2 days, origin: 2021-01-01 (a Friday)
-#> 905.5 909 912.5 916 919.5 923 926.5 930 933.5 937 905.5 909 912.5 916 919.5 923 926.5 930 933.5 937
+#> 906 909.5 913 916.5 920 923.5 927 930.5 934 937.5 906 909.5 913 916.5 920 923.5 927 930.5 934 937.5
 ```
 
 ## Times in `ggoutbreak` and conversion of line-lists

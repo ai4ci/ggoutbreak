@@ -22,5 +22,5 @@ the formatted date
 
 ``` r
 fdmy(Sys.Date())
-#> [1] "10 Dec 2025"
+#> [1] "11 Dec 2025"
 ```

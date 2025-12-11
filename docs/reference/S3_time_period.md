@@ -34,10 +34,6 @@ new_time_period(
   that of `x` this will return a rescaled `time_period` using the new
   units.
 
-- ...:
-
-  used for subtype implementations
-
 ## Value
 
 a `time_period` class, consisting of a vector of numbers, with

@@ -9,7 +9,7 @@ reproduction number"><meta property="og:image" content="https://ai4ci.github.io/
 
     <a class="navbar-brand me-2" href="../index.html">ggoutbreak</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.6.1</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -125,6 +125,12 @@ of it can be specified directly as a <code>case_when</code> style function. The 
 must be vectorised and assume no grouping structure. If the function has
 named parameters it can reference any of the metadata columns, or time
 (as <code>t</code>). The <code><a href="rcategorical.html">rcategorical()</a></code> function may be useful in this scenario.</p></dd>
+
+
+<dt id="arg-max-size">max_size<a class="anchor" aria-label="anchor" href="#arg-max-size"></a></dt>
+<dd><p>the maximum size of a single generation. If a generation
+exceeds this limit the branching process terminates with a warning that
+the simulation is incomplete.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

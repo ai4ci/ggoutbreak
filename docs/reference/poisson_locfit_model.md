@@ -140,7 +140,7 @@ tmp = data %>% poisson_locfit_model(window=14,deg=2, ip=example_ip(), quick=TRUE
 #> We advise re-running supplying a full variance-covariance matrix, or
 #> a value to the `raw` parameter, or setting `quick=FALSE`.
 plot_rt(tmp,
-    raw=data,
+    raw = data,
     true_col = rt)
 
 

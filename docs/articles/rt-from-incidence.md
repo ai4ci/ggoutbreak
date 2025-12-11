@@ -323,7 +323,7 @@ given modelled incidence typically occurring in a matter of seconds:
     #>             .qmixlnorm(p, mu_Rt, sqrt(sigma_Rt2))
     #>         }))
     #> }
-    #> <bytecode: 0x63ed5f935468>
+    #> <bytecode: 0x5eef167003a8>
     #> <environment: namespace:ggoutbreak>
 
 ## Results
@@ -337,7 +337,7 @@ which opens up the possibility of performing $`R_t`$ estimates in fine
 grained geographical or demographic subgroups.
 
     #>    user  system elapsed 
-    #>   6.632   0.310   6.943
+    #>   6.793   0.297   7.091
 
 ![](rt-from-incidence_files/figure-html/unnamed-chunk-3-1.png)
 

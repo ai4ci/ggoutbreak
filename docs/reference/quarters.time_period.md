@@ -109,16 +109,16 @@ dt2df(.leap.seconds)    # date+time
 #> 27    2017-01-01   0   0    0    1   0  117    0    0     0  GMT      0
 dt2df(Sys.Date() + 0:9) # date
 #>    Sys.Date() + 0:9 sec min hour mday mon year wday yday isdst zone gmtoff
-#> 1        2025-12-10   0   0    0   10  11  125    3  343     0  UTC      0
-#> 2        2025-12-11   0   0    0   11  11  125    4  344     0  UTC      0
-#> 3        2025-12-12   0   0    0   12  11  125    5  345     0  UTC      0
-#> 4        2025-12-13   0   0    0   13  11  125    6  346     0  UTC      0
-#> 5        2025-12-14   0   0    0   14  11  125    0  347     0  UTC      0
-#> 6        2025-12-15   0   0    0   15  11  125    1  348     0  UTC      0
-#> 7        2025-12-16   0   0    0   16  11  125    2  349     0  UTC      0
-#> 8        2025-12-17   0   0    0   17  11  125    3  350     0  UTC      0
-#> 9        2025-12-18   0   0    0   18  11  125    4  351     0  UTC      0
-#> 10       2025-12-19   0   0    0   19  11  125    5  352     0  UTC      0
+#> 1        2025-12-11   0   0    0   11  11  125    4  344     0  UTC      0
+#> 2        2025-12-12   0   0    0   12  11  125    5  345     0  UTC      0
+#> 3        2025-12-13   0   0    0   13  11  125    6  346     0  UTC      0
+#> 4        2025-12-14   0   0    0   14  11  125    0  347     0  UTC      0
+#> 5        2025-12-15   0   0    0   15  11  125    1  348     0  UTC      0
+#> 6        2025-12-16   0   0    0   16  11  125    2  349     0  UTC      0
+#> 7        2025-12-17   0   0    0   17  11  125    3  350     0  UTC      0
+#> 8        2025-12-18   0   0    0   18  11  125    4  351     0  UTC      0
+#> 9        2025-12-19   0   0    0   19  11  125    5  352     0  UTC      0
+#> 10       2025-12-20   0   0    0   20  11  125    6  353     0  UTC      0
 
 ##' Even simpler:  Date -> Matrix - dropping time info {sec,min,hour, isdst}
 d2mat <- function(x) simplify2array(unclass(as.POSIXlt(x))[4:7])
@@ -163,10 +163,10 @@ d2mat(seq(as.Date("2000-02-02"), by=1, length.out=30)) # has R 1.0.0's release d
 ## 'Terrestrial Time' which differs from UTC by a few seconds
 ## See https://en.wikipedia.org/wiki/Terrestrial_Time
 julian(Sys.Date(), -2440588) # from a day
-#> [1] 2461020
+#> [1] 2461021
 #> attr(,"origin")
 #> [1] -2440588
 floor(as.numeric(julian(Sys.time())) + 2440587.5) # from a date-time
-#> [1] 2461020
+#> [1] 2461021
 # }
 ```

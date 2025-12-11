@@ -31,16 +31,16 @@ SI_fit_clever <- coarseDataTools::dic.fit.mcmc(dat = si_data,
 
     ## Running 6000 MCMC iterations 
     ## MCMCmetrop1R iteration 1 of 6000 
-    ## function value =  -31.57945
+    ## function value =  -31.57675
     ## theta = 
-    ##    0.10470
-    ##    0.30478
-    ## Metropolis acceptance rate = 1.00000
+    ##    0.13231
+    ##    0.29055
+    ## Metropolis acceptance rate = 0.00000
     ## 
     ## 
     ## 
     ## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-    ## The Metropolis acceptance rate was 0.56267
+    ## The Metropolis acceptance rate was 0.55817
     ## @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 ``` r
@@ -49,12 +49,12 @@ SI_fit_clever
 
     ## Coarse Data Model Parameter and Quantile Estimates: 
     ##         est CIlow CIhigh
-    ## shape 1.111 0.448  2.462
-    ## scale 1.356 0.594  3.736
-    ## p5    0.099 0.003  0.364
-    ## p50   1.068 0.498  1.727
-    ## p95   4.258 2.873  7.994
-    ## p99   6.464 4.139 13.058
+    ## shape 1.133 0.471  2.535
+    ## scale 1.306 0.548  3.559
+    ## p5    0.103 0.004  0.382
+    ## p50   1.080 0.501  1.726
+    ## p95   4.222 2.749  7.757
+    ## p99   6.392 3.936 12.717
     ## Note: please check that the MCMC converged on the target distribution by running multiple chains. MCMC samples are available in the mcmc slot (e.g. my.fit@mcmc)
 
 The median estimate and confidence intervals are quantiles of the
@@ -113,8 +113,8 @@ gammas %>%
     ## # A tibble: 2 × 4
     ##   parameter mean  sd    `median [95% CrI]`
     ##   <chr>     <chr> <chr> <chr>             
-    ## 1 mean      1.55  0.43  1.49 [0.95 — 2.48]
-    ## 2 sd        1.53  0.72  1.40 [0.88 — 2.81]
+    ## 1 mean      1.54  0.37  1.51 [0.96 — 2.38]
+    ## 2 sd        1.49  0.49  1.38 [0.83 — 2.75]
 
 In many cases it will only be the median and 95% credible intervals that
 are published, and in some cases not even that. In very rare cases
@@ -250,7 +250,7 @@ correlation = stats::cor(gammas$mean, gammas$sd)
 correlation
 ```
 
-    ## [1] 0.8067853
+    ## [1] 0.7331017
 
 Let us also assume that rather than knowledge of mean, sd, etc, we know
 only median and 95% credible intervals of the distribution of mean and
@@ -269,8 +269,8 @@ quantiles %>% dplyr::glimpse()
 
     ## Rows: 3
     ## Columns: 3
-    ## $ mean <dbl> 0.9499515, 1.4884483, 2.4786881
-    ## $ sd   <dbl> 0.8798483, 1.3981980, 2.8083894
+    ## $ mean <dbl> 0.9639519, 1.5100723, 2.3842426
+    ## $ sd   <dbl> 0.8333187, 1.3802986, 2.7504063
     ## $ p    <dbl> 0.025, 0.500, 0.975
 
 ``` r
@@ -394,10 +394,10 @@ tmp_mean
     ## # A tibble: 4 × 5
     ##   source             sd  mean parameter disc_type
     ##   <chr>           <dbl> <dbl> <chr>     <chr>    
-    ## 1 raw mcmc        0.392  1.57 mean      epiestim 
-    ## 2 epiestim        0.362  1.62 mean      epiestim 
-    ## 3 corr log normal 0.373  1.59 mean      epiestim 
-    ## 4 raw             0.428  1.55 mean      none
+    ## 1 raw mcmc        0.360  1.57 mean      epiestim 
+    ## 2 epiestim        0.330  1.60 mean      epiestim 
+    ## 3 corr log normal 0.349  1.57 mean      epiestim 
+    ## 4 raw             0.375  1.54 mean      none
 
 `EpiEstim`’s default resampling strategy in this example results in a
 slightly less skewed discretised infectivity profile distribution than

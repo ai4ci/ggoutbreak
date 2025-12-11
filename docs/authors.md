@@ -11,13 +11,13 @@ Source:
 [`DESCRIPTION`](https://github.com/ai4ci/ggoutbreak/blob/HEAD/DESCRIPTION)
 
 Challen R (2025). *ggoutbreak: Estimate Incidence, Proportions and
-Exponential Growth Rates*. R package version 0.6.0,
+Exponential Growth Rates*. R package version 0.6.1,
 <https://ai4ci.github.io/ggoutbreak/>.
 
     @Manual{,
       title = {ggoutbreak: Estimate Incidence, Proportions and Exponential Growth Rates},
       author = {Robert Challen},
       year = {2025},
-      note = {R package version 0.6.0},
+      note = {R package version 0.6.1},
       url = {https://ai4ci.github.io/ggoutbreak/},
     }

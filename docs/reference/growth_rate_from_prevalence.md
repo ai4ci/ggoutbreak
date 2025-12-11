@@ -104,9 +104,6 @@ plot_growth_rate(
       tmp,
       date_labels="%b %y"
   )
-#> Warning: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0. Please use
-#> `as_label()` or `as_name()` instead.
-#> This warning is displayed once every 8 hours.
 
 
 data1 = ukc19::ons_infection_survey %>%

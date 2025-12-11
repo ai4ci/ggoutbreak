@@ -128,10 +128,10 @@ rt_est = rt_incidence_reference_implementation(mu_t=mu_t,sigma_t = sigma_t, omeg
 # quantiles from a mixture distribution:
 rt_est$quantile_Rt_fn(c(0.025,0.5,0.975))
 #>  q.0.025    q.0.5  q.0.975 
-#> 1.424568 1.577702 1.793228 
+#> 1.463875 1.631201 1.868113 
 # and from the rough estimate based on matching of moments:
 stats::qlnorm(c(0.025,0.5,0.975), rt_est$meanlog_Rt_star, rt_est$sdlog_Rt_star)
-#> [1] 1.408223 1.582160 1.777581
+#> [1] 1.445694 1.636032 1.851430
 
 # GLM do not produce vcov matrices we can estimate them if we have access to
 # the data:
@@ -142,7 +142,7 @@ vcov_glm_ij = vcov_glm[index, index]
 rt_est_vcov = rt_incidence_reference_implementation(mu_t=mu_t,vcov_ij = vcov_glm_ij, omega = omega)
 rt_est_vcov$quantile_Rt_fn(c(0.025,0.5,0.975))
 #>  q.0.025    q.0.5  q.0.975 
-#> 1.423874 1.577717 1.794345 
+#> 1.463050 1.631217 1.869455 
 # In theory assuming independence leads to excess uncertainty and possible
 # underestimation bias. In most situations though this appears low risk.
 
@@ -159,7 +159,7 @@ mu_t2 = pred2$fit[index]
 rt_est2 = rt_incidence_reference_implementation(mu_t=mu_t2, vcov_ij=vcov_ij, omega = omega)
 rt_est2$quantile_Rt_fn(c(0.025,0.5,0.975))
 #>  q.0.025    q.0.5  q.0.975 
-#> 1.442381 1.592879 1.826743 
+#> 1.473898 1.635784 1.887385 
 
 # How does this compare to EpiEstim:
 # N.B. setting seed to make deterministic
@@ -179,6 +179,6 @@ withr::with_seed(100, {
 epi$R %>%
   dplyr::select(`Quantile.0.025(R)`, `Median(R)`, `Quantile.0.975(R)`)
 #>   Quantile.0.025(R) Median(R) Quantile.0.975(R)
-#> 1          1.655946   1.91267           2.25184
+#> 1          1.674906  1.970005          2.370261
 
 ```

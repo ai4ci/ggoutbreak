@@ -75,10 +75,12 @@ Additional groupings are treated as distinct proportions models.
 data = example_poisson_rt_2class()
 tmp = data %>% multinomial_nnet_model(window=14)
 #> # weights:  28 (13 variable)
-#> initial  value 44630.360662 
-#> iter  10 value 39354.669896
-#> iter  20 value 38533.463749
-#> final  value 38533.460670 
+#> initial  value 44413.405594 
+#> iter  10 value 39246.733943
+#> iter  20 value 38298.920341
+#> iter  20 value 38298.920309
+#> iter  20 value 38298.920308
+#> final  value 38298.920308 
 #> converged
 
 if (interactive()) {

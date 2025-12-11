@@ -174,5 +174,5 @@ ggplot2::ggplot()+
 
 # mean bias of GAM+rt estimate:
 mean(data$rt[seq_along(rt_est$mean_Rt_star)] - rt_est$mean_Rt_star)
-#> [1] 0.01708208
+#> [1] 0.0199856
 ```
