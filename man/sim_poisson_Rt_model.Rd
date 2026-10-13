@@ -39,7 +39,7 @@ infectivity profile at times \code{t}.}
 \value{
 A dataframe of case counts
 
-A dataframe containing the following columns: 
+A dataframe containing the following columns:
 \itemize{
 \item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
 \item count (positive_integer) - Positive case counts associated with the specified time frame

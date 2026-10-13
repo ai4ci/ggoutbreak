@@ -10,8 +10,9 @@ linelist(x, ...)
 \item{x}{An object to coerce}
 
 \item{...}{
-  Named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
-    \item{\code{unit}}{the length of one unit of time. This will be either a integer
+  Additional named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{...}}{arguments passed to or from methods.}
+\item{\code{unit}}{the length of one unit of time. This will be either a integer
 number of days, or a specification such as "1 week", or another \code{time_period}.
 If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
 this will return a rescaled \code{time_period} using the new units.}

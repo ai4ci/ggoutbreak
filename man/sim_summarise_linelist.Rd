@@ -38,7 +38,7 @@ there will be multiple time series in the output}
 \value{
 a count data frame with additional statistics.
 
-A dataframe containing the following columns: 
+A dataframe containing the following columns:
 \itemize{
 \item statistic (character) - An identifier for the statistic, whether that be infections, admissions, deaths
 \item count (positive_integer) - Positive case counts associated with the specified time frame

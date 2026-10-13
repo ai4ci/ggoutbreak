@@ -34,6 +34,6 @@ a lot of change to add in more knots.
 }
 \examples{
 gam_knots(example_poisson_rt(), 14)
-gam_knots(example_poisson_rt(), k=10)
+gam_knots(example_poisson_rt(), k = 10)
 }
 \concept{models}

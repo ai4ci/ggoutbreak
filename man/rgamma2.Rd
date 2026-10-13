@@ -15,8 +15,8 @@ rgamma2(n, mean, sd = sqrt(mean))
 }
 \value{
 \code{dgamma} gives the density,
-  \code{pgamma} gives the distribution function,
-  \code{qgamma} gives the quantile function, and
+  \code{pgamma} is the cumulative distribution function, and
+  \code{qgamma} is the quantile function of the Gamma distribution.
   \code{rgamma} generates random deviates.
 
   Invalid arguments will result in return value \code{NaN}, with a warning.
@@ -38,6 +38,6 @@ Density, distribution function, quantile function and random
 rgamma2(10, 2, 1)
 }
 \seealso{
-\code{\link[stats:GammaDist]{stats::rgamma()}}
+\code{\link[stats:rgamma]{stats::rgamma()}}
 }
 \concept{distributions}

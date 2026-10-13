@@ -29,6 +29,6 @@ than can be represented with a Poisson or negative binomial distribution.
 rdiscgamma(10, 2, 1)
 }
 \seealso{
-\code{\link[stats:GammaDist]{stats::rgamma()}}
+\code{\link[stats:rgamma]{stats::rgamma()}}
 }
 \concept{distributions}

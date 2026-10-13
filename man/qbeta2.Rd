@@ -20,9 +20,10 @@ otherwise \code{P[X>x]}.}
 \item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
-\code{dbeta} gives the density, \code{pbeta} the distribution
-  function, \code{qbeta} the quantile function, and \code{rbeta}
-  generates random deviates.
+\code{dbeta} gives the density,
+  \code{pbeta} is the cumulative distribution function, and
+  \code{qbeta} is the quantile function of the Beta distribution.
+  \code{rbeta} generates random deviates.
 
   Invalid arguments will result in return value \code{NaN}, with a warning.
 
@@ -43,6 +44,6 @@ Density, distribution function, quantile function and random
 qbeta2(c(0.25,0.5,0.75), 0.5, 0.25)
 }
 \seealso{
-\code{\link[stats:Beta]{stats::qbeta()}}
+\code{\link[stats:qbeta]{stats::qbeta()}}
 }
 \concept{distributions}

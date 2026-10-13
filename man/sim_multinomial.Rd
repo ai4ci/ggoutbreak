@@ -24,13 +24,13 @@ one entry per class}
 \item{time_unit}{e.g. a daily or weekly time series: "1 day", "7 days"}
 
 \item{...}{
-  Named arguments passed on to \code{\link[=sim_poisson_model]{sim_poisson_model}}\describe{
-    \item{\code{fn_imports}}{a function that takes input vector \code{t} and returns the
-number of imported cases at times \code{t}.}
-\item{\code{seed}}{a random seed}
-\item{\code{kappa}}{a dispersion parameter. 1 is no dispersion (compared to poisson), smaller values mean more dispersion.}
+  Additional named arguments passed on to \code{\link[=sim_poisson_model]{sim_poisson_model}}\describe{
+    \item{\code{kappa}}{a dispersion parameter. 1 is no dispersion (compared to poisson), smaller values mean more dispersion.}
 \item{\code{max_time}}{the desired length of the time series,}
+\item{\code{seed}}{a random seed}
 \item{\code{fn_growth}}{a function that takes input vector \code{t} and returns the growth rates at times \code{t}}
+\item{\code{fn_imports}}{a function that takes input vector \code{t} and returns the
+number of imported cases at times \code{t}.}
 }}
 }
 \value{

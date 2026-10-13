@@ -22,5 +22,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Robert Challen \email{rob.challen@bristol.ac.uk} (\href{https://orcid.org/0000-0002-5504-7768}{ORCID}) [copyright holder]
 
+Authors:
+\itemize{
+  \item Robert Challen \email{rob.challen@bristol.ac.uk} (\href{https://orcid.org/0000-0002-5504-7768}{ORCID}) [copyright holder]
+}
+
 }
 \keyword{internal}

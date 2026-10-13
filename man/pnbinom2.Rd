@@ -13,10 +13,7 @@
   correction to a normal approximation, followed by a search.
 
   \code{rnbinom} uses the derivation as a gamma mixture of Poisson
-  distributions, see
-
-  Devroye, L. (1986) \emph{Non-Uniform Random Variate Generation.}
-  Springer-Verlag, New York. Page 480.
+  distributions, see {\if{html}{\cite{}\out{<a href="#reference+NegBinomial.Rd+R+3ADevroye+3A1986" class="citation">}}Devroye (1986, page 480)\if{html}{\out{</a>}}}.
 }
 \usage{
 pnbinom2(q, mean, sd = sqrt(mean), lower.tail = TRUE, log.p = FALSE)
@@ -28,15 +25,15 @@ pnbinom2(q, mean, sd = sqrt(mean), lower.tail = TRUE, log.p = FALSE)
 
 \item{sd}{the standard deviation on the true scale (vectorised)}
 
-\item{lower.tail}{logical; if TRUE (default), probabilities are
+\item{lower.tail}{logical; if \code{TRUE} (default), probabilities are
     \eqn{P[X \le x]}, otherwise, \eqn{P[X > x]}.}
 
 \item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 \code{dnbinom} gives the density,
-  \code{pnbinom} gives the distribution function,
-  \code{qnbinom} gives the quantile function, and
+  \code{pnbinom} is the cumulative distribution function, and
+  \code{qnbinom} is the quantile function of the negative binomial distribution.
   \code{rnbinom} generates random deviates.
 
   Invalid \code{size} or \code{prob} will result in return value
@@ -96,6 +93,13 @@ The negative binomial distribution with \code{size} \eqn{= n} and
 }
 \examples{
 pnbinom2(0:5, 2, sqrt(2))
+}
+\references{
+{\if{html}{\out{<span id="reference+NegBinomial.Rd+R+3ADevroye+3A1986"></span>}}Devroye L (1986).
+\emph{Non-Uniform Random Variate Generation}.
+Springer, New York.
+\ifelse{text}{doi:10.1007/978-1-4613-8643-8 <https://doi.org/10.1007/978-1-4613-8643-8>}{\ifelse{latex}{\href{https://doi.org/10.1007/978-1-4613-8643-8}{doi:10.1007\out{\\slash{}}978\out{\\-}1\out{\\-}4613\out{\\-}8643\out{\\-}8}}{\href{https://doi.org/10.1007/978-1-4613-8643-8}{doi:10.1007/978-1-4613-8643-8}}}.
+\url{https://luc.devroye.org/handbooksimulation1.pdf}.}
 }
 \seealso{
 \link[stats]{Distributions} for standard distributions, including

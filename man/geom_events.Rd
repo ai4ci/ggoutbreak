@@ -51,89 +51,90 @@ specify a position amongst other things.}
 from data)}
 
 \item{...}{
-  Named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
+  Additional named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
     \item{\code{name}}{The name of the scale. Used as the axis or legend title. If
-\code{waiver()}, the default, the name of the scale is taken from the first
-mapping used for that aesthetic. If \code{NULL}, the legend title will be
+waiver(), the default, the name of the scale is taken from the first
+mapping used for that aesthetic. If NULL, the legend title will be
 omitted.}
 \item{\code{breaks}}{One of:
-\itemize{
-\item \code{NULL} for no breaks
-\item \code{waiver()} for the breaks specified by \code{date_breaks}
-\item A \code{Date}/\code{POSIXct} vector giving positions of breaks
-\item A function that takes the limits as input and returns breaks as output
-}}
+
+ NULL for no breaks
+ waiver() for the breaks specified by date_breaks
+ A Date/POSIXct vector giving positions of breaks
+ A function that takes the limits as input and returns breaks as output
+}
 \item{\code{date_breaks}}{A string giving the distance between breaks like "2
-weeks", or "10 years". If both \code{breaks} and \code{date_breaks} are
-specified, \code{date_breaks} wins. Valid specifications are 'sec', 'min',
+weeks", or "10 years". If both breaks and date_breaks are
+specified, date_breaks wins. Valid specifications are 'sec', 'min',
 'hour', 'day', 'week', 'month' or 'year', optionally followed by 's'.}
-\item{\code{labels}}{One of the options below. Please note that when \code{labels} is a
-vector, it is highly recommended to also set the \code{breaks} argument as a
+\item{\code{labels}}{One of the options below. Please note that when labels is a
+vector, it is highly recommended to also set the breaks argument as a
 vector to protect against unintended mismatches.
-\itemize{
-\item \code{NULL} for no labels
-\item \code{waiver()} for the default labels computed by the
+
+ NULL for no labels
+ waiver() for the default labels computed by the
 transformation object
-\item A character vector giving labels (must be same length as \code{breaks})
-\item An expression vector (must be the same length as breaks). See ?plotmath for details.
-\item A function that takes the breaks as input and returns labels
-as output. Also accepts rlang \link[rlang:as_function]{lambda} function
+ A character vector giving labels (must be same length as breaks)
+ An expression vector (must be the same length as breaks). See ?plotmath for details.
+ A function that takes the breaks as input and returns labels
+as output. Also accepts rlang lambda function
 notation.
-}}
+}
 \item{\code{date_labels}}{A string giving the formatting specification for the
-labels. Codes are defined in \code{\link[=strftime]{strftime()}}. If both \code{labels}
-and \code{date_labels} are specified, \code{date_labels} wins.}
+labels. Codes are defined in strftime(). If both labels
+and date_labels are specified, date_labels wins.}
 \item{\code{minor_breaks}}{One of:
-\itemize{
-\item \code{NULL} for no breaks
-\item \code{waiver()} for the breaks specified by \code{date_minor_breaks}
-\item A \code{Date}/\code{POSIXct} vector giving positions of minor breaks
-\item A function that takes the limits as input and returns minor breaks as
+
+ NULL for no breaks
+ waiver() for the breaks specified by date_minor_breaks
+ A Date/POSIXct vector giving positions of minor breaks
+ A function that takes the limits as input and returns minor breaks as
 output
-}}
+}
 \item{\code{date_minor_breaks}}{A string giving the distance between minor breaks
-like "2 weeks", or "10 years". If both \code{minor_breaks} and
-\code{date_minor_breaks} are specified, \code{date_minor_breaks} wins. Valid
+like "2 weeks", or "10 years". If both minor_breaks and
+date_minor_breaks are specified, date_minor_breaks wins. Valid
 specifications are 'sec', 'min', 'hour', 'day', 'week', 'month' or 'year',
 optionally followed by 's'.}
 \item{\code{limits}}{One of:
-\itemize{
-\item \code{NULL} to use the default scale range
-\item A numeric vector of length two providing limits of the scale.
-Use \code{NA} to refer to the existing minimum or maximum
-\item A function that accepts the existing (automatic) limits and returns
-new limits. Also accepts rlang \link[rlang:as_function]{lambda} function
+
+ NULL to use the default scale range
+ A numeric vector of length two providing limits of the scale.
+Use NA to refer to the existing minimum or maximum
+ A function that accepts the existing (automatic) limits and returns
+new limits. Also accepts rlang lambda function
 notation.
-Note that setting limits on positional scales will \strong{remove} data outside of the limits.
+Note that setting limits on positional scales will remove data outside of the limits.
 If the purpose is to zoom, use the limit argument in the coordinate system
-(see \code{\link[ggplot2:coord_cartesian]{coord_cartesian()}}).
-}}
+(see coord_cartesian()).
+}
 \item{\code{expand}}{For position scales, a vector of range expansion constants used to add some
 padding around the data to ensure that they are placed some distance
-away from the axes. Use the convenience function \code{\link[ggplot2:expansion]{expansion()}}
-to generate the values for the \code{expand} argument. The defaults are to
-expand the scale by 5\% on each side for continuous variables, and by
+away from the axes. Use the convenience function expansion()
+to generate the values for the expand argument. The defaults are to
+expand the scale by 5% on each side for continuous variables, and by
 0.6 units on each side for discrete variables.}
 \item{\code{oob}}{One of:
-\itemize{
-\item Function that handles limits outside of the scale limits
-(out of bounds). Also accepts rlang \link[rlang:as_function]{lambda}
+
+ Function that handles limits outside of the scale limits
+(out of bounds). Also accepts rlang lambda
 function notation.
-\item The default (\code{\link[scales:oob]{scales::censor()}}) replaces out of
-bounds values with \code{NA}.
-\item \code{\link[scales:oob]{scales::squish()}} for squishing out of bounds values into range.
-\item \code{\link[scales:oob]{scales::squish_infinite()}} for squishing infinite values into range.
-}}
+ The default (scales::censor()) replaces out of
+bounds values with NA.
+ scales::squish() for squishing out of bounds values into range.
+ scales::squish_infinite() for squishing infinite values into range.
+}
 \item{\code{guide}}{A function used to create a guide or its name. See
-\code{\link[ggplot2:guides]{guides()}} for more information.}
+guides() for more information.}
 \item{\code{position}}{For position scales, The position of the axis.
-\code{left} or \code{right} for y axes, \code{top} or \code{bottom} for x axes.}
+left or right for y axes, top or bottom for x axes.}
 \item{\code{timezone}}{The timezone to use for display on the axes. The default
-(\code{NULL}) uses the timezone encoded in the data.}
+(NULL) uses the timezone encoded in the data.}
 \item{\code{na.value}}{Missing values will be replaced with this value.}
 }
-  Named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
-    \item{\code{unit}}{the length of one unit of time. This will be either a integer
+  Additional named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{...}}{arguments passed to or from methods.}
+\item{\code{unit}}{the length of one unit of time. This will be either a integer
 number of days, or a specification such as "1 week", or another \code{time_period}.
 If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
 this will return a rescaled \code{time_period} using the new units.}

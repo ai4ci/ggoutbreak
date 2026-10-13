@@ -13,7 +13,10 @@ test_that(".fit_lm_1d unit test", {
   F2 = .fit_lm_1d
   
 
-  testthat::expect_equal(.fit_lm_1d(y = 1:10 * 2 + 5, x = 1:10), c(c = 5, m = 2))
+  testthat::expect_equal(
+    .fit_lm_1d(y = 1:10 * 2 + 5, x = 1:10),
+    c(c = 5, m = 2)
+  )
 
   # generates a failure if the overall test is failing with a link to the 
   # source of the unit test:

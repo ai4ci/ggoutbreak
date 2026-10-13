@@ -16,9 +16,14 @@ geom_truth(
 value column (name given in \code{true_col}). This is optional and will be picked
 up from the \code{raw} parameter if given.}
 
+\item{true_col}{the column name / expression of the true value}
+
+\item{true_fmt}{a list of ggplot formatting to apply to the true value timeseries}
+
 \item{...}{
-  Named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
-    \item{\code{unit}}{the length of one unit of time. This will be either a integer
+  Additional named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{...}}{arguments passed to or from methods.}
+\item{\code{unit}}{the length of one unit of time. This will be either a integer
 number of days, or a specification such as "1 week", or another \code{time_period}.
 If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
 this will return a rescaled \code{time_period} using the new units.}
@@ -31,10 +36,6 @@ date. If the \code{x} input is already a \code{time_period} and this is differen
 the time-series. If not provided then the current defaults will be used.
 (see \code{\link[=set_defaults]{set_defaults()}})}
 }}
-
-\item{true_col}{the column name / expression of the true value}
-
-\item{true_fmt}{a list of ggplot formatting to apply to the true value timeseries}
 }
 \value{
 A geom with the true value as a line.

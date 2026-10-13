@@ -36,21 +36,6 @@ Any grouping allowed.
 Any grouping allowed.
 }
 
-\item{...}{
-  Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
-    \item{\code{events}}{Significant events or time spans - a dataframe with columns:
-\itemize{
-\item label (character) - the event label
-\item start (date) - the start date, or the date of the event
-\item end (date) - the end date or NA if a single event
-}
-
-Any grouping allowed.
-
-A default value is defined.
-}
-}}
-
 \item{mapping}{a \code{ggplot2::aes} mapping. Most importantly setting the \code{colour}
 to something if there are multiple incidence timeseries in the plot}
 
@@ -65,6 +50,120 @@ Any grouping allowed.
 
 A default value is defined.
 }
+
+\item{...}{
+  Additional named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
+    \item{\code{...}}{
+  Additional named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
+    \item{\code{name}}{The name of the scale. Used as the axis or legend title. If
+waiver(), the default, the name of the scale is taken from the first
+mapping used for that aesthetic. If NULL, the legend title will be
+omitted.}
+\item{\code{breaks}}{One of:
+
+ NULL for no breaks
+ waiver() for the breaks specified by date_breaks
+ A Date/POSIXct vector giving positions of breaks
+ A function that takes the limits as input and returns breaks as output
+}
+\item{\code{date_breaks}}{A string giving the distance between breaks like "2
+weeks", or "10 years". If both breaks and date_breaks are
+specified, date_breaks wins. Valid specifications are 'sec', 'min',
+'hour', 'day', 'week', 'month' or 'year', optionally followed by 's'.}
+\item{\code{labels}}{One of the options below. Please note that when labels is a
+vector, it is highly recommended to also set the breaks argument as a
+vector to protect against unintended mismatches.
+
+ NULL for no labels
+ waiver() for the default labels computed by the
+transformation object
+ A character vector giving labels (must be same length as breaks)
+ An expression vector (must be the same length as breaks). See ?plotmath for details.
+ A function that takes the breaks as input and returns labels
+as output. Also accepts rlang lambda function
+notation.
+}
+\item{\code{date_labels}}{A string giving the formatting specification for the
+labels. Codes are defined in strftime(). If both labels
+and date_labels are specified, date_labels wins.}
+\item{\code{minor_breaks}}{One of:
+
+ NULL for no breaks
+ waiver() for the breaks specified by date_minor_breaks
+ A Date/POSIXct vector giving positions of minor breaks
+ A function that takes the limits as input and returns minor breaks as
+output
+}
+\item{\code{date_minor_breaks}}{A string giving the distance between minor breaks
+like "2 weeks", or "10 years". If both minor_breaks and
+date_minor_breaks are specified, date_minor_breaks wins. Valid
+specifications are 'sec', 'min', 'hour', 'day', 'week', 'month' or 'year',
+optionally followed by 's'.}
+\item{\code{limits}}{One of:
+
+ NULL to use the default scale range
+ A numeric vector of length two providing limits of the scale.
+Use NA to refer to the existing minimum or maximum
+ A function that accepts the existing (automatic) limits and returns
+new limits. Also accepts rlang lambda function
+notation.
+Note that setting limits on positional scales will remove data outside of the limits.
+If the purpose is to zoom, use the limit argument in the coordinate system
+(see coord_cartesian()).
+}
+\item{\code{expand}}{For position scales, a vector of range expansion constants used to add some
+padding around the data to ensure that they are placed some distance
+away from the axes. Use the convenience function expansion()
+to generate the values for the expand argument. The defaults are to
+expand the scale by 5% on each side for continuous variables, and by
+0.6 units on each side for discrete variables.}
+\item{\code{oob}}{One of:
+
+ Function that handles limits outside of the scale limits
+(out of bounds). Also accepts rlang lambda
+function notation.
+ The default (scales::censor()) replaces out of
+bounds values with NA.
+ scales::squish() for squishing out of bounds values into range.
+ scales::squish_infinite() for squishing infinite values into range.
+}
+\item{\code{guide}}{A function used to create a guide or its name. See
+guides() for more information.}
+\item{\code{position}}{For position scales, The position of the axis.
+left or right for y axes, top or bottom for x axes.}
+\item{\code{timezone}}{The timezone to use for display on the axes. The default
+(NULL) uses the timezone encoded in the data.}
+\item{\code{na.value}}{Missing values will be replaced with this value.}
+}
+  Additional named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{...}}{arguments passed to or from methods.}
+\item{\code{unit}}{the length of one unit of time. This will be either a integer
+number of days, or a specification such as "1 week", or another \code{time_period}.
+If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
+this will return a rescaled \code{time_period} using the new units.}
+\item{\code{start_date}}{the zero time date as something that can be coerced to a
+date. If the \code{x} input is already a \code{time_period} and this is different to its
+\code{start_date} then \code{x} will be recalibrated to use the new start date.}
+\item{\code{anchor}}{only relevant if \code{x} is a vector of dates, this is a date, or
+\code{"start"} or \code{"end"} or a weekday name e.g.
+\code{"mon"}. With the vector of dates in \code{x} it will use this anchor to find a reference date for
+the time-series. If not provided then the current defaults will be used.
+(see \code{\link[=set_defaults]{set_defaults()}})}
+}}
+}
+  Additional named arguments passed on to \code{\link[=proportion_locfit_model]{proportion_locfit_model}}\describe{
+    \item{\code{...}}{not used and present to allow proportion model to be used in a
+\code{group_modify}}
+\item{\code{window}}{a number of data points defining the bandwidth of the estimate,
+smaller values result in less smoothing, large value in more. The default
+value of 14 is calibrated for data provided on a daily frequency, with
+weekly data a lower value may be preferred. - default \code{14}}
+\item{\code{deg}}{polynomial degree (min 1) - higher degree results in less
+smoothing, lower values result in more smoothing. A degree of 1 is fitting
+a linear model piece wise. - default \code{2}}
+\item{\code{frequency}}{the density of the output estimates as a time period such as
+\verb{7 days} or \verb{2 weeks}. - default \code{1 day}}
+}}
 }
 \value{
 a ggplot object

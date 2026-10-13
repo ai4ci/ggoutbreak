@@ -13,9 +13,9 @@ test_that(".singleton unit test", {
   F2 = .singleton
   
 
-  fixed_rnorm <- .singleton(rnorm(10))
-  a <- fixed_rnorm()
-  b <- fixed_rnorm()
+  fixed_rnorm = .singleton(rnorm(10))
+  a = fixed_rnorm()
+  b = fixed_rnorm()
   testthat::expect_equal(a, b)
 
   # generates a failure if the overall test is failing with a link to the 

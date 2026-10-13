@@ -49,24 +49,24 @@ test_that("as.time_period unit test", {
   F2 = as.time_period
   
 
-  tmp <- as.time_period(grates::as_epiweek("2019-W12", format = "yearweek") + 0:2)
+  tmp = as.time_period(grates::as_epiweek("2019-W12", format = "yearweek") + 0:2)
   testthat::expect_equal(
     lubridate::epiweek(as.Date(tmp)),
     c(12, 13, 14)
   )
   
-  tmp <- as.time_period(grates::as_isoweek("2019-W12", format = "yearweek") + 0:2)
+  tmp = as.time_period(grates::as_isoweek("2019-W12", format = "yearweek") + 0:2)
   testthat::expect_equal(
     lubridate::isoweek(as.Date(tmp)),
     c(12, 13, 14)
   )
   
-  x <- as.time_period(as.Date("2025-01-01") + 0:2, anchor = "start", unit = "1 day")
-  y <- as.time_period(as.Date("2025-01-07") + 0:2, anchor = "start", unit = "1 day")
+  x = as.time_period(as.Date("2025-01-01") + 0:2, anchor = "start", unit = "1 day")
+  y = as.time_period(as.Date("2025-01-07") + 0:2, anchor = "start", unit = "1 day")
   testthat::expect_equal(as.numeric(c(x, y)), c(0, 1, 2, 6, 7, 8))
   testthat::expect_equal(as.numeric(c(y, x)), c(0, 1, 2, -6, -5, -4))
   
-  z <- as.time_period(as.Date("2025-01-01") + 0:2 * 7, anchor = "start", unit = "1 week")
+  z = as.time_period(as.Date("2025-01-01") + 0:2 * 7, anchor = "start", unit = "1 week")
   testthat::expect_equal(as.numeric(c(x, z)), c(0, 1, 2, 0, 7, 14))
   testthat::expect_equal(
     as.numeric(c(z, x)),
@@ -97,9 +97,9 @@ test_that("S3_time_period unit test", {
   # Do not edit here - follow the link to the source file.
   
 
-  default <- new_time_period(as.numeric(1:10))
-  shifted <- new_time_period(as.numeric(1:10), start_date = as.Date("1970-01-10"))
-  stretched <- new_time_period(as.numeric(1:10), unit = lubridate::weeks(1))
+  default = new_time_period(as.numeric(1:10))
+  shifted = new_time_period(as.numeric(1:10), start_date = as.Date("1970-01-10"))
+  stretched = new_time_period(as.numeric(1:10), unit = lubridate::weeks(1))
   
   testthat::expect_equal(
     format(default),
@@ -123,13 +123,13 @@ test_that("S3_time_period unit test", {
   
   testthat::expect_equal(vec_ptype_abbr(default), "t[day]")
   
-  dshifted <- vec_cast(default, shifted)
+  dshifted = vec_cast(default, shifted)
   testthat::expect_equal(
     as.Date(dshifted) == as.Date(default),
     c(TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE, TRUE)
   )
   
-  dsquashed <- vec_cast(default, stretched)
+  dsquashed = vec_cast(default, stretched)
   testthat::expect_equal(
     vec_cast(dsquashed, double()),
     c(
@@ -183,7 +183,7 @@ test_that("S3_time_period unit test", {
   )
   
   # Arithmetic:
-  tmp <- withr::with_seed(100, default + runif(10))
+  tmp = withr::with_seed(100, default + runif(10))
   testthat::expect_equal(any(tmp == default), FALSE)
   testthat::expect_equal(all(floor(tmp) == default), TRUE)
   
@@ -225,13 +225,13 @@ test_that(".day_interval unit test", {
   F2 = .day_interval
   
 
-  r <- c(1, rpois(10, 3) + 1)
-  interval <- 2
-  dates <- as.Date("2025-01-01") + r * interval
+  r = c(1, rpois(10, 3) + 1)
+  interval = 2
+  dates = as.Date("2025-01-01") + r * interval
   testthat::expect_equal(.day_interval(dates) == interval, TRUE)
   
-  interval <- 0.5
-  dates <- as.Date("2025-01-01") + r * interval
+  interval = 0.5
+  dates = as.Date("2025-01-01") + r * interval
   testthat::expect_equal(.day_interval(dates) == interval, TRUE)
 
   # generates a failure if the overall test is failing with a link to the 

@@ -9,8 +9,8 @@
 #'
 #' @iparam d input data
 
-#' @inheritAllDotParams poisson_gam_model.censored
-#' @inheritAllDotParams poisson_gam_model.incidence
+#' @inheritDotParams poisson_gam_model.censored
+#' @inheritDotParams poisson_gam_model.incidence
 #' @param frequency the density of the output estimates as a time period such as
 #'   `7 days` or `2 weeks`.
 #' @iparam ip An infectivity profile (optional) if not given (the default) the
@@ -30,22 +30,21 @@
 #'
 #' # Simple poisson model
 #' data = example_poisson_rt_smooth()
-#' tmp2 = poisson_gam_model(data,window=7,ip=example_ip(),quick=TRUE)
+#' tmp2 = poisson_gam_model(data, window = 7, ip = example_ip(), quick = TRUE)
 #'
 #' if (interactive()) {
 #'   plot_incidence(
 #'     tmp2,
-#'     date_labels="%b %y",
-#'     raw=data
+#'     date_labels = "%b %y",
+#'     raw = data
 #'   )
 #'
 #'   plot_rt(
 #'     tmp2,
-#'     date_labels="%b %y"
-#'   )+
-#'   sim_geom_function(data,colour="red")
+#'     date_labels = "%b %y"
+#'   ) +
+#'     sim_geom_function(data, colour = "red")
 #' }
-#'
 #'
 #'
 #' # example with delayed observation model.
@@ -56,13 +55,18 @@
 #' tmp3 = data2 %>% poisson_gam_model(
 #'   model_fn = model$model_fn,
 #'   predict = model$predict,
-#'   ip=example_ip())
+#'   ip = example_ip()
+#' )
 #'
 #' if (interactive()) {
-#'   plot_incidence(tmp3)+
+#'   plot_incidence(tmp3) +
 #'     ggplot2::geom_line(
-#'       data=data2 %>% dplyr::filter(obs_time %% 10 == 0),
-#'       mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
+#'       data = data2 %>% dplyr::filter(obs_time %% 10 == 0),
+#'       mapping = ggplot2::aes(
+#'         x = as.Date(time),
+#'         y = count,
+#'         colour = as.factor(obs_time)
+#'       )
 #'     )
 #'
 #'   plot_rt(tmp3)
@@ -75,7 +79,7 @@ poisson_gam_model = function(
   quick = FALSE,
   .progress = interactive()
 ) {
-  #TODO: slow example
+  # TODO: slow example
 
   .message_context()
   interfacer::idispatch(
@@ -211,6 +215,9 @@ poisson_gam_model.incidence = function(
   quick
 ) {
   cutoff = min(d$time)
+
+  d = d %>% dplyr::mutate(time = time - cutoff)
+
   if (interfacer::itest(ip, i_discrete_ip)) {
     max_tau = max(ip$tau)
     min_tau = min(ip$tau)
@@ -285,8 +292,8 @@ poisson_gam_model.incidence = function(
         "Rt estimation using GAM (exact with modelled covariance)"
       )
       # get prediction vcov from GAM fit:
-      Xp <- stats::predict(fit, newdata, type = "lpmatrix")
-      pred_vcov <- Xp %*% stats::vcov(fit) %*% t(Xp)
+      Xp = stats::predict(fit, newdata, type = "lpmatrix")
+      pred_vcov = Xp %*% stats::vcov(fit) %*% t(Xp)
     }
 
     tmp_ip = .select_ip(ip, .groupdata)
@@ -304,7 +311,9 @@ poisson_gam_model.incidence = function(
     incid = incid %>% dplyr::left_join(rt, by = "time")
   }
 
-  incid = incid %>% dplyr::filter(time >= cutoff)
+  incid = incid %>%
+    dplyr::filter(time >= 0) %>%
+    dplyr::mutate(time = time + cutoff)
 
   return(incid)
 }
@@ -429,7 +438,7 @@ gam_nb_model_fn = function(
 #' @examples
 #'
 #' data = example_delayed_observation() %>% dplyr::group_by(obs_time)
-#' cfg = gam_delayed_reporting(14,40)
+#' cfg = gam_delayed_reporting(14, 40)
 #' fit = cfg$model_fn(data)
 #' summary(fit)
 #'
@@ -455,7 +464,7 @@ gam_delayed_reporting = function(
         mgcv::gam(
           count ~
             s(time, bs = "cr", k = length(kts)) +
-              s(log(tau), k = 4, pc = max_delay),
+            s(log(tau), k = 4, pc = max_delay),
           data = data,
           knots = list(time = kts),
           method = "REML",
@@ -467,7 +476,7 @@ gam_delayed_reporting = function(
   ))
 }
 
-#TODO: GAM weekday effect model.
+# TODO: GAM weekday effect model.
 
 #' Derive a set of knot points for a GAM from data
 #'
@@ -488,7 +497,7 @@ gam_delayed_reporting = function(
 #'
 #' @examples
 #' gam_knots(example_poisson_rt(), 14)
-#' gam_knots(example_poisson_rt(), k=10)
+#' gam_knots(example_poisson_rt(), k = 10)
 gam_knots = function(data = i_incidence_data, window, ..., k = NULL) {
   range = range(as.numeric(data$time))
   if (!is.null(k)) {

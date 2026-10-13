@@ -20,18 +20,6 @@ poisson_gam_model.censored(
 (e.g. the input data \code{d} on a group by group basis) and returns a fitted
 GAM. The default is creates a delayed reporting model \code{\link[=gam_delayed_reporting]{gam_delayed_reporting()}}.}
 
-\item{...}{
-  Named arguments passed on to \code{\link[=gam_delayed_reporting]{gam_delayed_reporting}}\describe{
-    \item{\code{window}}{controls the knot spacing in the GAM (if the default)}
-\item{\code{max_delay}}{the maximum delay we expect to model}
-\item{\code{knots_fn}}{a function that takes the data as an input and returns
-a set of integers as time points for GAM knots, for \code{s(time)} term. The
-default here provides a roughly equally spaced grid determined by \code{window},
-by a user supplied function could do anything. The input this function is
-the raw dataframe of data that will be considered for one model fit. It is
-guaranteed to have at least a \code{time} and \code{count} column. It is possible to}
-}}
-
 \item{predict}{if the GAM model in \code{model_fn} introduces other variables we
 need to know what their values should be fixed at for prediction.
 This is a named list of defaults for variables in the model supplied by
@@ -40,6 +28,24 @@ may be supplied as part of the model function generator (
 e.g. \code{gam_delayed_reporting(...)$predict}). If this is set to exactly \code{FALSE}
 no prediction is performed and a list column of fitted GAM models returned
 instead.}
+
+\item{...}{
+  Additional named arguments passed on to \code{\link[=gam_delayed_reporting]{gam_delayed_reporting}}\describe{
+    \item{\code{window}}{controls the knot spacing in the GAM (if the default)}
+\item{\code{max_delay}}{the maximum delay we expect to model}
+\item{\code{knots_fn}}{a function that takes the data as an input and returns
+a set of integers as time points for GAM knots, for \code{s(time)} term. The
+default here provides a roughly equally spaced grid determined by \code{window},
+by a user supplied function could do anything. The input this function is
+the raw dataframe of data that will be considered for one model fit. It is
+guaranteed to have at least a \code{time} and \code{count} column. It is possible to}
+\item{\code{...}}{
+  Additional named arguments passed on to \code{\link[=gam_knots]{gam_knots}}\describe{
+    \item{\code{...}}{currently not used}
+\item{\code{k}}{alternative to \code{window}, if \code{k} is given then the behaviour of the
+knots will be similar to the default \code{mgcv::s(...,k=...)} parameter.}
+}}
+}}
 }
 \description{
 Poisson model for censored data

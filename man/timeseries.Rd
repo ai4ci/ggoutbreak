@@ -30,9 +30,22 @@ timeseries(x, ...)
 \arguments{
 \item{x}{An object to coerce e.g. a data frame}
 
+\item{date}{R expression defining a date column (as a \code{Date} - optional)}
+
+\item{count}{R expression defining a count column (as an \code{int} - optional)}
+
+\item{denom}{R expression defining a denominator column (as an \code{int} - optional)}
+
+\item{population}{R expression defining a population column (as an \code{numeric} - optional)}
+
+\item{class}{R expression defining a class column (as an \code{factor} - optional)}
+
+\item{declutter}{logical flag. If \code{TRUE} then unnecessary original columns will be dropped}
+
 \item{...}{
-  Named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
-    \item{\code{unit}}{the length of one unit of time. This will be either a integer
+  Additional named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{...}}{arguments passed to or from methods.}
+\item{\code{unit}}{the length of one unit of time. This will be either a integer
 number of days, or a specification such as "1 week", or another \code{time_period}.
 If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
 this will return a rescaled \code{time_period} using the new units.}
@@ -45,18 +58,6 @@ date. If the \code{x} input is already a \code{time_period} and this is differen
 the time-series. If not provided then the current defaults will be used.
 (see \code{\link[=set_defaults]{set_defaults()}})}
 }}
-
-\item{date}{R expression defining a date column (as a \code{Date} - optional)}
-
-\item{count}{R expression defining a count column (as an \code{int} - optional)}
-
-\item{denom}{R expression defining a denominator column (as an \code{int} - optional)}
-
-\item{population}{R expression defining a population column (as an \code{numeric} - optional)}
-
-\item{class}{R expression defining a class column (as an \code{factor} - optional)}
-
-\item{declutter}{logical flag. If \code{TRUE} then unnecessary original columns will be dropped}
 }
 \value{
 minimally a case count dataframe A dataframe containing the following columns:

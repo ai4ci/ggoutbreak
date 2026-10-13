@@ -9,7 +9,7 @@ integer_breaks(n = 5, ...)
 \arguments{
 \item{n}{number of breaks}
 
-\item{...}{further arguments for methods.}
+\item{...}{further arguments for methods; unused in default method.}
 }
 \value{
 a ggplot breaks function

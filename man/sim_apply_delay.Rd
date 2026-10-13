@@ -34,8 +34,16 @@ Minimally grouped by: statistic (and other groupings allowed).
 
 }
 
+\item{fn_p_symptomatic, fn_p_admitted, fn_p_died, fn_p_tested}{Function that
+returns a probability between 0 and 1 for each row of the input dataframe.
+A \code{purrr} style lambda is OK (e.g. \code{~ 1} for always true) the first
+parameter of this will be time of infection. The function must be
+vectorised on its inputs (and consume additional inputs with \code{...})}
+
+\item{seed}{RNG seed for reproducibility}
+
 \item{...}{
-  Named arguments passed on to \code{\link[=sim_apply_delay.linelist]{sim_apply_delay.linelist}}\describe{
+  Additional named arguments passed on to \code{\link[=sim_apply_delay.linelist]{sim_apply_delay.linelist}}\describe{
     \item{\code{fn_symptom_delay,fn_admission_delay,fn_death_delay}}{a function that
 calculates the time to event onset from infection. This will be called with
 a vector of infection times as the first parameter (\code{time}) but all other
@@ -52,7 +60,7 @@ screening test frequency rather than overloading this.)}
 parameter will be \code{sample_time} rather than time of infection. This is the
 time from sampling to the result being available.}
 }
-  Named arguments passed on to \code{\link[=sim_apply_delay.count_data]{sim_apply_delay.count_data}}\describe{
+  Additional named arguments passed on to \code{\link[=sim_apply_delay.count_data]{sim_apply_delay.count_data}}\describe{
     \item{\code{fn_symptom_profile,fn_admission_profile,fn_death_profile}}{a function
 that takes time and returns the probability density of symptoms,
 admissions, or deaths over time since infection (i.e. \code{tau}) as an ip
@@ -65,14 +73,6 @@ probability density of test sample being taken over time since symptoms.}
 probability density of test result being available over time since test
 sampling.}
 }}
-
-\item{fn_p_symptomatic, fn_p_admitted, fn_p_died, fn_p_tested}{Function that
-returns a probability between 0 and 1 for each row of the input dataframe.
-A \code{purrr} style lambda is OK (e.g. \code{~ 1} for always true) the first
-parameter of this will be time of infection. The function must be
-vectorised on its inputs (and consume additional inputs with \code{...})}
-
-\item{seed}{RNG seed for reproducibility}
 }
 \value{
 Depends on input, either:

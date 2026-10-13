@@ -11,101 +11,101 @@ sim_geom_function(df, ...)
 be the input of an estimator.}
 
 \item{...}{
-  Named arguments passed on to \code{\link[ggplot2:geom_function]{ggplot2::geom_function}}\describe{
-    \item{\code{mapping}}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}}. If specified and
-\code{inherit.aes = TRUE} (the default), it is combined with the default mapping
-at the top level of the plot. You must supply \code{mapping} if there is no plot
+  Additional named arguments passed on to \code{\link[ggplot2:geom_function]{ggplot2::geom_function}}\describe{
+    \item{\code{mapping}}{Set of aesthetic mappings created by aes(). If specified and
+inherit.aes = TRUE (the default), it is combined with the default mapping
+at the top level of the plot. You must supply mapping if there is no plot
 mapping.}
-\item{\code{data}}{Ignored by \code{stat_function()}, do not use.}
+\item{\code{data}}{Ignored by stat_function(), do not use.}
 \item{\code{stat}}{The statistical transformation to use on the data for this layer.
-When using a \verb{geom_*()} function to construct a layer, the \code{stat}
+When using a geom_*() function to construct a layer, the stat
 argument can be used to override the default coupling between geoms and
-stats. The \code{stat} argument accepts the following:
-\itemize{
-\item A \code{Stat} ggproto subclass, for example \code{StatCount}.
-\item A string naming the stat. To give the stat as a string, strip the
-function name of the \code{stat_} prefix. For example, to use \code{stat_count()},
-give the stat as \code{"count"}.
-\item For more information and other ways to specify the stat, see the
-\link[ggplot2:layer_stats]{layer stat} documentation.
-}}
+stats. The stat argument accepts the following:
+
+ A Stat ggproto subclass, for example StatCount.
+ A string naming the stat. To give the stat as a string, strip the
+function name of the stat_ prefix. For example, to use stat_count(),
+give the stat as "count".
+ For more information and other ways to specify the stat, see the
+layer stat documentation.
+}
 \item{\code{position}}{A position adjustment to use on the data for this layer. This
 can be used in various ways, including to prevent overplotting and
-improving the display. The \code{position} argument accepts the following:
-\itemize{
-\item The result of calling a position function, such as \code{position_jitter()}.
+improving the display. The position argument accepts the following:
+
+ The result of calling a position function, such as position_jitter().
 This method allows for passing extra arguments to the position.
-\item A string naming the position adjustment. To give the position as a
-string, strip the function name of the \code{position_} prefix. For example,
-to use \code{position_jitter()}, give the position as \code{"jitter"}.
-\item For more information and other ways to specify the position, see the
-\link[ggplot2:layer_positions]{layer position} documentation.
-}}
-\item{\code{...}}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}'s \code{params} argument. These
+ A string naming the position adjustment. To give the position as a
+string, strip the function name of the position_ prefix. For example,
+to use position_jitter(), give the position as "jitter".
+ For more information and other ways to specify the position, see the
+layer position documentation.
+}
+\item{\code{...}}{Other arguments passed on to layer()'s params argument. These
 arguments broadly fall into one of 4 categories below. Notably, further
-arguments to the \code{position} argument, or aesthetics that are required
-can \emph{not} be passed through \code{...}. Unknown arguments that are not part
+arguments to the position argument, or aesthetics that are required
+can not be passed through .... Unknown arguments that are not part
 of the 4 categories below are ignored.
-\itemize{
-\item Static aesthetics that are not mapped to a scale, but are at a fixed
-value and apply to the layer as a whole. For example, \code{colour = "red"}
-or \code{linewidth = 3}. The geom's documentation has an \strong{Aesthetics}
+
+ Static aesthetics that are not mapped to a scale, but are at a fixed
+value and apply to the layer as a whole. For example, colour = "red"
+or linewidth = 3. The geom's documentation has an Aesthetics
 section that lists the available options. The 'required' aesthetics
-cannot be passed on to the \code{params}. Please note that while passing
+cannot be passed on to the params. Please note that while passing
 unmapped aesthetics as vectors is technically possible, the order and
 required length is not guaranteed to be parallel to the input data.
-\item When constructing a layer using
-a \verb{stat_*()} function, the \code{...} argument can be used to pass on
-parameters to the \code{geom} part of the layer. An example of this is
-\code{stat_density(geom = "area", outline.type = "both")}. The geom's
+ When constructing a layer using
+a stat_*() function, the ... argument can be used to pass on
+parameters to the geom part of the layer. An example of this is
+stat_density(geom = "area", outline.type = "both"). The geom's
 documentation lists which parameters it can accept.
-\item Inversely, when constructing a layer using a
-\verb{geom_*()} function, the \code{...} argument can be used to pass on parameters
-to the \code{stat} part of the layer. An example of this is
-\code{geom_area(stat = "density", adjust = 0.5)}. The stat's documentation
+ Inversely, when constructing a layer using a
+geom_*() function, the ... argument can be used to pass on parameters
+to the stat part of the layer. An example of this is
+geom_area(stat = "density", adjust = 0.5). The stat's documentation
 lists which parameters it can accept.
-\item The \code{key_glyph} argument of \code{\link[ggplot2:layer]{layer()}} may also be passed on through
-\code{...}. This can be one of the functions described as
-\link[ggplot2:draw_key]{key glyphs}, to change the display of the layer in the legend.
-}}
-\item{\code{arrow}}{Arrow specification, as created by \code{\link[grid:arrow]{grid::arrow()}}.}
-\item{\code{arrow.fill}}{fill colour to use for the arrow head (if closed). \code{NULL}
-means use \code{colour} aesthetic.}
+ The key_glyph argument of layer() may also be passed on through
+.... This can be one of the functions described as
+key glyphs, to change the display of the layer in the legend.
+}
+\item{\code{arrow}}{Arrow specification, as created by grid::arrow().}
+\item{\code{arrow.fill}}{fill colour to use for the arrow head (if closed). NULL
+means use colour aesthetic.}
 \item{\code{lineend}}{Line end style (round, butt, square).}
 \item{\code{linejoin}}{Line join style (round, mitre, bevel).}
 \item{\code{linemitre}}{Line mitre limit (number greater than 1).}
-\item{\code{na.rm}}{If \code{FALSE}, the default, missing values are removed with
-a warning. If \code{TRUE}, missing values are silently removed.}
+\item{\code{na.rm}}{If FALSE, the default, missing values are removed with
+a warning. If TRUE, missing values are silently removed.}
 \item{\code{show.legend}}{logical. Should this layer be included in the legends?
-\code{NA}, the default, includes if any aesthetics are mapped.
-\code{FALSE} never includes, and \code{TRUE} always includes.
+NA, the default, includes if any aesthetics are mapped.
+FALSE never includes, and TRUE always includes.
 It can also be a named logical vector to finely select the aesthetics to
 display. To include legend keys for all levels, even
-when no data exists, use \code{TRUE}.  If \code{NA}, all levels are shown in legend,
+when no data exists, use TRUE.  If NA, all levels are shown in legend,
 but unobserved levels are omitted.}
-\item{\code{inherit.aes}}{If \code{FALSE}, overrides the default aesthetics,
+\item{\code{inherit.aes}}{If FALSE, overrides the default aesthetics,
 rather than combining with them. This is most useful for helper functions
 that define both data and aesthetics and shouldn't inherit behaviour from
-the default plot specification, e.g. \code{\link[ggplot2:annotation_borders]{annotation_borders()}}.}
+the default plot specification, e.g. annotation_borders().}
 \item{\code{geom}}{The geometric object to use to display the data for this layer.
-When using a \verb{stat_*()} function to construct a layer, the \code{geom} argument
+When using a stat_*() function to construct a layer, the geom argument
 can be used to override the default coupling between stats and geoms. The
-\code{geom} argument accepts the following:
-\itemize{
-\item A \code{Geom} ggproto subclass, for example \code{GeomPoint}.
-\item A string naming the geom. To give the geom as a string, strip the
-function name of the \code{geom_} prefix. For example, to use \code{geom_point()},
-give the geom as \code{"point"}.
-\item For more information and other ways to specify the geom, see the
-\link[ggplot2:layer_geoms]{layer geom} documentation.
-}}
+geom argument accepts the following:
+
+ A Geom ggproto subclass, for example GeomPoint.
+ A string naming the geom. To give the geom as a string, strip the
+function name of the geom_ prefix. For example, to use geom_point(),
+give the geom as "point".
+ For more information and other ways to specify the geom, see the
+layer geom documentation.
+}
 \item{\code{fun}}{Function to use. Either 1) an anonymous function in the base or
-rlang formula syntax (see \code{\link[rlang:as_function]{rlang::as_function()}})
+rlang formula syntax (see rlang::as_function())
 or 2) a quoted or character name referencing a function; see examples. Must
 be vectorised.}
 \item{\code{xlim}}{Optionally, specify the range of the function.}
 \item{\code{n}}{Number of points to interpolate along the x axis.}
-\item{\code{args}}{List of additional arguments passed on to the function defined by \code{fun}.}
+\item{\code{args}}{List of additional arguments passed on to the function defined by fun.}
 }}
 }
 \value{

@@ -2,7 +2,7 @@
 % Please edit documentation in R/import-standalone-distributions.R
 \name{qlnorm2}
 \alias{qlnorm2}
-\title{The Log Normal Distribution}
+\title{The Log-Normal Distribution}
 \source{
 \code{dlnorm} is calculated from the definition (in \sQuote{Details}).
   \code{[pqr]lnorm} are based on the relationship to the normal.
@@ -20,15 +20,15 @@ qlnorm2(p, mean = 1, sd = sqrt(exp(1) - 1), lower.tail = TRUE, log.p = FALSE)
 
 \item{sd}{the standard deviation on the true scale (vectorised)}
 
-\item{lower.tail}{logical; if TRUE (default), probabilities are
+\item{lower.tail}{logical; if \code{TRUE} (default), probabilities are
     \eqn{P[X \le x]}, otherwise, \eqn{P[X > x]}.}
 
 \item{log.p}{logical; if TRUE, probabilities p are given as log(p).}
 }
 \value{
 \code{dlnorm} gives the density,
-  \code{plnorm} gives the distribution function,
-  \code{qlnorm} gives the quantile function, and
+  \code{plnorm} is the cumulative distribution function, and
+  \code{qlnorm} is the quantile function of the log-normal distribution.
   \code{rlnorm} generates random deviates.
 
   The length of the result is determined by \code{n} for
@@ -41,11 +41,11 @@ qlnorm2(p, mean = 1, sd = sqrt(exp(1) - 1), lower.tail = TRUE, log.p = FALSE)
 }
 \description{
 Density, distribution function, quantile function and random
-  generation for the log normal distribution whose logarithm has mean
+  generation for the log-normal distribution whose logarithm has mean
   equal to \code{meanlog} and standard deviation equal to \code{sdlog}.
 }
 \details{
-The log normal distribution has density
+The log-normal distribution has density
   \deqn{
     f(x) = \frac{1}{\sqrt{2\pi}\sigma x} e^{-(\log(x) - \mu)^2/2 \sigma^2}%
   }{f(x) = 1/(\\sqrt(2 \\pi) \\sigma x) e^-((log x - \\mu)^2 / (2 \\sigma^2))}
@@ -66,13 +66,17 @@ The cumulative hazard \eqn{H(t) = - \log(1 - F(t))}{H(t) = - log(1 - F(t))}
 qlnorm2(c(0.25,0.5,0.72), 2, 1)
 }
 \references{
-Becker, R. A., Chambers, J. M. and Wilks, A. R. (1988)
-  \emph{The New S Language}.
-  Wadsworth & Brooks/Cole.
+{\if{html}{\out{<span id="reference+Lognormal.Rd+R+3ABecker+2BChambers+2BWilks+3A1988"></span>}}Becker RA, Chambers JM, Wilks AR (1988).
+\emph{The New S Language}.
+Chapman and Hall/CRC, London.
+ISBN 053409192X.\ifelse{html}{\out{
+</p><p>
+}}{
 
-  Johnson, N. L., Kotz, S. and Balakrishnan, N. (1995)
-  \emph{Continuous Univariate Distributions}, volume 1, chapter 14.
-  Wiley, New York.
+}\if{html}{\out{<span id="reference+Lognormal.Rd+R+3AJohnson+2BKotz+2BBalakrishnan+3A1994"></span>}}Johnson NL, Kotz S, Balakrishnan N (1994).
+\emph{Continuous Univariate Distributions}, volume 1.
+Wiley, New York.
+ISBN 978-0-471-58495-7.\cr Chapter 14.}
 }
 \seealso{
 \link[stats]{Distributions} for other standard distributions, including

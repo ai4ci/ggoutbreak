@@ -52,8 +52,6 @@ numbers drop to a low value.}
 
 \item{std_prior}{the prior for the $R_t$ SD.}
 
-\item{...}{not used}
-
 \item{.progress}{show a CLI progress bar}
 }
 \value{

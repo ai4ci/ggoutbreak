@@ -21,8 +21,8 @@ otherwise \code{P[X>x]}.}
 }
 \value{
 \code{dgamma} gives the density,
-  \code{pgamma} gives the distribution function,
-  \code{qgamma} gives the quantile function, and
+  \code{pgamma} is the cumulative distribution function, and
+  \code{qgamma} is the quantile function of the Gamma distribution.
   \code{rgamma} generates random deviates.
 
   Invalid arguments will result in return value \code{NaN}, with a warning.
@@ -49,6 +49,6 @@ The following conversion describes the parameters mean and kappa
 qcgamma(c(0.25,0.5,0.75), 2, 0.5)
 }
 \seealso{
-\code{\link[stats:GammaDist]{stats::qgamma()}}
+\code{\link[stats:qgamma]{stats::qgamma()}}
 }
 \concept{distributions}

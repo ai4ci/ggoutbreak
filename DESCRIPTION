@@ -1,6 +1,6 @@
 Package: ggoutbreak
 Title: Estimate Incidence, Proportions and Exponential Growth Rates
-Version: 0.6.1
+Version: 0.6.2
 Authors@R: 
     person(given = "Robert",
            family = "Challen",
@@ -13,8 +13,10 @@ Description: Simple statistical models and visualisations for calculating the
   the COVID-19 pandemic.
 License: MIT + file LICENSE
 Encoding: UTF-8
-Roxygen: list(markdown = TRUE, roclets = c("collate", "rd", "namespace"), packages = "pkgtools")
-RoxygenNote: 7.3.3.9007
+Roxygen: list(markdown = TRUE, roclets = c("collate", "pkgtools::pkgtools_rd", "namespace"), packages = "pkgtools")
+Config/Needs/build:
+    terminological/pkgtools,
+    robchallen/roxygen2
 Suggests: 
     downloader,
     fs,
@@ -55,7 +57,7 @@ Imports:
     EpiEstim,
     withr,
     MASS,
-    interfacer (>= 0.4.0),
+    interfacer (>= 0.4.1),
     cli,
     PDQutils,
     signal,
@@ -74,4 +76,4 @@ Depends:
 LazyData: true
 LazyDataCompression: gzip
 Language: en-GB
-Config/Needs/build: terminological/pkgtools
+Config/roxygen2/version: 8.0.0

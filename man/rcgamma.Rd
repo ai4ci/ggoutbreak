@@ -16,8 +16,8 @@ maximally variability (vectorised)}
 }
 \value{
 \code{dgamma} gives the density,
-  \code{pgamma} gives the distribution function,
-  \code{qgamma} gives the quantile function, and
+  \code{pgamma} is the cumulative distribution function, and
+  \code{qgamma} is the quantile function of the Gamma distribution.
   \code{rgamma} generates random deviates.
 
   Invalid arguments will result in return value \code{NaN}, with a warning.
@@ -44,6 +44,6 @@ The following conversion describes the parameters mean and kappa
 rcgamma(10, 2, 0.5)
 }
 \seealso{
-\code{\link[stats:GammaDist]{stats::rgamma()}}
+\code{\link[stats:rgamma]{stats::rgamma()}}
 }
 \concept{distributions}

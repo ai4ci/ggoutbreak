@@ -64,7 +64,7 @@ the simulation is incomplete.}
 \value{
 a line list of cases for a simulated outbreak
 
-A dataframe containing the following columns: 
+A dataframe containing the following columns:
 \itemize{
 \item id (unique_id) - Patient level unique id
 \item time (ggoutbreak::time_period) - Time of infection. A `time_period`

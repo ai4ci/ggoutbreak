@@ -33,34 +33,6 @@ Any grouping allowed.
 
 }
 
-\item{...}{
-  Named arguments passed on to \code{\link[=poisson_gam_model.censored]{poisson_gam_model.censored}}\describe{
-    \item{\code{model_fn}}{a function that takes data relating to one time series
-(e.g. the input data \code{d} on a group by group basis) and returns a fitted
-GAM. The default is creates a delayed reporting model \code{\link[=gam_delayed_reporting]{gam_delayed_reporting()}}.}
-\item{\code{predict}}{if the GAM model in \code{model_fn} introduces other variables we
-need to know what their values should be fixed at for prediction.
-This is a named list of defaults for variables in the model supplied by
-\code{model_fn}. These defaults will be used in prediction. This
-may be supplied as part of the model function generator (
-e.g. \code{gam_delayed_reporting(...)$predict}). If this is set to exactly \code{FALSE}
-no prediction is performed and a list column of fitted GAM models returned
-instead.}
-}
-  Named arguments passed on to \code{\link[=poisson_gam_model.incidence]{poisson_gam_model.incidence}}\describe{
-    \item{\code{model_fn}}{a function that takes data relating to one time series
-(e.g. the input data \code{d} on a group by group basis) and returns a fitted
-GAM. The default creates a simple poisson model based on count alone (\code{\link[=gam_poisson_model_fn]{gam_poisson_model_fn()}}).}
-\item{\code{predict}}{if the GAM model in \code{model_fn} introduces other variables we
-need to know what their values should be fixed at for prediction.
-This is a named list of defaults for variables in the model supplied by
-\code{model_fn}. These defaults will be used in prediction. This
-may be supplied as part of the model function generator (
-e.g. \code{gam_delayed_reporting(...)$predict}). If this is set to exactly \code{FALSE}
-no prediction is performed and a list column of fitted GAM models returned
-instead.}
-}}
-
 \item{frequency}{the density of the output estimates as a time period such as
 \verb{7 days} or \verb{2 weeks}.}
 
@@ -80,6 +52,67 @@ done assuming independence which is quicker but less accurate. Setting this
 to false will use a full variance-covariance matrix.}
 
 \item{.progress}{show a CLI progress bar}
+
+\item{...}{
+  Additional named arguments passed on to \code{\link[=poisson_gam_model.censored]{poisson_gam_model.censored}}\describe{
+    \item{\code{model_fn}}{a function that takes data relating to one time series
+(e.g. the input data \code{d} on a group by group basis) and returns a fitted
+GAM. The default is creates a delayed reporting model \code{\link[=gam_delayed_reporting]{gam_delayed_reporting()}}.}
+\item{\code{predict}}{if the GAM model in \code{model_fn} introduces other variables we
+need to know what their values should be fixed at for prediction.
+This is a named list of defaults for variables in the model supplied by
+\code{model_fn}. These defaults will be used in prediction. This
+may be supplied as part of the model function generator (
+e.g. \code{gam_delayed_reporting(...)$predict}). If this is set to exactly \code{FALSE}
+no prediction is performed and a list column of fitted GAM models returned
+instead.}
+\item{\code{...}}{
+  Additional named arguments passed on to \code{\link[=gam_delayed_reporting]{gam_delayed_reporting}}\describe{
+    \item{\code{window}}{controls the knot spacing in the GAM (if the default)}
+\item{\code{max_delay}}{the maximum delay we expect to model}
+\item{\code{knots_fn}}{a function that takes the data as an input and returns
+a set of integers as time points for GAM knots, for \code{s(time)} term. The
+default here provides a roughly equally spaced grid determined by \code{window},
+by a user supplied function could do anything. The input this function is
+the raw dataframe of data that will be considered for one model fit. It is
+guaranteed to have at least a \code{time} and \code{count} column. It is possible to}
+\item{\code{...}}{
+  Additional named arguments passed on to \code{\link[=gam_knots]{gam_knots}}\describe{
+    \item{\code{...}}{currently not used}
+\item{\code{k}}{alternative to \code{window}, if \code{k} is given then the behaviour of the
+knots will be similar to the default \code{mgcv::s(...,k=...)} parameter.}
+}}
+}}
+}
+  Additional named arguments passed on to \code{\link[=poisson_gam_model.incidence]{poisson_gam_model.incidence}}\describe{
+    \item{\code{model_fn}}{a function that takes data relating to one time series
+(e.g. the input data \code{d} on a group by group basis) and returns a fitted
+GAM. The default creates a simple poisson model based on count alone (\code{\link[=gam_poisson_model_fn]{gam_poisson_model_fn()}}).}
+\item{\code{predict}}{if the GAM model in \code{model_fn} introduces other variables we
+need to know what their values should be fixed at for prediction.
+This is a named list of defaults for variables in the model supplied by
+\code{model_fn}. These defaults will be used in prediction. This
+may be supplied as part of the model function generator (
+e.g. \code{gam_delayed_reporting(...)$predict}). If this is set to exactly \code{FALSE}
+no prediction is performed and a list column of fitted GAM models returned
+instead.}
+\item{\code{...}}{
+  Additional named arguments passed on to \code{\link[=gam_poisson_model_fn]{gam_poisson_model_fn}}\describe{
+    \item{\code{window}}{controls the knot spacing in the GAM (if the default)}
+\item{\code{knots_fn}}{a function that takes the data as an input and returns
+a set of integers as time points for GAM knots, for \code{s(time)} term. The
+default here provides a roughly equally spaced grid determined by \code{window},
+by a user supplied function could do anything. The input this function is
+the raw dataframe of data that will be considered for one model fit. It is
+guaranteed to have at least a \code{time} and \code{count} column. It is possible to}
+\item{\code{...}}{
+  Additional named arguments passed on to \code{\link[=gam_knots]{gam_knots}}\describe{
+    \item{\code{...}}{currently not used}
+\item{\code{k}}{alternative to \code{window}, if \code{k} is given then the behaviour of the
+knots will be similar to the default \code{mgcv::s(...,k=...)} parameter.}
+}}
+}}
+}}
 }
 \value{
 A dataframe containing the following columns:
@@ -123,22 +156,21 @@ the option to bring your own model.
 
 # Simple poisson model
 data = example_poisson_rt_smooth()
-tmp2 = poisson_gam_model(data,window=7,ip=example_ip(),quick=TRUE)
+tmp2 = poisson_gam_model(data, window = 7, ip = example_ip(), quick = TRUE)
 
 if (interactive()) {
   plot_incidence(
     tmp2,
-    date_labels="\%b \%y",
-    raw=data
+    date_labels = "\%b \%y",
+    raw = data
   )
 
   plot_rt(
     tmp2,
-    date_labels="\%b \%y"
-  )+
-  sim_geom_function(data,colour="red")
+    date_labels = "\%b \%y"
+  ) +
+    sim_geom_function(data, colour = "red")
 }
-
 
 
 # example with delayed observation model.
@@ -149,13 +181,18 @@ model = gam_delayed_reporting(window = 14)
 tmp3 = data2 \%>\% poisson_gam_model(
   model_fn = model$model_fn,
   predict = model$predict,
-  ip=example_ip())
+  ip = example_ip()
+)
 
 if (interactive()) {
-  plot_incidence(tmp3)+
+  plot_incidence(tmp3) +
     ggplot2::geom_line(
-      data=data2 \%>\% dplyr::filter(obs_time \%\% 10 == 0),
-      mapping = ggplot2::aes(x=as.Date(time),y=count,colour=as.factor(obs_time))
+      data = data2 \%>\% dplyr::filter(obs_time \%\% 10 == 0),
+      mapping = ggplot2::aes(
+        x = as.Date(time),
+        y = count,
+        colour = as.factor(obs_time)
+      )
     )
 
   plot_rt(tmp3)

@@ -9,18 +9,19 @@ gam_poisson_model_fn(window, ..., knots_fn = ~gam_knots(.x, window, ...))
 \arguments{
 \item{window}{controls the knot spacing in the GAM (if the default)}
 
-\item{...}{
-  Named arguments passed on to \code{\link[=gam_knots]{gam_knots}}\describe{
-    \item{\code{k}}{alternative to \code{window}, if \code{k} is given then the behaviour of the
-knots will be similar to the default \code{mgcv::s(...,k=...)} parameter.}
-}}
-
 \item{knots_fn}{a function that takes the data as an input and returns
 a set of integers as time points for GAM knots, for \code{s(time)} term. The
 default here provides a roughly equally spaced grid determined by \code{window},
 by a user supplied function could do anything. The input this function is
 the raw dataframe of data that will be considered for one model fit. It is
 guaranteed to have at least a \code{time} and \code{count} column. It is possible to}
+
+\item{...}{
+  Additional named arguments passed on to \code{\link[=gam_knots]{gam_knots}}\describe{
+    \item{\code{...}}{currently not used}
+\item{\code{k}}{alternative to \code{window}, if \code{k} is given then the behaviour of the
+knots will be similar to the default \code{mgcv::s(...,k=...)} parameter.}
+}}
 }
 \value{
 a function suitable as the input for

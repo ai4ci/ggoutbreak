@@ -112,7 +112,7 @@ as facets. If \code{NULL} (the default) it will be the last time point in the se
 \item{cis}{logical; should the phases be marked with confidence intervals?}
 
 \item{...}{
-  Named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
+  Additional named arguments passed on to \code{\link[=geom_events]{geom_events}}\describe{
     \item{\code{events}}{Significant events or time spans - a dataframe with columns:
 \itemize{
 \item label (character) - the event label
@@ -124,71 +124,168 @@ Any grouping allowed.
 
 A default value is defined.
 }
+\item{\code{...}}{
+  Additional named arguments passed on to \code{\link[ggplot2:scale_date]{ggplot2::scale_x_date}}\describe{
+    \item{\code{name}}{The name of the scale. Used as the axis or legend title. If
+waiver(), the default, the name of the scale is taken from the first
+mapping used for that aesthetic. If NULL, the legend title will be
+omitted.}
+\item{\code{breaks}}{One of:
+
+ NULL for no breaks
+ waiver() for the breaks specified by date_breaks
+ A Date/POSIXct vector giving positions of breaks
+ A function that takes the limits as input and returns breaks as output
 }
-  Named arguments passed on to \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}\describe{
-    \item{\code{facets}}{A set of variables or expressions quoted by \code{\link[ggplot2:vars]{vars()}}
+\item{\code{date_breaks}}{A string giving the distance between breaks like "2
+weeks", or "10 years". If both breaks and date_breaks are
+specified, date_breaks wins. Valid specifications are 'sec', 'min',
+'hour', 'day', 'week', 'month' or 'year', optionally followed by 's'.}
+\item{\code{labels}}{One of the options below. Please note that when labels is a
+vector, it is highly recommended to also set the breaks argument as a
+vector to protect against unintended mismatches.
+
+ NULL for no labels
+ waiver() for the default labels computed by the
+transformation object
+ A character vector giving labels (must be same length as breaks)
+ An expression vector (must be the same length as breaks). See ?plotmath for details.
+ A function that takes the breaks as input and returns labels
+as output. Also accepts rlang lambda function
+notation.
+}
+\item{\code{date_labels}}{A string giving the formatting specification for the
+labels. Codes are defined in strftime(). If both labels
+and date_labels are specified, date_labels wins.}
+\item{\code{minor_breaks}}{One of:
+
+ NULL for no breaks
+ waiver() for the breaks specified by date_minor_breaks
+ A Date/POSIXct vector giving positions of minor breaks
+ A function that takes the limits as input and returns minor breaks as
+output
+}
+\item{\code{date_minor_breaks}}{A string giving the distance between minor breaks
+like "2 weeks", or "10 years". If both minor_breaks and
+date_minor_breaks are specified, date_minor_breaks wins. Valid
+specifications are 'sec', 'min', 'hour', 'day', 'week', 'month' or 'year',
+optionally followed by 's'.}
+\item{\code{limits}}{One of:
+
+ NULL to use the default scale range
+ A numeric vector of length two providing limits of the scale.
+Use NA to refer to the existing minimum or maximum
+ A function that accepts the existing (automatic) limits and returns
+new limits. Also accepts rlang lambda function
+notation.
+Note that setting limits on positional scales will remove data outside of the limits.
+If the purpose is to zoom, use the limit argument in the coordinate system
+(see coord_cartesian()).
+}
+\item{\code{expand}}{For position scales, a vector of range expansion constants used to add some
+padding around the data to ensure that they are placed some distance
+away from the axes. Use the convenience function expansion()
+to generate the values for the expand argument. The defaults are to
+expand the scale by 5% on each side for continuous variables, and by
+0.6 units on each side for discrete variables.}
+\item{\code{oob}}{One of:
+
+ Function that handles limits outside of the scale limits
+(out of bounds). Also accepts rlang lambda
+function notation.
+ The default (scales::censor()) replaces out of
+bounds values with NA.
+ scales::squish() for squishing out of bounds values into range.
+ scales::squish_infinite() for squishing infinite values into range.
+}
+\item{\code{guide}}{A function used to create a guide or its name. See
+guides() for more information.}
+\item{\code{position}}{For position scales, The position of the axis.
+left or right for y axes, top or bottom for x axes.}
+\item{\code{timezone}}{The timezone to use for display on the axes. The default
+(NULL) uses the timezone encoded in the data.}
+\item{\code{na.value}}{Missing values will be replaced with this value.}
+}
+  Additional named arguments passed on to \code{\link[=as.time_period]{as.time_period}}\describe{
+    \item{\code{...}}{arguments passed to or from methods.}
+\item{\code{unit}}{the length of one unit of time. This will be either a integer
+number of days, or a specification such as "1 week", or another \code{time_period}.
+If \code{x} is a \code{time_period}, and the unit is different to that of \code{x}
+this will return a rescaled \code{time_period} using the new units.}
+\item{\code{start_date}}{the zero time date as something that can be coerced to a
+date. If the \code{x} input is already a \code{time_period} and this is different to its
+\code{start_date} then \code{x} will be recalibrated to use the new start date.}
+\item{\code{anchor}}{only relevant if \code{x} is a vector of dates, this is a date, or
+\code{"start"} or \code{"end"} or a weekday name e.g.
+\code{"mon"}. With the vector of dates in \code{x} it will use this anchor to find a reference date for
+the time-series. If not provided then the current defaults will be used.
+(see \code{\link[=set_defaults]{set_defaults()}})}
+}}
+}
+  Additional named arguments passed on to \code{\link[ggplot2:facet_wrap]{ggplot2::facet_wrap}}\describe{
+    \item{\code{facets}}{A set of variables or expressions quoted by vars()
 and defining faceting groups on the rows or columns dimension.
-The variables can be named (the names are passed to \code{labeller}).
+The variables can be named (the names are passed to labeller).
 
 For compatibility with the classic interface, can also be a
-formula or character vector. Use either a one sided formula, \code{~a + b},
-or a character vector, \code{c("a", "b")}.}
+formula or character vector. Use either a one sided formula, ~a + b,
+or a character vector, c("a", "b").}
 \item{\code{nrow,ncol}}{Number of rows and columns.}
-\item{\code{scales}}{Should scales be fixed (\code{"fixed"}, the default),
-free (\code{"free"}), or free in one dimension (\code{"free_x"},
-\code{"free_y"})?}
-\item{\code{space}}{If \code{"fixed"} (default), all panels have the same size and
+\item{\code{scales}}{Should scales be fixed ("fixed", the default),
+free ("free"), or free in one dimension ("free_x",
+"free_y")?}
+\item{\code{space}}{If "fixed" (default), all panels have the same size and
 the number of rows and columns in the layout can be arbitrary. If
-\code{"free_x"}, panels have widths proportional to the length of the x-scale,
-but the layout is constrained to one row. If \code{"free_y"}, panels have
+"free_x", panels have widths proportional to the length of the x-scale,
+but the layout is constrained to one row. If "free_y", panels have
 heights proportional to the length of the y-scale, but the layout is
 constrained to one column.}
-\item{\code{shrink}}{If \code{TRUE}, will shrink scales to fit output of
-statistics, not raw data. If \code{FALSE}, will be range of raw data
+\item{\code{shrink}}{If TRUE, will shrink scales to fit output of
+statistics, not raw data. If FALSE, will be range of raw data
 before statistical summary.}
 \item{\code{labeller}}{A function that takes one data frame of labels and
 returns a list or data frame of character vectors. Each input
 column corresponds to one factor. Thus there will be more than
-one with \code{vars(cyl, am)}. Each output
+one with vars(cyl, am). Each output
 column gets displayed as one separate line in the strip
 label. This function should inherit from the "labeller" S3 class
-for compatibility with \code{\link[ggplot2:labeller]{labeller()}}. You can use different labeling
-functions for different kind of labels, for example use \code{\link[ggplot2:label_parsed]{label_parsed()}} for
-formatting facet labels. \code{\link[ggplot2:label_value]{label_value()}} is used by default,
+for compatibility with labeller(). You can use different labeling
+functions for different kind of labels, for example use label_parsed() for
+formatting facet labels. label_value() is used by default,
 check it for more details and pointers to other options.}
-\item{\code{as.table}}{\ifelse{html}{\href{https://lifecycle.r-lib.org/articles/stages.html#superseded}{\figure{lifecycle-superseded.svg}{options: alt='[Superseded]'}}}{\strong{[Superseded]}} The \code{as.table} argument
-is now absorbed into the \code{dir} argument via the two letter options.
-If \code{TRUE}, the facets are laid out like a table with highest values at the
-bottom-right. If \code{FALSE}, the facets are laid out like a plot with the
+\item{\code{as.table}}{htmlhttps://lifecycle.r-lib.org/articles/stages.html#supersededlifecycle-superseded.svgoptions: alt='[Superseded]'[Superseded] The as.table argument
+is now absorbed into the dir argument via the two letter options.
+If TRUE, the facets are laid out like a table with highest values at the
+bottom-right. If FALSE, the facets are laid out like a plot with the
 highest value at the top-right.}
 \item{\code{switch}}{By default, the labels are displayed on the top and
-right of the plot. If \code{"x"}, the top labels will be
-displayed to the bottom. If \code{"y"}, the right-hand side
+right of the plot. If "x", the top labels will be
+displayed to the bottom. If "y", the right-hand side
 labels will be displayed to the left. Can also be set to
-\code{"both"}.}
-\item{\code{drop}}{If \code{TRUE}, the default, all factor levels not used in the
-data will automatically be dropped. If \code{FALSE}, all factor levels
+"both".}
+\item{\code{drop}}{If TRUE, the default, all factor levels not used in the
+data will automatically be dropped. If FALSE, all factor levels
 will be shown, regardless of whether or not they appear in the data.}
-\item{\code{dir}}{Direction: either \code{"h"} for horizontal, the default, or \code{"v"},
-for vertical. When \code{"h"} or \code{"v"} will be combined with \code{as.table} to
-set final layout. Alternatively, a combination of \code{"t"} (top) or
-\code{"b"} (bottom) with \code{"l"} (left) or \code{"r"} (right) to set a layout directly.
+\item{\code{dir}}{Direction: either "h" for horizontal, the default, or "v",
+for vertical. When "h" or "v" will be combined with as.table to
+set final layout. Alternatively, a combination of "t" (top) or
+"b" (bottom) with "l" (left) or "r" (right) to set a layout directly.
 These two letters give the starting position and the first letter gives
-the growing direction. For example \code{"rt"} will place the first panel in
+the growing direction. For example "rt" will place the first panel in
 the top-right and starts filling in panels right-to-left.}
 \item{\code{strip.position}}{By default, the labels are displayed on the top of
-the plot. Using \code{strip.position} it is possible to place the labels on
-either of the four sides by setting \code{strip.position = c("top",
-  "bottom", "left", "right")}}
+the plot. Using strip.position it is possible to place the labels on
+either of the four sides by setting strip.position = c("top",
+  "bottom", "left", "right")}
 \item{\code{axes}}{Determines which axes will be drawn in case of fixed scales.
-When \code{"margins"} (default), axes will be drawn at the exterior margins.
-\code{"all_x"} and \code{"all_y"} will draw the respective axes at the interior
-panels too, whereas \code{"all"} will draw all axes at all panels.}
+When "margins" (default), axes will be drawn at the exterior margins.
+"all_x" and "all_y" will draw the respective axes at the interior
+panels too, whereas "all" will draw all axes at all panels.}
 \item{\code{axis.labels}}{Determines whether to draw labels for interior axes when
-the scale is fixed and the \code{axis} argument is not \code{"margins"}. When
-\code{"all"} (default), all interior axes get labels. When \code{"margins"}, only
+the scale is fixed and the axis argument is not "margins". When
+"all" (default), all interior axes get labels. When "margins", only
 the exterior axes get labels, and the interior axes get none. When
-\code{"all_x"} or \code{"all_y"}, only draws the labels at the interior axes in the
+"all_x" or "all_y", only draws the labels at the interior axes in the
 x- or y-direction respectively.}
 }}
 }
